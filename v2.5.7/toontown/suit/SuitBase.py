@@ -1,0 +1,88 @@
+from panda3d.core import *
+from direct.distributed.ClockDelta import *
+import math, random
+from panda3d.core import Point3
+from direct.directnotify import DirectNotifyGlobal
+from toontown.battle import SuitBattleGlobals
+import SuitTimings, SuitDNA
+from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.dna.SuitLegList import SuitLegList
+TIME_BUFFER_PER_WPT = 0.25
+TIME_DIVISOR = 100
+DISTRIBUTE_TASK_CREATION = 0
+
+class SuitBase:
+    notify = DirectNotifyGlobal.directNotify.newCategory('SuitBase')
+
+    def __init__(self):
+        self.dna = None
+        self.level = 0
+        self.maxHP = 10
+        self.currHP = 10
+        self.isSkelecog = 0
+        return
+
+    def delete(self):
+        if hasattr(self, 'legList'):
+            del self.legList
+
+    def getStyleName(self):
+        if hasattr(self, 'dna') and self.dna:
+            return self.dna.name
+        self.notify.error('called getStyleName() before dna was set!')
+        return 'unknown'
+
+    def getStyleDept(self):
+        if hasattr(self, 'dna') and self.dna:
+            return SuitDNA.getDeptFullname(self.dna.dept)
+        self.notify.error('called getStyleDept() before dna was set!')
+        return 'unknown'
+
+    def getLevel(self):
+        return self.level
+
+    def setLevel(self, level):
+        self.level = level
+        if self.dna.name == 'ols':
+            nameWLevel = TTLocalizer.SuitBaseNameWithoutDept % {'name': self._name, 'level': self.getActualLevel()}
+        else:
+            if self.dna.name == 'ty':
+                nameWLevel = TTLocalizer.SuitBaseNameWithoutDept % {'name': self._name, 'level': 'TY'}
+            else:
+                nameWLevel = TTLocalizer.SuitBaseNameWithLevel % {'name': self._name, 'dept': self.getStyleDept(), 
+                   'level': self.getActualLevel()}
+        self.setDisplayName(nameWLevel)
+        attributes = SuitBattleGlobals.SuitAttributes[self.dna.name]
+        self.maxHP = attributes['hp'][self.level]
+        self.currHP = self.maxHP
+
+    def getSkelecog(self):
+        return self.isSkelecog
+
+    def setSkelecog(self, flag):
+        self.isSkelecog = flag
+
+    def getActualLevel(self):
+        if hasattr(self, 'dna'):
+            lv = SuitBattleGlobals.getActualFromRelativeLevel(self.getStyleName(), self.level)
+            if lv == 49:
+                lv = 15
+            return ToontownGlobals.SuitLevels[lv]
+        self.notify.warning('called getActualLevel with no DNA, returning 1 for level')
+        return 1
+
+    def setPath(self, path):
+        self.path = path
+        self.pathLength = self.path.getNumPoints()
+
+    def getPath(self):
+        return self.path
+
+    def printPath(self):
+        print '%d points in path' % self.pathLength
+        for currPathPt in xrange(self.pathLength):
+            indexVal = self.path.getPointIndex(currPathPt)
+            print '\t', self.sp.dnaStore.getSuitPointWithIndex(indexVal)
+
+    def makeLegList(self):
+        self.legList = SuitLegList(self.path, self.sp.dnaStore)

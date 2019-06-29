@@ -1,0 +1,66 @@
+from __future__ import with_statement
+import logging
+log = logging.getLogger(__name__)
+from otp.ai.passlib import hosts, hash as hashmod
+from otp.ai.passlib.utils import unix_crypt_schemes
+from otp.ai.passlib.tests.utils import TestCase
+
+class HostsTest(TestCase):
+
+    def check_unix_disabled(self, ctx):
+        for hash in [
+         '',
+         '!',
+         '*',
+         '!$1$TXl/FX/U$BZge.lr.ux6ekjEjxmzwz0']:
+            self.assertEqual(ctx.identify(hash), 'unix_disabled')
+            self.assertFalse(ctx.verify('test', hash))
+
+    def test_linux_context(self):
+        ctx = hosts.linux_context
+        for hash in [
+         '$6$rounds=41128$VoQLvDjkaZ6L6BIE$4pt.1Ll1XdDYduEwEYPCMOBiR6W6znsyUEoNlcVXpv2gKKIbQolgmTGe6uEEVJ7azUxuc8Tf7zV9SD2z7Ij751',
+         '$5$rounds=31817$iZGmlyBQ99JSB5n6$p4E.pdPBWx19OajgjLRiOW0itGnyxDGgMlDcOsfaI17',
+         '$1$TXl/FX/U$BZge.lr.ux6ekjEjxmzwz0',
+         'kAJJz.Rwp0A/I']:
+            self.assertTrue(ctx.verify('test', hash))
+
+        self.check_unix_disabled(ctx)
+
+    def test_bsd_contexts(self):
+        for ctx in [
+         hosts.freebsd_context,
+         hosts.openbsd_context,
+         hosts.netbsd_context]:
+            for hash in [
+             '$1$TXl/FX/U$BZge.lr.ux6ekjEjxmzwz0',
+             'kAJJz.Rwp0A/I']:
+                self.assertTrue(ctx.verify('test', hash))
+
+            h1 = '$2a$04$yjDgE74RJkeqC0/1NheSSOrvKeu9IbKDpcQf/Ox3qsrRS/Kw42qIS'
+            if hashmod.bcrypt.has_backend():
+                self.assertTrue(ctx.verify('test', h1))
+            else:
+                self.assertEqual(ctx.identify(h1), 'bcrypt')
+            self.check_unix_disabled(ctx)
+
+    def test_host_context(self):
+        ctx = getattr(hosts, 'host_context', None)
+        if not ctx:
+            return self.skipTest('host_context not available on this platform')
+        schemes = list(ctx.schemes())
+        self.assertTrue(schemes, 'appears to be unix system, but no known schemes supported by crypt')
+        self.assertTrue('unix_disabled' in schemes)
+        schemes.remove('unix_disabled')
+        self.assertTrue(schemes, 'should have schemes beside fallback scheme')
+        self.assertTrue(set(unix_crypt_schemes).issuperset(schemes))
+        self.check_unix_disabled(ctx)
+        for scheme, hash in [
+         ('sha512_crypt', '$6$rounds=41128$VoQLvDjkaZ6L6BIE$4pt.1Ll1XdDYduEwEYPCMOBiR6W6znsyUEoNlcVXpv2gKKIbQolgmTGe6uEEVJ7azUxuc8Tf7zV9SD2z7Ij751'),
+         ('sha256_crypt', '$5$rounds=31817$iZGmlyBQ99JSB5n6$p4E.pdPBWx19OajgjLRiOW0itGnyxDGgMlDcOsfaI17'),
+         ('md5_crypt', '$1$TXl/FX/U$BZge.lr.ux6ekjEjxmzwz0'),
+         ('des_crypt', 'kAJJz.Rwp0A/I')]:
+            if scheme in schemes:
+                self.assertTrue(ctx.verify('test', hash))
+
+        return

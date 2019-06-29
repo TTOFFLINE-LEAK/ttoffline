@@ -1,0 +1,18 @@
+SUNRISE = 0
+MORNING = 1
+DAY = 2
+SUNSET = 3
+NIGHT = 4
+TIME_OF_DAY_ZONES = [
+ 7000, 7100]
+if config.GetBool('toonfest-short-tod-cycle', True):
+    DAY_TIME = 20.0
+    SUNSET_TIME = 10.0
+    NIGHT_TIME = 20.0
+    SUNRISE_TIME = 10.0
+else:
+    DAY_TIME = 1200.0
+    SUNSET_TIME = 600.0
+    NIGHT_TIME = 1200.0
+    SUNRISE_TIME = 600.0
+LIST_OF_TOD_STAGES = [SUNRISE, MORNING, DAY, SUNSET, NIGHT]

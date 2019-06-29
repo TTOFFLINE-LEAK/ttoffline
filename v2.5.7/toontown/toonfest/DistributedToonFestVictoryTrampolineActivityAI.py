@@ -1,0 +1,5 @@
+from direct.directnotify import DirectNotifyGlobal
+from DistributedToonFestTrampolineActivityAI import DistributedToonFestTrampolineActivityAI
+
+class DistributedToonFestVictoryTrampolineActivityAI(DistributedToonFestTrampolineActivityAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedToonFestVictoryTrampolineActivityAI')

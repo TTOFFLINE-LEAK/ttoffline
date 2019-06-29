@@ -1,0 +1,12 @@
+group "specialZone" [
+ visgroup "19600:safe_zone" [
+  vis [   "19600:safe_zone"   ]
+  node "level" [
+   prop "specialZone_19600_DNARoot" [
+    code [ "RT_SpeedwayB" ]
+    pos [ 0 0 0 ]
+    nhpr [ 0 0 0 ]
+   ]
+  ]
+ ]
+]

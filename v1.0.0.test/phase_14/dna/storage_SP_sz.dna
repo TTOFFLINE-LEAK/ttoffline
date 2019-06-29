@@ -1,0 +1,121 @@
+// Parties
+model "phase_4/models/modules/partyGate_TT" [
+ 	store_node [ "prop" "prop_party_gate" "" ]
+	]
+    
+place_model "phase_4/models/neighborhoods/toontown_central" [
+ 	store_node [ "prop" "toontown_central" "" ]
+	]
+
+place_model "phase_4/models/modules/trolley_station_TT" [
+	store_node [ "prop" "prop_trolley_station" ]
+	]
+
+place_model "phase_4/models/modules/safe_zone_tunnel_TT" [
+	store_node [ "prop" "prop_safe_zone_tunnel" ]
+        ]
+
+place_model "phase_4/models/modules/Speedway_Tunnel" [
+	store_node [ "prop" "prop_GS_tunnel" "" ]
+        ]
+
+// Christmas decoration
+// place_model "phase_4/models/props/tree_Christmas" [
+// 	store_node [ "holiday_prop" "prop_christmas_tree" "" ]
+//        ]
+
+place_model "phase_4/models/modules/bank" [
+	store_node [ "toon_landmark" "toon_landmark_TT_bank" "" ]
+        ]
+
+place_model "phase_4/models/modules/library" [
+	store_node [ "toon_landmark" "toon_landmark_TT_library" "" ]
+        ]
+
+place_model "phase_4/models/modules/school_house" [
+	store_node [ "toon_landmark" "toon_landmark_TT_school_house" "" ]
+        ]
+
+place_model "phase_4/models/modules/mercantile" [
+	store_node [ "toon_landmark" "toon_landmark_TT_mercantile" "" ]
+        ]
+
+place_model "phase_4/models/modules/gagShop_TT" [
+	store_node [ "toon_landmark" "toon_landmark_TT_gag_shop" "" ]
+        ]
+
+place_model "phase_4/models/modules/PetShopExterior_TT" [
+	store_node [ "toon_landmark" "toon_landmark_TT_pet_shop" "" ]
+        ]
+
+place_model "phase_4/models/modules/clothshopTT" [
+	store_node [ "toon_landmark" "toon_landmark_TT_clothes_shop" "" ]
+        ]
+
+place_model "phase_4/models/modules/gazebo" [
+	store_node [ "prop" "prop_gazebo" "" ]
+        ]
+
+place_model "phase_4/models/modules/toonhall" [
+	store_node [ "toon_landmark" "toon_landmark_TT_toonhall" "" ]
+        ]
+
+place_model "phase_4/models/props/exteriorfish-zero" [
+	store_node [ "prop" "animated_prop_PetShopFishAnimatedProp" "exteriorfish" ]
+	]
+
+place_model "phase_5/models/modules/TT_B1" [
+	store_node [ "toon_landmark" "toon_landmark_TT_B1" "TT_B1"  ]
+	]
+
+place_model "phase_5/models/modules/TT_B2" [
+	store_node [ "toon_landmark" "toon_landmark_TT_B2" "TT_B2"  ]
+	]
+
+place_model "phase_5/models/modules/TT_C1" [
+	store_node [ "toon_landmark" "toon_landmark_TT_C1" "TT_C1"  ]
+	]
+
+place_model "phase_6/models/props/piano" [
+	store_node [ "prop" "prop_piano" "" ]
+	]
+
+place_model "phase_3.5/models/modules/facade_b" [
+	store_node [ "prop" "prop_facade_b" "" ]
+	]
+
+place_model "phase_3.5/models/props/mailbox_TT" [
+	store_node [ "prop" "prop_mailbox_TT" "" ]
+	]
+
+place_model "phase_5/models/props/store_display_items" [
+        store_node [ "prop" "cloth_1" ]
+        store_node [ "prop" "cloth" ]
+        store_node [ "prop" "music_inst" ]
+        store_node [ "prop" "office_furniture" ]
+        store_node [ "prop" "toys" ]
+        store_node [ "prop" "house_needs" ]
+        store_node [ "prop" "tailor_shop" ]
+        store_node [ "prop" "art_store" ]
+        store_node [ "prop" "winter_sports" ]
+        store_node [ "prop" "sport_store" "sport_sotre"]
+        store_node [ "prop" "flower_shop" ]
+        store_node [ "prop" "gallery1" ]
+        store_node [ "prop" "gallery2" ]
+        ]
+
+place_model "phase_3.5/models/props/cellar_door" [
+	store_node [ "prop" "prop_cellar_door" "" ]
+	]
+
+place_model "phase_5/models/props/safe" [
+	store_node [ "prop" "prop_TT_safe" "safe" ]
+	]
+
+place_model "phase_5/models/props/diner_entrance" [
+	store_node [ "prop" "prop_diner_entrance" "" ]
+	]
+
+place_model "phase_4/models/modules/toontag-suit-bldg" [
+	store_node [ "prop" "toontag-suit-bldg" "" ]
+	]
