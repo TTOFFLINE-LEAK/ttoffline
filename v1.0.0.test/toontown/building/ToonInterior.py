@@ -96,8 +96,15 @@ class ToonInterior(Place.Place):
         self.accept('doorDoneEvent', self.handleDoorDoneEvent)
         self.accept('DistributedDoor_doorTrigger', self.handleDoorTrigger)
         volume = requestStatus.get('musicVolume', 0.7)
-        if self.zoneId == ToontownGlobals.Kongdominium:
-            taskMgr.add(self.kongdoMusicTask, 'kongdo-music-task', extraArgs=[volume], appendTask=True)
+        if self.zoneId in (ToontownGlobals.Kongdominium, ToontownGlobals.PrivateServerCafe):
+            if self.zoneId == ToontownGlobals.Kongdominium:
+                type = 0
+            else:
+                if self.zoneId == ToontownGlobals.PrivateServerCafe:
+                    type = 1
+                else:
+                    type = -1
+            taskMgr.add(self.customMusicTask, 'custom-music-task', extraArgs=[volume, type], appendTask=True)
         else:
             base.playMusic(self.loader.activityMusic, looping=1, volume=volume)
         self._telemLimiter = TLGatherAllAvs('ToonInterior', RotationLimitToH)
@@ -115,8 +122,8 @@ class ToonInterior(Place.Place):
         self._telemLimiter.destroy()
         del self._telemLimiter
         NametagGlobals.setMasterArrowsOn(0)
-        if self.zoneId == ToontownGlobals.Kongdominium and self.activityMusicOverride:
-            taskMgr.remove('kongdo-music-task')
+        if self.zoneId in (ToontownGlobals.Kongdominium, ToontownGlobals.PrivateServerCafe) and self.activityMusicOverride:
+            taskMgr.remove('custom-music-task')
             self.activityMusicOverride.stop()
         else:
             self.loader.activityMusic.stop()
@@ -236,13 +243,17 @@ class ToonInterior(Place.Place):
     def exitTeleportOut(self):
         Place.Place.exitTeleportOut(self)
 
-    def getKongdoSongs(self):
-        return ToontownGlobals.KongdominiumSongs
+    def getCustomSongs(self, type):
+        if not type:
+            return ToontownGlobals.KongdominiumSongs
+        return ToontownGlobals.PrivateServerCafeSongs
 
-    def kongdoMusicTask(self, volume, task):
-        kongdoSongs = self.getKongdoSongs()
-        songName = random.choice(kongdoSongs.keys())
-        songChoice = kongdoSongs[songName]
+    def customMusicTask(self, volume, type, task):
+        if type == -1:
+            return
+        customSongs = self.getCustomSongs(type)
+        songName = random.choice(customSongs.keys())
+        songChoice = customSongs[songName]
         self.activityMusicOverride = base.loader.loadMusic(songChoice)
         base.playMusic(self.activityMusicOverride, looping=0, volume=volume)
         signOrigin = render.find('**/sign_origin;+s')
@@ -251,7 +262,12 @@ class ToonInterior(Place.Place):
             if not songNameNP.isEmpty():
                 songNameNP.removeNode()
             songNameNP = signOrigin.attachNewNode(TextNode('songName'))
-            songNameNP.node().setFont(ToontownGlobals.getSignFont())
+            if not type:
+                font = ToontownGlobals.getSignFont()
+            else:
+                font = ToontownGlobals.getFancyFont()
+                songNameNP.node().setTextColor(0.501961, 0, 0.25098, 1)
+            songNameNP.node().setFont(font)
             songNameNP.node().setText(songName)
             songNameNP.setDepthWrite(1, 1)
             songNameNP.flattenLight()

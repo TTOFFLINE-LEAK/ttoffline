@@ -202,6 +202,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         self.instaKill = False
         self.cage = None
         self.cageCameraNode = None
+        self.unlocks = []
         return
 
     def disable(self):
@@ -422,9 +423,13 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         ResistanceChat.doEffect(msgIndex, self, nearbyToons)
 
     def d_battleSOS(self, requesterId, sendToId=None):
+        if not base.cr.isFriend(self.sendToId):
+            return
         self.sendUpdate('battleSOS', [requesterId], sendToId)
 
     def battleSOS(self, requesterId):
+        if not base.cr.isFriend(requesterId):
+            return
         avatar = base.cr.identifyAvatar(requesterId)
         if isinstance(avatar, DistributedToon) or isinstance(avatar, FriendHandle.FriendHandle):
             self.setSystemMessage(requesterId, TTLocalizer.MovieSOSWhisperHelp % avatar.getName(), whisperType=WhisperPopup.WTBattleSOS)
@@ -1003,9 +1008,9 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             self.becomeChar(index)
 
     def setTPose(self):
-        self.updateToonDNA(self.style, 1, True)
-        self.generateToonAccessories()
         if self.isDisguised:
+            self.updateToonDNA(self.style, 1, True)
+            self.generateToonAccessories()
             suitType = self.suit.style.name
             cogType = self.isCog
             if self.suit.isRental:
@@ -1017,6 +1022,9 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             if self.isClassicChar:
                 charType = CharDNA.charTypes.index(self.char.style.name)
                 self.becomeChar(charType, True)
+            else:
+                self.updateToonDNA(self.style, 1, True)
+                self.generateToonAccessories()
 
     def setMuzzle(self, muzzle):
         self.hideNormalMuzzle()
@@ -3275,11 +3283,10 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         previousScale = self.toonScale
         self.toonScale = scale
         scaleTime = abs(previousScale - scale) / 2
-        if not self.isClassicChar:
-            scaleSeq = self._Toon__doToonScale(scale, scaleTime)
-            if self.isLocal():
-                scaleSeq.append(Sequence(Func(self.initCameraPositions), Func(self.resetCameraPosition)))
-            scaleSeq.start()
+        scaleSeq = self._Toon__doToonScale(scale, scaleTime)
+        if self.isLocal():
+            scaleSeq.append(Sequence(Func(self.initCameraPositions), Func(self.resetCameraPosition)))
+        scaleSeq.start()
 
     def getToonScale(self):
         return self.toonScale
@@ -3378,3 +3385,12 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if self.activeIntervals.has_key(name):
             interval = self.activeIntervals[name]
             interval.finish()
+
+    def isPlayerControlled(self):
+        return True
+
+    def setUnlocks(self, unlocks):
+        self.unlocks = unlocks
+
+    def getUnlocks(self):
+        return self.unlocks

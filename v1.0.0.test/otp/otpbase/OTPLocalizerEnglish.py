@@ -10,6 +10,7 @@ lToontownCentral = 'Toontown Central'
 lGoofySpeedway = 'Goofy Speedway'
 lOutdoorZone = "Chip 'n Dale's Acorn Acres"
 lGolfZone = "Chip 'n Dale's MiniGolf"
+lTutorial = 'Toontorial'
 lCancel = 'Cancel'
 lClose = 'Close'
 lOK = 'OK'
@@ -302,6 +303,7 @@ FriendSecretIntro = "If you are playing Toontown Offline with someone you know i
 FriendSecretGetSecret = 'Get a True Friend Code'
 FriendSecretEnterSecret = 'If you have a True Friend Code from someone you know, type it here.'
 FriendSecretOK = lOK
+FriendSecretCopy = 'Copy'
 FriendSecretEnter = 'Enter True Friend Code'
 FriendSecretCancel = lCancel
 FriendSecretGettingSecret = 'Getting True Friend Code. . .'
@@ -1075,6 +1077,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!', 101: 'Hello!',
    1128: "Let's go fight the CEO!", 
    1129: "Let's go in the Cog Golf Courses!", 
    1130: "Let's go take over a Field Office!", 
+   1131: "Let's go to the %s!" % lTutorial, 
    1200: 'What ToonTask are you working on?', 
    1201: "Let's work on that.", 
    1202: "This isn't what I'm looking for.", 

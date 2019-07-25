@@ -12,7 +12,7 @@ class SpecialHoodDataAI(HoodDataAI.HoodDataAI):
     notify = DirectNotifyGlobal.directNotify.newCategory('SpecialHoodDataAI')
 
     def __init__(self, air, zoneId=None):
-        hoodId = ToontownGlobals.SpecialHood
+        hoodId = ToontownGlobals.ToontownOutskirts
         if zoneId == None:
             zoneId = hoodId
         HoodDataAI.HoodDataAI.__init__(self, air, zoneId, hoodId)

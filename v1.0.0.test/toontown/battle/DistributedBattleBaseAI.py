@@ -54,6 +54,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         if self.air.holidayManager.isMoreXpHolidayRunning():
             mult = getMoreXpHolidayMultiplier()
             self.battleCalc.setSkillCreditMultiplier(mult)
+        self.battleCalc.setSkillCreditMultiplier(self.air.expMultiplier)
         self.fsm = None
         self.clearAttacks()
         self.ignoreFaceOffDone = 0
@@ -1585,6 +1586,8 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                    'isForeman': suit.isForeman(), 
                    'isVP': 0, 
                    'isCFO': 0, 
+                   'isCJ': 0, 
+                   'isCEO': 0, 
                    'isSupervisor': suit.isSupervisor(), 
                    'isVirtual': suit.isVirtual(), 
                    'hasRevives': suit.getMaxSkeleRevives(), 

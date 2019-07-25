@@ -11,7 +11,8 @@ EXPECTED_GLOBALS = [
  'DistributedObjectGlobal', 'hashlib', 'FIXED_KEY', 'uuid', '__builtins__', '__file__',
  'hmac', '__package__', 'json', 'DirectNotifyGlobal', '__name__', 'PotentialAvatar',
  'GameServicesManager', '__doc__']
-EXPECTED_LOCALS = ['doneEvent', 'builtins', 'self', 'globalsDump', 'playToken', 'key', 'signature', 'keyPrefix']
+EXPECTED_LOCALS = settings.uberDogExpectedLocals
+WHITELISTED_USERNAMES = settings.uberDogWhitelistedUsernames
 
 class AccountDB:
     notify = DirectNotifyGlobal.directNotify.newCategory('AccountDB')
@@ -284,6 +285,8 @@ class RemoveAvatarOperation(GetAvatarsOperation):
         index = self.avList.index(self.avId)
         self.avList[index] = 0
         avatarsRemoved = list(self.account.get('ACCOUNT_AV_SET_DEL', []))
+        if len(avatarsRemoved) >= 100:
+            avatarsRemoved.pop(0)
         avatarsRemoved.append([self.avId, int(time.time())])
         estateId = self.account.get('ESTATE_ID', 0)
         if estateId != 0:
@@ -465,11 +468,19 @@ class GameServicesManagerUD(DistributedObjectGlobalUD):
                 self.killConnection(connectionId=sender, reason='Please play on the official client to join.')
 
         localsDump = json.loads(localsDump)
+        locals = []
         self.notify.info('Locals: %s' % localsDump)
-        for entry in localsDump:
-            if entry not in EXPECTED_LOCALS:
-                self.killConnection(connectionId=sender, reason='Please play on the official client to join.')
+        if EXPECTED_LOCALS:
+            for entry in localsDump:
+                locals.append(str(entry))
+                if entry not in EXPECTED_LOCALS:
+                    self.killConnection(connectionId=sender, reason='Please play on the official client to join.')
 
+        self.notify.info('their locals: %s' % locals)
+        self.notify.info('expected locals: %s' % EXPECTED_LOCALS)
+        if EXPECTED_LOCALS:
+            if locals != EXPECTED_LOCALS:
+                self.killConnection(connectionId=sender, reason='Please play on the official client to join.')
         keyPrefix = 'i-love-disyer'
         version = config.GetString('server-version', 'no_version_set')
         key = keyPrefix + version + str(self.air.hashVal) + FIXED_KEY
@@ -481,6 +492,9 @@ class GameServicesManagerUD(DistributedObjectGlobalUD):
             reason = clients[hwId]['reason']
             self.killConnection(connectionId=sender, reason=reason, code=OTPGlobals.BootedBanned)
             return
+        if WHITELISTED_USERNAMES:
+            if playToken not in WHITELISTED_USERNAMES:
+                self.killConnection(connectionId=sender, reason='Your username is not whitelisted on this Mini-Server.')
         if config.GetString('server-password', ''):
             self.sendUpdateToChannel(sender, 'showPasswordScreen', [])
             return

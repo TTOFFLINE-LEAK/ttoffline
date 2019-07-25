@@ -13,8 +13,14 @@ EmoteSleepIndex = 4
 EmoteClear = -1
 
 def doVictory(toon, volume=1):
-    duration = toon.getDuration('victory', 'legs')
-    sfx = base.loader.loadSfx('phase_3.5/audio/sfx/ENC_Win.ogg')
+    if toon.transformationActor:
+        toon = toon.transformationActor
+        sfx = base.loader.loadSfx('phase_14.5/audio/sfx/cj-statue-dance.ogg')
+        sfx.setPlayRate(1.6)
+        duration = toon.getDuration('victory')
+    else:
+        sfx = base.loader.loadSfx('phase_3.5/audio/sfx/ENC_Win.ogg')
+        duration = toon.getDuration('victory', 'legs')
     sfxDuration = duration - 1.0
     sfxTrack = SoundInterval(sfx, loop=1, duration=sfxDuration, node=toon, volume=volume)
     track = Sequence(Func(toon.play, 'victory'), sfxTrack, duration=0)

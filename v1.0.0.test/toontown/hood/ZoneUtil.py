@@ -141,7 +141,7 @@ def isWelcomeValley(zoneId):
 
 def getCanonicalZoneId(zoneId):
     if zoneId == WelcomeValleyToken:
-        zoneId = ToontownCentral
+        zoneId = base.cr.moddingManager.defaultZone
     else:
         if zoneId >= WelcomeValleyBegin and zoneId < WelcomeValleyEnd:
             zoneId = zoneId % 2000

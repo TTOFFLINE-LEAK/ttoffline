@@ -57,6 +57,12 @@ class ModdingManagerAI(DistributedObjectAI.DistributedObjectAI):
     def getCards(self):
         return self.cards
 
+    def d_setDefaultMaxToon(self, state):
+        self.sendUpdate('setDefaultMaxToon', [state])
+
+    def d_setDefaultZone(self, zone):
+        self.sendUpdate('setDefaultZone', [zone])
+
     def sendUpdateToUD(self, field, args=[]):
         dg = self.dclass.aiFormatUpdate(field, OTP_DO_ID_MODDING_MANAGER, OTP_DO_ID_MODDING_MANAGER, self.doId, args)
         self.air.send(dg)

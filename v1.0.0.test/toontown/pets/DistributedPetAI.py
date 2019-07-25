@@ -1064,7 +1064,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         if trickId == PetTricks.Tricks.BALK:
             return
         aptitude = self.getTrickAptitude(trickId)
-        self.setTrickAptitude(trickId, aptitude + PetTricks.AptitudeIncrementDidTrick)
+        self.setTrickAptitude(trickId, aptitude + PetTricks.AptitudeIncrementDidTrick * self.air.doodleMultiplier)
         self.addToMood('fatigue', lerp(PetTricks.MaxTrickFatigue, PetTricks.MinTrickFatigue, aptitude))
         self.trickLogger.addEvent(trickId)
 

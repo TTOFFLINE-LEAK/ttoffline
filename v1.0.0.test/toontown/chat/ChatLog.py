@@ -12,7 +12,8 @@ import re
 
 class ChatLog(DirectButton):
 
-    def __init__(self, **kwargs):
+    def __init__(self, chatMgr, **kwargs):
+        self.chatMgr = chatMgr
         gui = loader.loadModel('phase_3/models/gui/ChatPanel')
 
         def findNodes(names, model=gui):
@@ -44,60 +45,73 @@ class ChatLog(DirectButton):
         nodes = findNodes([('top', 'top1'), 'bottom', 'left', 'right', 'middle', 'topLeft', 'bottomLeft', 'topRight',
          'bottomRight'])
         scaleNodes(nodes, 0.25)
-        pos = base.settings.getOption('game', 'chat-log-pos', [-1.83087, 0, 1.28859])
-        args = {'parent': base.a2dBottomCenter, 'relief': None, 'geom': gui, 'geom_scale': (1, 1, 0.55), 'pos': (
-                 pos[0], pos[1], pos[2])}
+        args = {'parent': base.a2dBottomCenter, 'relief': None, 'geom': gui, 'geom_scale': (1, 1, 0.55), 'sortOrder': DGG.FOREGROUND_SORT_INDEX}
         kwargs.update(args)
         DirectButton.__init__(self, **kwargs)
         self.initialiseoptions(ChatLog)
-        self['geom'].setBin('fixed', 0)
         scaleNodes(nodes, 0.45)
         buttonRowOffset = 0.225
         self.currentTab = 0
         self.chatTabs = []
         mainTab = DirectButton(parent=self, relief=None, geom=gui, geom_scale=(1.2,
                                                                                1,
-                                                                               0.55), text='Main', text_scale=0.25, text_pos=(0.6,
-                                                                                                                              -0.3,
-                                                                                                                              0.0), scale=0.15, pos=(0.0,
-                                                                                                                                                     0.0,
-                                                                                                                                                     0.09), command=self.__toggleButton, extraArgs=[0])
+                                                                               0.55), text=TTLocalizer.ChatLogTabMain, text_scale=0.25, text_pos=(0.6,
+                                                                                                                                                  -0.3,
+                                                                                                                                                  0.0), scale=0.15, pos=(0.0,
+                                                                                                                                                                         0.0,
+                                                                                                                                                                         0.09), command=self.__toggleButton, extraArgs=[0])
         whisperTab = DirectButton(parent=self, relief=None, geom=gui, geom_scale=(1.2,
                                                                                   1,
-                                                                                  0.55), text='Whispers', text_scale=0.25, text_pos=(0.6,
-                                                                                                                                     -0.3,
-                                                                                                                                     0.0), text_fg=(0,
-                                                                                                                                                    0,
-                                                                                                                                                    0,
-                                                                                                                                                    0.5), scale=0.15, pos=(
+                                                                                  0.55), text=TTLocalizer.ChatLogTabWhispers, text_scale=0.25, text_pos=(0.6,
+                                                                                                                                                         -0.3,
+                                                                                                                                                         0.0), text_fg=(0,
+                                                                                                                                                                        0,
+                                                                                                                                                                        0,
+                                                                                                                                                                        0.5), scale=0.15, pos=(
          buttonRowOffset, 0.0, 0.09), command=self.__toggleButton, extraArgs=[1])
         globalTab = DirectButton(parent=self, relief=None, geom=gui, geom_scale=(1.2,
                                                                                  1,
-                                                                                 0.55), text='Global', text_scale=0.25, text_pos=(0.6,
-                                                                                                                                  -0.3,
-                                                                                                                                  0.0), text_fg=(0,
-                                                                                                                                                 0,
-                                                                                                                                                 0,
-                                                                                                                                                 0.5), scale=0.15, pos=(
+                                                                                 0.55), text=TTLocalizer.ChatLogTabGlobal, text_scale=0.25, text_pos=(0.6,
+                                                                                                                                                      -0.3,
+                                                                                                                                                      0.0), text_fg=(0,
+                                                                                                                                                                     0,
+                                                                                                                                                                     0,
+                                                                                                                                                                     0.5), scale=0.15, pos=(
          buttonRowOffset * 2, 0.0, 0.09), command=self.__toggleButton, extraArgs=[2])
         systemTab = DirectButton(parent=self, relief=None, geom=gui, geom_scale=(1.2,
                                                                                  1,
-                                                                                 0.55), text='System', text_scale=0.25, text_pos=(0.6,
-                                                                                                                                  -0.3,
-                                                                                                                                  0.0), text_fg=(0,
-                                                                                                                                                 0,
-                                                                                                                                                 0,
-                                                                                                                                                 0.5), scale=0.15, pos=(
+                                                                                 0.55), text=TTLocalizer.ChatLogTabSystem, text_scale=0.25, text_pos=(0.6,
+                                                                                                                                                      -0.3,
+                                                                                                                                                      0.0), text_fg=(0,
+                                                                                                                                                                     0,
+                                                                                                                                                                     0,
+                                                                                                                                                                     0.5), scale=0.15, pos=(
          buttonRowOffset * 3, 0.0, 0.09), command=self.__toggleButton, extraArgs=[3])
         self.exitTab = DirectButton(parent=self, relief=None, geom=gui, geom_scale=(0.55,
                                                                                     1,
-                                                                                    0.55), text='X', text_scale=0.4, text_pos=(0.26,
-                                                                                                                               -0.35,
-                                                                                                                               0.0), text_fg=(1,
-                                                                                                                                              0,
-                                                                                                                                              0,
-                                                                                                                                              0.5), scale=0.15, pos=(
+                                                                                    0.55), text=TTLocalizer.ChatLogTabQuit, text_scale=0.4, text_pos=(0.26,
+                                                                                                                                                      -0.35,
+                                                                                                                                                      0.0), text_fg=(1,
+                                                                                                                                                                     0,
+                                                                                                                                                                     0,
+                                                                                                                                                                     0.5), scale=0.15, pos=(
          buttonRowOffset * 4.1, 0.0, 0.09), command=self.closeChatlog)
+        self.exitTab.flattenStrong()
+        self.exitTab.wrtReparentTo(self.chatMgr.chatLogNode)
+        self.scaleDown = DirectButton(parent=self, relief=None, text=TTLocalizer.ChatLogButtonScaleDown, text_pos=(0.0,
+                                                                                                                   -0.35,
+                                                                                                                   0.0), text_fg=(1,
+                                                                                                                                  0,
+                                                                                                                                  0,
+                                                                                                                                  0.5), scale=0.1, sortOrder=DGG.FOREGROUND_SORT_INDEX + 1, pos=(buttonRowOffset * 4, 0.0, -0.51), command=self.scaleGui, extraArgs=[-0.1])
+        self.scaleDown.flattenStrong()
+        self.scaleUp = DirectButton(parent=self, relief=None, text=TTLocalizer.ChatLogButtonScaleUp, text_pos=(0.0,
+                                                                                                               -0.35,
+                                                                                                               0.0), text_fg=(1,
+                                                                                                                              0,
+                                                                                                                              0,
+                                                                                                                              0.5), scale=0.07, sortOrder=DGG.FOREGROUND_SORT_INDEX + 1, pos=(buttonRowOffset * 4.3, 0.0, -0.515), command=self.scaleGui, extraArgs=[0.1])
+        self.scaleUp.flattenStrong()
         self.chatTabs.append(mainTab)
         self.chatTabs.append(whisperTab)
         self.chatTabs.append(globalTab)
@@ -109,6 +123,9 @@ class ChatLog(DirectButton):
         self.texts = []
         self.textNodes = []
         for x in range(len(self.chatTabs)):
+            chatTab = self.chatTabs[x]
+            chatTab.flattenStrong()
+            chatTab.wrtReparentTo(self.chatMgr.chatLogNode)
             log = []
             realLog = []
             current = 0
@@ -158,6 +175,8 @@ class ChatLog(DirectButton):
         if self.closed:
             return
         DirectButton.show(self)
+        node = self.chatMgr.chatLogNode
+        node.show()
         self.__updateSpeedChatStyle()
         self.computeRealLog(0)
         base.settings.updateSetting('game', 'chat-log-open', True)
@@ -166,6 +185,8 @@ class ChatLog(DirectButton):
 
     def hide(self):
         DirectButton.hide(self)
+        node = self.chatMgr.chatLogNode
+        node.hide()
         base.settings.updateSetting('game', 'chat-log-open', False)
         self.ignore('wheel_up-up')
         self.ignore('wheel_down-up')
@@ -247,8 +268,7 @@ class ChatLog(DirectButton):
             while len(self.logs[tab]) > 250:
                 del self.logs[tab][0]
 
-        if not self.isHidden():
-            self.computeRealLog(tab)
+        self.computeRealLog(tab)
 
     def __wheel(self, amount):
         oldCurrent = self.currents[self.currentTab]
@@ -263,27 +283,55 @@ class ChatLog(DirectButton):
             self.scrollToCurrent(self.currentTab)
 
     def dragStart(self, event):
+        node = self.chatMgr.chatLogNode
         taskMgr.remove(self.taskName('dragTask'))
-        vWidget2render2d = self.getPos(render2d)
+        vWidget2render2d = node.getPos(render2d)
         vMouse2render2d = Point3(event.getMouse()[0], 0, event.getMouse()[1])
         editVec = Vec3(vWidget2render2d - vMouse2render2d)
         task = taskMgr.add(self.dragTask, self.taskName('dragTask'))
         task.editVec = editVec
 
     def dragTask(self, task):
+        node = self.chatMgr.chatLogNode
         mwn = base.mouseWatcherNode
         if mwn.hasMouse():
             vMouse2render2d = Point3(mwn.getMouse()[0], 0, mwn.getMouse()[1])
             newPos = vMouse2render2d + task.editVec
-            self.setPos(render2d, newPos)
+            if newPos[0] < 0.5:
+                node.wrtReparentTo(base.a2dBottomLeft)
+            else:
+                node.wrtReparentTo(base.a2dBottomRight)
+            windowSizeX = base.win.getProperties().getXSize()
+            windowSizeY = base.win.getProperties().getYSize()
+            pixelPos = self.getPos(pixel2d)
+            nodePixelPos = node.getPos(pixel2d)
+            if pixelPos[0] < -100:
+                node.setPos(pixel2d, nodePixelPos.getX() + 10, 0, pixelPos[2])
+            elif pixelPos[0] > windowSizeX - windowSizeX / 7.5:
+                node.setPos(pixel2d, nodePixelPos.getX() - 10, 0, pixelPos[2])
+            elif pixelPos[2] > 100:
+                node.setZ(pixel2d, nodePixelPos.getZ() - 10)
+            elif pixelPos[2] < -windowSizeY + 50:
+                node.setZ(pixel2d, nodePixelPos.getZ() + 10)
+            else:
+                node.setPos(render2d, newPos)
         return Task.cont
 
     def dragStop(self, event):
         taskMgr.remove(self.taskName('dragTask'))
-        messenger.send('PlayingCardDrop', sentArgs=[self])
-        pos = self.getPos(base.a2dBottomCenter)
-        print pos
+        node = self.chatMgr.chatLogNode
+        pos = node.getPos(render2d)
         base.settings.updateSetting('game', 'chat-log-pos', (pos[0], pos[1], pos[2]))
+
+    def scaleGui(self, value):
+        node = self.chatMgr.chatLogNode
+        value = node.getScale().getX() + value
+        if value < 0.5:
+            value = 0.5
+        if value > 2.0:
+            value = 2.0
+        node.setScale(value)
+        base.settings.updateSetting('game', 'chat-log-scale', value)
 
     def __toggleButton(self, index):
         self.currentTab = index
@@ -293,3 +341,4 @@ class ChatLog(DirectButton):
 
         self.chatTabs[index]['text_fg'] = (0, 0, 0, 1)
         self.textNodes[index].show()
+        self.scrollToCurrent(index)

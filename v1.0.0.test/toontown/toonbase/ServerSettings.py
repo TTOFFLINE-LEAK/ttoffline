@@ -24,12 +24,16 @@ class ServerSettings:
         self.settings.updateSetting('uberdog', 'eventlogger-ip', uberDogEventLoggerIP)
         self.uberDogEventLoggerIP = uberDogEventLoggerIP
         self.uberDogExpectedBuiltin = ''
+        self.uberDogExpectedLocals = []
         uberDogConfigs = self.settings.getList('uberdog', 'configs', ['config/general.prc', 'config/prod.prc'])
         self.settings.updateSetting('uberdog', 'configs', uberDogConfigs)
         self.uberDogConfigs = uberDogConfigs
         uberDogServerPassword = self.settings.getString('uberdog', 'server-password', '')
         self.settings.updateSetting('uberdog', 'server-password', uberDogServerPassword)
         self.uberDogServerPassword = uberDogServerPassword
+        uberDogWhitelistedUsernames = self.settings.getList('uberdog', 'whitelisted-usernames', [], -1)
+        self.settings.updateSetting('uberdog', 'whitelisted-usernames', uberDogWhitelistedUsernames)
+        self.uberDogWhitelistedUsernames = uberDogWhitelistedUsernames
         uberDogDefaultAccessLevel = self.settings.getString('uberdog', 'default-access-level', 'USER')
         self.settings.updateSetting('uberdog', 'default-access-level', uberDogDefaultAccessLevel)
         self.uberDogDefaultAccessLevel = uberDogDefaultAccessLevel
@@ -52,6 +56,21 @@ class ServerSettings:
         aiConfigs = self.settings.getList('ai', 'configs', ['config/general.prc', 'config/prod.prc'])
         self.settings.updateSetting('ai', 'configs', aiConfigs)
         self.aiConfigs = aiConfigs
+        expMultiplier = self.settings.getFloat('ai', 'exp-multiplier', 1.0)
+        self.settings.updateSetting('ai', 'exp-multiplier', expMultiplier)
+        self.expMultiplier = expMultiplier
+        meritMultiplier = self.settings.getFloat('ai', 'merit-multiplier', 1.0)
+        self.settings.updateSetting('ai', 'merit-multiplier', meritMultiplier)
+        self.meritMultiplier = meritMultiplier
+        doodleMultiplier = self.settings.getFloat('ai', 'doodle-multiplier', 1.0)
+        self.settings.updateSetting('ai', 'doodle-multiplier', doodleMultiplier)
+        self.doodleMultiplier = doodleMultiplier
+        defaultMaxToon = self.settings.getBool('ai', 'default-max-toon', False)
+        self.settings.updateSetting('ai', 'default-max-toon', defaultMaxToon)
+        self.defaultMaxToon = defaultMaxToon
+        defaultZone = self.settings.getString('ai', 'default-zone', 'TTC')
+        self.settings.updateSetting('ai', 'default-zone', defaultZone)
+        self.defaultZone = defaultZone
         aiDistrictLimit = self.settings.getInt('ai', 'district-limit', 16)
         self.settings.updateSetting('ai', 'district-limit', aiDistrictLimit)
         self.aiDistrictLimit = aiDistrictLimit

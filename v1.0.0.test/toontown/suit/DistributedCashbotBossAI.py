@@ -456,6 +456,8 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
            'isForeman': 0, 
            'isVP': 0, 
            'isCFO': 1, 
+           'isCJ': 0, 
+           'isCEO': 0, 
            'isSupervisor': 0, 
            'isVirtual': 0, 
            'activeToons': self.involvedToons[:]})

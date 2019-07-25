@@ -140,3 +140,6 @@ class DistributedNPCToonBase(DistributedToon.DistributedToon):
 
     def _stopZombieCheck(self):
         pass
+
+    def isPlayerControlled(self):
+        return False

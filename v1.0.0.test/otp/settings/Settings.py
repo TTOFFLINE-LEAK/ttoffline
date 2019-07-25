@@ -31,9 +31,12 @@ class Settings:
 
     def getList(self, category, attribute, default=[], expectedLength=2):
         value = self.getOption(category, attribute, default)
-        if isinstance(value, list) and len(value) == expectedLength:
-            return value
-        return default
+        if isinstance(value, list):
+            if len(value) == expectedLength or expectedLength == -1:
+                return value
+            return default
+        else:
+            return default
 
     def getInt(self, category, attribute, default=0):
         value = self.getOption(category, attribute, default)

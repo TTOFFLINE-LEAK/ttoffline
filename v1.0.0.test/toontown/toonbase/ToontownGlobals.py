@@ -41,6 +41,8 @@ SpecialHoodCameraFar = 8000.0
 SpecialHoodCameraNear = 1.0
 ToontownCentralBetaCameraFar = 2000.0
 ToontownCentralBetaCameraNear = 1.0
+DaisyGardensBetaCameraFar = 2000.0
+DaisyGardensBetaCameraNear = 1.0
 MaxMailboxContents = 30
 MaxHouseItems = 45
 MaxAccessories = 50
@@ -178,6 +180,8 @@ ToonHall = 2513
 Kongdominium = 4656
 Pizzeria = 19504
 ToonyLab = 19505
+PrivateServerCafe = 19513
+GyrosLab = 22634
 WelcomeValleyToken = 0
 BossbotHQ = 10000
 BossbotLobby = 10100
@@ -205,18 +209,13 @@ Tutorial = 15000
 MyEstate = 16000
 GolfZone = 17000
 PartyHood = 18000
-SpecialHood = 19000
-AirborneAcres = 19100
-TutorialTerrace = 19200
-ScrewballStadium = 19300
-RusticRaceway = 19400
-CityCircuit = 19500
-CorkscrewColiseum = 19600
-BlizzardBoulevard = 19700
-TutorialInterior = 19702
+ToontownOutskirts = 19000
+TutorialTerrace = 19100
+TutorialInterior = 19602
 TutorialHood = 20000
 ToontownCentralBeta = 21000
 DaisyGardensBeta = 22000
+OakStreetBeta = 22100
 HoodsAlwaysVisited = [17000, 18000, 19000, 21000, 22000]
 WelcomeValleyBegin = 30000
 WelcomeValleyEnd = 61000
@@ -233,10 +232,11 @@ HoodHierarchy = {ToontownCentral: (SillyStreet, LoopyLane, PunchlinePlace), Dona
    DonaldsDreamland: (
                     LullabyLane, PajamaPlace), 
    GoofySpeedway: (), 
-   SpecialHood: (
-               AirborneAcres, TutorialTerrace, ScrewballStadium, RusticRaceway, CityCircuit, CorkscrewColiseum, BlizzardBoulevard), 
+   ToontownOutskirts: (
+                     TutorialTerrace,), 
    ToontownCentralBeta: (), 
-   DaisyGardensBeta: ()}
+   DaisyGardensBeta: (
+                    OakStreetBeta,)}
 cogDept2index = {'c': 0, 'l': 1, 
    'm': 2, 
    's': 3}
@@ -325,7 +325,7 @@ Hoods = (DonaldsDock,
  CashbotHQ,
  LawbotHQ,
  GolfZone,
- SpecialHood,
+ ToontownOutskirts,
  ToontownCentralBeta,
  DaisyGardensBeta)
 HoodsForTeleportAll = (DonaldsDock,
@@ -341,7 +341,7 @@ HoodsForTeleportAll = (DonaldsDock,
  CashbotHQ,
  LawbotHQ,
  GolfZone,
- SpecialHood,
+ ToontownOutskirts,
  ToontownCentralBeta,
  DaisyGardensBeta)
 HoodsWithMinigames = (DonaldsDock,
@@ -349,7 +349,9 @@ HoodsWithMinigames = (DonaldsDock,
  TheBrrrgh,
  MinniesMelodyland,
  DaisyGardens,
- DonaldsDreamland)
+ DonaldsDreamland,
+ ToontownCentralBeta,
+ DaisyGardensBeta)
 NoPreviousGameId = 0
 RaceGameId = 1
 CannonGameId = 2
@@ -483,7 +485,7 @@ phaseMap = {Tutorial: 4, ToontownCentral: 4,
    LawbotHQ: 11, 
    GolfZone: 8, 
    PartyHood: 13, 
-   SpecialHood: 14, 
+   ToontownOutskirts: 14, 
    ToontownCentralBeta: 14, 
    DaisyGardensBeta: 14}
 streetPhaseMap = {ToontownCentral: 5, DonaldsDock: 6, 
@@ -499,7 +501,7 @@ streetPhaseMap = {ToontownCentral: 5, DonaldsDock: 6,
    CashbotHQ: 10, 
    LawbotHQ: 11, 
    PartyHood: 13, 
-   SpecialHood: 14, 
+   ToontownOutskirts: 14, 
    ToontownCentralBeta: 14, 
    DaisyGardensBeta: 14}
 dnaMap = {Tutorial: 'toontown_central', ToontownCentral: 'toontown_central', 
@@ -516,7 +518,7 @@ dnaMap = {Tutorial: 'toontown_central', ToontownCentral: 'toontown_central',
    CashbotHQ: 'cog_hq_cashbot', 
    LawbotHQ: 'cog_hq_lawbot', 
    GolfZone: 'golf_zone', 
-   SpecialHood: 'special_hood', 
+   ToontownOutskirts: 'special_hood', 
    ToontownCentralBeta: 'toontown_central_beta', 
    DaisyGardensBeta: 'daisys_garden_beta'}
 hoodNameMap = {DonaldsDock: TTLocalizer.DonaldsDock, ToontownCentral: TTLocalizer.ToontownCentral, 
@@ -535,7 +537,7 @@ hoodNameMap = {DonaldsDock: TTLocalizer.DonaldsDock, ToontownCentral: TTLocalize
    MyEstate: TTLocalizer.MyEstate, 
    GolfZone: TTLocalizer.GolfZone, 
    PartyHood: TTLocalizer.PartyHood, 
-   SpecialHood: TTLocalizer.SpecialHood, 
+   ToontownOutskirts: TTLocalizer.SpecialHood, 
    ToontownCentralBeta: TTLocalizer.ToontownCentralBeta, 
    DaisyGardensBeta: TTLocalizer.DaisyGardensBeta}
 safeZoneCountMap = {MyEstate: 8, Tutorial: 6, 
@@ -550,7 +552,7 @@ safeZoneCountMap = {MyEstate: 8, Tutorial: 6,
    OutdoorZone: 500, 
    GolfZone: 500, 
    PartyHood: 500, 
-   SpecialHood: 500, 
+   ToontownOutskirts: 500, 
    ToontownCentralBeta: 500, 
    DaisyGardensBeta: 500}
 townCountMap = {MyEstate: 8, Tutorial: 40, 
@@ -564,7 +566,7 @@ townCountMap = {MyEstate: 8, Tutorial: 40,
    DonaldsDreamland: 40, 
    OutdoorZone: 40, 
    PartyHood: 20, 
-   SpecialHood: 40, 
+   ToontownOutskirts: 40, 
    ToontownCentralBeta: 40, 
    DaisyGardensBeta: 40}
 hoodCountMap = {MyEstate: 2, Tutorial: 2, 
@@ -583,7 +585,7 @@ hoodCountMap = {MyEstate: 2, Tutorial: 2,
    LawbotHQ: 2, 
    GolfZone: 2, 
    PartyHood: 2, 
-   SpecialHood: 2, 
+   ToontownOutskirts: 2, 
    ToontownCentralBeta: 2, 
    DaisyGardensBeta: 2}
 TrophyStarLevels = (10, 20, 30, 50, 75, 100)
@@ -1216,21 +1218,9 @@ hood2Id = {'TTC': (
    'FRONT': (
            BossbotHQ,), 
    'SP': (
-        SpecialHood,), 
-   'AA': (
-        SpecialHood, AirborneAcres), 
+        ToontownOutskirts,), 
    'TT': (
-        SpecialHood, TutorialTerrace), 
-   'SS': (
-        SpecialHood, ScrewballStadium), 
-   'RR': (
-        SpecialHood, RusticRaceway), 
-   'CICI': (
-          SpecialHood, CityCircuit), 
-   'COCO': (
-          SpecialHood, CorkscrewColiseum), 
-   'BB': (
-        SpecialHood, BlizzardBoulevard), 
+        ToontownOutskirts, TutorialTerrace), 
    'TTCB': (
           ToontownCentralBeta,), 
    'DGB': (
@@ -1294,8 +1284,12 @@ KongdominiumSongs = {'One Day, Everything Will Be Okay': 'phase_14.5/audio/bgm/m
    'I Wrote You a Chiptune': 'phase_14.5/audio/bgm/mpg/mpg_yolw_iwroteyouachiptune.ogg', 
    'How to Win a World War, Somewhere': 'phase_14.5/audio/bgm/mpg/mpg_yolw_howtowinaworldwarsomewhere.ogg', 
    "It's Love": 'phase_14.5/audio/bgm/mpg/mpg_yolw_itslove.ogg'}
-Phrase2Location = {1003: SpecialHood, 
-   1004: SpecialHood, 
+PrivateServerCafeSongs = {'The Toontown Rewritten Theme': 'phase_14.5/audio/bgm/tribute/ttr_theme.ogg', 
+   'The Toontown House Theme': 'phase_14.5/audio/bgm/tribute/tth_theme.ogg', 
+   'The Toontown Infinite Theme': 'phase_14.5/audio/bgm/tribute/tti_theme.ogg', 
+   'The Operation: Dessert Storm Theme': 'phase_14.5/audio/bgm/tribute/ods_theme.ogg'}
+Phrase2Location = {1131: ToontownOutskirts, 
+   1004: ToontownOutskirts, 
    1106: DonaldsDock, 
    1107: MinniesMelodyland, 
    1108: DaisyGardens, 
@@ -1759,7 +1753,7 @@ for prop in Props:
 for prop in PropList:
     PropNames.append(prop[0])
 
-MaxPropCount = 512
+MaxPropCount = 2048
 GreenEffectMassFlyPositions = [(-4, 0), (-4, -4), (-4, 4), (0, -4), (0, 4), (4, 4), (4, -4), (4, 0)]
 GreenEffectMassFlyCogs = [('cc', 'tm', 'nd', 'gh', 'ms', 'tf', 'm', 'mh'),
  ('sc', 'pp', 'tw', 'bc', 'nc', 'mb', 'ls', 'rb'),
@@ -1792,7 +1786,7 @@ Zone2String = {ToontownCentral: 'ttc',
    LawbotHQ: 'lbhq', 
    LawbotOfficeExt: 'lbhq-o', 
    BossbotHQ: 'bbhq', 
-   SpecialHood: 'ttc-sz', 
+   ToontownOutskirts: 'ttc-sz', 
    MyEstate: 'estate', 
    Tutorial: 'ttc', 
    ToontownCentralBeta: 'ttcb', 
@@ -1807,3 +1801,5 @@ Dept2Dept = {'s': 'Sellbot',
    'c': 'Bossbot'}
 CogDepts = [
  'c', 'l', 'm', 's']
+TransformationCog = 0
+TransformationClassicChar = 1

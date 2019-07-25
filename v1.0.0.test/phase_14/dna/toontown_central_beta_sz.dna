@@ -87,104 +87,86 @@ group "toontownCentralBeta" [
    nhpr [ -56.73 0 -0 ]
   ]
   group "buildings" [
-   prop "tunnel_DNARoot" [
+   prop "linktunnel_dgb_22000_DNARoot" [
     code [ "prop_safe_zone_tunnel" ]
     pos [ 141 -134.39 5.5 ]
     nhpr [ 65 -2.8 -0 ]
     sign [
-       code [ "tunnel_sign_red" ]
-       scale [ 1.5 1 1.5 ]
-       baseline [
-        code [ "mickey" ]
-        color [ 0.501961 0 0 1 ]
-        pos [ 0 0 -0.297172 ]
-        nhpr [ 0 0 2 ]
-        scale [ 0.798759 1 0.797697 ]
-        kern [ 0.05 ]
-        width [ 33.3333 ]
-        height [ 33.3333 ]
-        text [
-         letters [ "T" ]
-        ]
-        text [
-         letters [ "o" ]
-        ]
-       ]
-       baseline [
-        code [ "mickey" ]
-        color [ 0.501961 0 0 1 ]
-        pos [ 0 0 -1.49694 ]
-        nhpr [ 0 0 2.00444 ]
-        scale [ 0.9 1 0.95 ]
-        width [ 51.4159 ]
-        height [ 51.4159 ]
-        flags [ "b" ]
-        text [
-         letters [ "M" ]
-        ]
-        text [
-         letters [ "i" ]
-        ]
-        text [
-         letters [ "n" ]
-        ]
-        text [
-         letters [ "n" ]
-        ]
-        text [
-         letters [ "i" ]
-        ]
-        text [
-         letters [ "e" ]
-        ]
-        text [
-         letters [ "'" ]
-        ]
-        text [
-         letters [ "s" ]
-        ]
-        text [
-         letters [ " " ]
-        ]
-        text [
-         letters [ "M" ]
-        ]
-        text [
-         letters [ "e" ]
-        ]
-        text [
-         letters [ "l" ]
-        ]
-        text [
-         letters [ "o" ]
-        ]
-        text [
-         letters [ "d" ]
-        ]
-        text [
-         letters [ "y" ]
-        ]
-        text [
-         letters [ "l" ]
-        ]
-        text [
-         letters [ "a" ]
-        ]
-        text [
-         letters [ "n" ]
-        ]
-        text [
-         letters [ "d" ]
-        ]
-       ]
-       baseline [
-        pos [ 0 0 1.77 ]
-        scale [ 2.75176 1 2.7543 ]
-        graphic [
-         code [ "mickeySZ" ]
-        ]
-       ]
-      ]
+   code [ "tunnel_sign_red" ]
+   scale [ 1.5 1 1.5 ]
+   baseline [
+    code [ "mickey" ]
+    color [ 0.501961 0 0 1 ]
+    pos [ 0 0 -0.297172 ]
+    nhpr [ 0 0 2 ]
+    scale [ 0.798759 1 0.797697 ]
+    kern [ 0.05 ]
+    width [ 33.3333 ]
+    height [ 33.3333 ]
+    text [
+     letters [ "T" ]
+    ]
+    text [
+     letters [ "o" ]
+    ]
+   ]
+   baseline [
+    code [ "mickey" ]
+    color [ 0.501961 0 0 1 ]
+    pos [ 0 0 -1.69716 ]
+    nhpr [ 0 0 2.00444 ]
+    scale [ 1.11199 1 1.15778 ]
+    width [ 51.4159 ]
+    height [ 51.4159 ]
+    flags [ "b" ]
+    text [
+     letters [ "D" ]
+    ]
+    text [
+     letters [ "a" ]
+    ]
+    text [
+     letters [ "i" ]
+    ]
+    text [
+     letters [ "s" ]
+    ]
+    text [
+     letters [ "y" ]
+    ]
+    text [
+     letters [ " " ]
+    ]
+    text [
+     letters [ "G" ]
+    ]
+    text [
+     letters [ "a" ]
+    ]
+    text [
+     letters [ "r" ]
+    ]
+    text [
+     letters [ "d" ]
+    ]
+    text [
+     letters [ "e" ]
+    ]
+    text [
+     letters [ "n" ]
+    ]
+    text [
+     letters [ "s" ]
+    ]
+   ]
+   baseline [
+    pos [ 0 0 1.77178 ]
+    scale [ 2.74931 1 2.749 ]
+    graphic [
+     code [ "daisySZ" ]
+    ]
+   ]
+  ]
    ]
    prop "tunnel_DNARoot" [
     code [ "prop_safe_zone_tunnel" ]
@@ -670,7 +652,7 @@ group "toontownCentralBeta" [
    landmark_building "sz21:toon_landmark_TT_A1_DNARoot" [
     code [ "toon_landmark_TT_A1" ]
     building_type [ "clotheshop" ]
-    title [ "Clothing Shop" ]
+    title [ "Mercantile" ]
     pos [ 10.7649 121.037 8 ]
     nhpr [ -12 0 0 ]
     door [

@@ -42,6 +42,7 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         self.__battleCreditMultiplier = 1
         self.__invasionCreditMultiplier = 1
         self.__respectInvasions = 1
+        self.__serverCreditMultiplier = 1
         self._interactivePropTrackBonus = -1
         self.tutorialFlag = 0
         self.gagTutMode = 0
@@ -77,6 +78,12 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
 
     def getRespectInvasions(self):
         return self.__respectInvasions
+
+    def setServerCreditMultiplier(self, mult):
+        self.__serverCreditMultiplier = mult
+
+    def getServerCreditMultiplier(self):
+        return self.__serverCreditMultiplier
 
     def show(self):
         if self.tutorialFlag:
@@ -377,6 +384,7 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             mult = self.__battleCreditMultiplier
             if self.__respectInvasions:
                 mult *= self.__invasionCreditMultiplier
+            mult *= self.__serverCreditMultiplier
             self.setDetailCredit(track, (level + 1) * mult)
         else:
             self.setDetailCredit(track, None)

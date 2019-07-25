@@ -65,7 +65,7 @@ class WhisperPopup(ClickablePopup, MarginPopup):
         fgColor, bgColor = NametagGlobals._whisper_colors[cc][self.m_state]
         newBgColor = list(bgColor)
         newBgColor[3] = 1.0
-        if self.m_type != self.WTNormal:
+        if self.m_type not in (self.WTNormal, self.WTGlobal):
             messenger.send('addChatHistory', [None, None, None, newBgColor, self.m_text, self.m_type])
         return
 

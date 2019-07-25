@@ -12,6 +12,7 @@ SkipMovie = 0
 BaseHp = 15
 Tracks = TTLocalizer.BattleGlobalTracks
 NPCTracks = TTLocalizer.BattleGlobalNPCTracks
+FinalTrack = TTLocalizer.BattleGlobalFinalTrack
 TrackColors = ((211 / 255.0, 148 / 255.0, 255 / 255.0),
  (
   249 / 255.0, 255 / 255.0, 93 / 255.0),
@@ -35,6 +36,7 @@ DROP_TRACK = 6
 NPC_RESTOCK_GAGS = 7
 NPC_TOONS_HIT = 8
 NPC_COGS_MISS = 9
+LAST_TRACK = 10
 MIN_TRACK_INDEX = 0
 MAX_TRACK_INDEX = 6
 MIN_LEVEL_INDEX = 0
@@ -194,6 +196,8 @@ DLF_CFO = 8
 DLF_SUPERVISOR = 16
 DLF_VIRTUAL = 32
 DLF_REVIVES = 64
+DLF_CJ = 128
+DLF_CEO = 256
 pieNames = ['tart',
  'fruitpie-slice',
  'creampie-slice',

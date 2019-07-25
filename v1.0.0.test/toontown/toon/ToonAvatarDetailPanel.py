@@ -187,9 +187,10 @@ class ToonAvatarDetailPanel(DirectFrame):
                 text = TTLocalizer.AvatarDetailPanelOnlinePlayer % {'district': shardName, 'location': hoodName, 
                    'player': self.playerInfo.playerName}
             else:
-                text = TTLocalizer.AvatarDetailPanelOnline % {'district': shardName, 'location': hoodName}
+                text = TTLocalizer.AvatarDetailPanelOnline % {'district': shardName, 'location': hoodName, 
+                   'avId': av.doId}
         else:
-            text = TTLocalizer.AvatarDetailPanelOffline
+            text = TTLocalizer.AvatarDetailPanelOffline % {'avId': av.doId}
         self.dataText['text'] = text
         self.__updateTrackInfo()
         self.__updateTrophyInfo()

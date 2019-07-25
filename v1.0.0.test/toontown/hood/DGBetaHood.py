@@ -17,9 +17,17 @@ class DGBetaHood(ToonHood.ToonHood):
 
     def load(self):
         ToonHood.ToonHood.load(self)
-        self.sky.setScale(20.0)
+        self.sky.setScale(1.5)
         self.parentFSM.getStateNamed('DGBetaHood').addChild(self.fsm)
 
     def unload(self):
         self.parentFSM.getStateNamed('DGBetaHood').removeChild(self.fsm)
         ToonHood.ToonHood.unload(self)
+
+    def enter(self, *args):
+        ToonHood.ToonHood.enter(self, *args)
+        base.camLens.setNearFar(ToontownGlobals.DaisyGardensBetaCameraNear, ToontownGlobals.DaisyGardensBetaCameraFar)
+
+    def exit(self):
+        base.camLens.setNearFar(ToontownGlobals.DefaultCameraNear, ToontownGlobals.DefaultCameraFar)
+        ToonHood.ToonHood.exit(self)

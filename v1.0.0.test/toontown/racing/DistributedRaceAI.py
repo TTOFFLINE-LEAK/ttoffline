@@ -524,11 +524,14 @@ Parse error at or near `JUMP_ABSOLUTE' instruction at offset 365
         if avId in self.racers:
             if self.racers[avId].hasGag:
                 return
-            if self.gagList[slot] == index:
-                self.gagList[slot] = None
-                taskMgr.doMethodLater(5, self.d_genGag, 'remakeGag-' + str(slot), extraArgs=[slot])
-                self.racers[avId].hasGag = True
-                self.racers[avId].gagType = type
+            if slot in self.gagList:
+                if self.gagList[slot] == index:
+                    self.gagList[slot] = None
+                    taskMgr.doMethodLater(5, self.d_genGag, 'remakeGag-' + str(slot), extraArgs=[slot])
+                    self.racers[avId].hasGag = True
+                    self.racers[avId].gagType = type
+                else:
+                    return
             else:
                 return
         return

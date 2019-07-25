@@ -94,7 +94,17 @@ class ToontownChatManager(ChatManager.ChatManager):
         self.chatInputWhiteList.setPos(self.speedChatPlusPos)
         self.chatInputWhiteList.reparentTo(base.a2dTopLeft)
         self.chatInputWhiteList.desc = 'chatInputWhiteList'
-        self.chatLog = ChatLog()
+        self.chatLogNode = base.a2dBottomRight.attachNewNode('chatLog')
+        self.chatLog = ChatLog(self)
+        self.chatLog.wrtReparentTo(self.chatLogNode)
+        pos = base.settings.getOption('game', 'chat-log-pos', [0.05, 0, 0.25])
+        scale = base.settings.getFloat('game', 'chat-log-scale', 1.0)
+        if pos[0] < 1.0:
+            self.chatLogNode.wrtReparentTo(base.a2dBottomLeft)
+        else:
+            self.chatLogNode.wrtReparentTo(base.a2dBottomRight)
+        self.chatLogNode.setPos(render2d, *pos)
+        self.chatLogNode.setScale(scale)
         return
 
     def delete(self):
@@ -117,6 +127,8 @@ class ToontownChatManager(ChatManager.ChatManager):
         del self.chatInputWhiteList
         self.chatLog.destroy()
         del self.chatLog
+        self.chatLogNode.removeNode()
+        del self.chatLogNode
         self.ignoreAll()
 
     def sendSCResistanceChatMessage(self, textId):

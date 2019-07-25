@@ -23,8 +23,10 @@ class DisplayOptions:
         toonChatSounds = base.settings.getBool('game', 'toon-chat-sounds', True)
         textToSpeech = base.settings.getBool('game', 'text-to-speech', False)
         textToSpeechPath = base.settings.getString('game', 'text-to-speech-path', base.defaultTextToSpeechPath)
+        globalChatWhispers = base.settings.getBool('game', 'global-chat-whispers', True)
         chatLogOpen = base.settings.getBool('game', 'chat-log-open', False)
-        chatLogPos = base.settings.getList('game', 'chat-log-pos', [-1.83087, 0, 1.28859])
+        chatLogPos = base.settings.getList('game', 'chat-log-pos', [0.05, 0, 0.25])
+        chatLogScale = base.settings.getFloat('game', 'chat-log-scale', 1.0)
         musicVol = base.settings.getFloat('game', 'music-volume', 1.0)
         sfxVol = base.settings.getFloat('game', 'sfx-volume', 1.0)
         res = base.settings.getList('game', 'resolution', [800, 600])
@@ -58,8 +60,10 @@ class DisplayOptions:
         loadPrcFileData('toonBase Settings Toon Chat Sounds', 'toon-chat-sounds %s' % toonChatSounds)
         loadPrcFileData('toonBase Settings Text to Speech', 'text-to-speech %s' % textToSpeech)
         loadPrcFileData('toonBase Settings Text to Speech Path', 'text-to-speech-path %s' % textToSpeechPath)
+        loadPrcFileData('toonBase Settings Global Chat Whispers', 'global-chat-whispers %s' % globalChatWhispers)
         loadPrcFileData('toonBase Settings Chat Log Open', 'chat-log-open %s' % chatLogOpen)
         loadPrcFileData('toonBase Settings Chat Log Pos', 'chat-log-pos %s, %s, %s' % (str(chatLogPos[0]), str(chatLogPos[1]), str(chatLogPos[2])))
+        loadPrcFileData('toonBase Settings Chat Log Scale', 'chat-log-scale %s' % chatLogScale)
         self.settingsFullScreen = fullscreen
         self.settingsWidth = res[0]
         self.settingsHeight = res[1]

@@ -9,7 +9,9 @@ AnimDict = {'mk': (('walk', 'walk', 3), ('run', 'run', 3),
         ('left-point-start', 'left-start', 3.5),
         ('left-point', 'left', 3.5),
         ('right-point-start', 'right-start', 3.5),
-        ('right-point', 'right', 3.5)), 
+        ('right-point', 'right', 3.5),
+        ('sad-walk', 'walk', 3),
+        ('sad-neutral', 'wait', 3)), 
    'vmk': (
          ('walk', 'sneak', 3),
          ('run', 'run', 3),
@@ -17,9 +19,11 @@ AnimDict = {'mk': (('walk', 'walk', 3), ('run', 'run', 3),
          ('sneak', 'sneak', 3),
          ('into_sneak', 'into_sneak', 3),
          ('chat', 'run', 3),
-         ('into_idle', 'into_idle', 3)), 
+         ('into_idle', 'into_idle', 3),
+         ('sad-walk', 'sneak', 3),
+         ('sad-neutral', 'idle', 3)), 
    'wmn': (
-         ('walk', 'walkHalloween3', 3), ('neutral', 'neutral2', 3)), 
+         ('walk', 'walkHalloween3', 3), ('neutral', 'neutral2', 3), ('run', 'walkHalloween3', 3), ('sad-walk', 'walkHalloween3', 3), ('sad-neutral', 'neutral2', 3)), 
    'mn': (
         ('walk', 'walk', 3),
         ('run', 'run', 3),
@@ -31,43 +35,53 @@ AnimDict = {'mk': (('walk', 'walk', 3), ('run', 'run', 3),
         ('up', 'up', 4),
         ('down', 'down', 4),
         ('left', 'left', 4),
-        ('right', 'right', 4)), 
+        ('right', 'right', 4),
+        ('sad-walk', 'walk', 3),
+        ('sad-neutral', 'wait', 3)), 
    'g': (
-       ('walk', 'Walk', 6), ('run', 'Run', 6), ('neutral', 'Wait', 6)), 
+       ('walk', 'Walk', 6), ('run', 'Run', 6), ('neutral', 'Wait', 6), ('sad-walk', 'Walk', 6), ('sad-neutral', 'Wait', 6)), 
    'sg': (
-        ('walk', 'walkStrut2', 6), ('neutral', 'neutral', 6)), 
+        ('walk', 'walkStrut2', 6), ('neutral', 'neutral', 6), ('run', 'walkStrut2', 6), ('sad-walk', 'walkStrut2', 6), ('sad-neutral', 'neutral', 6), ('posedown', 'posedown', 6)), 
    'd': (
        ('walk', 'walk', 6),
        ('trans', 'transition', 6),
        ('neutral', 'neutral', 6),
-       ('trans-back', 'transBack', 6)), 
+       ('trans-back', 'transBack', 6), ('run', 'walk', 6),
+       ('sad-walk', 'walk', 6),
+       ('sad-neutral', 'neutral', 6)), 
    'fd': (
-        ('walk', 'walk', 6), ('neutral', 'idle', 6)), 
+        ('walk', 'walk', 6), ('run', 'walk', 6), ('neutral', 'idle', 6), ('sad-walk', 'walk', 3), ('sad-neutral', 'idle', 3)), 
    'dw': (
-        ('wheel', 'wheel', 6), ('neutral', 'wheel', 6)), 
+        ('wheel', 'wheel', 6), ('neutral', 'wheel', 6), ('walk', 'wheel', 6), ('run', 'wheel', 6), ('sad-walk', 'wheel', 6), ('sad-neutral', 'wheel', 6)), 
    'p': (
        ('walk', 'walk', 6),
        ('sit', 'sit', 6),
+       ('run', 'walk', 6),
        ('neutral', 'neutral', 6),
-       ('stand', 'stand', 6)), 
+       ('stand', 'stand', 6),
+       ('sad-walk', 'walk', 6),
+       ('sad-neutral', 'neutral', 6)), 
    'wp': (
-        ('walk', 'walk', 6),
+        ('walk', 'walk', 6), ('run', 'walk', 6),
         ('sit', 'sitStart', 6),
         ('neutral', 'sitLoop', 6),
-        ('stand', 'sitStop', 6)), 
-   'cl': (), 
+        ('stand', 'sitStop', 6),
+        ('sad-walk', 'walk', 6),
+        ('sad-neutral', 'sitLoop', 6)), 
+   'cl': (
+        ('walk', 'listens', 5), ('run', 'listens', 5), ('neutral', 'listens', 5), ('sad-walk', 'listens', 5), ('sad-neutral', 'listens', 5)), 
    'dd': (
-        ('walk', 'walk', 4), ('neutral', 'idle', 4)), 
+        ('walk', 'walk', 4), ('run', 'walk', 4), ('neutral', 'idle', 4), ('sad-walk', 'walk', 4), ('sad-neutral', 'idle', 4)), 
    'shdd': (
-          ('walk', 'walk', 4), ('neutral', 'idle', 4)), 
+          ('walk', 'walk', 4), ('run', 'walk', 4), ('neutral', 'idle', 4), ('sad-walk', 'walk', 4), ('sad-neutral', 'idle', 4)), 
    'ch': (
-        ('walk', 'walk', 6), ('neutral', 'idle', 6)), 
+        ('walk', 'walk', 6), ('run', 'walk', 6), ('neutral', 'idle', 6), ('sad-walk', 'walk', 6), ('sad-neutral', 'idle', 6)), 
    'pch': (
-         ('walk', 'walk', 6), ('neutral', 'idle', 6)), 
+         ('walk', 'walk', 6), ('run', 'walk', 6), ('neutral', 'idle', 6), ('sad-walk', 'walk', 6), ('sad-neutral', 'idle', 6)), 
    'da': (
-        ('walk', 'walk', 6), ('neutral', 'idle', 6)), 
+        ('walk', 'walk', 6), ('run', 'walk', 6), ('neutral', 'idle', 6), ('sad-walk', 'walk', 6), ('sad-neutral', 'idle', 6)), 
    'jda': (
-         ('walk', 'walk', 6), ('neutral', 'idle', 6))}
+         ('walk', 'walk', 6), ('run', 'walk', 6), ('neutral', 'idle', 6), ('sad-walk', 'walk', 6), ('sad-neutral', 'idle', 6))}
 ModelDict = {'mk': 'phase_3/models/char/mickey-', 'vmk': 'phase_3.5/models/char/tt_a_chr_csc_mickey_vampire_', 
    'mn': 'phase_3/models/char/minnie-', 
    'wmn': 'phase_3.5/models/char/tt_a_chr_csc_witchMinnie_', 

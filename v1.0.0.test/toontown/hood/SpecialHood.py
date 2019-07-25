@@ -8,7 +8,7 @@ class SpecialHood(ToonHood.ToonHood):
 
     def __init__(self, parentFSM, doneEvent, dnaStore, hoodId):
         ToonHood.ToonHood.__init__(self, parentFSM, doneEvent, dnaStore, hoodId)
-        self.id = ToontownGlobals.SpecialHood
+        self.id = ToontownGlobals.ToontownOutskirts
         self.townLoaderClass = SPTownLoader.SPTownLoader
         self.safeZoneLoaderClass = SPSafeZoneLoader.SPSafeZoneLoader
         self.storageDNAFile = 'phase_14/dna/storage_SP.dna'

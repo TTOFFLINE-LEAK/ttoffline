@@ -117,6 +117,11 @@ class TTOffMagicWordManager(DistributedObject.DistributedObject):
                 return
         word = magicWordNoPrefix.split(' ', 1)[0].lower()
         if word not in magicWordIndex:
+            for magicWord in magicWordIndex.keys():
+                if word in magicWord:
+                    self.generateResponse(responseType='CloseWord', extraMessageData=magicWord)
+                    return
+
             self.generateResponse(responseType='BadWord')
             return
         magicWordInfo = magicWordIndex[word]

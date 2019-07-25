@@ -48,6 +48,8 @@ class LighthouseBuildingAI:
         door1.generateWithRequired(self.exteriorZone)
         door0.sendUpdate('setDoorIndex', [door0.getDoorIndex()])
         door1.sendUpdate('setDoorIndex', [door1.getDoorIndex()])
+        door0.setDoorLock(FADoorCodes.LIGHTHOUSE_CLOSED)
+        door1.setDoorLock(FADoorCodes.LIGHTHOUSE_CLOSED)
         insideDoor0.generateWithRequired(self.interiorZone)
         insideDoor1.generateWithRequired(self.interiorZone)
         insideDoor0.sendUpdate('setDoorIndex', [insideDoor0.getDoorIndex()])

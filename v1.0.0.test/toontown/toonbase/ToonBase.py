@@ -62,6 +62,7 @@ class ToonBase(OTPBase.OTPBase):
             else:
                 self.defaultTextToSpeechPath = ''
         self.textToSpeechPath = self.defaultTextToSpeechPath
+        self.globalChatWhispers = self.config.GetBool('global-chat-whispers', 1)
         self.chatLogOpen = self.config.GetBool('chat-log-open', False)
         self.placeBeforeObjects = self.config.GetBool('place-before-objects', 1)
         self.endlessQuietZone = False
@@ -515,8 +516,10 @@ class ToonBase(OTPBase.OTPBase):
                 else:
                     defaultPath = ''
             textToSpeechPath = self.settings.getString('game', 'text-to-speech-path', defaultPath)
+            globalChatWhispers = self.settings.getBool('game', 'global-chat-whispers', True)
             chatLogOpen = self.settings.getBool('game', 'chat-log-open', False)
-            chatLogPos = self.settings.getList('game', 'chat-log-pos', [-1.83087, 0, 1.28859])
+            chatLogPos = self.settings.getList('game', 'chat-log-pos', [0.05, 0, 0.25])
+            chatLogScale = self.settings.getFloat('game', 'chat-log-scale', 1.0)
             musicVol = self.settings.getFloat('game', 'music-volume', 1.0)
             sfxVol = self.settings.getFloat('game', 'sfx-volume', 1.0)
             res = self.settings.getList('game', 'resolution', [800, 600])
@@ -536,9 +539,10 @@ class ToonBase(OTPBase.OTPBase):
             loadPrcFileData('toonBase Settings Toon Chat Sounds', 'toon-chat-sounds %s' % toonChatSounds)
             loadPrcFileData('toonBase Settings Text to Speech', 'text-to-speech %s' % textToSpeech)
             loadPrcFileData('toonBase Settings Text to Speech Path', 'text-to-speech-path %s' % textToSpeechPath)
+            loadPrcFileData('toonBase Settings Global Chat Whispers', 'global-chat-whispers %s' % globalChatWhispers)
             loadPrcFileData('toonbase Settings Chat Log Open', 'chat-log-open %s' % chatLogOpen)
-            print chatLogPos
             loadPrcFileData('toonbase Settings Chat Log Pos', 'chat-log-pos %s, %s, %s' % (str(chatLogPos[0]), str(chatLogPos[1]), str(chatLogPos[2])))
+            loadPrcFileData('toonbase Settings Chat Log Scale', 'chat-log-scale %s' % chatLogScale)
             self.settings.loadFromSettings()
 
     def toggleNametags(self):

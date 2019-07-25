@@ -9,8 +9,8 @@ from otp.otpbase import OTPGlobals
 FLPPets = 1
 FLPOnline = 2
 FLPAll = 3
-FLPOnlinePlayers = 4
-FLPPlayers = 5
+FLTZone = 4
+FLTServer = 5
 FLPEnemies = 6
 globalFriendsList = None
 
@@ -104,7 +104,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
 
     def __init__(self):
         self.leftmostPanel = FLPPets
-        self.rightmostPanel = FLPPlayers
+        self.rightmostPanel = FLTServer
         if base.cr.productName in ('DisneyOnline-UK', 'DisneyOnline-AP', 'JP', 'FR',
                                    'BR'):
             self.rightmostPanel = FLPAll
@@ -401,71 +401,21 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
         freeChatDouble = []
         speedChatDouble = []
         offlineFriends = []
-        if self.panelType == FLPPlayers:
-            playerFriendList = base.cr.playerFriendsManager.playerFriendsList
-            for playerFriendId in playerFriendList:
-                if playerFriendId in base.cr.playerFriendsManager.playerId2Info:
-                    playerFriendInfo = base.cr.playerFriendsManager.playerId2Info.get(playerFriendId)
-                    if playerFriendInfo.onlineYesNo:
-                        if playerFriendInfo.understandableYesNo:
-                            if playerFriendInfo.avatarId:
-                                freeChatDouble.insert(0, (playerFriendInfo.avatarId,
-                                 0,
-                                 playerFriendId,
-                                 1))
-                            else:
-                                freeChatOneRef.insert(0, (0,
-                                 0,
-                                 playerFriendId,
-                                 1))
-                        elif playerFriendInfo.avatarId:
-                            speedChatDouble.insert(0, (playerFriendInfo.avatarId,
-                             0,
-                             playerFriendId,
-                             1))
-                        else:
-                            speedChatOneRef.insert(0, (0,
-                             0,
-                             playerFriendId,
-                             1))
-                    elif playerFriendInfo.understandableYesNo:
-                        freeChatOneRef.insert(0, (0,
-                         0,
-                         playerFriendId,
-                         1))
-                    else:
-                        speedChatOneRef.insert(0, (0,
-                         0,
-                         playerFriendId,
-                         1))
+        if self.panelType == FLTServer:
+            for objId, obj in base.cr.doId2do.items():
+                from toontown.toon import DistributedToon
+                if isinstance(obj, DistributedToon.DistributedToon) and obj.isPlayerControlled():
+                    friendPair = (
+                     objId, 0)
+                    speedChatOneRef.append(friendPair)
 
-        if self.panelType == FLPOnlinePlayers:
-            playerFriendList = base.cr.playerFriendsManager.playerFriendsList
-            for playerFriendId in playerFriendList:
-                if playerFriendId in base.cr.playerFriendsManager.playerId2Info:
-                    playerFriendInfo = base.cr.playerFriendsManager.playerId2Info.get(playerFriendId)
-                    if playerFriendInfo.onlineYesNo:
-                        if playerFriendInfo.understandableYesNo:
-                            if playerFriendInfo.avatarId:
-                                freeChatDouble.insert(0, (playerFriendInfo.avatarId,
-                                 0,
-                                 playerFriendId,
-                                 1))
-                            else:
-                                freeChatOneRef.insert(0, (0,
-                                 0,
-                                 playerFriendId,
-                                 1))
-                        elif playerFriendInfo.avatarId:
-                            speedChatDouble.insert(0, (playerFriendInfo.avatarId,
-                             0,
-                             playerFriendId,
-                             1))
-                        else:
-                            speedChatOneRef.insert(0, (0,
-                             0,
-                             playerFriendId,
-                             1))
+        if self.panelType == FLTZone:
+            for objId, obj in base.cr.doId2do.items():
+                from toontown.toon import DistributedToon
+                if isinstance(obj, DistributedToon.DistributedToon) and obj.isPlayerControlled():
+                    friendPair = (
+                     objId, 0)
+                    speedChatOneRef.append(friendPair)
 
         if self.panelType == FLPAll:
             if base.friendMode == 0:
@@ -683,11 +633,11 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
                 if self.panelType == FLPPets:
                     self.title['text'] = TTLocalizer.FriendsListPanelPets
                 else:
-                    if self.panelType == FLPPlayers:
-                        self.title['text'] = TTLocalizer.FriendsListPanelPlayers
+                    if self.panelType == FLTServer:
+                        self.title['text'] = TTLocalizer.FriendsListPanelToonsServer
                     else:
-                        if self.panelType == FLPOnlinePlayers:
-                            self.title['text'] = TTLocalizer.FriendsListPanelOnlinePlayers
+                        if self.panelType == FLTZone:
+                            self.title['text'] = TTLocalizer.FriendsListPanelToonsZone
                         else:
                             self.title['text'] = TTLocalizer.FriendsListPanelIgnoredFriends
         self.title.resetFrameSize()
@@ -711,7 +661,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             self.__updateScrollList()
 
     def __friendPlayers(self, doId):
-        if self.panelType == FLPPlayers:
+        if self.panelType == FLTServer:
             self.__updateScrollList()
 
     def __friendsListChanged(self, arg1=None, arg2=None):

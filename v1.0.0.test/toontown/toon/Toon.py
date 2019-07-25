@@ -51,6 +51,13 @@ GyroDialogueArray = []
 ScroogeDialogueArray = []
 SkeletonDialogueArray = []
 SuitDialogueArray = []
+MickeyDialogueArray = []
+MinnieDialogueArray = []
+GoofyDialogueArray = []
+DonaldDialogueArray = []
+DaisyDialogueArray = []
+ChipDialogueArray = []
+DaleDialogueArray = []
 LegsAnimDict = {}
 TorsoAnimDict = {}
 HeadAnimDict = {}
@@ -511,10 +518,17 @@ def compileGlobalAnimList():
 def loadDialog():
     global BearDialogueArray
     global CatDialogueArray
+    global ChipDialogueArray
+    global DaisyDialogueArray
+    global DaleDialogueArray
     global DogDialogueArray
+    global DonaldDialogueArray
     global DuckDialogueArray
+    global GoofyDialogueArray
     global GyroDialogueArray
     global HorseDialogueArray
+    global MickeyDialogueArray
+    global MinnieDialogueArray
     global MonkeyDialogueArray
     global MouseDialogueArray
     global PigDialogueArray
@@ -592,14 +606,42 @@ def loadDialog():
     for file in suitDialogueFiles:
         SuitDialogueArray.append(base.loader.loadSfx(loadPath + file + '.ogg'))
 
+    for x in range(6):
+        MickeyDialogueArray.append(base.loader.loadSfx('phase_3/audio/dial/mickey.ogg'))
+
+    for x in range(6):
+        MinnieDialogueArray.append(base.loader.loadSfx('phase_3/audio/dial/minnie.ogg'))
+
+    for x in range(6):
+        DaisyDialogueArray.append(base.loader.loadSfx('phase_4/audio/dial/daisy.ogg'))
+
+    for x in range(6):
+        GoofyDialogueArray.append(base.loader.loadSfx('phase_6/audio/dial/goofy.ogg'))
+
+    for x in range(6):
+        DonaldDialogueArray.append(base.loader.loadSfx('phase_6/audio/dial/donald.ogg'))
+
+    for x in range(6):
+        ChipDialogueArray.append(base.loader.loadSfx('phase_6/audio/dial/chip.ogg'))
+
+    for x in range(6):
+        DaleDialogueArray.append(base.loader.loadSfx('phase_6/audio/dial/dale.ogg'))
+
 
 def unloadDialog():
     global BearDialogueArray
     global CatDialogueArray
+    global ChipDialogueArray
+    global DaisyDialogueArray
+    global DaleDialogueArray
     global DogDialogueArray
+    global DonaldDialogueArray
     global DuckDialogueArray
+    global GoofyDialogueArray
     global GyroDialogueArray
     global HorseDialogueArray
+    global MickeyDialogueArray
+    global MinnieDialogueArray
     global MonkeyDialogueArray
     global MouseDialogueArray
     global PigDialogueArray
@@ -620,6 +662,13 @@ def unloadDialog():
     ScroogeDialogueArray = []
     SkeletonDialogueArray = []
     SuitDialogueArray = []
+    MickeyDialogueArray = []
+    MinnieDialogueArray = []
+    GoofyDialogueArray = []
+    DonaldDialogueArray = []
+    DaisyDialogueArray = []
+    ChipDialogueArray = []
+    DaleDialogueArray = []
 
 
 class Toon(Avatar.Avatar, ToonHead):
@@ -678,7 +727,8 @@ class Toon(Avatar.Avatar, ToonHead):
         self.defaultColorScale = None
         self.jar = None
         self.bobSwim = None
-        self.animeChair = None
+        self.track = None
+        self.transformationActor = None
         self.setTag('pieCode', str(ToontownGlobals.PieCodeToon))
         self.setFont(ToontownGlobals.getToonFont())
         self.soundChatBubble = base.loader.loadSfx('phase_3/audio/sfx/GUI_balloon_popup.ogg')
@@ -978,6 +1028,8 @@ class Toon(Avatar.Avatar, ToonHead):
             else:
                 if self.cheesyEffect == ToontownGlobals.CESmallToon:
                     height *= ToontownGlobals.SmallToonScale
+            if self.cheesyEffect == ToontownGlobals.CEStatueCJ:
+                height = 9
             if self.toonScale != 1:
                 height *= self.toonScale
             self.setHeight(height)
@@ -1458,6 +1510,9 @@ class Toon(Avatar.Avatar, ToonHead):
         else:
             if self.isCog in ToontownGlobals.PutOnSuitCogs:
                 animalType = 'suit'
+            else:
+                if self.getActiveTransformationIndex() == 1:
+                    animalType = self.char.style.getCharName()
         if animalType == 'dog':
             dialogueArray = DogDialogueArray
         else:
@@ -1497,7 +1552,43 @@ class Toon(Avatar.Avatar, ToonHead):
                                                         if animalType == 'suit':
                                                             dialogueArray = SuitDialogueArray
                                                         else:
-                                                            dialogueArray = None
+                                                            if animalType in ('mickey',
+                                                                              'vampire_mickey'):
+                                                                dialogueArray = MickeyDialogueArray
+                                                            else:
+                                                                if animalType in ('minnie',
+                                                                                  'witch_minnie'):
+                                                                    dialogueArray = MinnieDialogueArray
+                                                                else:
+                                                                    if animalType in ('goofy',
+                                                                                      'super_goofy'):
+                                                                        dialogueArray = GoofyDialogueArray
+                                                                    else:
+                                                                        if animalType in ('donald-wheel',
+                                                                                          'franken_donald'):
+                                                                            dialogueArray = DonaldDialogueArray
+                                                                        else:
+                                                                            if animalType in ('daisy',
+                                                                                              'sockHop_daisy'):
+                                                                                dialogueArray = DaisyDialogueArray
+                                                                            else:
+                                                                                if animalType in ('pluto',
+                                                                                                  'western_pluto'):
+                                                                                    dialogueArray = DogDialogueArray
+                                                                                else:
+                                                                                    if animalType in ('chip',
+                                                                                                      'police_chip'):
+                                                                                        dialogueArray = ChipDialogueArray
+                                                                                    else:
+                                                                                        if animalType in ('dale',
+                                                                                                          'jailbird_dale'):
+                                                                                            dialogueArray = DaleDialogueArray
+                                                                                        else:
+                                                                                            if animalType in ('donald',
+                                                                                                              'clarabelle'):
+                                                                                                dialogueArray = None
+                                                                                            else:
+                                                                                                dialogueArray = None
         return dialogueArray
 
     def getShadowJoint(self):
@@ -1651,11 +1742,21 @@ class Toon(Avatar.Avatar, ToonHead):
                     self.suit.stop()
                     self.suit.loop(anim)
                     self.suit.setPlayRate(rate, anim)
+                if self.transformationActor:
+                    self.transformationActor.stop()
+                    self.transformationActor.loop(anim)
+                    self.transformationActor.setPlayRate(rate, anim)
+                if self.getActiveTransformationIndex() == ToontownGlobals.TransformationClassicChar:
+                    self.char.stop()
+                    self.char.loop(anim)
+                    self.char.setPlayRate(rate, anim)
             else:
                 if rate != self.playingRate:
                     self.playingRate = rate
                     if not self.isDisguised:
                         self.setPlayRate(rate, anim)
+                    elif self.transformationActor:
+                        self.transformationActor.setPlayRate(rate, anim)
                     else:
                         self.suit.setPlayRate(rate, anim)
             showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
@@ -1692,9 +1793,12 @@ class Toon(Avatar.Avatar, ToonHead):
     def enterVictory(self, animMultiplier=1, ts=0, callback=None, extraArgs=[]):
         anim = 'victory'
         frame = int(ts * self.getFrameRate(anim) * animMultiplier)
-        self.pose(anim, frame)
-        self.loop('victory', restart=0)
-        self.setPlayRate(animMultiplier, 'victory')
+        if self.getIsTransformed():
+            self.playTransformationAnim('victory', [animMultiplier])
+        else:
+            self.pose(anim, frame)
+            self.loop('victory', restart=0)
+            self.setPlayRate(animMultiplier, 'victory')
         self.playingAnim = anim
         self.setActiveShadow(0)
 
@@ -2290,7 +2394,7 @@ class Toon(Avatar.Avatar, ToonHead):
         Emote.globalEmote.disableAll(self, 'enterTeleportIn')
         if self.getIsTransformed():
             self.track = self.playTransformationAnim('teleportIn')
-        else:
+        if not self.track:
             self.pose('teleport', self.getNumFrames('teleport') - 1)
             self.getGeomNode().hide()
             self.nametag3d.hide()
@@ -2612,7 +2716,10 @@ class Toon(Avatar.Avatar, ToonHead):
         if scale == None:
             scale = 1
         node = self.getActiveTransformationGeom()
-        track = Sequence(Parallel(LerpHprInterval(node, lerpTime, Vec3(0.0, 0.0, 0.0), blendType='easeInOut'), LerpScaleInterval(node, lerpTime, scale, blendType='easeInOut')), Func(self.resetHeight))
+        if node:
+            track = Sequence(Parallel(LerpHprInterval(node, lerpTime, Vec3(0.0, 0.0, 0.0), blendType='easeInOut'), LerpScaleInterval(node, lerpTime, scale, blendType='easeInOut')), Func(self.resetHeight))
+        else:
+            track = Sequence()
         return track
 
     def doToonColorScale(self, scale, lerpTime, keepDefault=0):
@@ -2903,12 +3010,55 @@ class Toon(Avatar.Avatar, ToonHead):
                     thing.setTransparency(1)
                     thing.setBin('transparent', 0)
 
+    def __doStatueCJ(self, lerpTime, toStatueCJ):
+        track = Sequence()
+        statueCJTrack = Parallel()
+
+        def getDustCloudIval():
+            dustCloud = DustCloud.DustCloud(fBillboard=0, wantSound=1)
+            dustCloud.setBillboardAxis(2.0)
+            dustCloud.setZ(3)
+            dustCloud.setScale(0.4)
+            dustCloud.createTrack()
+            return Sequence(Func(dustCloud.reparentTo, self), dustCloud.track, Func(dustCloud.destroy), name='dustCloadIval')
+
+        if lerpTime > 0.0:
+            dust = getDustCloudIval()
+            track.append(Func(dust.start))
+            track.append(Wait(0.5))
+        if toStatueCJ:
+            self.transformationActor = Actor.Actor('phase_14/models/char/cj-statue', {'neutral': 'phase_14/models/char/cj-statue-neutral', 'walk': 'phase_14/models/char/cj-statue-walk', 
+               'run': 'phase_14/models/char/cj-statue-walk', 
+               'jump': 'phase_14/models/char/cj-statue-jump', 
+               'victory': 'phase_14/models/char/cj-statue-dank-dance'})
+            self.transformationActor.setBlend(frameBlend=base.settings.getBool('game', 'smooth-animations', False))
+            self.transformationActor.loop('neutral')
+            self.transformationActor.setScale(self.toonScale)
+            shadow = loader.loadModel('phase_3/models/props/drop_shadow')
+            shadow.reparentTo(self.transformationActor)
+            shadow.setScale(0.69)
+            shadow.setAlphaScale(0.69)
+            shadow.setZ(0.069)
+            statueCJTrack.append(Func(self.find('**/actorGeom').hide))
+            statueCJTrack.append(Func(self.transformationActor.reparentTo, self))
+            statueCJTrack.append(Func(self.resetHeight))
+        else:
+            if self.transformationActor:
+                statueCJTrack.append(Func(self.transformationActor.cleanup))
+                statueCJTrack.append(Func(self.transformationActor.delete))
+                statueCJTrack.append(Func(self.transformationActor.removeNode))
+                statueCJTrack.append(Func(self.find('**/actorGeom').show))
+                statueCJTrack.append(Func(self.resetHeight))
+        track.append(statueCJTrack)
+        return track
+
     def __doToonGhostColorScale(self, scale, lerpTime, keepDefault=0):
         if keepDefault:
             self.defaultColorScale = scale
         if scale == None:
             scale = VBase4(1, 1, 1, 1)
-        node = self.getGeomNode()
+        actor = self.getActiveTransformation()
+        node = actor.getGeomNode()
         caps = self.getPieces(('torso', 'torso-bot-cap'))
         track = Sequence()
         track.append(Func(node.setTransparency, 1))
@@ -3016,6 +3166,8 @@ class Toon(Avatar.Avatar, ToonHead):
             return self.__doGreenToon(lerpTime, toGreen=True)
         if effect == ToontownGlobals.CEVirtual:
             return self.__doVirtual()
+        if effect == ToontownGlobals.CEStatueCJ:
+            return self.__doStatueCJ(lerpTime, toStatueCJ=True)
         if effect == ToontownGlobals.CEGhost:
             alpha = 0
             if localAvatar.seeGhosts:
@@ -3056,6 +3208,8 @@ class Toon(Avatar.Avatar, ToonHead):
             return self.__doGreenToon(lerpTime, toGreen=False)
         if effect == ToontownGlobals.CEVirtual:
             return self.__doUnVirtual()
+        if effect == ToontownGlobals.CEStatueCJ:
+            return self.__doStatueCJ(lerpTime, toStatueCJ=False)
         if effect == ToontownGlobals.CEGhost:
             return Sequence(Func(self.nametag3d.show), self.__doToonGhostColorScale(None, lerpTime, keepDefault=1))
         return Sequence()
@@ -3135,7 +3289,7 @@ class Toon(Avatar.Avatar, ToonHead):
             customIndices = OTPLocalizer.SCMenuCustomCogIndices[suitType]
             indices += range(customIndices[0], customIndices[1] + 1)
             self.chatMgr.chatInputSpeedChat.addCogMenu(indices)
-            self.cameraIndex = 3
+            self.cameraIndex = 4
             self.setCameraPositionByIndex(self.cameraIndex)
         if not tpose:
             self.suit.loop('neutral')
@@ -3348,17 +3502,21 @@ class Toon(Avatar.Avatar, ToonHead):
                 currentTransformation = activeTransformations.index(transformation)
                 break
 
+        if self.transformationActor:
+            return self.transformationActor
         if currentTransformation == -1:
             return self.getGeomNode().getChild(0)
         if currentTransformation == 0:
             return self.suitGeom
         if currentTransformation == 1:
-            return
+            return self.charGeom
         return
         return
 
     def getIsTransformed(self):
         if 1 in self.getActiveTransformations():
+            return True
+        if self.transformationActor:
             return True
         return False
 
@@ -3366,7 +3524,7 @@ class Toon(Avatar.Avatar, ToonHead):
         if not animName:
             return
         currentTransformation = self.getActiveTransformationIndex()
-        if currentTransformation == 0:
+        if currentTransformation == ToontownGlobals.TransformationCog:
             if animName == 'neutral':
                 animMultiplier = extraArgs[0]
                 self.suit.pose('neutral', int(self.getNumFrames('neutral') * self.randGen.random()))
@@ -3579,23 +3737,24 @@ class Toon(Avatar.Avatar, ToonHead):
                         elif animName == 'golf-swing':
                             animMultiplier = extraArgs[0]
                             self.suit.actorInterval('golf-club-swing', startFrame=65, playRate=5 * animMultiplier).start()
-        if currentTransformation == 1:
-            return Sequence()
-            if animName == 'neutral':
-                animMultiplier = extraArgs[0]
-                self.char.pose('neutral', int(self.getNumFrames('neutral') * self.randGen.random()))
-                self.char.loop('neutral', restart=0)
-                self.char.setPlayRate(animMultiplier, 'neutral')
-            elif animName == 'walk':
-                animMultiplier = extraArgs[0]
-                self.char.pose('walk', int(self.getNumFrames('walk') * self.randGen.random()))
-                self.char.loop('walk', restart=0)
-                self.char.setPlayRate(animMultiplier, 'walk')
-            elif animName == 'run':
-                animMultiplier = extraArgs[0]
-                self.char.pose('run', int(self.getNumFrames('run') * self.randGen.random()))
-                self.char.loop('run', restart=0)
-                self.char.setPlayRate(animMultiplier, 'run')
+        if currentTransformation == ToontownGlobals.TransformationClassicChar:
+            if animName == 'teleport':
+                scale = self.toonScale
+                return Sequence(LerpScaleInterval(self.charGeom, 0.25, (scale + scale * 0.15, scale + scale * 0.15, scale + scale * 0.15)), LerpScaleInterval(self.charGeom, 0.75, (0.1,
+                                                                                                                                                                                    0.1,
+                                                                                                                                                                                    0.1)))
+            if animName == 'teleportIn':
+                scale = self.toonScale
+                return Sequence(LerpScaleInterval(self.charGeom, 0.75, startScale=(0.1,
+                                                                                   0.1,
+                                                                                   0.1), scale=(scale + scale * 0.15, scale + scale * 0.15, scale + scale * 0.15)), LerpScaleInterval(self.charGeom, 0.25, (scale, scale, scale)))
+        if self.transformationActor:
+            if animName == 'jump-idle':
+                self.transformationActor.loop('jump')
+            elif animName == 'victory':
+                sfx = loader.loadSfx('phase_14.5/audio/sfx/cj-statue-dance.ogg')
+                base.playSfx(sfx, node=self)
+                self.transformationActor.loop('victory')
 
     def stopTransformationAnim(self, animName):
         if not animName:
@@ -3952,7 +4111,8 @@ class Toon(Avatar.Avatar, ToonHead):
             portal.setPos(self.getPos())
         if self.isLocal():
             camera.wrtReparentTo(render)
-        seq = Sequence(Func(self.loop, 'run'), Func(self.headsUp, portal), Parallel(self.__doToonGhostColorScale(VBase4(1, 1, 1, 0), 2.0, keepDefault=1), LerpPosInterval(self, 2.0, (portal.getX(geom), portal.getY(geom), portal.getZ(geom)))), Func(self.nametag3d.hide))
+        actor = self.getActiveTransformation()
+        seq = Sequence(Func(actor.loop, 'run'), Func(self.headsUp, portal), Parallel(self.__doToonGhostColorScale(VBase4(1, 1, 1, 0), 2.0, keepDefault=1), LerpPosInterval(self, 2.0, (portal.getX(geom), portal.getY(geom), portal.getZ(geom)))), Func(self.nametag3d.hide))
         if portal.getName() == 'dummyPortalNode':
             seq.append(Func(portal.removeNode))
         track = Parallel(seq, name=trackName, autoFinish=autoFinishTrack)
@@ -3962,7 +4122,7 @@ class Toon(Avatar.Avatar, ToonHead):
         name = self.name
         if hasattr(self, 'doId'):
             name += '-' + str(self.doId)
-        self.notify.debug('enterTeleportOut %s' % name)
+        self.notify.debug('enterPortalOut %s' % name)
         if self.ghostMode or self.isDisguised:
             if callback:
                 callback(*extraArgs)
@@ -4030,9 +4190,10 @@ class Toon(Avatar.Avatar, ToonHead):
             base.localAvatar.stopUpdateSmartCamera()
             camera.setPosHpr(portal, 25, 25, 5, -10, 0, 0)
             camera.headsUp(portal)
-        seq = Sequence(Func(self.getGeomNode().show), Func(self.nametag3d.show), Func(self.reparentTo, portal), Func(self.setPos, 0, 0, 0), Func(self.loop, 'run'), Func(self.headsUp, 10, 10, 0), Parallel(self.__doToonGhostColorScale(VBase4(1, 1, 1, 1), 3.0, keepDefault=1), LerpPosInterval(self, 3.0, (10,
-                                                                                                                                                                                                                                                                                                              10,
-                                                                                                                                                                                                                                                                                                              0))), Func(self.wrtReparentTo, render))
+        actor = self.getActiveTransformation()
+        seq = Sequence(Func(actor.getGeomNode().show), Func(self.nametag3d.show), Func(self.reparentTo, portal), Func(self.setPos, 0, 0, 0), Func(actor.loop, 'run'), Func(self.headsUp, 10, 10, 0), Parallel(self.__doToonGhostColorScale(VBase4(1, 1, 1, 1), 3.0, keepDefault=1), LerpPosInterval(self, 3.0, (10,
+                                                                                                                                                                                                                                                                                                                10,
+                                                                                                                                                                                                                                                                                                                0))), Func(self.wrtReparentTo, render))
         if portal.getName() == 'dummyPortalNode':
             seq.append(Func(portal.removeNode))
         return Parallel(seq, name=trackName)
@@ -4061,7 +4222,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.track.finish()
             DelayDelete.cleanupDelayDeletes(self.track)
             self.track = None
-        if not self.ghostMode and not self.isDisguised:
+        if not self.ghostMode and not self.getIsTransformed():
             self.getGeomNode().show()
             self.nametag3d.show()
         Emote.globalEmote.releaseAll(self, 'exitPortalIn')

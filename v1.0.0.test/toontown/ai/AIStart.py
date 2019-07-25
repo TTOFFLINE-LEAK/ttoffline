@@ -20,6 +20,16 @@ if serverSettings.aiAstronIP:
     localConfig += 'air-connect %s\n' % serverSettings.aiAstronIP
 if serverSettings.aiEventLoggerIP:
     localConfig += 'eventlog-host %s\n' % serverSettings.aiEventLoggerIP
+if serverSettings.expMultiplier:
+    localConfig += 'exp-multiplier %s\n' % serverSettings.expMultiplier
+if serverSettings.meritMultiplier:
+    localConfig += 'merit-multiplier %s\n' % serverSettings.meritMultiplier
+if serverSettings.doodleMultiplier:
+    localConfig += 'doodle-multiplier %s\n' % serverSettings.doodleMultiplier
+if serverSettings.defaultMaxToon:
+    localConfig += 'default-max-toon %s\n' % serverSettings.defaultMaxToon
+if serverSettings.defaultZone:
+    localConfig += 'default-zone %s\n' % serverSettings.defaultZone
 if serverSettings.aiDistrictLimit:
     localConfig += 'district-limit %s\n' % serverSettings.aiDistrictLimit
 if serverSettings.aiDistrictDescription:
@@ -43,7 +53,7 @@ class game:
 __builtin__.game = game
 from otp.ai.AIBaseGlobal import *
 from toontown.ai.ToontownAIRepository import ToontownAIRepository
-simbase.air = ToontownAIRepository(config.GetInt('air-base-channel', 401000000), config.GetInt('air-stateserver', 10000), config.GetString('district-name', 'Toon Valley'), config.GetInt('district-limit', 16), config.GetString('district-description', 'A Toontown Offline Mini-Server.'), config.GetString('district-id', ''), config.GetString('event-id', ''), config.GetString('default-access-level', 'USER'))
+simbase.air = ToontownAIRepository(config.GetInt('air-base-channel', 401000000), config.GetInt('air-stateserver', 10000), config.GetFloat('exp-multiplier', 1.0), config.GetFloat('merit-multiplier', 1.0), config.GetFloat('doodle-multiplier', 1.0), config.GetBool('default-max-toon', False), config.GetString('default-zone', 'TTC'), config.GetString('district-name', 'Toon Valley'), config.GetInt('district-limit', 16), config.GetString('district-description', 'A Toontown Offline Mini-Server.'), config.GetString('district-id', ''), config.GetString('event-id', ''), config.GetString('default-access-level', 'USER'))
 host = config.GetString('air-connect', '127.0.0.1')
 port = 7199
 if ':' in host:

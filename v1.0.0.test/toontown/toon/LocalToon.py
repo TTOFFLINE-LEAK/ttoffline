@@ -1259,7 +1259,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             latency = 0
             sync = 0
 
-        return ('Mouse: ({0:.2f}, {1:.2f})\nPos: ({2:.2f}, {3:.2f}, {4:.2f})\nH: {5:.2f}\nLatency: {6:.2f} ms\nSync: \xb1{7:.2f} ms\nPython: {8}\nZone: {9}\nShard: {10}\nDistrict: {11}\nOS: {12}').format(mouseX, mouseY, pos[0], pos[1], pos[2], self.getH() % 360, latency, sync, self.pythonVersion, zoneId, shard, districtName, sys.platform)
+        str = ('Mouse: ({0:.2f}, {1:.2f})\nPos: ({2:.2f}, {3:.2f}, {4:.2f})\nH: {5:.2f}\nLatency: {6:.2f} ms\nSync: \xb1{7:.2f} ms\nPython: {8}\nZone: {9}\nShard: {10}\nDistrict: {11}\nOS: {12}').format(mouseX, mouseY, pos[0], pos[1], pos[2], self.getH() % 360, latency, sync, self.pythonVersion, zoneId, shard, districtName, sys.platform)
+        str = unicode(str, errors='ignore')
+        return str
 
     def __updateDebugLabel(self, task):
         try:

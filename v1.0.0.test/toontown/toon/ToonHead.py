@@ -347,7 +347,8 @@ class ToonHead(Actor.Actor):
         else:
             searchRoot = self.find('**/' + str(lodName))
         pumpkin = searchRoot.find('**/__Actor_head/pumpkin*')
-        pumpkin.stash()
+        if not pumpkin.isEmpty():
+            pumpkin.stash()
         return
 
     def enablePumpkins(self, enable):
@@ -544,7 +545,6 @@ class ToonHead(Actor.Actor):
                 rpt = self.__eyes.attachNewNode('')
                 lpt.wrtReparentTo(self.__lpupil)
                 rpt.wrtReparentTo(self.__rpupil)
-                print base
                 if base.classicVisuals in (0, 2):
                     if style.head[0] + style.head[1] == 'ds':
                         x = 0.024

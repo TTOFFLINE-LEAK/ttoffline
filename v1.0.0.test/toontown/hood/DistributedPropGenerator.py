@@ -40,6 +40,7 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         self.hiddenPropPreviews = []
         self.savedValues = {}
         self.totalPropCount = None
+        self.serverPropList = []
         return
 
     def announceGenerate(self):
@@ -66,9 +67,12 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         self.accept('f11', self.openNewPropWindow)
         self.sendUpdate('requestProps')
 
-    def loadProps(self, propList):
+    def loadProp(self, prop):
+        self.serverPropList.append(prop)
+
+    def loadProps(self):
         propsToReparent = []
-        for prop in propList:
+        for prop in self.serverPropList:
             if prop[22]:
                 propsToReparent.append(prop)
             self.spawnProp(prop)
@@ -185,6 +189,8 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         if not BattleProps.globalPropPool.propTypes.get(propName, None):
             return
         prop = BattleProps.globalPropPool.getProp(propName)
+        prop.flattenLight()
+        prop.clearTransform()
         prop.reparentTo(self.propNode)
         if BattleProps.globalPropPool.propTypes[propName] == 'actor':
             prop.loop(propName)
@@ -214,16 +220,18 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                                                                                     'Down',
                                                                                     'Up',
                                                                                     'Disabled') ]
-        self.editorGUI = DirectFrame(parent=base.a2dRightCenter, relief=None, pos=(-0.446,
-                                                                                   0.0,
-                                                                                   -0.22), scale=(0.57,
-                                                                                                  0.57,
-                                                                                                  0.57), geom=geom, geom_scale=(1.4,
-                                                                                                                                1,
-                                                                                                                                1), geom_color=(1,
-                                                                                                                                                1,
-                                                                                                                                                0.75,
-                                                                                                                                                1))
+        self.editorGUI = DirectButton(parent=base.a2dRightCenter, relief=None, pos=(-0.446,
+                                                                                    0.0,
+                                                                                    -0.22), scale=(0.57,
+                                                                                                   0.57,
+                                                                                                   0.57), geom=geom, geom_scale=(1.4,
+                                                                                                                                 1,
+                                                                                                                                 1), geom_color=(1,
+                                                                                                                                                 1,
+                                                                                                                                                 0.75,
+                                                                                                                                                 1))
+        self.editorGUI.bind(DGG.B1PRESS, self.dragStart, extraArgs=[0])
+        self.editorGUI.bind(DGG.B1RELEASE, self.dragStop, extraArgs=[0])
         editLeftButton = DirectButton(self.editorGUI, relief=None, image_scale=0.7, image=arrow, pos=(-0.455,
                                                                                                       0.0,
                                                                                                       0.3925), command=self.changePage, extraArgs=[-1])
@@ -232,19 +240,21 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                                                                                  0.7), image=arrow, pos=(0.455,
                                                                                                          0,
                                                                                                          0.3925), command=self.changePage, extraArgs=[1])
-        self.generatorGUI = DirectFrame(parent=base.a2dRightCenter, relief=None, pos=(-0.446,
-                                                                                      0.0,
-                                                                                      -0.22), scale=(0.57,
-                                                                                                     0.57,
-                                                                                                     0.57), geom=geom, geom_scale=(1.4,
-                                                                                                                                   1,
-                                                                                                                                   1), geom_color=(1,
-                                                                                                                                                   1,
-                                                                                                                                                   0.75,
-                                                                                                                                                   1))
+        self.generatorGUI = DirectButton(parent=base.a2dRightCenter, relief=None, pos=(-0.446,
+                                                                                       0.0,
+                                                                                       -0.22), scale=(0.57,
+                                                                                                      0.57,
+                                                                                                      0.57), geom=geom, geom_scale=(1.4,
+                                                                                                                                    1,
+                                                                                                                                    1), geom_color=(1,
+                                                                                                                                                    1,
+                                                                                                                                                    0.75,
+                                                                                                                                                    1))
+        self.generatorGUI.bind(DGG.B1PRESS, self.dragStart, extraArgs=[1])
+        self.generatorGUI.bind(DGG.B1RELEASE, self.dragStop, extraArgs=[1])
         propPickerNode = self.generatorGUI.attachNewNode('propPickerNode')
         self.totalPropCount = DirectLabel(parent=propPickerNode, relief=None, text=TTLocalizer.PropGeneratorTotalCount % (
-         len(self.propList.keys()), ToontownGlobals.MaxPropCount), text_scale=0.08, text_wordwrap=12, text_align=TextNode.ACenter, textMayChange=1, pos=(-0.175,
+         len(self.propList.keys()), ToontownGlobals.MaxPropCount), text_scale=0.06, text_wordwrap=12, text_align=TextNode.ACenter, textMayChange=1, pos=(-0.175,
                                                                                                                                                          0,
                                                                                                                                                          -0.385))
         generateLeftButton = DirectButton(propPickerNode, relief=None, image_scale=0.7, image=arrow, pos=(-0.555,
@@ -412,6 +422,10 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                         if effectIndex in range(2, 4):
                             pos = (
                              0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
+                        else:
+                            if effectIndex == 4:
+                                pos = (
+                                 -0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
                     settingsButton = DirectButton(parent=self.pages[effectPageIndex], relief=None, image=(
                      submitButtonGui.find('**/QuitBtn_UP'),
                      submitButtonGui.find('**/QuitBtn_DN'),
@@ -678,9 +692,9 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         if propInfo[9]:
             secondaryPropIndex = propInfo[8]
             secondaryPropInfo = self.propList[secondaryPropIndex]
-            self.propInfoLabels[12].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+            self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
         else:
-            self.propInfoLabels[12].setText('')
+            self.propInfoLabels[13].setText('')
         propInformation = (propInfo[4] + '\n                   (%s)' % propInfo[3],
          propInfo[6] + '\n              (%s)' % propInfo[5],
          PythonUtil.formatElapsedSeconds(globalClockDelta.localElapsedTime(propInfo[2], bits=32)) + ' ago',
@@ -716,7 +730,7 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                     infoLabel['state'] = DGG.DISABLED
                 else:
                     infoLabel['state'] = DGG.NORMAL
-            elif index in (8, 9, 10, 11, 12):
+            elif index in (8, 9, 10, 11, 12, 13):
                 pass
             else:
                 infoLabel.setText(TTLocalizer.PropEditorPage6[index] + propInformation[index])
@@ -842,6 +856,9 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
             return
         propIndex = int(self.selectedProp.getTag(self.propTag))
         propInfo = self.propList[propIndex]
+        if toggleSettings == 4:
+            self.sendUpdate('d_dupeProp', [propIndex])
+            return
         propName = propInfo[0]
         spawnTime = propInfo[2]
         creatorAvId = propInfo[3]
@@ -899,8 +916,7 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
             info[6], info[7], info[8] = scale[0], scale[1], scale[2]
             colorscale = self.savedValues['colorscale']
             info[9], info[10], info[11] = colorscale[0], colorscale[1], colorscale[2]
-        self.savedValues['pos'] = (
-         info[0], info[1], info[2])
+        self.savedValues['pos'] = (info[0], info[1], info[2])
         self.savedValues['hpr'] = (info[3], info[4], info[5])
         self.savedValues['scale'] = (info[6], info[7], info[8])
         self.savedValues['colorscale'] = (info[9], info[10], info[11])
@@ -970,7 +986,7 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         if not index:
             self.confirmDeleteProp()
         else:
-            if index in range(1, 4):
+            if index in range(1, 5):
                 self.confirmUpdateProp(index)
 
     def confirmDeleteProp(self):
@@ -998,20 +1014,20 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         if index == 2:
             propInfo[8] = 0
             propInfo[9] = False
-            self.propInfoLabels[12].setText('')
+            self.propInfoLabels[13].setText('')
             self.confirmUpdateProp()
             return
         if secondaryProp is None:
             self.acceptOnce('selectSecondaryProp', self.toggleReparent, extraArgs=[index])
-            self.propInfoLabels[12].setText(TTLocalizer.PropEditorPage5ChooseProp)
+            self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ChooseProp)
             return
         if secondaryProp == 0:
             if propInfo[9]:
                 secondaryPropIndex = propInfo[8]
                 secondaryPropInfo = self.propList[secondaryPropIndex]
-                self.propInfoLabels[12].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+                self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
             else:
-                self.propInfoLabels[12].setText('')
+                self.propInfoLabels[13].setText('')
             return
         secondaryPropIndex = int(secondaryProp.getTag(self.propTag))
         secondaryPropInfo = self.propList[secondaryPropIndex]
@@ -1019,14 +1035,14 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
             if propInfo[9]:
                 secondaryPropIndex = propInfo[8]
                 secondaryPropInfo = self.propList[secondaryPropIndex]
-                self.propInfoLabels[12].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+                self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
             else:
-                self.propInfoLabels[12].setText('')
+                self.propInfoLabels[13].setText('')
             return
         if index == 0:
             propInfo[8] = secondaryPropIndex
             propInfo[9] = True
-            self.propInfoLabels[12].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+            self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
             self.confirmUpdateProp()
         else:
             if index == 1:
@@ -1048,11 +1064,11 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
 
                 propInfo[8] = secondaryPropIndex
                 propInfo[9] = True
-                self.propInfoLabels[12].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+                self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
                 self.confirmUpdateProp()
             else:
                 if index == 3:
-                    self.propInfoLabels[12].setText('')
+                    self.propInfoLabels[13].setText('')
                     pos = secondaryProp.getPos()
                     for infoPanelIndex in range(3):
                         infoPanel = self.propInfoPanels[infoPanelIndex]
@@ -1121,3 +1137,30 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
 
     def disableHotkey(self):
         self.ignore('f11')
+
+    def dragStart(self, type, event):
+        button = self.getButton(type)
+        taskMgr.remove(self.taskName('dragTask'))
+        vWidget2render2d = button.getPos(render2d)
+        vMouse2render2d = Point3(event.getMouse()[0], 0, event.getMouse()[1])
+        editVec = Vec3(vWidget2render2d - vMouse2render2d)
+        task = taskMgr.add(self.dragTask, self.taskName('dragTask'), extraArgs=[type], appendTask=True)
+        task.editVec = editVec
+
+    def dragTask(self, type, task):
+        button = self.getButton(type)
+        mwn = base.mouseWatcherNode
+        if mwn.hasMouse():
+            vMouse2render2d = Point3(mwn.getMouse()[0], 0, mwn.getMouse()[1])
+            newPos = vMouse2render2d + task.editVec
+            button.setPos(render2d, newPos)
+        return Task.cont
+
+    def dragStop(self, type, event):
+        button = self.getButton(type)
+        taskMgr.remove(self.taskName('dragTask'))
+
+    def getButton(self, type):
+        if not type:
+            return self.editorGUI
+        return self.generatorGUI

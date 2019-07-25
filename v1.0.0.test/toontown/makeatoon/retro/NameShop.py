@@ -1267,12 +1267,13 @@ class NameShop(StateData.StateData):
         self.notify.debug('ParentPos = %.2f %.2f %.2f' % (parentPos[0], parentPos[1], parentPos[2]))
 
     def __isFirstTime(self):
-        if config.GetBool('want-operation-duckhunt', False):
-            if hasattr(self, 'acceptedDialog'):
-                self.__handleAcceptedDone()
-            self.__handleSkipTutorial()
+        if self.parentFSM.warp:
+            self.__createAvatar()
         else:
-            self.promptTutorial()
+            if base.cr.moddingManager.getDefaultMaxToon():
+                self.promptMaxToon()
+            else:
+                self.promptTutorial()
 
     def promptTutorial(self):
         self.promptTutorialDialog = TTDialog.TTDialog(parent=aspect2dp, text=TTLocalizer.PromptTutorial, text_scale=0.06, text_align=TextNode.ACenter, text_wordwrap=22, command=self.__openTutorialDialog, fadeScreen=0.5, style=TTDialog.TwoChoice, buttonTextList=[
@@ -1292,6 +1293,17 @@ class NameShop(StateData.StateData):
                 self.notify.info('QA-REGRESSION: SKIPTUTORIAL: Skip Tutorial')
             self.__handleSkipTutorial()
         self.promptTutorialDialog.destroy()
+
+    def promptMaxToon(self):
+        self.promptMaxToonDialog = TTDialog.TTDialog(parent=aspect2dp, text=TTLocalizer.PromptMaxToon, text_scale=0.06, text_align=TextNode.ACenter, text_wordwrap=22, command=self.__openMaxToonDialog, fadeScreen=0.5, style=TTDialog.Acknowledge, sortOrder=DGG.NO_FADE_SORT_INDEX)
+        self.promptMaxToonDialog.show()
+
+    def __openMaxToonDialog(self, state):
+        self.notify.debug('skipTutorial - maxToon')
+        if base.config.GetBool('want-qa-regression', 0):
+            self.notify.info('QA-REGRESSION: SKIPTUTORIAL: Skip Tutorial - Max Toon')
+        self.__handleSkipTutorial()
+        self.promptMaxToonDialog.destroy()
 
     def __handleSkipTutorial(self):
         self.__createAvatar(skipTutorial=True)

@@ -549,3 +549,6 @@ class DistributedToonUD(DistributedObjectUD):
 
     def pingresp(self, todo0):
         pass
+
+    def setUnlocks(self, todo0):
+        pass

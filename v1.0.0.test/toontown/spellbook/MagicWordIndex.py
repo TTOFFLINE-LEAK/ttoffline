@@ -174,11 +174,11 @@ class SetSpeed(MagicWord):
      'speed']
     desc = 'Sets your running speed.'
     execLocation = MagicWordConfig.EXEC_LOC_CLIENT
-    arguments = [('speed', int, False, OTPGlobals.ToonForwardSpeed)]
+    arguments = [('speed', float, False, OTPGlobals.ToonForwardSpeed)]
 
     def handleWord(self, invoker, avId, toon, *args):
         speed = args[0]
-        if not 1 <= speed <= 1000:
+        if not 1.0 <= speed <= 1000.0:
             return ("Can't set speed to {}! Specify a value between 1 and 1000.").format(toon.getName())
         if speed == OTPGlobals.ToonForwardSpeed:
             base.localAvatar.currentSpeed = OTPGlobals.ToonForwardSpeed
@@ -247,7 +247,7 @@ class MaxToon(MagicWord):
             toon.removeQuest(id)
 
         toon.b_setQuestCarryLimit(ToontownGlobals.MaxQuestCarryLimit)
-        toon.b_setRewardHistory(Quests.ELDER_TIER, toon.getRewardHistory()[1])
+        toon.b_setRewardHistory(Quests.COG_NATION_TIER, toon.getRewardHistory()[1])
         allFish = TTLocalizer.FishSpeciesNames
         fishLists = [[], [], []]
         for genus in allFish.keys():
@@ -276,9 +276,12 @@ class UnlockEmotes(MagicWord):
     execLocation = MagicWordConfig.EXEC_LOC_SERVER
 
     def handleWord(self, invoker, avId, toon, *args):
-        currentEmotes = toon.getEmoteAccess()
         newEmotes = []
-        for emote in OTPLocalizer.EmoteList:
+        emoteList = [
+         'Wave', 'Happy', 'Sad', 'Angry', 'Sleepy', 'Dance', 'Think', 'Bored', 'Applause', 'Cringe',
+         'Confused', 'Bow', 'Delighted', 'Belly Flop', 'Banana Peel', 'Shrug', 'Surprise', 'Furious',
+         'Laugh', 'Cry', 'Resistance Salute', 'Taunt']
+        for emote in emoteList:
             id = OTPLocalizer.EmoteFuncDict.get(emote, -1)
             if id == -1:
                 continue
@@ -478,8 +481,11 @@ class Teleport(MagicWord):
             request = ToontownGlobals.hood2Id[hood.upper()]
         except:
             return 'Invalid location!'
+        else:
+            hoodId = request[0]
+            if hoodId in (ToontownGlobals.ToontownOutskirts, ToontownGlobals.ToontownCentralBeta, ToontownGlobals.DaisyGardensBeta) and not toon.getUnlocks()[0]:
+                return "You don't know how to get to that location yet!"
 
-        hoodId = request[0]
         toon.d_doTeleport(hood)
         return ('Teleporting {0} to {1}!').format(toon.getName(), ToontownGlobals.hoodNameMap[hoodId][(-1)])
 
@@ -495,7 +501,7 @@ class SetScale(MagicWord):
         scale = args[0]
         if not 0.1 <= scale <= 5:
             return 'That scale is out of range! It must be between 0.1 and 5.'
-        toon.setToonScale(scale)
+        toon.d_setToonScale(scale)
         return ("Set {}'s scale to {}!").format(toon.getName(), scale)
 
 
@@ -982,7 +988,7 @@ class SetCEIndex(MagicWord):
         index = args[0]
         zoneId = args[1]
         duration = args[2]
-        if not 0 <= index <= 15:
+        if not 0 <= index <= 16:
             return 'Invalid value %s specified for Cheesy Effect.' % index
         if zoneId != 0 and not 100 < zoneId < ToontownGlobals.DynamicZonesBegin:
             return 'Invalid zoneId specified.'
@@ -1290,7 +1296,7 @@ class SetCogIndex(MagicWord):
      'cogindex']
     desc = "Set the target's cog index."
     execLocation = MagicWordConfig.EXEC_LOC_SERVER
-    arguments = [('department', int, True), ('cogType', int, False, 0)]
+    arguments = [('department', int, False, -1), ('cogType', int, False, 0)]
 
     def handleWord(self, invoker, avId, toon, *args):
         deptIndex = args[0]
@@ -1376,9 +1382,10 @@ class SetDNA(MagicWord):
                                     headSize = dna.head[1:3]
                                     if value in ('gyro', 'scrooge'):
                                         headSize = 'ss'
-                                    if value == 'mouse':
-                                        if headSize in ('sl', 'll'):
-                                            headSize = 'ls'
+                                    else:
+                                        if value == 'mouse':
+                                            if headSize in ('sl', 'll'):
+                                                headSize = 'ls'
                                     dna.head = species.get(value) + headSize
                                 else:
                                     if part == 'headsize':
@@ -1390,7 +1397,8 @@ class SetDNA(MagicWord):
                                         except ValueError:
                                             return 'Invalid type of value!'
                                         else:
-                                            if species in ('gyro', 'scrooge'):
+                                            print species
+                                            if species in ('i', 'o'):
                                                 return 'DNA: Cannot change the head size of this species.'
                                             if species == 'm':
                                                 if not 0 <= value <= 1:
@@ -2086,7 +2094,7 @@ class SetTrophyScore(MagicWord):
 class GivePies(MagicWord):
     aliases = [
      'pies']
-    desc = 'Give target Y number of X pies.'
+    desc = 'Gives the target pies to throw.'
     execLocation = MagicWordConfig.EXEC_LOC_SERVER
     arguments = [('type', int, True), ('amount', int, False, -1)]
 
@@ -2097,13 +2105,13 @@ class GivePies(MagicWord):
             toon.b_setNumPies(0)
             return "Removed %s's pies." % toon.getName()
         if not 0 <= pieType <= 7:
-            return 'pieType value out of range (0-7)'
+            return 'You can only specify between pie types 0 and 7.'
         if numPies == -1:
             toon.b_setPieType(pieType)
             toon.b_setNumPies(ToontownGlobals.FullPies)
-            return 'Gave infinite pies.'
+            return 'Gave %s an infinite amount of pies' % toon.getName()
         if not 0 <= numPies <= 99:
-            return 'numPies value out of range (0-99)'
+            return 'You can only specify between 0 and 99 pies.'
         toon.b_setPieType(pieType)
         toon.b_setNumPies(numPies)
 
@@ -2393,28 +2401,6 @@ class SetNametagStyle(MagicWord):
                 return 'Invalid nametag name entered.'
         toon.b_setNametagStyle(index)
         return "Set %s's nametag style successfully." % toon.getName()
-
-
-class Emotes(MagicWord):
-    desc = 'Unlock all of the emotes on the target toon.'
-    execLocation = MagicWordConfig.EXEC_LOC_SERVER
-
-    def handleWord(self, invoker, avId, toon, *args):
-        emotes = list(toon.getEmoteAccess())
-        EMOTES = [
-         'Wave', 'Happy', 'Sad', 'Angry', 'Sleepy',
-         'Dance', 'Think', 'Bored', 'Applause', 'Cringe',
-         'Confused', 'Bow', 'Delighted', 'Belly Flop', 'Banana Peel',
-         'Shrug', 'Surprise', 'Furious',
-         'Laugh', 'Cry', 'Resistance Salute', 'Taunt']
-        for emote in EMOTES:
-            emoteId = OTPLocalizer.EmoteFuncDict.get(emote)
-            if emoteId is None:
-                continue
-            emotes[emoteId] = 1
-
-        toon.b_setEmoteAccess(emotes)
-        return 'Unlocked all emotes for %s.' % toon.getName()
 
 
 class Phrase(MagicWord):

@@ -58,6 +58,9 @@ class DistributedSpecialZonePortalAI(DistributedObjectAI.DistributedObjectAI):
             self.eligibleToons.remove(avId)
 
     def handlePhrase(self, avId, zoneId, phraseId):
+        av = self.air.doId2do.get(avId)
+        if not av:
+            return
         if zoneId != self.zoneId or avId not in self.eligibleToons:
             return
         if phraseId == 1012 and not self.portalState:
@@ -71,7 +74,8 @@ class DistributedSpecialZonePortalAI(DistributedObjectAI.DistributedObjectAI):
             zoneId = ToontownGlobals.Phrase2Location[phraseId]
             self.setPortalState(1)
             self.togglePortal(0, avId, zoneId)
-            if zoneId == ToontownGlobals.SpecialHood:
+            if zoneId == ToontownGlobals.ToontownOutskirts:
+                av.b_setUnlocks([1])
                 from toontown.hood.SpecialHoodDataAI import SpecialHoodDataAI
                 for hood in simbase.air.hoods:
                     if isinstance(hood, SpecialHoodDataAI):

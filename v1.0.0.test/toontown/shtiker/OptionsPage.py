@@ -611,6 +611,8 @@ class ExtraOptionsTabPage(DirectFrame):
         self.TextToSpeechFilePath_Label.setScale(0.9)
         self.MagicWordActivator_Label = DirectLabel(parent=self, relief=None, text=TTLocalizer.ExtraOptionsPageMagicWordActivatorLabel, text_align=TextNode.ALeft, text_scale=options_text_scale, text_wordwrap=10, pos=(
          leftMargin, 0, textStartHeight - 2 * textRowHeight))
+        self.GlobalChatWhispers_Label = DirectLabel(parent=self, relief=None, text='', text_align=TextNode.ALeft, text_scale=options_text_scale, text_wordwrap=10, pos=(
+         leftMargin, 0, textStartHeight - 3 * textRowHeight))
         self.TextToSpeech_toggleButton = DirectButton(parent=self, relief=None, image=(
          guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR')), image_scale=button_image_scale, text='', text_scale=options_text_scale, text_pos=button_textpos, pos=(
          buttonbase_xcoord, 0.0, buttonbase_ycoord), command=self.__doToggleTextToSpeech)
@@ -635,6 +637,10 @@ class ExtraOptionsTabPage(DirectFrame):
         self.magicWordActivatorText.setScale(self.speed_chat_scale)
         self.magicWordActivatorText.setPos(0.37, 0, buttonbase_ycoord - textRowHeight * 2 + 0.03)
         self.magicWordActivatorText.reparentTo(self, DGG.FOREGROUND_SORT_INDEX)
+        self.GlobalChatWhispers_toggleButton = DirectButton(parent=self, relief=None, image=(
+         guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR')), image_scale=button_image_scale, text='', text_scale=options_text_scale, text_pos=button_textpos, pos=(
+         buttonbase_xcoord, 0.0,
+         buttonbase_ycoord - textRowHeight * 3), command=self.__doToggleGlobalChatWhispers)
         guiButton.removeNode()
         gui.removeNode()
         return
@@ -647,6 +653,7 @@ class ExtraOptionsTabPage(DirectFrame):
         self.magicWordActivatorText.enter()
         self.magicWordActivatorIndex = MagicWordConfig.PREFIX_ALLOWED.index(base.cr.magicWordManager.chatPrefix)
         self.updateMagicWordActivator()
+        self.__setGlobalChatWhispersButton()
 
     def exit(self):
         self.ignore('confirmDone')
@@ -658,12 +665,14 @@ class ExtraOptionsTabPage(DirectFrame):
         self.TextToSpeechFilePath_toggleButton.destroy()
         self.magicWordActivatorLeftArrow.destroy()
         self.magicWordActivatorRightArrow.destroy()
+        self.GlobalChatWhispers_toggleButton.destroy()
         del self.TextToSpeech_Label
         del self.TextToSpeechFilePath_Label
         del self.TextToSpeech_toggleButton
         del self.TextToSpeechFilePath_toggleButton
         del self.magicWordActivatorLeftArrow
         del self.magicWordActivatorRightArrow
+        del self.GlobalChatWhispers_toggleButton
         self.magicWordActivatorText.exit()
         self.magicWordActivatorText.destroy()
         del self.magicWordActivatorText
@@ -762,6 +771,25 @@ class ExtraOptionsTabPage(DirectFrame):
             self.magicWordActivatorRightArrow['state'] = DGG.DISABLED
         base.cr.magicWordManager.setChatPrefix(MagicWordConfig.PREFIX_ALLOWED[self.magicWordActivatorIndex])
         base.settings.updateSetting('game', 'magic-word-activator', self.magicWordActivatorIndex)
+
+    def __doToggleGlobalChatWhispers(self):
+        messenger.send('wakeup')
+        if base.globalChatWhispers:
+            base.globalChatWhispers = 0
+            base.settings.updateSetting('game', 'global-chat-whispers', False)
+        else:
+            base.globalChatWhispers = 1
+            base.settings.updateSetting('game', 'global-chat-whispers', True)
+        self.settingsChanged = 1
+        self.__setGlobalChatWhispersButton()
+
+    def __setGlobalChatWhispersButton(self):
+        if base.globalChatWhispers:
+            self.GlobalChatWhispers_Label['text'] = TTLocalizer.ExtraOptionsPageGlobalChatWhispersOnLabel
+            self.GlobalChatWhispers_toggleButton['text'] = TTLocalizer.OptionsPageToggleOff
+        else:
+            self.GlobalChatWhispers_Label['text'] = TTLocalizer.ExtraOptionsPageGlobalChatWhispersOffLabel
+            self.GlobalChatWhispers_toggleButton['text'] = TTLocalizer.OptionsPageToggleOn
 
 
 class CodesTabPage(DirectFrame):

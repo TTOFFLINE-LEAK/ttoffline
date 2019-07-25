@@ -6,8 +6,8 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObjectAI
 from direct.fsm import State
 from direct.fsm import ClassicFSM, State
-from toontown.toonbase.ToontownGlobals import ToonHall, Kongdominium, Pizzeria, ToonyLab
-import DistributedToonInteriorAI, DistributedToonHallInteriorAI, DistributedKongToonInteriorAI, DistributedPizzeriaInteriorAI, DistributedToonyLabInteriorAI, DistributedSuitInteriorAI, DistributedDoorAI, DoorTypes, DistributedElevatorExtAI, DistributedKnockKnockDoorAI, SuitPlannerInteriorAI, SuitBuildingGlobals, FADoorCodes
+from toontown.toonbase.ToontownGlobals import ToonHall, Kongdominium, Pizzeria, ToonyLab, PrivateServerCafe, GyrosLab
+import DistributedToonInteriorAI, DistributedToonHallInteriorAI, DistributedKongToonInteriorAI, DistributedPizzeriaInteriorAI, DistributedToonyLabInteriorAI, DistributedPrivateServerCafeInteriorAI, DistributedGyrosLabInteriorAI, DistributedSuitInteriorAI, DistributedDoorAI, DoorTypes, DistributedElevatorExtAI, DistributedKnockKnockDoorAI, SuitPlannerInteriorAI, SuitBuildingGlobals, FADoorCodes
 from toontown.hood import ZoneUtil
 import random, time
 from toontown.cogdominium.DistributedCogdoInteriorAI import DistributedCogdoInteriorAI
@@ -414,7 +414,13 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
                     if ZoneUtil.getCanonicalZoneId(interiorZoneId) == ToonyLab:
                         self.interior = DistributedToonyLabInteriorAI.DistributedToonyLabInteriorAI(self.block, self.air, interiorZoneId, self)
                     else:
-                        self.interior = DistributedToonInteriorAI.DistributedToonInteriorAI(self.block, self.air, interiorZoneId, self)
+                        if ZoneUtil.getCanonicalZoneId(interiorZoneId) == PrivateServerCafe:
+                            self.interior = DistributedPrivateServerCafeInteriorAI.DistributedPrivateServerCafeInteriorAI(self.block, self.air, interiorZoneId, self)
+                        else:
+                            if ZoneUtil.getCanonicalZoneId(interiorZoneId) == GyrosLab:
+                                self.interior = DistributedGyrosLabInteriorAI.DistributedGyrosLabInteriorAI(self.block, self.air, interiorZoneId, self)
+                            else:
+                                self.interior = DistributedToonInteriorAI.DistributedToonInteriorAI(self.block, self.air, interiorZoneId, self)
         self.interior.generateWithRequired(interiorZoneId)
         door = self.createExteriorDoor()
         insideDoor = DistributedDoorAI.DistributedDoorAI(self.air, self.block, DoorTypes.INT_STANDARD)

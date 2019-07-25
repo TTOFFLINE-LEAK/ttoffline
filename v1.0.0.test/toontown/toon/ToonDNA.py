@@ -2159,6 +2159,7 @@ BONNIE_BLOSSOM = 5007
 WARREN_BUNDLES = 3008
 WORNOUT_WAYLON = 9010
 TAMMY_TAILOR_BETA = 21001
+BONNIE_BLOSSOM_BETA = 22000
 TailorCollections = {MAKE_A_TOON: [['bss1', 'bss2'],
                [
                 'gss1', 'gss2'],
@@ -2228,7 +2229,16 @@ TailorCollections = {MAKE_A_TOON: [['bss1', 'bss2'],
                      [
                       'bbs1', 'bbs2'],
                      [
-                      'gsk1', 'gsh1']]}
+                      'gsk1', 'gsh1']], 
+   BONNIE_BLOSSOM_BETA: [
+                       [
+                        'bss7', 'bss8', 'bss12'],
+                       [
+                        'gss8', 'gss10', 'gss12'],
+                       [
+                        'bbs6'],
+                       [
+                        'gsk4', 'gsk5']]}
 BOY_SHIRTS = 0
 GIRL_SHIRTS = 1
 BOY_SHORTS = 2

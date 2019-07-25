@@ -99,6 +99,8 @@ class DistributedBoardingPartyAI(DistributedObjectAI.DistributedObjectAI, Boardi
                 dislId = inviter.DISLid
                 simbase.air.banManager.ban(inviterId, dislId, commentStr)
             return
+        if not hasattr(invitee, 'battleId'):
+            return
         if invitee and invitee.battleId != 0:
             reason = BoardingPartyBase.BOARDCODE_BATTLE
             self.sendUpdateToAvatarId(inviterId, 'postInviteNotQualify', [inviteeId, reason, 0])

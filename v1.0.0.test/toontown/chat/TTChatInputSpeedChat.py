@@ -117,6 +117,7 @@ scStructure = [
    OTPLocalizer.SCMenuPlacesPlayground,
    1100,
    1101,
+   1131,
    1105,
    1106,
    1107,

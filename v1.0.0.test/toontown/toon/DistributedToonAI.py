@@ -43,6 +43,7 @@ from toontown.toonbase import ToontownAccessAI
 from toontown.toonbase import TTLocalizer
 from toontown.catalog import CatalogAccessoryItem
 from toontown.minigame import MinigameCreatorAI
+from toontown.shtiker import CogPageGlobals
 import ModuleListAI, json
 if simbase.wantPets:
     from toontown.pets import PetLookerAI, PetObserve
@@ -76,7 +77,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     WantTpTrack = simbase.config.GetBool('want-tptrack', False)
     WantOldGMNameBan = simbase.config.GetBool('want-old-gm-name-ban', 1)
     blockNames = [
-     'nigger', '#unbanconnor', 'unbanconnor', 'kike', 'frisbee', 'twitch.tv/rconnor']
+     'nigger', '#unbanconnor', 'unbanconnor', 'kike', 'frisbee', 'twitch.tv/rconnor', 'nigga', 'nlgga', 'nlgger', 'n1gger', 'n1gga', 'nigg3r', 'n1gg3r', 'nlgg3r', 'n1gg@', 'nlgg@']
 
     def __init__(self, air):
         DistributedPlayerAI.DistributedPlayerAI.__init__(self, air)
@@ -223,6 +224,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.alwaysHitSuits = False
         self.locked = False
         self.muted = False
+        self.unlocks = [0]
         return
 
     def generate(self):
@@ -4444,7 +4446,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def d_doTeleport(self, hood):
         self.sendUpdateToAvatarId(self.doId, 'doTeleport', [hood])
 
-    def setToonScale(self, scale):
+    def d_setToonScale(self, scale):
         self.sendUpdate('setToonScale', [scale])
 
     def checkTimeout(self, timeoutName, timeout):
@@ -4603,8 +4605,72 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.d_setSystemMessage(0, 'Your Access Level has been changed.  Please restart your game.')
 
     def execChatUse(self):
-        print ''
-        print 'WARNING! TOON IS USING EXEC CHAT!!!!'
-        print self.doId
-        print 'WARNING!'
-        print ''
+        self.notify.info('execChatUse: Executive chat has been used.')
+
+    def b_setUnlocks(self, unlocks):
+        self.d_setUnlocks(unlocks)
+        self.setUnlocks(unlocks)
+
+    def d_setUnlocks(self, unlocks):
+        self.sendUpdate('setUnlocks', [unlocks])
+
+    def setUnlocks(self, unlocks):
+        self.unlocks = unlocks
+
+    def getUnlocks(self):
+        return self.unlocks
+
+    def setMaxToon(self):
+        self.b_setTrackAccess([1, 1, 1, 1, 1, 1, 1])
+        self.b_setMaxCarry(ToontownGlobals.MaxCarryLimit)
+        experience = Experience.Experience(self.getExperience(), self)
+        for i, track in enumerate(self.getTrackAccess()):
+            if track:
+                experience.experience[i] = Experience.MaxSkill - Experience.UberSkill
+
+        self.b_setExperience(experience.makeNetString())
+        self.inventory.zeroInv()
+        self.inventory.maxOutInv(filterUberGags=0, filterPaidGags=0)
+        self.b_setInventory(self.inventory.makeNetString())
+        self.b_setMaxMoney(Quests.RewardDict[707][1])
+        self.b_setMoney(self.getMaxMoney())
+        self.b_setBankMoney(ToontownGlobals.DefaultMaxBankMoney)
+        self.b_setMaxHp(ToontownGlobals.MaxHpLimit)
+        self.b_setHp(ToontownGlobals.MaxHpLimit)
+        self.b_setHoodsVisited(ToontownGlobals.Hoods)
+        self.b_setTeleportAccess(ToontownGlobals.HoodsForTeleportAll)
+        self.b_setCogParts([
+         CogDisguiseGlobals.PartsPerSuitBitmasks[0],
+         CogDisguiseGlobals.PartsPerSuitBitmasks[1],
+         CogDisguiseGlobals.PartsPerSuitBitmasks[2],
+         CogDisguiseGlobals.PartsPerSuitBitmasks[3]])
+        self.b_setCogLevels([ToontownGlobals.MaxCogSuitLevel] * 4 + [0])
+        self.b_setCogTypes([7] * 4 + [0])
+        self.b_setCogCount(list(CogPageGlobals.COG_QUOTAS[1]) * 4)
+        cogStatus = [CogPageGlobals.COG_COMPLETE2] * SuitDNA.suitsPerDept
+        self.b_setCogStatus(cogStatus * 4)
+        self.b_setCogRadar([1] * 4)
+        self.b_setBuildingRadar([1] * 4)
+        for id in self.getQuests():
+            self.removeQuest(id)
+
+        self.b_setQuestCarryLimit(ToontownGlobals.MaxQuestCarryLimit)
+        self.b_setRewardHistory(Quests.COG_NATION_TIER, self.getRewardHistory()[1])
+        allFish = TTLocalizer.FishSpeciesNames
+        fishLists = [[], [], []]
+        for genus in allFish.keys():
+            for species in xrange(len(allFish[genus])):
+                fishLists[0].append(genus)
+                fishLists[1].append(species)
+                fishLists[2].append(FishGlobals.getRandomWeight(genus, species))
+
+        self.b_setFishCollection(*fishLists)
+        self.b_setFishingRod(FishGlobals.MaxRodId)
+        self.b_setFishingTrophies(FishGlobals.TrophyDict.keys())
+        if not self.hasKart() and simbase.wantKarts:
+            self.b_setKartBodyType(KartDict.keys()[1])
+        self.b_setTickets(RaceGlobals.MaxTickets)
+        maxTrophies = RaceGlobals.NumTrophies + RaceGlobals.NumCups
+        self.b_setKartingTrophies(range(1, maxTrophies + 1))
+        self.b_setTickets(99999)
+        self.b_setGolfHistory([600] * (GolfGlobals.MaxHistoryIndex * 2 + 2))

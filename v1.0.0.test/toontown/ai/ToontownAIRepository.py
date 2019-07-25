@@ -71,8 +71,13 @@ from toontown.uberdog.DiscordManagerAI import DiscordManagerAI
 class ToontownAIRepository(ToontownInternalRepository):
     notify = DirectNotifyGlobal.directNotify.newCategory('ToontownAIRepository')
 
-    def __init__(self, baseChannel, serverId, districtName, districtLimit, districtDescription, districtWebsiteId, eventId, defaultAccessLevel):
+    def __init__(self, baseChannel, serverId, expMultiplier, meritMultiplier, doodleMultiplier, defaultMaxToon, defaultZone, districtName, districtLimit, districtDescription, districtWebsiteId, eventId, defaultAccessLevel):
         ToontownInternalRepository.__init__(self, baseChannel, serverId, dcSuffix='AI')
+        self.expMultiplier = expMultiplier
+        self.meritMultiplier = meritMultiplier
+        self.doodleMultiplier = doodleMultiplier
+        self.defaultMaxToon = defaultMaxToon
+        self.defaultZone = defaultZone
         self.districtName = districtName
         self.districtLimit = districtLimit
         if self.districtLimit < ToontownGlobals.MIN_POP:
@@ -193,6 +198,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.timeManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
         self.newsManager = NewsManagerAI(self)
         self.newsManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
+        self.newsManager.d_setExpMultiplier(self.expMultiplier)
         self.catalogManager = CatalogManagerAI(self)
         self.catalogManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
         self.inGameNewsMgr = DistributedInGameNewsMgrAI(self)
@@ -224,6 +230,8 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.moddingManager.generateWithRequiredAndId(OTP_DO_ID_MODDING_MANAGER, self.getGameDoId(), OTP_ZONE_ID_MANAGEMENT)
         self.moddingManager.setColorsAiToUd(self.moddingManager.getColors())
         self.moddingManager.setCardsAiToUd(self.moddingManager.getCards())
+        self.moddingManager.d_setDefaultMaxToon(self.defaultMaxToon)
+        self.moddingManager.d_setDefaultZone(self.defaultZone)
         self.discordManager = DiscordManagerAI(self)
         self.discordManager.generateWithRequiredAndId(OTP_DO_ID_DISCORD_MANAGER, self.getGameDoId(), OTP_ZONE_ID_MANAGEMENT)
 
@@ -308,20 +316,18 @@ class ToontownAIRepository(ToontownInternalRepository):
          (
           ToontownGlobals.GolfZone, 1, 0),)
         self.createHood(GZHoodDataAI, ToontownGlobals.GolfZone)
-        self.zoneTable[ToontownGlobals.SpecialHood] = (
+        self.zoneTable[ToontownGlobals.ToontownOutskirts] = (
          (
-          ToontownGlobals.SpecialHood, 1, 0), (ToontownGlobals.AirborneAcres, 1, 0),
-         (
-          ToontownGlobals.TutorialTerrace, 1, 1), (ToontownGlobals.ScrewballStadium, 1, 0),
-         (
-          ToontownGlobals.RusticRaceway, 1, 0), (ToontownGlobals.CityCircuit, 1, 0),
-         (
-          ToontownGlobals.CorkscrewColiseum, 1, 0), (ToontownGlobals.BlizzardBoulevard, 1, 0))
-        self.createHood(SpecialHoodDataAI, ToontownGlobals.SpecialHood)
+          ToontownGlobals.ToontownOutskirts, 1, 0), (ToontownGlobals.TutorialTerrace, 1, 1))
+        self.createHood(SpecialHoodDataAI, ToontownGlobals.ToontownOutskirts)
         self.zoneTable[ToontownGlobals.ToontownCentralBeta] = (
          (
           ToontownGlobals.ToontownCentralBeta, 1, 0),)
         self.createHood(TTBetaHoodDataAI, ToontownGlobals.ToontownCentralBeta)
+        self.zoneTable[ToontownGlobals.DaisyGardensBeta] = (
+         (
+          ToontownGlobals.DaisyGardensBeta, 1, 0), (ToontownGlobals.OakStreetBeta, 1, 0))
+        self.createHood(DGBetaHoodDataAI, ToontownGlobals.DaisyGardensBeta)
         self.notify.info('Assigning initial Cog buildings and Field Offices...')
         for suitPlanner in self.suitPlanners.values():
             suitPlanner.assignInitialSuitBuildings()

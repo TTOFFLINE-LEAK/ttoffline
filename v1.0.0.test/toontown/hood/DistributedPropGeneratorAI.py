@@ -14,6 +14,7 @@ PROPS_SPAWNING_LOCKED = 5
 PROPS_DELETED = 6
 PROPS_DELETED_ZONE = 7
 PROPS_SPAMMING = 8
+PROPS_ERROR = 9
 
 class DistributedPropGeneratorAI(DistributedObjectAI.DistributedObjectAI):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPropGeneratorAI')
@@ -34,7 +35,10 @@ class DistributedPropGeneratorAI(DistributedObjectAI.DistributedObjectAI):
         if not self.propInfo:
             return
         avId = self.air.getAvatarIdFromSender()
-        self.sendUpdateToAvatarId(avId, 'loadProps', [self.propInfo.values()])
+        for prop in self.propInfo.values():
+            self.sendUpdateToAvatarId(avId, 'loadProp', [prop])
+
+        self.sendUpdateToAvatarId(avId, 'loadProps', [])
 
     def d_spawnProp(self, propName, x, y, z, h, p, r, sX, sY, sZ):
         spawnTime = globalClockDelta.getRealNetworkTime(bits=32)
@@ -64,6 +68,40 @@ class DistributedPropGeneratorAI(DistributedObjectAI.DistributedObjectAI):
             self.recentAvatars[creatorAvId] = 1
         self.addPropInfo(self.context, propName, x, y, z, h, p, r, sX, sY, sZ, 1, 1, 1, 1, spawnTime, creatorAvId, creatorName, editorAvId, editorName, lockedState, reparentProp, reparentState)
         self.sendUpdate('spawnProp', [(self.context, propName, x, y, z, h, p, r, sX, sY, sZ, 1, 1, 1, 1, spawnTime, creatorAvId, creatorName, editorAvId, editorName, lockedState, reparentProp, reparentState)])
+        self.context += 1
+
+    def d_dupeProp(self, propId):
+        spawnTime = globalClockDelta.getRealNetworkTime(bits=32)
+        creatorAvId = self.air.getAvatarIdFromSender()
+        av = self.air.doId2do.get(creatorAvId)
+        if av:
+            creatorName = av.getName()
+        else:
+            creatorName = TTLocalizer.WordPageNA
+        editorAvId = 0
+        editorName = TTLocalizer.WordPageNA
+        if len(self.propInfo.keys()) >= ToontownGlobals.MaxPropCount:
+            self.sendUpdateToAvatarId(creatorAvId, 'propMessage', [MAX_PROPS])
+            return
+        if self.locked:
+            self.sendUpdateToAvatarId(creatorAvId, 'propMessage', [PROPS_SPAWNING_LOCKED])
+            return
+        if creatorAvId in self.recentAvatars:
+            if self.recentAvatars.get(creatorAvId) >= 5:
+                self.sendUpdateToAvatarId(creatorAvId, 'propMessage', [PROPS_SPAMMING])
+                return
+            self.recentAvatars[creatorAvId] += 1
+        if creatorAvId not in self.recentAvatars:
+            self.recentAvatars[creatorAvId] = 1
+        propInfo = self.propInfo.get(propId)
+        if not propInfo:
+            self.sendUpdateToAvatarId(creatorAvId, 'propMessage', [PROPS_ERROR])
+        self.addPropInfo(self.context, propInfo[1], propInfo[2], propInfo[3], propInfo[4], propInfo[5], propInfo[6], propInfo[7], propInfo[8], propInfo[9], propInfo[10], propInfo[11], propInfo[12], propInfo[13], propInfo[14], spawnTime, creatorAvId, creatorName, editorAvId, editorName, propInfo[20], propInfo[21], propInfo[22])
+        self.sendUpdate('spawnProp', [
+         (self.context, propInfo[1], propInfo[2], propInfo[3], propInfo[4], propInfo[5],
+          propInfo[6], propInfo[7], propInfo[8], propInfo[9], propInfo[10], propInfo[11],
+          propInfo[12], propInfo[13], propInfo[14], spawnTime, creatorAvId, creatorName,
+          editorAvId, editorName, propInfo[20], propInfo[21], propInfo[22])])
         self.context += 1
 
     def confirmUpdateProp(self, propData):

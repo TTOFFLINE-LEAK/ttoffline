@@ -1,5 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from toontown.quest import Quests
+from toontown.toonbase import ToontownBattleGlobals as TTBG
 
 class QuestManagerAI:
     notify = DirectNotifyGlobal.directNotify.newCategory('QuestManagerAI')
@@ -47,8 +48,67 @@ class QuestManagerAI:
         for index, quest in enumerate(self.__toonQuestsList2Quests(toon.quests)):
             if isinstance(quest, Quests.CogQuest):
                 for suit in suitsKilled:
+                    if suit.get('isVP'):
+                        self.toonKilledVP(toon, suitsKilled, zoneId, activeToons)
+                        continue
+                    else:
+                        if suit.get('isCFO'):
+                            self.toonKilledCFO(toon, suitsKilled, zoneId, activeToons)
+                            continue
+                        else:
+                            if suit.get('isCJ'):
+                                self.toonKilledCJ(toon, suitsKilled, zoneId, activeToons)
+                                continue
+                            else:
+                                if suit.get('isCEO'):
+                                    self.toonKilledCEO(toon, suitsKilled, zoneId, activeToons)
+                                    continue
                     for _ in xrange(quest.doesCogCount(toon.getDoId(), suit, zoneId, activeToons)):
                         self.__incrementQuestProgress(toon.quests[index])
+
+        if toon.quests:
+            toon.d_setQuests(toon.getQuests())
+
+    def toonKilledVP(self, toon, suitsKilled, zoneId, activeToons):
+        for index, quest in enumerate(self.__toonQuestsList2Quests(toon.quests)):
+            if isinstance(quest, Quests.VPQuest):
+                for suit in suitsKilled:
+                    if suit.get('isVP'):
+                        for x in xrange(quest.doesVPCount(toon.getDoId(), suit, zoneId, activeToons)):
+                            self.__incrementQuestProgress(toon.quests[index])
+
+        if toon.quests:
+            toon.d_setQuests(toon.getQuests())
+
+    def toonKilledCFO(self, toon, suitsKilled, zoneId, activeToons):
+        for index, quest in enumerate(self.__toonQuestsList2Quests(toon.quests)):
+            if isinstance(quest, Quests.CFOQuest):
+                for suit in suitsKilled:
+                    if suit.get('isCFO'):
+                        for x in xrange(quest.doesCFOCount(toon.getDoId(), suit, zoneId, activeToons)):
+                            self.__incrementQuestProgress(toon.quests[index])
+
+        if toon.quests:
+            toon.d_setQuests(toon.getQuests())
+
+    def toonKilledCJ(self, toon, suitsKilled, zoneId, activeToons):
+        for index, quest in enumerate(self.__toonQuestsList2Quests(toon.quests)):
+            if isinstance(quest, Quests.CJQuest):
+                for suit in suitsKilled:
+                    if suit.get('isCJ'):
+                        for x in xrange(quest.doesCJCount(toon.getDoId(), suit, zoneId, activeToons)):
+                            self.__incrementQuestProgress(toon.quests[index])
+
+        if toon.quests:
+            toon.d_setQuests(toon.getQuests())
+
+    def toonKilledCEO(self, toon, suitsKilled, zoneId, activeToons):
+        for index, quest in enumerate(self.__toonQuestsList2Quests(toon.quests)):
+            if isinstance(quest, Quests.CEOQuest):
+                for suit in suitsKilled:
+                    if suit.get('isCEO'):
+                        for x in xrange(quest.doesCEOCount(toon.getDoId(), suit, zoneId, activeToons)):
+                            self.__incrementQuestProgress(toon.quests[index])
 
         if toon.quests:
             toon.d_setQuests(toon.getQuests())
@@ -118,7 +178,25 @@ class QuestManagerAI:
             nextQuest = Quests.getNextQuest(questId, npc, av)
             if nextQuest == (Quests.NA, Quests.NA):
                 if isinstance(quest, Quests.TrackChoiceQuest):
-                    npc.presentTrackChoice(avId, questId, quest.getChoices())
+                    tracks = quest.getChoices()
+                    if len(tracks) != 2:
+                        trackAccess = av.getTrackAccess()
+                        tracks = (TTBG.HEAL_TRACK, TTBG.TRAP_TRACK, TTBG.LURE_TRACK, TTBG.SOUND_TRACK, TTBG.THROW_TRACK,
+                         TTBG.SQUIRT_TRACK, TTBG.DROP_TRACK)
+                        trackIndex = -1
+                        for x in range(len(trackAccess)):
+                            track = trackAccess[x]
+                            if not track:
+                                trackIndex = x
+                                break
+
+                        if trackIndex != -1:
+                            tracks = (
+                             tracks[trackIndex],)
+                        else:
+                            tracks = (
+                             TTBG.SOUND_TRACK,)
+                    npc.presentTrackChoice(avId, questId, tracks)
                     return
                 rewardId = Quests.getAvatarRewardId(av, questId)
                 npc.completeQuest(avId, questId, rewardId)
@@ -151,6 +229,7 @@ class QuestManagerAI:
                 return
         bestQuests = Quests.chooseBestQuests(tier, npc, av)
         if not bestQuests:
+            print 'RE JECT ED'
             npc.rejectAvatar(avId)
             return
         npc.presentQuestChoice(avId, bestQuests)
@@ -173,6 +252,15 @@ class QuestManagerAI:
         progress = 0
         av.addQuest((questId, npc.getDoId(), toNpcId, rewardId, progress), finalReward)
         npc.assignQuest(av.getDoId(), questId, rewardId, toNpcId)
+
+    def avatarChoseTrack(self, avId, npc, pendingTrackQuest, trackId):
+        av = self.air.doId2do.get(avId)
+        if not av:
+            return
+        taskMgr.remove(npc.uniqueName('clearMovie'))
+        npc.completeQuest(avId, pendingTrackQuest, Quests.getRewardIdFromTrackId(trackId))
+        self.completeQuest(av, pendingTrackQuest)
+        av.b_setTrackProgress(trackId, 0)
 
     def __incrementQuestProgress(self, quest):
         quest[4] += 1

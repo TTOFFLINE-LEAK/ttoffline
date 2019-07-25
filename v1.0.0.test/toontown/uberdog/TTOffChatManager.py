@@ -30,4 +30,6 @@ class TTOffChatManager(DistributedObjectGlobal):
     def receiveGlobalMessage(self, avName, message):
         messenger.send('addChatHistory', [avName.split('\n')[0], None, None, 'darkGreen', message.strip(),
          WhisperPopup.WTGlobal])
+        if base.globalChatWhispers and hasattr(base, 'localAvatar'):
+            base.localAvatar.setSystemMessage(0, avName.split('\n')[0] + ': ' + message.strip(), WhisperPopup.WTGlobal)
         return

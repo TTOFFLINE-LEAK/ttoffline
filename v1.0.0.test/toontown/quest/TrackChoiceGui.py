@@ -87,12 +87,19 @@ class TrackChoiceGui(DirectFrame):
             tp.reparentTo(self)
             self.trackChoicePosters.append(tp)
 
+        if len(self.trackChoicePosters) == 1:
+            self['geom_scale'] = (1.1, 1, 0.9)
+            self['geom_pos'] = (0, 0, -0.2)
+            self.trackChoicePosters[0].setPos(0, 0, 0)
+            return
         self.trackChoicePosters[0].setPos(0, 0, -0.2)
         self.trackChoicePosters[1].setPos(0, 0, 0.4)
         return
 
     def chooseTrack(self, trackId):
         self.timer.stop()
+        print 'choooose'
+        print trackId
         messenger.send('chooseTrack', [trackId])
 
     def timeout(self):

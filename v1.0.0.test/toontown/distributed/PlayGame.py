@@ -47,7 +47,7 @@ class PlayGame(StateData.StateData):
        ToontownGlobals.LawbotHQ: LawbotHQ.LawbotHQ, 
        ToontownGlobals.GolfZone: GZHood.GZHood, 
        ToontownGlobals.PartyHood: PartyHood.PartyHood, 
-       ToontownGlobals.SpecialHood: SpecialHood.SpecialHood, 
+       ToontownGlobals.ToontownOutskirts: SpecialHood.SpecialHood, 
        ToontownGlobals.ToontownCentralBeta: TTBetaHood.TTBetaHood, 
        ToontownGlobals.DaisyGardensBeta: DGBetaHood.DGBetaHood}
     Hood2StateDict = {ToontownGlobals.ToontownCentral: 'TTHood', ToontownGlobals.DonaldsDock: 'DDHood', 
@@ -65,7 +65,7 @@ class PlayGame(StateData.StateData):
        ToontownGlobals.LawbotHQ: 'LawbotHQ', 
        ToontownGlobals.GolfZone: 'GZHood', 
        ToontownGlobals.PartyHood: 'PartyHood', 
-       ToontownGlobals.SpecialHood: 'SpecialHood', 
+       ToontownGlobals.ToontownOutskirts: 'SpecialHood', 
        ToontownGlobals.ToontownCentralBeta: 'TTBetaHood', 
        ToontownGlobals.DaisyGardensBeta: 'DGBetaHood'}
 
@@ -110,7 +110,7 @@ class PlayGame(StateData.StateData):
          State.State('PartyHood', self.enterPartyHood, self.exitPartyHood, ['quietZone']),
          State.State('SpecialHood', self.enterSpecialHood, self.exitSpecialHood, ['quietZone']),
          State.State('TTBetaHood', self.enterTTBetaHood, self.exitTTBetaHood, ['quietZone']),
-         State.State('DGBetaGood', self.enterDGBetaHood, self.exitDGBetaHood, ['quietZone'])], 'start', 'start')
+         State.State('DGBetaHood', self.enterDGBetaHood, self.exitDGBetaHood, ['quietZone'])], 'start', 'start')
         self.fsm.enterInitialState()
         self.parentFSM = parentFSM
         self.parentFSM.getStateNamed('playGame').addChild(self.fsm)

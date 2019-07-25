@@ -150,6 +150,8 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
         if self.findAvatar(avId) != None:
             self.notify.warning('Ignoring multiple requests from %s to board.' % avId)
             return
+        if si not in self.seats:
+            return
         av = self.air.doId2do.get(avId)
         if av:
             if av.hp > 0 and self.accepting and self.seats[si] == None:

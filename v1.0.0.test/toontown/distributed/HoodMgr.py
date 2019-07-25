@@ -922,19 +922,19 @@ class HoodMgr(DirectObject.DirectObject):
                                   -8, -47, -1.726, 328, 0, 0],
                                  [
                                   -38.189, -84.932, -1.478, 0, 0, 0]), 
-       ToontownGlobals.SpecialHood: (
-                                   [
-                                    127.042, 47.602, -0.475, 154.624, 0, 0],
-                                   [
-                                    7.201, -23.411, 0.025, 221.505, 0, 0],
-                                   [
-                                    -182.708, -99.393, 9.864, 270.026, 0, 0],
-                                   [
-                                    64.83, -150.314, 0.025, -32.262, 0, 0],
-                                   [
-                                    207.291, -93.028, 0.025, -259.058, 0, 0],
-                                   [
-                                    150.117, -13.943, 0.025, -169.559, 0, 0]), 
+       ToontownGlobals.ToontownOutskirts: (
+                                         [
+                                          127.042, 47.602, -0.475, 154.624, 0, 0],
+                                         [
+                                          7.201, -23.411, 0.025, 221.505, 0, 0],
+                                         [
+                                          -182.708, -99.393, 9.864, 270.026, 0, 0],
+                                         [
+                                          64.83, -150.314, 0.025, -32.262, 0, 0],
+                                         [
+                                          207.291, -93.028, 0.025, -259.058, 0, 0],
+                                         [
+                                          150.117, -13.943, 0.025, -169.559, 0, 0]), 
        ToontownGlobals.ToontownCentralBeta: (
                                            [
                                             46.67, -75.16, 8.0, 26.15, 0, 0],
@@ -947,7 +947,30 @@ class HoodMgr(DirectObject.DirectObject):
                                            [
                                             -98.07, -27.35, 8.12, 240.14, 0, 0],
                                            [
-                                            -36.47, 17.92, 0.01, 32.14, 0, 0])}
+                                            -36.47, 17.92, 0.01, 32.14, 0, 0]), 
+       ToontownGlobals.DaisyGardensBeta: (
+                                        [
+                                         0, 0, 0, -10.5, 0, 0],
+                                        [
+                                         76, 35, 1.1, -30.2, 0.0, 0.0],
+                                        [
+                                         97, 106, 0.0, 51.4, 0.0, 0.0],
+                                        [
+                                         51, 180, 10.0, 22.6, 0.0, 0.0],
+                                        [
+                                         -14, 203, 10.0, 85.6, 0.0, 0.0],
+                                        [
+                                         -58, 158, 10.0, -146.9, 0.0, 0.0],
+                                        [
+                                         -86, 128, 0.0, -178.9, 0.0, 0.0],
+                                        [
+                                         -64, 65, 0.0, 17.7, 0.0, 0.0],
+                                        [
+                                         -13, 39, 0.0, -15.7, 0.0, 0.0],
+                                        [
+                                         -12, 193, 0.0, -112.4, 0.0, 0.0],
+                                        [
+                                         87, 128, 0.0, 45.4, 0.0, 0.0])}
     hoodName2Id = {'dd': ToontownGlobals.DonaldsDock, 'tt': ToontownGlobals.ToontownCentral, 
        'br': ToontownGlobals.TheBrrrgh, 
        'mm': ToontownGlobals.MinniesMelodyland, 
@@ -961,7 +984,7 @@ class HoodMgr(DirectObject.DirectObject):
        'cashhq': ToontownGlobals.CashbotHQ, 
        'lawhq': ToontownGlobals.LawbotHQ, 
        'gz': ToontownGlobals.GolfZone, 
-       'sp': ToontownGlobals.SpecialHood, 
+       'sp': ToontownGlobals.ToontownOutskirts, 
        'ttb': ToontownGlobals.ToontownCentralBeta, 
        'dgb': ToontownGlobals.DaisyGardensBeta}
     hoodId2Name = {ToontownGlobals.DonaldsDock: 'dd', ToontownGlobals.ToontownCentral: 'tt', 
@@ -978,7 +1001,7 @@ class HoodMgr(DirectObject.DirectObject):
        ToontownGlobals.CashbotHQ: 'cashhq', 
        ToontownGlobals.LawbotHQ: 'lawhq', 
        ToontownGlobals.GolfZone: 'gz', 
-       ToontownGlobals.SpecialHood: 'sp', 
+       ToontownGlobals.ToontownOutskirts: 'sp', 
        ToontownGlobals.ToontownCentralBeta: 'ttb', 
        ToontownGlobals.DaisyGardensBeta: 'dgb'}
     DefaultDropPoint = [0,

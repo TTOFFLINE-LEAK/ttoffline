@@ -178,7 +178,7 @@ def createNPC(air, npcId, desc, zoneId, posIndex=0, questCallback=None):
 def createNpcsInZone(air, zoneId):
     npcs = []
     canonicalZoneId = ZoneUtil.getCanonicalZoneId(zoneId)
-    npcIdList = zone2NpcDict.get(canonicalZoneId, [])
+    npcIdList = sorted(zone2NpcDict.get(canonicalZoneId, []))
     for i in xrange(len(npcIdList)):
         npcId = npcIdList[i]
         npcDesc = NPCToonDict.get(npcId)
@@ -4097,6 +4097,27 @@ NPCToonDict = {20000: (-1,
         'm',
         0,
         NPC_FISHERMAN), 
+   1333: (
+        1836,
+        lnames[1333],
+        (
+         'iss',
+         'ls',
+         'l',
+         'm',
+         0,
+         0,
+         0,
+         0,
+         209,
+         27,
+         192,
+         27,
+         90,
+         27),
+        'm',
+        1,
+        NPC_REGULAR), 
    3001: (
         3506,
         lnames[3001],
@@ -13261,7 +13282,7 @@ NPCToonDict = {20000: (-1,
          1,
          NPC_MAGICCAT), 
    19001: (
-         19701,
+         19601,
          TTLocalizer.TutorialHQOfficerName,
          (
           'dls',
@@ -13282,7 +13303,7 @@ NPCToonDict = {20000: (-1,
          1,
          NPC_HQ), 
    19002: (
-         19702,
+         19602,
          lnames[20000],
          (
           'dll',
@@ -13327,20 +13348,20 @@ NPCToonDict = {20000: (-1,
          21513,
          lnames[2001],
          (
-          'dss',
+          'dls',
           'ms',
           'm',
           'm',
-          17,
+          6,
           0,
-          17,
-          17,
-          3,
-          3,
-          3,
-          3,
-          7,
-          2),
+          6,
+          6,
+          151,
+          27,
+          138,
+          27,
+          60,
+          27),
          'm',
          1,
          NPC_REGULAR), 
@@ -13406,7 +13427,28 @@ NPCToonDict = {20000: (-1,
           9),
          'm',
          1,
-         NPC_REGULAR)}
+         NPC_REGULAR), 
+   22000: (
+         22503,
+         lnames[5007],
+         (
+          'hss',
+          'ss',
+          's',
+          'f',
+          13,
+          0,
+          13,
+          13,
+          0,
+          22,
+          0,
+          22,
+          3,
+          2),
+         'f',
+         0,
+         NPC_TAILOR)}
 try:
     config = simbase.config
 except:

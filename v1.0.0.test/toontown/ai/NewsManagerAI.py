@@ -219,3 +219,6 @@ class NewsManagerAI(DistributedObjectAI):
 
     def d_setCircuitRaceEnd(self):
         self.sendUpdate('setCircuitRaceEnd')
+
+    def d_setExpMultiplier(self, mult):
+        self.sendUpdate('setExpMultiplier', [mult])

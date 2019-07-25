@@ -3,7 +3,7 @@ from libotp import *
 from direct.gui.DirectGui import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData
-import string
+import string, subprocess
 from otp.otpbase import OTPLocalizer
 from otp.otpbase import OTPGlobals
 from otp.uberdog import RejectCode
@@ -282,6 +282,7 @@ class FriendSecret(DirectFrame, StateData.StateData):
         del self.enterSecret
         del self.ok1
         del self.ok2
+        del self.copyButton
         del self.cancel
         del self.secretText
         del self.avatarButton
@@ -337,9 +338,17 @@ class FriendSecret(DirectFrame, StateData.StateData):
 
             self.changeOptions = ShowHide()
         self.ok2 = DirectButton(parent=self, relief=None, image=(guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR')), image_scale=OTPLocalizer.FSok2, text=OTPLocalizer.FriendSecretOK, text_scale=0.06, text_pos=(0,
-                                                                                                                                                                                                                                                                    -0.02), pos=(0,
+                                                                                                                                                                                                                                                                    -0.02), pos=(-0.2,
                                                                                                                                                                                                                                                                                  0,
                                                                                                                                                                                                                                                                                  -0.57), command=self.__ok2)
+        self.ok2.hide()
+        self.copyButton = DirectButton(parent=self, relief=None, image=(guiButton.find('**/QuitBtn_UP'),
+         guiButton.find('**/QuitBtn_DN'),
+         guiButton.find('**/QuitBtn_RLVR')), image_scale=OTPLocalizer.FSok2, text=OTPLocalizer.FriendSecretCopy, text_scale=0.06, text_pos=(0,
+                                                                                                                                            -0.02), pos=(0.2,
+                                                                                                                                                         0,
+                                                                                                                                                         -0.57), command=self.__copyButton)
+        self.copyButton.hide()
         self.ok2.hide()
         self.cancel = DirectButton(parent=self, relief=None, text=OTPLocalizer.FriendSecretCancel, image=(guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR')), image_scale=OTPLocalizer.FScancel, text_scale=0.06, text_pos=(0,
                                                                                                                                                                                                                                                                               -0.02), pos=(0,
@@ -408,6 +417,7 @@ class FriendSecret(DirectFrame, StateData.StateData):
         self.enterSecret.show()
         self.ok1.show()
         self.ok2.hide()
+        self.copyButton.hide()
         self.cancel.hide()
         self.nextText.hide()
         self.secretText.hide()
@@ -491,6 +501,7 @@ class FriendSecret(DirectFrame, StateData.StateData):
         self.cancel.hide()
         self.ok1.hide()
         self.ok2.show()
+        self.copyButton.show()
 
     def __gotAccountSecret(self, secret):
         self.ignore(OTPGlobals.PlayerFriendNewSecretEvent)
@@ -617,6 +628,10 @@ class FriendSecret(DirectFrame, StateData.StateData):
 
     def __ok2(self):
         self.exit()
+
+    def __copyButton(self):
+        cmd = 'echo ' + self.secretText['text'].strip() + '|clip'
+        return subprocess.check_call(cmd, shell=True)
 
     def __cancel(self):
         self.exit()

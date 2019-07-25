@@ -128,6 +128,7 @@ from toontown.building import DistributedToonHallInterior/AI
 from toontown.building import DistributedKongToonInterior/AI
 from toontown.building import DistributedPizzeriaInterior/AI
 from toontown.building import DistributedToonyLabInterior/AI
+from toontown.building import DistributedGyrosLabInterior/AI
 from toontown.building import DistributedSuitInterior/AI
 from toontown.building import DistributedHQInterior/AI
 from toontown.building import DistributedGagshopInterior/AI
@@ -2227,6 +2228,9 @@ dclass DistributedPizzeriaInterior : DistributedToonInterior {
 dclass DistributedToonyLabInterior : DistributedToonInterior {
 };
 
+dclass DistributedGyrosLabInterior : DistributedToonInterior {
+};
+
 dclass DistributedSuitInterior : DistributedObject {
   setZoneId(uint32) required broadcast ram;
   setExtZoneId(uint32) required broadcast ram;
@@ -4039,4 +4043,3 @@ dclass DistributedSafezoneJukebox : DistributedObject {
   exitRequestDenied(uint8);
   setToonsPlaying(uint32 []) broadcast ram;
 };
-

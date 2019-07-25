@@ -3,7 +3,7 @@ from panda3d.toontown import *
 import random, ToonInteriorColors
 from toontown.hood import ZoneUtil
 from toontown.building import DistributedToonInterior
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, TTLocalizer
 SIGN_LEFT = -4
 SIGN_RIGHT = 4
 SIGN_BOTTOM = -3.5
@@ -68,7 +68,7 @@ class DistributedKongToonInterior(DistributedToonInterior.DistributedToonInterio
                 memorialNP.setScale(0.35)
                 nowPlayingNP = signOrigin.attachNewNode(TextNode('nowPlayingText'))
                 nowPlayingNP.node().setFont(ToontownGlobals.getSignFont())
-                nowPlayingNP.node().setText('Now Playing:')
+                nowPlayingNP.node().setText(TTLocalizer.TributeSongPlaying)
                 nowPlayingNP.setDepthWrite(1, 1)
                 nowPlayingNP.flattenLight()
                 nowPlayingNP.setX(nowPlayingNP.getX() - 2.35)

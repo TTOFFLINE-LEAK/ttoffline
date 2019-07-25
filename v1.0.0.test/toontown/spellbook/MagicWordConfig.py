@@ -10,6 +10,7 @@ MAGIC_WORD_RESPONSES = {'SuccessNoResp': 'response will be randomly selected fro
    'Teleporting': "Yikes! Don't use Magic words while switching zones!", 
    'OtherTeleporting': 'Your target is currently switching zones!', 
    'BadWord': "Uh-oh! This Magic Word doesn't exist!", 
+   'CloseWord': "This Magic Word doesn't exist! Did you mean {}?", 
    'NoEffect': "This word doesn't affect anybody!", 
    'BadTarget': 'Invalid target specified!', 
    'NoAccessToTarget': "You don't have a high enough access level to target them!", 
@@ -22,7 +23,7 @@ MAGIC_WORD_RESPONSES = {'SuccessNoResp': 'response will be randomly selected fro
    'Locked': 'You are temporarily locked down and cannot use Magic Words.', 
    'RestrictionOther': 'You may only target one other player with this Magic Word!'}
 HAS_EXTRA_MESSAGE_DATA = [
- 'NotEnoughArgs', 'TooManyArgs']
+ 'NotEnoughArgs', 'TooManyArgs', 'CloseWord']
 AFFECT_TYPES = [
  'singular', 'zone', 'server', 'rank']
 AFFECT_TYPES_NAMES = ['Everyone in this zone', 'The entire server', 'Everyone with an access level of']

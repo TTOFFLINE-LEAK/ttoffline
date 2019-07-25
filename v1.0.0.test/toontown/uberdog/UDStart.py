@@ -20,8 +20,12 @@ if serverSettings.uberDogEventLoggerIP:
     localConfig += 'eventlog-host %s\n' % serverSettings.uberDogEventLoggerIP
 if serverSettings.uberDogExpectedBuiltin:
     localConfig += 'expected-builtin %s\n' % serverSettings.uberDogExpectedBuiltin
+if serverSettings.uberDogExpectedLocals:
+    localConfig += 'expected-locals %s\n' % serverSettings.uberDogExpectedLocals
 if serverSettings.uberDogServerPassword:
     localConfig += 'server-password %s\n' % serverSettings.uberDogServerPassword
+if serverSettings.uberDogWhitelistedUsernames:
+    localConfig += 'whitelisted-usernames %s\n' % serverSettings.uberDogWhitelistedUsernames
 if serverSettings.uberDogDefaultAccessLevel:
     localConfig += 'default-access-level %s\n' % serverSettings.uberDogDefaultAccessLevel
 loadPrcFileData('UberDOG Args Config', localConfig)
@@ -35,6 +39,7 @@ class game:
 
 
 __builtin__.game = game
+__builtin__.settings = serverSettings
 from otp.ai.AIBaseGlobal import *
 from toontown.uberdog.ToontownUberRepository import ToontownUberRepository
 simbase.air = ToontownUberRepository(config.GetInt('air-base-channel', 400000000), config.GetInt('air-stateserver', 10000))

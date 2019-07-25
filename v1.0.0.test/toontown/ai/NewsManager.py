@@ -670,3 +670,7 @@ class NewsManager(DistributedObject.DistributedObject):
     def isHolidayRunning(self, holidayId):
         result = holidayId in self.holidayIdList
         return result
+
+    def setExpMultiplier(self, mult):
+        if hasattr(base, 'localAvatar'):
+            base.localAvatar.inventory.setServerCreditMultiplier(mult)

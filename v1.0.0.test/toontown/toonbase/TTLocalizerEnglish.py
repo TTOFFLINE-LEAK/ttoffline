@@ -191,23 +191,13 @@ GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'), 1000: (
    19000: (
          'to the', 'in the', 'Playground'), 
    19100: (
-         'to the', 'at the', 'Airborne Acres'), 
-   19200: (
          'to', 'on', 'Tutorial Terrace'), 
-   19300: (
-         'to the', 'at the', 'Screwball Stadium'), 
-   19400: (
-         'to the', 'at the', 'Rustic Raceway'), 
-   19500: (
-         'to the', 'at the', 'City Circuit'), 
-   19600: (
-         'to the', 'at the', 'Corkscrew Coliseum'), 
-   19700: (
-         'to the', 'at the', 'Blizzard Boulevard'), 
    21000: (
          'to the', 'in the', 'Playground'), 
    22000: (
-         'to the', 'in the', 'Playground')}
+         'to the', 'in the', 'Playground'), 
+   22100: (
+         'to', 'on', 'Oak Street')}
 DonaldsDock = ('to', 'in', lDonaldsDock)
 ToontownCentral = ('to', 'in', lToontownCentral)
 TheBrrrgh = ('to', 'in', lTheBrrrgh)
@@ -276,6 +266,12 @@ ASupervisor = 'a Mint Supervisor'
 CogCFO = Cog + ' C.F.O.'
 CogCFOs = "Cog C.F.O.'s"
 ACogCFO = ACog + ' C.F.O.'
+CogCJ = Cog + ' C.J.'
+CogCJs = "Cog C.J.'s"
+ACogCJ = ACog + ' C.J.'
+CogCEO = Cog + ' C.E.O.'
+CogCEOs = "Cog C.E.O.'s"
+ACogCEO = ACog + ' C.E.O.'
 TheFish = 'the Fish'
 AFish = 'a fish'
 Level = 'Level'
@@ -465,9 +461,12 @@ QuestsRecoverItemQuestRecoverFromSCString = 'I need to recover %(item)s from %(h
 QuestsRecoverItemQuestString = 'Recover %(item)s from %(holder)s'
 QuestsRecoverItemQuestHolderString = '%(level)s %(holder)d+ %(cogs)s'
 QuestsTrackChoiceQuestHeadline = 'CHOOSE'
+QuestsTrackChoiceFinalQuestHeadline = 'BEGIN'
 QuestsTrackChoiceQuestSCString = 'I need to choose between %(trackA)s and %(trackB)s.'
 QuestsTrackChoiceQuestMaybeSCString = 'Maybe I should choose %s.'
+QuestsTrackChoiceFinalQuestSCString = "I'm ready to begin training my Final Track."
 QuestsTrackChoiceQuestString = 'Choose between %(trackA)s and %(trackB)s'
+QuestsTrackChoiceFinalQuestString = 'Are you ready to begin training for your %s?'
 QuestsFriendQuestHeadline = 'FRIEND'
 QuestsFriendQuestSCString = 'I need to make a friend.'
 QuestsFriendQuestString = 'Make a friend'
@@ -789,6 +788,11 @@ TheBrrrghTrackQuestDict = {GREETING: '', QUEST: 'Now you are ready.\x07Go out an
    INCOMPLETE_WRONG_NPC: 'Choose wisely.', 
    COMPLETE: 'Very wise choice!', 
    LEAVING: 'Good luck.  Return to me when you have mastered your new skill.'}
+CogNationTrackQuestDict = {GREETING: '', QUEST: 'I think you are ready to learn your final gag track.\x07Go outside the Toon Hall and think about what is ahead of you.\x07Come back when you are ready to begin your final training.', 
+   INCOMPLETE_PROGRESS: 'Come back when you are ready to begin your training.', 
+   INCOMPLETE_WRONG_NPC: 'Come back when you are ready to begin your training.', 
+   COMPLETE: 'Toontastic!', 
+   LEAVING: "In light of recent events, I think it's time you learned about the origin of the Cogs.\x07Come back when you're ready to learn more."}
 QuestDialog_3225 = {QUEST: "Oh, thanks for coming, _avName_!\x07The Cogs in the neighborhood frightened away my delivery person.\x07I don't have anyone to deliver this salad to _toNpcName_!\x07Can you do it for me? Thanks so much!_where_"}
 QuestDialog_2910 = {QUEST: 'Back so soon?\x07Great job on the spring.\x07The final item is a counter weight.\x07Stop by and see _toNpcName_ and bring back whatever you can get._where_'}
 QuestDialogDict = {160: {GREETING: '', QUEST: "Ok, now I think you are ready for something more rewarding.\x07If you can defeat 3 Bossbots I'll give you a little bonus.", 
@@ -1669,7 +1673,18 @@ QuestDialogDict = {160: {GREETING: '', QUEST: "Ok, now I think you are ready for
    12032: {GREETING: '', LEAVING: '', 
            QUEST: 'You need to go tell Flippy about this...', 
            INCOMPLETE_PROGRESS: 'Flippy can be found in Toon Hall', 
-           COMPLETE: 'A new type of Cog!\x07Good work!\x07Here is your final disguise part.'}}
+           COMPLETE: 'A new type of Cog!\x07Good work!\x07Here is your final disguise part.'}, 
+   13000: {GREETING: '', LEAVING: '', 
+           QUEST: '_toNpcName_ is looking to speak with you.\x07He said it had something to do with your new Bossbot disguise.\x07You should go see him as soon as possible.'}, 
+   13001: {GREETING: '', LEAVING: '', 
+           QUEST: "Hey there Toon!\x07Have you visited the C.E.O. since completing your disguise?\x07Sources say says he's holding a banquet for high level Cogs tonight.\x07I need you to sneak into the banquet and find out what the Cogs are up to.\x07My good friend Good ol' Gil Giggles will accompany you.\x07Good luck!", 
+           INCOMPLETE_PROGRESS: 'Head over to Bossbot HQ and defeat the C.E.O.!'}, 
+   13002: {GREETING: '', LEAVING: '', 
+           QUEST: "You defeated the C.E.O.!\x07Good work!\x07What's this?\x07The C.E.O. mentioned The Chairman?\x07Oh no. This isn't good at all.\x07I don't think I've told you about The Chairman yet.\x07I know just the Toon you need to speak to.\x07But first, your reward!\x07I think you are ready to learn your final gag track.\x07Go outside the Toon Hall and think about what is ahead of you.\x07Come back when you are ready to begin your final training.", 
+           INCOMPLETE_PROGRESS: 'Come back when you are ready to begin your training.', 
+           COMPLETE: "Wise choice!\x07Oh, my mistake.\x07You only had one option this time. I nearly forgot!\x07Regardless, Congratulations!\x07In light of recent events, I think it's time you learned about the origin of the Cogs.\x07Come back when you're ready to learn more.\x07In the meantime though..."}, 
+   13003: {GREETING: '', LEAVING: '', 
+           QUEST: 'To learn more about The Cogs, you should speak to Gyro Gearloose..\x07Gyro knows more about the Cogs than any other Toon.\x07You can find his workshop over in the Donalds Dock Lighthouse.\x07Just head over to Lighthouse Lane.\x07See you soon!'}}
 ChatGarblerDog = ['woof', 'arf', 'rruff']
 ChatGarblerCat = ['meow', 'mew']
 ChatGarblerMouse = ['squeak', 'squeaky', 'squeakity']
@@ -1714,9 +1729,9 @@ AvatarDetailPanelFailedLookup = 'Unable to get details for %s.'
 AvatarDetailPanelPlayer = 'Player: %(player)s\nWorld: %(world)s'
 AvatarDetailPanelPlayerShort = '%(player)s\nWorld: %(world)s\nLocation: %(location)s'
 AvatarDetailPanelRealLife = 'Offline'
-AvatarDetailPanelOnline = 'District: %(district)s\nLocation: %(location)s'
+AvatarDetailPanelOnline = 'District: %(district)s\nLocation: %(location)s\nAvatar ID: %(avId)s'
 AvatarDetailPanelOnlinePlayer = 'District: %(district)s\nLocation: %(location)s\nPlayer: %(player)s'
-AvatarDetailPanelOffline = 'District: offline\nLocation: offline'
+AvatarDetailPanelOffline = 'District: offline\nLocation: offline\nAvatar ID: %(avId)s'
 AvatarShowPlayer = 'Show Player'
 OfflineLocation = 'Offline'
 PlayerToonName = 'Toon: %(toonname)s'
@@ -3179,6 +3194,7 @@ FADoorCodes_SB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon
 FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise by doing ToonTasks in Donald's Dreamland."
 FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise by doing the ToonTasks after Donald's Dreamland."
 FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise by doing the ToonTasks after Donald's Dreamland."
+FADoorCodes_LIGHTHOUSE_CLOSED = 'Sorry! Gyro is currently out. Please check back later.'
 KnockKnockContestJokes = {2100: ['Wally', "Wally's not looking, hit him with a pie!"], 2200: {28: ['Biscuit', 'Biscuit out of here the Cogs are coming!'], 41: [
              'Dewey', 'Dewey want to go defeat some more Cogs?'], 
           40: [
@@ -4308,8 +4324,8 @@ FriendsListPanelOnlineFriends = 'ONLINE TOON\nFRIENDS'
 FriendsListPanelAllFriends = 'ALL TOON\nFRIENDS'
 FriendsListPanelIgnoredFriends = 'IGNORED\nTOONS'
 FriendsListPanelPets = 'NEARBY\nPETS'
-FriendsListPanelPlayers = 'ALL PLAYER\nFRIENDS'
-FriendsListPanelOnlinePlayers = 'ONLINE PLAYER\nFRIENDS'
+FriendsListPanelToonsZone = 'ONLINE TOONS\nIN ZONE'
+FriendsListPanelToonsServer = 'ONLINE TOONS\nIN SERVER'
 FriendInviterClickToon = 'Click on the toon you would like to make friends with.\n\n(You have %s friends)'
 FriendInviterToon = 'Toon'
 FriendInviterThatToon = 'That toon'
@@ -4958,10 +4974,12 @@ ExtraOptionsPageTextToSpeechOffLabel = 'Text to Speech is off.'
 ExtraOptionsPageTextToSpeechNotInstalledLabel = 'Text to Speech requires eSpeak.\n(You may have to restart Toontown)'
 ExtraOptionsPageTextToSpeechFilePathSetLabel = '   The eSpeak file path is set successfully.'
 ExtraOptionsPageTextToSpeechFilePathUnsetLabel = '   The eSpeak file path is incorrect.'
-ExtraOptionsPageMagicWordActivatorLabel = 'Magic Word Activator'
 ExtraOptionsPageGetEspeak = 'Download'
 ExtraOptionsPageSetEspeakPath = 'Set Path'
 ExtraOptionsPagePickEspeakDirectory = 'Please select your eSpeak directory.'
+ExtraOptionsPageMagicWordActivatorLabel = 'Magic Word Activator'
+ExtraOptionsPageGlobalChatWhispersOnLabel = 'Global Chat Popups are on.'
+ExtraOptionsPageGlobalChatWhispersOffLabel = 'Global Chat Popups are off.'
 OptionsPageCodesTab = 'Enter Code'
 CdrPageTitle = 'Enter a Code'
 CdrInstructions = 'Enter your code to receive a special item in your mailbox.'
@@ -5212,6 +5230,7 @@ BattleGlobalTracks = ['toon-up',
  'squirt',
  'drop']
 BattleGlobalNPCTracks = ['restock', 'toons hit', 'cogs miss']
+BattleGlobalFinalTrack = 'Final Track'
 BattleGlobalAvPropStrings = (
  ('Feather',
   'Megaphone',
@@ -5743,6 +5762,7 @@ ClothesShopClothe = 'Clothe'
 PromptTutorial = "Congratulations!!\nYou are Toontown's newest citizen!\n\nWould you like to continue to the Toontorial or teleport directly to Toontown Central?"
 MakeAToonSkipTutorial = 'Skip Toontorial'
 MakeAToonEnterTutorial = 'Enter Toontorial'
+PromptMaxToon = "Congratulations!!\nYou are Toontown's newest citizen!\n\nFlippy put in a good word for you, so the Toon Council has officially promoted you to a Maxed Toon. Have fun!"
 MakeAToonDone = 'Done'
 MakeAToonCancel = lCancel
 MakeAToonNext = lNext
@@ -7493,6 +7513,7 @@ NPCToonNames = {20000: 'Tutorial Tom', 999: 'Toon Tailor',
    1330: 'Porter Hole', 
    1331: 'Rudy Rudder', 
    1332: 'Fisherman Shane', 
+   1333: 'Gyro Gearloose', 
    3001: 'Betty Freezes', 
    3002: lHQOfficerM, 
    3003: lHQOfficerF, 
@@ -8317,6 +8338,8 @@ zone2TitleDict = {2513: ('Toon Hall', ''), 2514: (
         'Rudderly Ridiculous!', ''), 
    1835: (
         '', ''), 
+   1836: (
+        'The Lighthouse', ''), 
    4503: (
         'Gag Shop', ''), 
    4504: (
@@ -10812,7 +10835,7 @@ PropEditorPage5ChooseProp = 'Choose a target prop.'
 PropEditorPage5ReparentedTo = 'Reparented to: %s'
 PropEditorPage6 = ['Generated by: ', 'Edited by: ', 'Generated: ', 'Prop ID: ']
 PropEditorPage6EditedAt = 'Edited: '
-PropEditorPage7 = ['Delete', 'Lock Deletion', 'Lock Editing', 'Last Values']
+PropEditorPage7 = ['Delete', 'Lock Deletion', 'Lock Editing', 'Last Values', 'Duplicate']
 PropEditorPage7UnlockDeletion = 'Unlock Deletion'
 PropEditorPage7UnlockEditing = 'Unlock Editing'
 PropEditorPages = [PropEditorPage6, PropEditorPage7, PropEditorPage1, PropEditorPage2, PropEditorPage3, PropEditorPage4, PropEditorPage5]
@@ -10834,7 +10857,8 @@ PropMessages = [
  'Prop spawning is currently locked in this Zone.',
  'All props in the District have been deleted.',
  'All props in this Zone have been deleted.',
- "You're spawning too many props too fast. Please wait a moment."]
+ "You're spawning too many props too fast. Please wait a moment.",
+ 'An error has occurred! Please try again.']
 KongQuotes = [
  'I can confirm that I do, indeed, have a nose!',
  'Welcome to Toontown Advanced! Launching: tomorrow! Closing: next week!',
@@ -10871,7 +10895,7 @@ HoldKartExitMessage = 'Hold to exit your kart...'
 HoldKartNoKartMessage = 'You do not own a kart.'
 HoldKartLowLaffMessage = 'You need more laff to ride your kart.'
 HoldKartCantRaceHereMessage = 'You cannot ride your kart in this area.'
-MagicCatTalk = "Hey there! Welcome to the Toontown Outskirts.\x07This is a place where Toons around town can hangout and have fun.\x07Right now, things are pretty empty around here.\x07The Toontown Offline team needs your feedback on what we should add here!\x07A jukebox here? An infinite Cog tower there? Let us know what you think should be added to the Outskirts next.\x07Visit out website to find a link to our Discord server, and join it to stay in the loop on all things Toontown Offline.\x07There, you can leave feedback, get support, and much more. Well, what are you waiting for?!\x07We hope you enjoy the new version of Toontown Offline as much as we enjoyed making it.\x07We'll stay in touch. Have fun!"
+MagicCatTalk = "Hey there! Welcome to the Toontown Outskirts.\x07This is a place where Toons around town can hangout and have fun.\x07Throughout the Outskirts are many nods to Toontown's past, present, and future.\x07We hope you don't take everything you see here too seriously...\x07...there are quite a few things you normally wouldn't expect to see in Toontown!\x07Easter eggs aside, the Toontown Outskirts is supposed to bridge the gap between Toontown Central and the Toontorial.\x07We hope you have enjoyed playing Toontown Offline thus far.\x07We are happy to have been a part of this project for over five years now...\x07...and we've designed the game to exist for many more to come.\x07So what are you waiting for? Go ahead and explore the Outskirts to your heart's content!\x07See you around town!"
 GreenEffectPhase = 'Time to make a new Toon!'
 PasswordScreenTitle = 'Password Protected Server'
 PasswordScreenDescription = 'This server requires a password! Please enter the server password below.'
@@ -10911,3 +10935,12 @@ ServerShutdownAnnouncement = 'TOON HQ: The server will be shutting down for {0} 
 ServerShutdownWarning = 'TOON HQ: The server will be shutting down for {} in 60 seconds.'
 NoNameWarning = 'You cannot have no name.'
 SafezoneJukeboxTitle = 'Jukebox\n60 songs'
+TributeSongPlaying = 'Now Playing:'
+PrivateServerTribute = 'Thank you to all the private servers\nthat have kept Toontown going strong.\nHere are a select few that have made\na big impact on our community.\nThere are many, many more.'
+ChatLogTabMain = 'Main'
+ChatLogTabWhispers = 'Whispers'
+ChatLogTabGlobal = 'Global'
+ChatLogTabSystem = 'Server'
+ChatLogTabQuit = 'X'
+ChatLogButtonScaleDown = '-'
+ChatLogButtonScaleUp = '+'
