@@ -54,12 +54,12 @@ class SettingsMgrBase:
         except:
             self.notify.warning('error evaling "%s" for setting "%s"' % (valueStr, settingName))
             return
-        else:
-            try:
-                setting = self._getSetting(settingName)
-            except:
-                self.notify.warning('unknown setting %s' % settingName)
-                return
+
+        try:
+            setting = self._getSetting(settingName)
+        except:
+            self.notify.warning('unknown setting %s' % settingName)
+            return
 
         setting.setValue(val)
         self._currentValueReprs[settingName] = valueStr

@@ -76,7 +76,8 @@ class TwoDSpawnPointMgr(DirectObject):
         if len(self.loadPoints) > 0:
             point = self.loadPoints[self.lastSavePoint]
             return Point3(point[0], point[1], point[2])
-        return Point3(ToonBlitzGlobals.ToonStartingPosition[0], ToonBlitzGlobals.ToonStartingPosition[1], ToonBlitzGlobals.ToonStartingPosition[2])
+        else:
+            return Point3(ToonBlitzGlobals.ToonStartingPosition[0], ToonBlitzGlobals.ToonStartingPosition[1], ToonBlitzGlobals.ToonStartingPosition[2])
 
     def setupLastSavePointHandle(self):
         if len(self.collNPList) > 0:

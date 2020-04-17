@@ -20,7 +20,8 @@ def recurseParent(intoNode, ParentName):
         return 0
     if parent.getName() == ParentName:
         return 1
-    return recurseParent(parent, ParentName)
+    else:
+        return recurseParent(parent, ParentName)
 
 
 class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCaster.ShadowCaster):
@@ -311,9 +312,8 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
     def setMovie(self, mode, avId):
         if mode == GardenGlobals.MOVIE_FINISHPLANTING:
             self.doFinishPlantingTrack(avId)
-        else:
-            if mode == GardenGlobals.MOVIE_REMOVE:
-                self.doDigupTrack(avId)
+        elif mode == GardenGlobals.MOVIE_REMOVE:
+            self.doDigupTrack(avId)
 
     def finishMovies(self):
         if self.movie:

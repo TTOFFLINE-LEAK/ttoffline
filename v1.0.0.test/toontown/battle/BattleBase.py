@@ -71,7 +71,8 @@ def attackAffectsGroup(track, level, type=None):
         return 1
     if track >= 0 and track <= DROP_TRACK:
         return AvPropTargetCat[AvPropTarget[track]][level]
-    return 0
+    else:
+        return 0
 
 
 def getToonAttack(id, track=NO_ATTACK, level=-1, target=-1):
@@ -304,33 +305,32 @@ class BattleBase:
         if dist < minDist:
             self.notify.debug('buildJoinPointList() - destPos is nearest')
             return []
-        if toon == 1:
-            if nearestP == BattleBase.posE:
-                self.notify.debug('buildJoinPointList() - posE')
-                plist = [BattleBase.posE]
-            elif BattleBase.toonCwise.count(nearestP) == 1:
-                self.notify.debug('buildJoinPointList() - clockwise')
-                index = BattleBase.toonCwise.index(nearestP)
-                plist = BattleBase.toonCwise[index + 1:]
-            else:
-                self.notify.debug('buildJoinPointList() - counter-clockwise')
-                index = BattleBase.toonCCwise.index(nearestP)
-                plist = BattleBase.toonCCwise[index + 1:]
         else:
-            if nearestP == BattleBase.posA:
-                self.notify.debug('buildJoinPointList() - posA')
-                plist = [BattleBase.posA]
-            else:
-                if BattleBase.suitCwise.count(nearestP) == 1:
+            if toon == 1:
+                if nearestP == BattleBase.posE:
+                    self.notify.debug('buildJoinPointList() - posE')
+                    plist = [BattleBase.posE]
+                elif BattleBase.toonCwise.count(nearestP) == 1:
                     self.notify.debug('buildJoinPointList() - clockwise')
-                    index = BattleBase.suitCwise.index(nearestP)
-                    plist = BattleBase.suitCwise[index + 1:]
+                    index = BattleBase.toonCwise.index(nearestP)
+                    plist = BattleBase.toonCwise[index + 1:]
                 else:
                     self.notify.debug('buildJoinPointList() - counter-clockwise')
-                    index = BattleBase.suitCCwise.index(nearestP)
-                    plist = BattleBase.suitCCwise[index + 1:]
-        self.notify.debug('buildJoinPointList() - plist: %s' % plist)
-        return plist
+                    index = BattleBase.toonCCwise.index(nearestP)
+                    plist = BattleBase.toonCCwise[index + 1:]
+            elif nearestP == BattleBase.posA:
+                self.notify.debug('buildJoinPointList() - posA')
+                plist = [BattleBase.posA]
+            elif BattleBase.suitCwise.count(nearestP) == 1:
+                self.notify.debug('buildJoinPointList() - clockwise')
+                index = BattleBase.suitCwise.index(nearestP)
+                plist = BattleBase.suitCwise[index + 1:]
+            else:
+                self.notify.debug('buildJoinPointList() - counter-clockwise')
+                index = BattleBase.suitCCwise.index(nearestP)
+                plist = BattleBase.suitCCwise[index + 1:]
+            self.notify.debug('buildJoinPointList() - plist: %s' % plist)
+            return plist
 
     def addHelpfulToon(self, toonId):
         if toonId not in self.helpfulToons:

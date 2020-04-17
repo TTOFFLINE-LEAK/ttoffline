@@ -260,18 +260,17 @@ class RewardPanel(DirectFrame):
                     trackBar['range'] = nextExp
                     trackBar['value'] = ToontownBattleGlobals.UnpaidMaxSkills[i]
                     trackBar['text'] = TTLocalizer.InventoryGuestExp
+                elif curExp >= ToontownBattleGlobals.regMaxSkill:
+                    nextExp = self.getNextExpValueUber(curExp, i)
+                    trackBar['range'] = nextExp
+                    uberCurrExp = curExp - ToontownBattleGlobals.regMaxSkill
+                    trackBar['value'] = uberCurrExp
+                    trackBar['text'] = TTLocalizer.InventoryUberTrackExp % {'nextExp': ToontownBattleGlobals.MaxSkill - curExp}
                 else:
-                    if curExp >= ToontownBattleGlobals.regMaxSkill:
-                        nextExp = self.getNextExpValueUber(curExp, i)
-                        trackBar['range'] = nextExp
-                        uberCurrExp = curExp - ToontownBattleGlobals.regMaxSkill
-                        trackBar['value'] = uberCurrExp
-                        trackBar['text'] = TTLocalizer.InventoryUberTrackExp % {'nextExp': ToontownBattleGlobals.MaxSkill - curExp}
-                    else:
-                        nextExp = self.getNextExpValue(curExp, i)
-                        trackBar['range'] = nextExp
-                        trackBar['value'] = curExp
-                        trackBar['text'] = '%s/%s' % (curExp, nextExp)
+                    nextExp = self.getNextExpValue(curExp, i)
+                    trackBar['range'] = nextExp
+                    trackBar['value'] = curExp
+                    trackBar['text'] = '%s/%s' % (curExp, nextExp)
                 self.resetBarColor(i)
             else:
                 trackBar.hide()
@@ -284,13 +283,12 @@ class RewardPanel(DirectFrame):
         if newValue >= ToontownBattleGlobals.UnpaidMaxSkills[track] and toon.getGameAccess() != OTPGlobals.AccessFull:
             newValue = oldValue
             trackBar['text'] = TTLocalizer.GuestLostExp
+        elif newValue >= ToontownBattleGlobals.regMaxSkill:
+            newValue = newValue - ToontownBattleGlobals.regMaxSkill
+            nextExp = self.getNextExpValueUber(newValue, track)
+            trackBar['text'] = TTLocalizer.InventoryUberTrackExp % {'nextExp': ToontownBattleGlobals.UberSkill - newValue}
         else:
-            if newValue >= ToontownBattleGlobals.regMaxSkill:
-                newValue = newValue - ToontownBattleGlobals.regMaxSkill
-                nextExp = self.getNextExpValueUber(newValue, track)
-                trackBar['text'] = TTLocalizer.InventoryUberTrackExp % {'nextExp': ToontownBattleGlobals.UberSkill - newValue}
-            else:
-                trackBar['text'] = '%s/%s' % (newValue, nextExp)
+            trackBar['text'] = '%s/%s' % (newValue, nextExp)
         trackBar['range'] = nextExp
         trackBar['value'] = newValue
         trackBar['barColor'] = (ToontownBattleGlobals.TrackColors[track][0],
@@ -460,12 +458,10 @@ class RewardPanel(DirectFrame):
     def showTrackIncLabel(self, track, earnedSkill, guestWaste=0):
         if guestWaste:
             self.trackIncLabels[track]['text'] = ''
-        else:
-            if earnedSkill > 0:
-                self.trackIncLabels[track]['text'] = '+ ' + str(earnedSkill)
-            else:
-                if earnedSkill < 0:
-                    self.trackIncLabels[track]['text'] = ' ' + str(earnedSkill)
+        elif earnedSkill > 0:
+            self.trackIncLabels[track]['text'] = '+ ' + str(earnedSkill)
+        elif earnedSkill < 0:
+            self.trackIncLabels[track]['text'] = ' ' + str(earnedSkill)
         self.trackIncLabels[track].show()
 
     def showMeritIncLabel(self, dept, earnedMerits):
@@ -498,9 +494,8 @@ class RewardPanel(DirectFrame):
         while origSkill + earnedSkill >= nextExpValue and origSkill < nextExpValue and not finalGagFlag:
             if newValue >= ToontownBattleGlobals.UnpaidMaxSkills[track] and toon.getGameAccess() != OTPGlobals.AccessFull:
                 pass
-            else:
-                if nextExpValue != ToontownBattleGlobals.MaxSkill:
-                    intervalList += self.getNewGagIntervalList(toon, track, ToontownBattleGlobals.Levels[track].index(nextExpValue))
+            elif nextExpValue != ToontownBattleGlobals.MaxSkill:
+                intervalList += self.getNewGagIntervalList(toon, track, ToontownBattleGlobals.Levels[track].index(nextExpValue))
             newNextExpValue = self.getNextExpValue(nextExpValue, track)
             if newNextExpValue == nextExpValue:
                 finalGagFlag = 1
@@ -566,15 +561,12 @@ class RewardPanel(DirectFrame):
         icons = loader.loadModel('phase_3/models/gui/cog_icons')
         if dept == 0:
             self.deptIcon = icons.find('**/CorpIcon').copyTo(self.promotionFrame)
-        else:
-            if dept == 1:
-                self.deptIcon = icons.find('**/LegalIcon').copyTo(self.promotionFrame)
-            else:
-                if dept == 2:
-                    self.deptIcon = icons.find('**/MoneyIcon').copyTo(self.promotionFrame)
-                else:
-                    if dept == 3:
-                        self.deptIcon = icons.find('**/SalesIcon').copyTo(self.promotionFrame)
+        elif dept == 1:
+            self.deptIcon = icons.find('**/LegalIcon').copyTo(self.promotionFrame)
+        elif dept == 2:
+            self.deptIcon = icons.find('**/MoneyIcon').copyTo(self.promotionFrame)
+        elif dept == 3:
+            self.deptIcon = icons.find('**/SalesIcon').copyTo(self.promotionFrame)
         icons.removeNode()
         self.deptIcon.setPos(0, 0, -0.225)
         self.deptIcon.setScale(0.33)
@@ -582,16 +574,17 @@ class RewardPanel(DirectFrame):
     def cleanupPromotion(self):
         if not hasattr(self, 'deptIcon'):
             return
-        self.deptIcon.removeNode()
-        self.deptIcon = None
-        self.endTrackFrame.hide()
-        self.gagExpFrame.show()
-        self.newGagFrame.hide()
-        self.promotionFrame.hide()
-        self.questFrame.hide()
-        self.itemFrame.hide()
-        self.missedItemFrame.hide()
-        return
+        else:
+            self.deptIcon.removeNode()
+            self.deptIcon = None
+            self.endTrackFrame.hide()
+            self.gagExpFrame.show()
+            self.newGagFrame.hide()
+            self.promotionFrame.hide()
+            self.questFrame.hide()
+            self.itemFrame.hide()
+            self.missedItemFrame.hide()
+            return
 
     def getPromotionIntervalList(self, toon, dept):
         finalDelay = 2.0
@@ -675,17 +668,14 @@ class RewardPanel(DirectFrame):
                     for cogDict in cogList:
                         if cogDict['isVP']:
                             num = quest.doesVPCount(avId, cogDict, zoneId, toonShortList)
+                        elif cogDict['isCFO']:
+                            num = quest.doesCFOCount(avId, cogDict, zoneId, toonShortList)
+                        elif cogDict['isCJ']:
+                            num = quest.doesCJCount(avId, cogDict, zoneId, toonShortList)
+                        elif cogDict['isCEO']:
+                            num = quest.doesCEOCount(avId, cogDict, zoneId, toonShortList)
                         else:
-                            if cogDict['isCFO']:
-                                num = quest.doesCFOCount(avId, cogDict, zoneId, toonShortList)
-                            else:
-                                if cogDict['isCJ']:
-                                    num = quest.doesCJCount(avId, cogDict, zoneId, toonShortList)
-                                else:
-                                    if cogDict['isCEO']:
-                                        num = quest.doesCEOCount(avId, cogDict, zoneId, toonShortList)
-                                    else:
-                                        num = quest.doesCogCount(avId, cogDict, zoneId, toonShortList)
+                            num = quest.doesCogCount(avId, cogDict, zoneId, toonShortList)
                         if num:
                             if base.config.GetBool('battle-passing-no-credit', True):
                                 if avId in helpfulToonsList:

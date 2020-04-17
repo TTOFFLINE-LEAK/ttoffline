@@ -58,11 +58,10 @@ class OTPBase(ShowBase):
                 mainDR = base.win.makeStereoDisplayRegion()
                 mainDR.getRightEye().setClearDepthActive(True)
                 mainDR.setCamera(base.cam)
-        else:
-            if mainDR.isStereo():
-                base.win.removeDisplayRegion(mainDR)
-                mainDR = base.win.makeMonoDisplayRegion()
-                mainDR.setCamera(base.cam)
+        elif mainDR.isStereo():
+            base.win.removeDisplayRegion(mainDR)
+            mainDR = base.win.makeMonoDisplayRegion()
+            mainDR.setCamera(base.cam)
 
     def setupEnviroCamera(self):
         clearColor = VBase4(0, 0, 0, 1)
@@ -160,15 +159,14 @@ class OTPBase(ShowBase):
         if speed < 5:
             self.backgroundDrawable.setPixelZoom(4)
             self.pixelZoomStart = None
-        else:
-            if speed > 10:
-                if self.pixelZoomStart == None:
-                    self.pixelZoomStart = now
-                elapsed = now - self.pixelZoomStart
-                if elapsed > 10:
-                    self.backgroundDrawable.setPixelZoom(16)
-                elif elapsed > 5:
-                    self.backgroundDrawable.setPixelZoom(8)
+        elif speed > 10:
+            if self.pixelZoomStart == None:
+                self.pixelZoomStart = now
+            elapsed = now - self.pixelZoomStart
+            if elapsed > 10:
+                self.backgroundDrawable.setPixelZoom(16)
+            elif elapsed > 5:
+                self.backgroundDrawable.setPixelZoom(8)
         return task.cont
 
     def getShardPopLimits(self):
@@ -200,8 +198,10 @@ class OTPBase(ShowBase):
         if not match:
             if 'dmodels' in path:
                 return
-            self.errorAccumulatorBuffer += 'file not in phase (%s, %s)\n' % (file, path)
-            return
+            else:
+                self.errorAccumulatorBuffer += 'file not in phase (%s, %s)\n' % (file, path)
+                return
+
         basePhase = float(match.groups()[0])
         if not launcher.getPhaseComplete(basePhase):
             self.errorAccumulatorBuffer += 'phase is not loaded for this model %s\n' % path
@@ -229,4 +229,5 @@ class OTPBase(ShowBase):
     def isMainWindowOpen(self):
         if self.win != None:
             return self.win.isValid()
-        return 0
+        else:
+            return 0

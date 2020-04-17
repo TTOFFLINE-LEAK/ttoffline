@@ -182,8 +182,9 @@ class HoodDataAI:
     def getRedirect(self):
         if self.replacementHood == None:
             return self
-        return self.replacementHood[0].getRedirect()
-        return
+        else:
+            return self.replacementHood[0].getRedirect()
+            return
 
     def incrementPopulation(self, zoneId, increment):
         self.hoodPopulation += increment

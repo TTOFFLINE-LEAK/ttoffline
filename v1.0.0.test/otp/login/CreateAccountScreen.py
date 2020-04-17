@@ -137,23 +137,20 @@ class CreateAccountScreen(StateData.StateData, GuiScreen.GuiScreen):
             self.dialog.setMessage(OTPLocalizer.CreateAccountScreenNoAccountName)
             self.dialog.show()
             self.acceptOnce(self.dialogDoneEvent, self.__handleUsernameAck)
+        elif len(self.userName) < minNameLength:
+            self.dialog.setMessage(OTPLocalizer.CreateAccountScreenAccountNameTooShort % minNameLength)
+            self.dialog.show()
+            self.acceptOnce(self.dialogDoneEvent, self.__handleUsernameAck)
+        elif len(self.password) < minPwdLength:
+            self.dialog.setMessage(OTPLocalizer.CreateAccountScreenPasswordTooShort % minPwdLength)
+            self.dialog.show()
+            self.acceptOnce(self.dialogDoneEvent, self.__handlePasswordAck)
+        elif self.password != passwordConfirm:
+            self.dialog.setMessage(OTPLocalizer.CreateAccountScreenPasswordMismatch)
+            self.dialog.show()
+            self.acceptOnce(self.dialogDoneEvent, self.__handlePasswordAck)
         else:
-            if len(self.userName) < minNameLength:
-                self.dialog.setMessage(OTPLocalizer.CreateAccountScreenAccountNameTooShort % minNameLength)
-                self.dialog.show()
-                self.acceptOnce(self.dialogDoneEvent, self.__handleUsernameAck)
-            else:
-                if len(self.password) < minPwdLength:
-                    self.dialog.setMessage(OTPLocalizer.CreateAccountScreenPasswordTooShort % minPwdLength)
-                    self.dialog.show()
-                    self.acceptOnce(self.dialogDoneEvent, self.__handlePasswordAck)
-                else:
-                    if self.password != passwordConfirm:
-                        self.dialog.setMessage(OTPLocalizer.CreateAccountScreenPasswordMismatch)
-                        self.dialog.show()
-                        self.acceptOnce(self.dialogDoneEvent, self.__handlePasswordAck)
-                    else:
-                        self.fsm.request('waitForLoginResponse')
+            self.fsm.request('waitForLoginResponse')
 
     def __handleCancel(self):
         messenger.send(self.doneEvent, [{'mode': 'cancel'}])
@@ -196,11 +193,10 @@ class CreateAccountScreen(StateData.StateData, GuiScreen.GuiScreen):
     def handleWaitForLoginResponse(self, msgType, di):
         if msgType == CLIENT_LOGIN_2_RESP:
             self.handleLoginResponseMsg2(di)
+        elif msgType == CLIENT_LOGIN_RESP:
+            self.handleLoginResponseMsg(di)
         else:
-            if msgType == CLIENT_LOGIN_RESP:
-                self.handleLoginResponseMsg(di)
-            else:
-                self.cr.handleMessageType(msgType, di)
+            self.cr.handleMessageType(msgType, di)
 
     def handleLoginResponseMsg2(self, di):
         returnCode = di.getUint8()
@@ -228,29 +224,26 @@ class CreateAccountScreen(StateData.StateData, GuiScreen.GuiScreen):
             sec = di.getUint32()
             usec = di.getUint32()
             self.__handleLoginSuccess()
+        elif returnCode == 12:
+            self.notify.info('Bad password')
+            self.dialog.setMessage(OTPLocalizer.CreateAccountScreenUserNameTaken)
+            self.dialog.show()
+            self.acceptOnce(self.dialogDoneEvent, self.__handleBadPasswordAck)
+        elif returnCode == 14:
+            self.notify.info('Bad word in user name')
+            self.dialog.setMessage(OTPLocalizer.CreateAccountScreenInvalidUserName)
+            self.dialog.show()
+            self.acceptOnce(self.dialogDoneEvent, self.__handleBadWordInUserName)
+        elif returnCode == 129:
+            self.notify.info('Username not found')
+            self.dialog.setMessage(OTPLocalizer.CreateAccountScreenUserNameNotFound)
+            self.dialog.show()
+            self.acceptOnce(self.dialogDoneEvent, self.__handleBadAccountAck)
         else:
-            if returnCode == 12:
-                self.notify.info('Bad password')
-                self.dialog.setMessage(OTPLocalizer.CreateAccountScreenUserNameTaken)
-                self.dialog.show()
-                self.acceptOnce(self.dialogDoneEvent, self.__handleBadPasswordAck)
-            else:
-                if returnCode == 14:
-                    self.notify.info('Bad word in user name')
-                    self.dialog.setMessage(OTPLocalizer.CreateAccountScreenInvalidUserName)
-                    self.dialog.show()
-                    self.acceptOnce(self.dialogDoneEvent, self.__handleBadWordInUserName)
-                else:
-                    if returnCode == 129:
-                        self.notify.info('Username not found')
-                        self.dialog.setMessage(OTPLocalizer.CreateAccountScreenUserNameNotFound)
-                        self.dialog.show()
-                        self.acceptOnce(self.dialogDoneEvent, self.__handleBadAccountAck)
-                    else:
-                        accountCode = di.getUint32()
-                        errorString = di.getString()
-                        self.notify.warning(errorString)
-                        messenger.send(self.doneEvent, [{'mode': 'reject'}])
+            accountCode = di.getUint32()
+            errorString = di.getString()
+            self.notify.warning(errorString)
+            messenger.send(self.doneEvent, [{'mode': 'reject'}])
 
     def __handleConnectionErrorAck(self):
         self.dialog.hide()

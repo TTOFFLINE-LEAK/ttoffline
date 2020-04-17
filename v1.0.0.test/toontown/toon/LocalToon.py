@@ -204,15 +204,12 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             randChoice = random.randint(0, 3)
             if randChoice == 0:
                 self.glitchMessage = 'START GLITCH KILLER'
-            else:
-                if randChoice == 1:
-                    self.glitchMessage = 'GLITCH KILLER ENGAGED'
-                else:
-                    if randChoice == 2:
-                        self.glitchMessage = 'GLITCH KILLER GO!'
-                    else:
-                        if randChoice == 3:
-                            self.glitchMessage = 'GLITCH IN YO FACE FOOL!'
+            elif randChoice == 1:
+                self.glitchMessage = 'GLITCH KILLER ENGAGED'
+            elif randChoice == 2:
+                self.glitchMessage = 'GLITCH KILLER GO!'
+            elif randChoice == 3:
+                self.glitchMessage = 'GLITCH IN YO FACE FOOL!'
             self.notify.debug(self.glitchMessage)
         taskMgr.remove(self.uniqueName('glitchKiller'))
         taskMgr.add(self.glitchKiller, self.uniqueName('glitchKiller'))
@@ -459,20 +456,17 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
                                                                                                                                                                                                                             -0.55), text_wordwrap=15)
         if self.carActive:
             self.waitLabel['text'] = TTLocalizer.HoldKartExitMessage
+        elif not self.hasKart():
+            self.waitLabel['text'] = TTLocalizer.HoldKartNoKartMessage
+            self.waitLabel['text_fg'] = (1, 0, 0, 1)
+        elif self.getHp() <= 10:
+            self.waitLabel['text'] = TTLocalizer.HoldKartLowLaffMessage
+            self.waitLabel['text_fg'] = (1, 0, 0, 1)
+        elif not self.canRaceHere():
+            self.waitLabel['text'] = TTLocalizer.HoldKartCantRaceHereMessage
+            self.waitLabel['text_fg'] = (1, 0, 0, 1)
         else:
-            if not self.hasKart():
-                self.waitLabel['text'] = TTLocalizer.HoldKartNoKartMessage
-                self.waitLabel['text_fg'] = (1, 0, 0, 1)
-            else:
-                if self.getHp() <= 10:
-                    self.waitLabel['text'] = TTLocalizer.HoldKartLowLaffMessage
-                    self.waitLabel['text_fg'] = (1, 0, 0, 1)
-                else:
-                    if not self.canRaceHere():
-                        self.waitLabel['text'] = TTLocalizer.HoldKartCantRaceHereMessage
-                        self.waitLabel['text_fg'] = (1, 0, 0, 1)
-                    else:
-                        self.waitLabel['text'] = TTLocalizer.HoldKartMessage
+            self.waitLabel['text'] = TTLocalizer.HoldKartMessage
         if not self.hasKart() or not self.canRaceHere():
             self.waitSequence = Sequence(self.waitLabel.colorScaleInterval(1.25, 1, 0), Wait(1))
         else:
@@ -517,42 +511,44 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def loadDisguisePages(self):
         if self.disguisePage != None:
             return
-        if not launcher.getPhaseComplete(9):
-            self.acceptOnce('phaseComplete-9', self.loadDisguisePages)
+        else:
+            if not launcher.getPhaseComplete(9):
+                self.acceptOnce('phaseComplete-9', self.loadDisguisePages)
+                return
+            self.disguisePage = DisguisePage.DisguisePage()
+            self.disguisePage.load()
+            self.book.addPage(self.disguisePage, pageName=TTLocalizer.DisguisePageTitle)
+            self.loadSosPages()
             return
-        self.disguisePage = DisguisePage.DisguisePage()
-        self.disguisePage.load()
-        self.book.addPage(self.disguisePage, pageName=TTLocalizer.DisguisePageTitle)
-        self.loadSosPages()
-        return
 
     def loadSosPages(self):
         if self.sosPage != None:
             return
-        self.sosPage = NPCFriendPage.NPCFriendPage()
-        self.sosPage.load()
-        self.book.addPage(self.sosPage, pageName=TTLocalizer.NPCFriendPageTitle)
-        return
+        else:
+            self.sosPage = NPCFriendPage.NPCFriendPage()
+            self.sosPage.load()
+            self.book.addPage(self.sosPage, pageName=TTLocalizer.NPCFriendPageTitle)
+            return
 
     def loadGardenPages(self):
         if self.gardenPage != None:
             return
-        if not launcher.getPhaseComplete(5.5):
-            self.acceptOnce('phaseComplete-5.5', self.loadPhase55Stuff)
+        else:
+            if not launcher.getPhaseComplete(5.5):
+                self.acceptOnce('phaseComplete-5.5', self.loadPhase55Stuff)
+                return
+            self.gardenPage = GardenPage.GardenPage()
+            self.gardenPage.load()
+            self.book.addPage(self.gardenPage, pageName=TTLocalizer.GardenPageTitle)
             return
-        self.gardenPage = GardenPage.GardenPage()
-        self.gardenPage.load()
-        self.book.addPage(self.gardenPage, pageName=TTLocalizer.GardenPageTitle)
-        return
 
     def loadPhase55Stuff(self):
         if self.gardenPage == None:
             self.gardenPage = GardenPage.GardenPage()
             self.gardenPage.load()
             self.book.addPage(self.gardenPage, pageName=TTLocalizer.GardenPageTitle)
-        else:
-            if not launcher.getPhaseComplete(5.5):
-                self.acceptOnce('phaseComplete-5.5', self.loadPhase55Stuff)
+        elif not launcher.getPhaseComplete(5.5):
+            self.acceptOnce('phaseComplete-5.5', self.loadPhase55Stuff)
         self.refreshOnscreenButtons()
         return
 
@@ -589,21 +585,22 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         playerInfo = base.cr.playerFriendsManager.playerId2Info.get(fromId, None)
         if playerInfo == None:
             return
-        senderAvId = base.cr.playerFriendsManager.findAvIdFromPlayerId(fromId)
-        if not senderName and base.cr.playerFriendsManager.playerId2Info.get(fromId):
-            senderName = base.cr.playerFriendsManager.playerId2Info.get(fromId).playerName
-        senderAvatar = base.cr.identifyAvatar(senderAvId)
-        if sender:
-            chatString, scrubbed = senderAvatar.scrubTalk(rawString, mods)
         else:
-            chatString, scrubbed = self.scrubTalk(rawString, mods)
-        chatString = senderName + ': ' + chatString
-        whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
-        if playerInfo != None:
-            whisper.setClickable(senderName, fromId, 1)
-        whisper.manage(base.marginManager)
-        base.playSfx(sfx)
-        return
+            senderAvId = base.cr.playerFriendsManager.findAvIdFromPlayerId(fromId)
+            if not senderName and base.cr.playerFriendsManager.playerId2Info.get(fromId):
+                senderName = base.cr.playerFriendsManager.playerId2Info.get(fromId).playerName
+            senderAvatar = base.cr.identifyAvatar(senderAvId)
+            if sender:
+                chatString, scrubbed = senderAvatar.scrubTalk(rawString, mods)
+            else:
+                chatString, scrubbed = self.scrubTalk(rawString, mods)
+            chatString = senderName + ': ' + chatString
+            whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
+            if playerInfo != None:
+                whisper.setClickable(senderName, fromId, 1)
+            whisper.manage(base.marginManager)
+            base.playSfx(sfx)
+            return
 
     def isLocal(self):
         return 1
@@ -718,31 +715,33 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def __beginTossPie(self, time):
         if self.tossPieStart != None:
             return
-        if not self.allowPies:
+        else:
+            if not self.allowPies:
+                return
+            if self.numPies == 0:
+                messenger.send('outOfPies')
+                return
+            if self.__pieInHand():
+                return
+            if getattr(self.controlManager.currentControls, 'isAirborne', 0):
+                return
+            messenger.send('wakeup')
+            self.localPresentPie(time)
+            taskName = self.uniqueName('updatePiePower')
+            taskMgr.add(self.__updatePiePower, taskName)
             return
-        if self.numPies == 0:
-            messenger.send('outOfPies')
-            return
-        if self.__pieInHand():
-            return
-        if getattr(self.controlManager.currentControls, 'isAirborne', 0):
-            return
-        messenger.send('wakeup')
-        self.localPresentPie(time)
-        taskName = self.uniqueName('updatePiePower')
-        taskMgr.add(self.__updatePiePower, taskName)
-        return
 
     def __endTossPie(self, time):
         if self.tossPieStart == None:
             return
-        taskName = self.uniqueName('updatePiePower')
-        taskMgr.remove(taskName)
-        messenger.send('wakeup')
-        power = self.__getPiePower(time)
-        self.tossPieStart = None
-        self.localTossPie(power)
-        return
+        else:
+            taskName = self.uniqueName('updatePiePower')
+            taskMgr.remove(taskName)
+            messenger.send('wakeup')
+            power = self.__getPiePower(time)
+            self.tossPieStart = None
+            self.localTossPie(power)
+            return
 
     def localPresentPie(self, time):
         import TTEmote
@@ -825,52 +824,53 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def localTossPie(self, power):
         if not self.__presentingPie:
             return
-        pos = self.getPos()
-        hpr = self.getHpr()
-        timestamp32 = globalClockDelta.getFrameNetworkTime(bits=32)
-        sequence = self.__pieSequence
-        if self.tossTrack:
-            tossTrack = self.tossTrack
-            self.tossTrack = None
-            tossTrack.finish()
-        if sequence in self.pieTracks:
-            pieTrack = self.pieTracks[sequence]
-            del self.pieTracks[sequence]
-            pieTrack.finish()
-        if sequence in self.splatTracks:
-            splatTrack = self.splatTracks[sequence]
-            del self.splatTracks[sequence]
-            splatTrack.finish()
-        self.makePiePowerMeter()
-        self.__piePowerMeter['value'] = power
-        self.__piePowerMeter.show()
-        self.__piePowerMeterSequence = sequence
-        pieBubble = self.getPieBubble().instanceTo(NodePath())
+        else:
+            pos = self.getPos()
+            hpr = self.getHpr()
+            timestamp32 = globalClockDelta.getFrameNetworkTime(bits=32)
+            sequence = self.__pieSequence
+            if self.tossTrack:
+                tossTrack = self.tossTrack
+                self.tossTrack = None
+                tossTrack.finish()
+            if sequence in self.pieTracks:
+                pieTrack = self.pieTracks[sequence]
+                del self.pieTracks[sequence]
+                pieTrack.finish()
+            if sequence in self.splatTracks:
+                splatTrack = self.splatTracks[sequence]
+                del self.splatTracks[sequence]
+                splatTrack.finish()
+            self.makePiePowerMeter()
+            self.__piePowerMeter['value'] = power
+            self.__piePowerMeter.show()
+            self.__piePowerMeterSequence = sequence
+            pieBubble = self.getPieBubble().instanceTo(NodePath())
 
-        def pieFlies(self=self, pos=pos, hpr=hpr, sequence=sequence, power=power, timestamp32=timestamp32, pieBubble=pieBubble):
-            self.sendUpdate('tossPie', [pos[0],
-             pos[1],
-             pos[2],
-             hpr[0] % 360.0,
-             hpr[1],
-             hpr[2],
-             sequence,
-             power,
-             timestamp32])
-            if self.numPies != ToontownGlobals.FullPies:
-                self.setNumPies(self.numPies - 1)
-            base.cTrav.addCollider(pieBubble, self.pieHandler)
+            def pieFlies(self=self, pos=pos, hpr=hpr, sequence=sequence, power=power, timestamp32=timestamp32, pieBubble=pieBubble):
+                self.sendUpdate('tossPie', [pos[0],
+                 pos[1],
+                 pos[2],
+                 hpr[0] % 360.0,
+                 hpr[1],
+                 hpr[2],
+                 sequence,
+                 power,
+                 timestamp32])
+                if self.numPies != ToontownGlobals.FullPies:
+                    self.setNumPies(self.numPies - 1)
+                base.cTrav.addCollider(pieBubble, self.pieHandler)
 
-        toss, pie, flyPie = self.getTossPieInterval(pos[0], pos[1], pos[2], hpr[0], hpr[1], hpr[2], power, beginFlyIval=Func(pieFlies))
-        pieBubble.reparentTo(flyPie)
-        flyPie.setTag('pieSequence', str(sequence))
-        toss = Sequence(toss)
-        self.tossTrack = toss
-        toss.start()
-        pie = Sequence(pie, Func(base.cTrav.removeCollider, pieBubble), Func(self.pieFinishedFlying, sequence))
-        self.pieTracks[sequence] = pie
-        pie.start()
-        return
+            toss, pie, flyPie = self.getTossPieInterval(pos[0], pos[1], pos[2], hpr[0], hpr[1], hpr[2], power, beginFlyIval=Func(pieFlies))
+            pieBubble.reparentTo(flyPie)
+            flyPie.setTag('pieSequence', str(sequence))
+            toss = Sequence(toss)
+            self.tossTrack = toss
+            toss.start()
+            pie = Sequence(pie, Func(base.cTrav.removeCollider, pieBubble), Func(self.pieFinishedFlying, sequence))
+            self.pieTracks[sequence] = pie
+            pie.start()
+            return
 
     def pieFinishedFlying(self, sequence):
         DistributedToon.DistributedToon.pieFinishedFlying(self, sequence)
@@ -945,48 +945,49 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         haveButton = self.__pieButton != None
         if not haveButton and not wantButton:
             return
-        if haveButton and not wantButton:
-            self.__pieButton.destroy()
-            self.__pieButton = None
-            self.__pieButtonType = None
-            self.__pieButtonCount = None
-            return
-        if self.__pieButtonType != self.pieType:
-            if self.__pieButton:
+        else:
+            if haveButton and not wantButton:
                 self.__pieButton.destroy()
                 self.__pieButton = None
-        if self.__pieButton == None:
-            inv = self.inventory
-            if self.pieType >= len(inv.invModels[ToontownBattleGlobals.THROW_TRACK]):
-                gui = loader.loadModel('phase_3.5/models/gui/stickerbook_gui')
-                pieGui = gui.find('**/summons')
-                pieScale = 0.1
-            else:
-                gui = None
-                pieGui = (inv.invModels[ToontownBattleGlobals.THROW_TRACK][self.pieType],)
-                pieScale = 0.85
-            self.__pieButton = DirectButton(image=(inv.upButton, inv.downButton, inv.rolloverButton), geom=pieGui, text='50', text_scale=0.04, text_align=TextNode.ARight, geom_scale=pieScale, geom_pos=(-0.01,
-                                                                                                                                                                                                          0,
-                                                                                                                                                                                                          0), text_fg=Vec4(1, 1, 1, 1), text_pos=(0.07,
-                                                                                                                                                                                                                                                  -0.04), relief=None, image_color=(0,
-                                                                                                                                                                                                                                                                                    0.6,
-                                                                                                                                                                                                                                                                                    1,
-                                                                                                                                                                                                                                                                                    1), pos=(0,
-                                                                                                                                                                                                                                                                                             0.1,
-                                                                                                                                                                                                                                                                                             0.9))
-            self.__pieButton.bind(DGG.B1PRESS, self.__beginTossPieMouse)
-            self.__pieButton.bind(DGG.B1RELEASE, self.__endTossPieMouse)
-            self.__pieButtonType = self.pieType
-            self.__pieButtonCount = None
-            if gui:
-                del gui
-        if self.__pieButtonCount != self.numPies:
-            if self.numPies == ToontownGlobals.FullPies:
-                self.__pieButton['text'] = ''
-            else:
-                self.__pieButton['text'] = str(self.numPies)
-            self.__pieButtonCount = self.numPies
-        return
+                self.__pieButtonType = None
+                self.__pieButtonCount = None
+                return
+            if self.__pieButtonType != self.pieType:
+                if self.__pieButton:
+                    self.__pieButton.destroy()
+                    self.__pieButton = None
+            if self.__pieButton == None:
+                inv = self.inventory
+                if self.pieType >= len(inv.invModels[ToontownBattleGlobals.THROW_TRACK]):
+                    gui = loader.loadModel('phase_3.5/models/gui/stickerbook_gui')
+                    pieGui = gui.find('**/summons')
+                    pieScale = 0.1
+                else:
+                    gui = None
+                    pieGui = (inv.invModels[ToontownBattleGlobals.THROW_TRACK][self.pieType],)
+                    pieScale = 0.85
+                self.__pieButton = DirectButton(image=(inv.upButton, inv.downButton, inv.rolloverButton), geom=pieGui, text='50', text_scale=0.04, text_align=TextNode.ARight, geom_scale=pieScale, geom_pos=(-0.01,
+                                                                                                                                                                                                              0,
+                                                                                                                                                                                                              0), text_fg=Vec4(1, 1, 1, 1), text_pos=(0.07,
+                                                                                                                                                                                                                                                      -0.04), relief=None, image_color=(0,
+                                                                                                                                                                                                                                                                                        0.6,
+                                                                                                                                                                                                                                                                                        1,
+                                                                                                                                                                                                                                                                                        1), pos=(0,
+                                                                                                                                                                                                                                                                                                 0.1,
+                                                                                                                                                                                                                                                                                                 0.9))
+                self.__pieButton.bind(DGG.B1PRESS, self.__beginTossPieMouse)
+                self.__pieButton.bind(DGG.B1RELEASE, self.__endTossPieMouse)
+                self.__pieButtonType = self.pieType
+                self.__pieButtonCount = None
+                if gui:
+                    del gui
+            if self.__pieButtonCount != self.numPies:
+                if self.numPies == ToontownGlobals.FullPies:
+                    self.__pieButton['text'] = ''
+                else:
+                    self.__pieButton['text'] = str(self.numPies)
+                self.__pieButtonCount = self.numPies
+            return
 
     def displayWhisper(self, fromId, chatString, whisperType):
         sender = None
@@ -994,16 +995,14 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if fromId == TTLocalizer.Clarabelle:
             chatString = TTLocalizer.Clarabelle + ': ' + chatString
             sfx = self.soundPhoneRing
-        else:
-            if fromId != 0:
-                sender = base.cr.identifyAvatar(fromId)
+        elif fromId != 0:
+            sender = base.cr.identifyAvatar(fromId)
         if whisperType == WhisperPopup.WTNormal or whisperType == WhisperPopup.WTQuickTalker:
             if sender == None:
                 return
             chatString = sender.getName() + ': ' + chatString
-        else:
-            if whisperType == WhisperPopup.WTSystem:
-                sfx = self.soundSystemMessage
+        elif whisperType == WhisperPopup.WTSystem:
+            sfx = self.soundSystemMessage
         whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
         if sender != None:
             whisper.setClickable(sender.getName(), fromId)
@@ -1017,16 +1016,14 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if fromId == TTLocalizer.Clarabelle:
             chatString = TTLocalizer.Clarabelle + ': ' + chatString
             sfx = self.soundPhoneRing
-        else:
-            if fromId != 0:
-                sender = base.cr.identifyAvatar(fromId)
+        elif fromId != 0:
+            sender = base.cr.identifyAvatar(fromId)
         if whisperType == WhisperPopup.WTNormal or whisperType == WhisperPopup.WTQuickTalker:
             if sender == None:
                 return
             chatString = sender.getName() + ': ' + chatString
-        else:
-            if whisperType == WhisperPopup.WTSystem:
-                sfx = self.soundSystemMessage
+        elif whisperType == WhisperPopup.WTSystem:
+            sfx = self.soundSystemMessage
         whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
         whisper.setClickable('', fromId)
         whisper.manage(base.marginManager)
@@ -1051,9 +1048,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
                     desiredMode = -1
                     if doId == -1:
                         desiredMode = EventsPage.EventsPage_Invited
-                    else:
-                        if foundCanStart:
-                            desiredMode = EventsPage.EventsPage_Host
+                    elif foundCanStart:
+                        desiredMode = EventsPage.EventsPage_Host
                     if desiredMode >= 0:
                         self.book.setPage(self.eventsPage)
                         self.eventsPage.setMode(desiredMode)
@@ -1062,29 +1058,30 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def loadFurnitureGui(self):
         if self.__furnitureGui:
             return
-        guiModels = loader.loadModel('phase_5.5/models/gui/house_design_gui')
-        self.__furnitureGui = DirectFrame(relief=None, parent=base.a2dTopLeft, pos=(0.143333,
-                                                                                    0,
-                                                                                    -0.67), scale=0.04, image=guiModels.find('**/attic'))
-        DirectLabel(parent=self.__furnitureGui, relief=None, image=guiModels.find('**/rooftile'))
-        bMoveStartUp = guiModels.find('**/bu_attic/bu_attic_up')
-        bMoveStartDown = guiModels.find('**/bu_attic/bu_attic_down')
-        bMoveStartRollover = guiModels.find('**/bu_attic/bu_attic_rollover')
-        DirectButton(parent=self.__furnitureGui, relief=None, image=[bMoveStartUp,
-         bMoveStartDown,
-         bMoveStartRollover,
-         bMoveStartUp], text=['', TTLocalizer.HDMoveFurnitureButton, TTLocalizer.HDMoveFurnitureButton], text_fg=(1,
-                                                                                                                  1,
-                                                                                                                  1,
-                                                                                                                  1), text_shadow=(0,
-                                                                                                                                   0,
-                                                                                                                                   0,
-                                                                                                                                   1), text_font=ToontownGlobals.getInterfaceFont(), pos=(-0.3,
-                                                                                                                                                                                          0,
-                                                                                                                                                                                          9.4), command=self.__startMoveFurniture)
-        self.__furnitureGui.hide()
-        guiModels.removeNode()
-        return
+        else:
+            guiModels = loader.loadModel('phase_5.5/models/gui/house_design_gui')
+            self.__furnitureGui = DirectFrame(relief=None, parent=base.a2dTopLeft, pos=(0.143333,
+                                                                                        0,
+                                                                                        -0.67), scale=0.04, image=guiModels.find('**/attic'))
+            DirectLabel(parent=self.__furnitureGui, relief=None, image=guiModels.find('**/rooftile'))
+            bMoveStartUp = guiModels.find('**/bu_attic/bu_attic_up')
+            bMoveStartDown = guiModels.find('**/bu_attic/bu_attic_down')
+            bMoveStartRollover = guiModels.find('**/bu_attic/bu_attic_rollover')
+            DirectButton(parent=self.__furnitureGui, relief=None, image=[bMoveStartUp,
+             bMoveStartDown,
+             bMoveStartRollover,
+             bMoveStartUp], text=['', TTLocalizer.HDMoveFurnitureButton, TTLocalizer.HDMoveFurnitureButton], text_fg=(1,
+                                                                                                                      1,
+                                                                                                                      1,
+                                                                                                                      1), text_shadow=(0,
+                                                                                                                                       0,
+                                                                                                                                       0,
+                                                                                                                                       1), text_font=ToontownGlobals.getInterfaceFont(), pos=(-0.3,
+                                                                                                                                                                                              0,
+                                                                                                                                                                                              9.4), command=self.__startMoveFurniture)
+            self.__furnitureGui.hide()
+            guiModels.removeNode()
+            return
 
     def showFurnitureGui(self):
         self.loadFurnitureGui()
@@ -1097,57 +1094,59 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def clarabelleNewsPageCollision(self, show=True):
         if self.__clarabelleButton == None:
             return
-        claraXPos = ClaraBaseXPos
-        notifyXPos = CatalogNotifyDialog.CatalogNotifyBaseXPos
-        if show and WantNewsPage:
-            claraXPos += AdjustmentForNewsButton
-            notifyXPos += AdjustmentForNewsButton
-        if WantNewsPage:
-            newPos = (
-             claraXPos - 0.1, 1.0, -0.55)
         else:
-            newPos = (
-             claraXPos, 1.0, -0.63)
-        self.__clarabelleButton.setPos(newPos)
-        if self.__catalogNotifyDialog == None or self.__catalogNotifyDialog.frame == None:
+            claraXPos = ClaraBaseXPos
+            notifyXPos = CatalogNotifyDialog.CatalogNotifyBaseXPos
+            if show and WantNewsPage:
+                claraXPos += AdjustmentForNewsButton
+                notifyXPos += AdjustmentForNewsButton
+            if WantNewsPage:
+                newPos = (
+                 claraXPos - 0.1, 1.0, -0.55)
+            else:
+                newPos = (
+                 claraXPos, 1.0, -0.63)
+            self.__clarabelleButton.setPos(newPos)
+            if self.__catalogNotifyDialog == None or self.__catalogNotifyDialog.frame == None:
+                return
+            notifyPos = self.__catalogNotifyDialog.frame.getPos()
+            notifyPos[0] = notifyXPos
+            self.__catalogNotifyDialog.frame.setPos(notifyPos)
             return
-        notifyPos = self.__catalogNotifyDialog.frame.getPos()
-        notifyPos[0] = notifyXPos
-        self.__catalogNotifyDialog.frame.setPos(notifyPos)
-        return
 
     def loadClarabelleGui(self):
         if self.__clarabelleButton:
             return
-        guiItems = loader.loadModel('phase_5.5/models/gui/catalog_gui')
-        circle = guiItems.find('**/cover/blue_circle')
-        icon = guiItems.find('**/cover/clarabelle')
-        icon.reparentTo(circle)
-        rgba = VBase4(0.71589, 0.784547, 0.974, 1.0)
-        white = VBase4(1.0, 1.0, 1.0, 1.0)
-        icon.setColor(white)
-        claraXPos = ClaraBaseXPos
-        newScale = oldScale = 0.5
-        newPos = (claraXPos, 1.0, -0.63)
-        if WantNewsPage:
-            claraXPos += AdjustmentForNewsButton
-            oldPos = ((claraXPos, 1.0, -0.63),)
-            newScale = oldScale * ToontownGlobals.NewsPageScaleAdjust
-            newPos = (claraXPos - 0.1, 1.0, -0.55)
-        self.__clarabelleButton = DirectButton(relief=None, image=circle, text='', text_fg=(1,
-                                                                                            1,
-                                                                                            1,
-                                                                                            1), text_shadow=(0,
-                                                                                                             0,
-                                                                                                             0,
-                                                                                                             1), text_scale=0.1, text_pos=(-1.06,
-                                                                                                                                           1.06), text_font=ToontownGlobals.getInterfaceFont(), pos=newPos, scale=newScale, command=self.__handleClarabelleButton)
-        self.__clarabelleButton.reparentTo(base.a2dTopRight, DGG.BACKGROUND_SORT_INDEX - 1)
-        button = self.__clarabelleButton.stateNodePath[0]
-        self.__clarabelleFlash = Sequence(LerpColorInterval(button, 2, white, blendType='easeInOut'), LerpColorInterval(button, 2, rgba, blendType='easeInOut'))
-        self.__clarabelleFlash.loop()
-        self.__clarabelleFlash.pause()
-        return
+        else:
+            guiItems = loader.loadModel('phase_5.5/models/gui/catalog_gui')
+            circle = guiItems.find('**/cover/blue_circle')
+            icon = guiItems.find('**/cover/clarabelle')
+            icon.reparentTo(circle)
+            rgba = VBase4(0.71589, 0.784547, 0.974, 1.0)
+            white = VBase4(1.0, 1.0, 1.0, 1.0)
+            icon.setColor(white)
+            claraXPos = ClaraBaseXPos
+            newScale = oldScale = 0.5
+            newPos = (claraXPos, 1.0, -0.63)
+            if WantNewsPage:
+                claraXPos += AdjustmentForNewsButton
+                oldPos = ((claraXPos, 1.0, -0.63),)
+                newScale = oldScale * ToontownGlobals.NewsPageScaleAdjust
+                newPos = (claraXPos - 0.1, 1.0, -0.55)
+            self.__clarabelleButton = DirectButton(relief=None, image=circle, text='', text_fg=(1,
+                                                                                                1,
+                                                                                                1,
+                                                                                                1), text_shadow=(0,
+                                                                                                                 0,
+                                                                                                                 0,
+                                                                                                                 1), text_scale=0.1, text_pos=(-1.06,
+                                                                                                                                               1.06), text_font=ToontownGlobals.getInterfaceFont(), pos=newPos, scale=newScale, command=self.__handleClarabelleButton)
+            self.__clarabelleButton.reparentTo(base.a2dTopRight, DGG.BACKGROUND_SORT_INDEX - 1)
+            button = self.__clarabelleButton.stateNodePath[0]
+            self.__clarabelleFlash = Sequence(LerpColorInterval(button, 2, white, blendType='easeInOut'), LerpColorInterval(button, 2, rgba, blendType='easeInOut'))
+            self.__clarabelleFlash.loop()
+            self.__clarabelleFlash.pause()
+            return
 
     def showClarabelleGui(self, mailboxItems):
         self.loadClarabelleGui()
@@ -1176,13 +1175,14 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if place == None:
             self.notify.warning('Tried to go home, but place is None.')
             return
-        if self.__catalogNotifyDialog:
-            self.__catalogNotifyDialog.cleanup()
-            self.__catalogNotifyDialog = None
-        if base.config.GetBool('want-qa-regression', 0):
-            self.notify.info('QA-REGRESSION: VISITESTATE: Visit estate')
-        place.goHomeNow(self.lastHood)
-        return
+        else:
+            if self.__catalogNotifyDialog:
+                self.__catalogNotifyDialog.cleanup()
+                self.__catalogNotifyDialog = None
+            if base.config.GetBool('want-qa-regression', 0):
+                self.notify.info('QA-REGRESSION: VISITESTATE: Visit estate')
+            place.goHomeNow(self.lastHood)
+            return
 
     def __startMoveFurniture(self):
         self.oldPos = self.getPos()
@@ -1190,9 +1190,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.notify.info('QA-REGRESSION: ESTATE:  Furniture Placement')
         if self.cr.furnitureManager != None:
             self.cr.furnitureManager.d_suggestDirector(self.doId)
-        else:
-            if self.furnitureManager != None:
-                self.furnitureManager.d_suggestDirector(self.doId)
+        elif self.furnitureManager != None:
+            self.furnitureManager.d_suggestDirector(self.doId)
         return
 
     def stopMoveFurniture(self):
@@ -1208,19 +1207,18 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
                 messenger.send('exitFurnitureMode', [furnitureManager])
                 self.furnitureManager = None
                 self.furnitureDirector = None
-        else:
-            if avId != self.doId:
-                if self.furnitureManager == None or self.furnitureDirector != avId:
-                    self.furnitureManager = furnitureManager
-                    self.furnitureDirector = avId
-                    messenger.send('enterFurnitureMode', [furnitureManager, 0])
-            else:
-                if self.furnitureManager != None:
-                    messenger.send('exitFurnitureMode', [self.furnitureManager])
-                    self.furnitureManager = None
+        elif avId != self.doId:
+            if self.furnitureManager == None or self.furnitureDirector != avId:
                 self.furnitureManager = furnitureManager
                 self.furnitureDirector = avId
-                messenger.send('enterFurnitureMode', [furnitureManager, 1])
+                messenger.send('enterFurnitureMode', [furnitureManager, 0])
+        else:
+            if self.furnitureManager != None:
+                messenger.send('exitFurnitureMode', [self.furnitureManager])
+                self.furnitureManager = None
+            self.furnitureManager = furnitureManager
+            self.furnitureDirector = avId
+            messenger.send('enterFurnitureMode', [furnitureManager, 1])
         self.refreshOnscreenButtons()
         return
 
@@ -1304,18 +1302,19 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if self.taskDebugLabel:
             self.stopTaskDebug()
             return False
-        self.taskDebugLabel = DirectLabel(base.a2dTopLeft, relief=None, text=text, text_font=ToontownGlobals.getToonFont(), text_scale=0.036, text_align=TextNode.ALeft, text_fg=(1,
-                                                                                                                                                                                  1,
-                                                                                                                                                                                  1,
-                                                                                                                                                                                  1), text_shadow=(0,
-                                                                                                                                                                                                   0,
-                                                                                                                                                                                                   0,
-                                                                                                                                                                                                   1), pos=(0.03,
-                                                                                                                                                                                                            0,
-                                                                                                                                                                                                            -0.05))
-        self.taskDebugLabel.setBin('gui-popup', 0)
-        self.taskDebugLabel.show()
-        return True
+        else:
+            self.taskDebugLabel = DirectLabel(base.a2dTopLeft, relief=None, text=text, text_font=ToontownGlobals.getToonFont(), text_scale=0.036, text_align=TextNode.ALeft, text_fg=(1,
+                                                                                                                                                                                      1,
+                                                                                                                                                                                      1,
+                                                                                                                                                                                      1), text_shadow=(0,
+                                                                                                                                                                                                       0,
+                                                                                                                                                                                                       0,
+                                                                                                                                                                                                       1), pos=(0.03,
+                                                                                                                                                                                                                0,
+                                                                                                                                                                                                                -0.05))
+            self.taskDebugLabel.setBin('gui-popup', 0)
+            self.taskDebugLabel.show()
+            return True
 
     def thinkTask(self):
         if self.createTaskLabel(str(taskMgr)):
@@ -1329,20 +1328,21 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if self.debugLabel:
             self.stopDebug()
             return
-        self.debugLabel = DirectLabel(base.a2dBottomLeft, relief=None, text=self.getDebugInfo(), text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_align=TextNode.ALeft, text_fg=(1,
-                                                                                                                                                                                               1,
-                                                                                                                                                                                               1,
-                                                                                                                                                                                               1), text_shadow=(0,
-                                                                                                                                                                                                                0,
-                                                                                                                                                                                                                0,
-                                                                                                                                                                                                                1), pos=(0.03,
-                                                                                                                                                                                                                         0,
-                                                                                                                                                                                                                         0.72))
-        self.debugLabel.setBin('gui-popup', 0)
-        self.debugLabel.show()
-        taskMgr.add(self.__updateDebugLabel, self.uniqueName('updateDebugLabel'))
-        taskMgr.doMethodLater(2.5, self.__autoTimeSync, self.uniqueName('autoTimeSync'))
-        return
+        else:
+            self.debugLabel = DirectLabel(base.a2dBottomLeft, relief=None, text=self.getDebugInfo(), text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_align=TextNode.ALeft, text_fg=(1,
+                                                                                                                                                                                                   1,
+                                                                                                                                                                                                   1,
+                                                                                                                                                                                                   1), text_shadow=(0,
+                                                                                                                                                                                                                    0,
+                                                                                                                                                                                                                    0,
+                                                                                                                                                                                                                    1), pos=(0.03,
+                                                                                                                                                                                                                             0,
+                                                                                                                                                                                                                             0.72))
+            self.debugLabel.setBin('gui-popup', 0)
+            self.debugLabel.show()
+            taskMgr.add(self.__updateDebugLabel, self.uniqueName('updateDebugLabel'))
+            taskMgr.doMethodLater(2.5, self.__autoTimeSync, self.uniqueName('autoTimeSync'))
+            return
 
     def __autoTimeSync(self, task):
         if base.cr.timeManager:
@@ -1426,77 +1426,74 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def newCatalogNotify(self):
         if not self.gotCatalogNotify:
             return
-        hasPhase = not launcher or launcher.getPhaseComplete(5.5)
-        if not hasPhase:
-            return
-        if not self.friendsListButtonActive or self.friendsListButtonObscured > 0:
-            return
-        self.gotCatalogNotify = 0
-        currentWeek = self.catalogScheduleCurrentWeek - 1
-        if currentWeek < 57:
-            seriesNumber = currentWeek / ToontownGlobals.CatalogNumWeeksPerSeries + 1
-            weekNumber = currentWeek % ToontownGlobals.CatalogNumWeeksPerSeries + 1
         else:
-            if currentWeek < 65:
-                seriesNumber = 6
-                weekNumber = currentWeek - 56
-            else:
-                seriesNumber = currentWeek / ToontownGlobals.CatalogNumWeeksPerSeries + 2
+            hasPhase = not launcher or launcher.getPhaseComplete(5.5)
+            if not hasPhase:
+                return
+            if not self.friendsListButtonActive or self.friendsListButtonObscured > 0:
+                return
+            self.gotCatalogNotify = 0
+            currentWeek = self.catalogScheduleCurrentWeek - 1
+            if currentWeek < 57:
+                seriesNumber = currentWeek / ToontownGlobals.CatalogNumWeeksPerSeries + 1
                 weekNumber = currentWeek % ToontownGlobals.CatalogNumWeeksPerSeries + 1
-        message = None
-        if self.mailboxNotify == ToontownGlobals.NoItems:
-            if self.catalogNotify == ToontownGlobals.NewItems:
-                if self.catalogScheduleCurrentWeek == 1:
-                    message = (
-                     TTLocalizer.CatalogNotifyFirstCatalog, TTLocalizer.CatalogNotifyInstructions)
-                else:
-                    message = (
-                     TTLocalizer.CatalogNotifyNewCatalog % weekNumber,)
-        else:
-            if self.mailboxNotify == ToontownGlobals.NewItems:
-                if self.catalogNotify == ToontownGlobals.NewItems:
-                    message = (
-                     TTLocalizer.CatalogNotifyNewCatalogNewDelivery % weekNumber,)
-                else:
-                    message = (
-                     TTLocalizer.CatalogNotifyNewDelivery,)
             else:
-                if self.mailboxNotify == ToontownGlobals.OldItems:
+                if currentWeek < 65:
+                    seriesNumber = 6
+                    weekNumber = currentWeek - 56
+                else:
+                    seriesNumber = currentWeek / ToontownGlobals.CatalogNumWeeksPerSeries + 2
+                    weekNumber = currentWeek % ToontownGlobals.CatalogNumWeeksPerSeries + 1
+                message = None
+                if self.mailboxNotify == ToontownGlobals.NoItems:
+                    if self.catalogNotify == ToontownGlobals.NewItems:
+                        if self.catalogScheduleCurrentWeek == 1:
+                            message = (
+                             TTLocalizer.CatalogNotifyFirstCatalog, TTLocalizer.CatalogNotifyInstructions)
+                        else:
+                            message = (
+                             TTLocalizer.CatalogNotifyNewCatalog % weekNumber,)
+                elif self.mailboxNotify == ToontownGlobals.NewItems:
+                    if self.catalogNotify == ToontownGlobals.NewItems:
+                        message = (
+                         TTLocalizer.CatalogNotifyNewCatalogNewDelivery % weekNumber,)
+                    else:
+                        message = (
+                         TTLocalizer.CatalogNotifyNewDelivery,)
+                elif self.mailboxNotify == ToontownGlobals.OldItems:
                     if self.catalogNotify == ToontownGlobals.NewItems:
                         message = (
                          TTLocalizer.CatalogNotifyNewCatalogOldDelivery % weekNumber,)
                     else:
                         message = (
                          TTLocalizer.CatalogNotifyOldDelivery,)
-        if self.awardNotify == ToontownGlobals.NoItems:
-            pass
-        else:
-            if self.awardNotify == ToontownGlobals.NewItems:
-                oldStr = ''
-                if message:
-                    oldStr = message[0] + ' '
-                oldStr += TTLocalizer.AwardNotifyNewItems
-                message = (oldStr,)
-            else:
-                if self.awardNotify == ToontownGlobals.OldItems:
+                if self.awardNotify == ToontownGlobals.NoItems:
+                    pass
+                elif self.awardNotify == ToontownGlobals.NewItems:
+                    oldStr = ''
+                    if message:
+                        oldStr = message[0] + ' '
+                    oldStr += TTLocalizer.AwardNotifyNewItems
+                    message = (oldStr,)
+                elif self.awardNotify == ToontownGlobals.OldItems:
                     oldStr = ''
                     if message:
                         oldStr = message[0] + ' '
                     oldStr += TTLocalizer.AwardNotifyOldItems
                     message = (oldStr,)
-            if self.simpleMailNotify == ToontownGlobals.NewItems or self.inviteMailNotify == ToontownGlobals.NewItems:
-                oldStr = ''
-                if message:
-                    oldStr = message[0] + ' '
-                oldStr += TTLocalizer.MailNotifyNewItems
-                message = (oldStr,)
-            if message == None:
-                return
-        if self.__catalogNotifyDialog:
-            self.__catalogNotifyDialog.cleanup()
-        self.__catalogNotifyDialog = CatalogNotifyDialog.CatalogNotifyDialog(message)
-        base.playSfx(self.soundPhoneRing)
-        return
+                if self.simpleMailNotify == ToontownGlobals.NewItems or self.inviteMailNotify == ToontownGlobals.NewItems:
+                    oldStr = ''
+                    if message:
+                        oldStr = message[0] + ' '
+                    oldStr += TTLocalizer.MailNotifyNewItems
+                    message = (oldStr,)
+                if message == None:
+                    return
+            if self.__catalogNotifyDialog:
+                self.__catalogNotifyDialog.cleanup()
+            self.__catalogNotifyDialog = CatalogNotifyDialog.CatalogNotifyDialog(message)
+            base.playSfx(self.soundPhoneRing)
+            return
 
     def allowHardLand(self):
         retval = LocalAvatar.LocalAvatar.allowHardLand(self)
@@ -1520,19 +1517,18 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
                 self.soundRun.setVolume(2)
                 self.soundWalk = base.loader.loadSfx('phase_4/audio/sfx/AV_footstep_walkloop_water.ogg')
                 self.useWaterSound = True
-            else:
-                if not (showWake and self.getZ(render) < wakeWaterHeight) and self.useWaterSound:
-                    if self.soundRun.status() == self.soundRun.PLAYING:
-                        replay = 1
-                        self.soundRun.stop()
-                    base.loader.unloadSfx(self.soundRun)
-                    if self.soundWalk.status() == self.soundWalk.PLAYING:
-                        replay = 2
-                        self.soundWalk.stop()
-                    base.loader.unloadSfx(self.soundWalk)
-                    self.soundRun = base.loader.loadSfx('phase_3.5/audio/sfx/AV_footstep_runloop_new.ogg')
-                    self.soundWalk = base.loader.loadSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
-                    self.useWaterSound = False
+            elif not (showWake and self.getZ(render) < wakeWaterHeight) and self.useWaterSound:
+                if self.soundRun.status() == self.soundRun.PLAYING:
+                    replay = 1
+                    self.soundRun.stop()
+                base.loader.unloadSfx(self.soundRun)
+                if self.soundWalk.status() == self.soundWalk.PLAYING:
+                    replay = 2
+                    self.soundWalk.stop()
+                base.loader.unloadSfx(self.soundWalk)
+                self.soundRun = base.loader.loadSfx('phase_3.5/audio/sfx/AV_footstep_runloop_new.ogg')
+                self.soundWalk = base.loader.loadSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+                self.useWaterSound = False
             if replay == 1:
                 self.runSound()
             elif replay == 2:
@@ -1548,75 +1544,39 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def loadGardeningGui(self):
         if self.__gardeningGui:
             return
-        gardenGuiCard = loader.loadModel('phase_5.5/models/gui/planting_gui')
-        self.__gardeningGui = DirectFrame(relief=None, parent=base.a2dTopLeft, geom=gardenGuiCard, geom_color=GlobalDialogColor, geom_scale=(0.17,
-                                                                                                                                             1.0,
-                                                                                                                                             0.3), pos=(0.133333,
-                                                                                                                                                        0,
-                                                                                                                                                        -0.5), scale=1.0)
-        self.__gardeningGui.setName('gardeningFrame')
-        self.__gardeningGuiFake = DirectFrame(relief=None, parent=base.a2dTopLeft, geom=None, geom_color=GlobalDialogColor, geom_scale=(0.17,
-                                                                                                                                        1.0,
-                                                                                                                                        0.3), pos=(0.133333,
-                                                                                                                                                   0,
-                                                                                                                                                   -0.5), scale=1.0)
-        self.__gardeningGuiFake.setName('gardeningFrameFake')
-        iconScale = 1
-        iconColorWhite = Vec4(1.0, 1.0, 1.0, 1.0)
-        iconColorGrey = Vec4(0.7, 0.7, 0.7, 1.0)
-        iconColorBrown = Vec4(0.7, 0.4, 0.3, 1.0)
-        iconColorBlue = Vec4(0.2, 0.3, 1.0, 1.0)
-        shovelCardP = loader.loadModel('phase_5.5/models/gui/planting_but_shovel_P')
-        shovelCardY = loader.loadModel('phase_5.5/models/gui/planting_but_shovel_Y')
-        wateringCanCardP = loader.loadModel('phase_5.5/models/gui/planting_but_can_P')
-        wateringCanCardY = loader.loadModel('phase_5.5/models/gui/planting_but_can_Y')
-        backCard = loader.loadModel('phase_5.5/models/gui/planting_gui')
-        iconImage = None
-        iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-        iconGeom = iconModels.find('**/fish')
-        buttonText = TTLocalizer.GardeningPlant
-        self.shovelText = ('',
-         '',
-         buttonText,
-         '')
-        self.__shovelButtonFake = DirectLabel(parent=self.__gardeningGuiFake, relief=None, text=self.shovelText, text_align=TextNode.ALeft, text_pos=(0.0,
-                                                                                                                                                      -0.0), text_scale=0.07, text_fg=(1,
-                                                                                                                                                                                       1,
-                                                                                                                                                                                       1,
-                                                                                                                                                                                       1), text_shadow=(0,
-                                                                                                                                                                                                        0,
-                                                                                                                                                                                                        0,
-                                                                                                                                                                                                        1), image_scale=(0.18,
-                                                                                                                                                                                                                         1.0,
-                                                                                                                                                                                                                         0.36), geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(0.15,
-                                                                                                                                                                                                                                                                                                 0,
-                                                                                                                                                                                                                                                                                                 0.2), scale=0.775)
-        self.shovelButtonFake = self.__shovelButtonFake
-        self.shovelText = ('',
-         '',
-         buttonText,
-         '')
-        self.__shovelButton = DirectButton(parent=self.__gardeningGui, relief=None, text=self.shovelText, text_align=TextNode.ACenter, text_pos=(0.0,
-                                                                                                                                                 -0.0), text_scale=0.1, text_fg=(1,
-                                                                                                                                                                                 1,
-                                                                                                                                                                                 1,
-                                                                                                                                                                                 1), text_shadow=(0,
-                                                                                                                                                                                                  0,
-                                                                                                                                                                                                  0,
-                                                                                                                                                                                                  1), image=(shovelCardP,
-         shovelCardY,
-         shovelCardY,
-         shovelCardY), image_scale=(0.18, 1.0, 0.36), geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(0,
-                                                                                                                       0,
-                                                                                                                       0.2), scale=0.775, command=self.__shovelButtonClicked)
-        self.shovelButton = self.__shovelButton
-        iconGeom = iconModels.find('**/teleportIcon')
-        buttonText = TTLocalizer.GardeningWater
-        self.waterText = (buttonText,
-         buttonText,
-         buttonText,
-         '')
-        self.__wateringCanButtonFake = DirectLabel(parent=self.__gardeningGuiFake, relief=None, text=self.waterText, text_align=TextNode.ALeft, text_pos=(0.0,
+        else:
+            gardenGuiCard = loader.loadModel('phase_5.5/models/gui/planting_gui')
+            self.__gardeningGui = DirectFrame(relief=None, parent=base.a2dTopLeft, geom=gardenGuiCard, geom_color=GlobalDialogColor, geom_scale=(0.17,
+                                                                                                                                                 1.0,
+                                                                                                                                                 0.3), pos=(0.133333,
+                                                                                                                                                            0,
+                                                                                                                                                            -0.5), scale=1.0)
+            self.__gardeningGui.setName('gardeningFrame')
+            self.__gardeningGuiFake = DirectFrame(relief=None, parent=base.a2dTopLeft, geom=None, geom_color=GlobalDialogColor, geom_scale=(0.17,
+                                                                                                                                            1.0,
+                                                                                                                                            0.3), pos=(0.133333,
+                                                                                                                                                       0,
+                                                                                                                                                       -0.5), scale=1.0)
+            self.__gardeningGuiFake.setName('gardeningFrameFake')
+            iconScale = 1
+            iconColorWhite = Vec4(1.0, 1.0, 1.0, 1.0)
+            iconColorGrey = Vec4(0.7, 0.7, 0.7, 1.0)
+            iconColorBrown = Vec4(0.7, 0.4, 0.3, 1.0)
+            iconColorBlue = Vec4(0.2, 0.3, 1.0, 1.0)
+            shovelCardP = loader.loadModel('phase_5.5/models/gui/planting_but_shovel_P')
+            shovelCardY = loader.loadModel('phase_5.5/models/gui/planting_but_shovel_Y')
+            wateringCanCardP = loader.loadModel('phase_5.5/models/gui/planting_but_can_P')
+            wateringCanCardY = loader.loadModel('phase_5.5/models/gui/planting_but_can_Y')
+            backCard = loader.loadModel('phase_5.5/models/gui/planting_gui')
+            iconImage = None
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/fish')
+            buttonText = TTLocalizer.GardeningPlant
+            self.shovelText = ('',
+             '',
+             buttonText,
+             '')
+            self.__shovelButtonFake = DirectLabel(parent=self.__gardeningGuiFake, relief=None, text=self.shovelText, text_align=TextNode.ALeft, text_pos=(0.0,
                                                                                                                                                           -0.0), text_scale=0.07, text_fg=(1,
                                                                                                                                                                                            1,
                                                                                                                                                                                            1,
@@ -1627,42 +1587,79 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
                                                                                                                                                                                                                              1.0,
                                                                                                                                                                                                                              0.36), geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(0.15,
                                                                                                                                                                                                                                                                                                      0,
-                                                                                                                                                                                                                                                                                                     0.01), scale=0.775)
-        self.wateringCanButtonFake = self.__wateringCanButtonFake
-        self.__wateringCanButton = DirectButton(parent=self.__gardeningGui, relief=None, text=self.waterText, text_align=TextNode.ACenter, text_pos=(0.0,
+                                                                                                                                                                                                                                                                                                     0.2), scale=0.775)
+            self.shovelButtonFake = self.__shovelButtonFake
+            self.shovelText = ('',
+             '',
+             buttonText,
+             '')
+            self.__shovelButton = DirectButton(parent=self.__gardeningGui, relief=None, text=self.shovelText, text_align=TextNode.ACenter, text_pos=(0.0,
                                                                                                                                                      -0.0), text_scale=0.1, text_fg=(1,
                                                                                                                                                                                      1,
                                                                                                                                                                                      1,
                                                                                                                                                                                      1), text_shadow=(0,
                                                                                                                                                                                                       0,
                                                                                                                                                                                                       0,
-                                                                                                                                                                                                      1), image=(wateringCanCardP,
-         wateringCanCardY,
-         wateringCanCardY,
-         wateringCanCardY), image_scale=(0.18, 1.0, 0.36), geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(0,
-                                                                                                                            0,
-                                                                                                                            0.01), scale=0.775, command=self.__wateringCanButtonClicked)
-        self.wateringCanButton = self.__wateringCanButton
-        self.basketText = '%s / %s' % (self.numFlowers, self.maxFlowerBasket)
-        self.basketButton = DirectLabel(parent=self.__gardeningGui, relief=None, text=self.basketText, text_align=TextNode.ALeft, text_pos=(0.82,
-                                                                                                                                            -1.4), text_scale=0.2, text_fg=(1,
-                                                                                                                                                                            1,
-                                                                                                                                                                            1,
-                                                                                                                                                                            1), text_shadow=(0,
-                                                                                                                                                                                             0,
-                                                                                                                                                                                             0,
-                                                                                                                                                                                             1), image=None, image_scale=iconScale, geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(-0.34,
-                                                                                                                                                                                                                                                                                                     0,
-                                                                                                                                                                                                                                                                                                     0.16), scale=0.3, textMayChange=1)
-        if hasattr(self, 'shovel'):
-            self.setShovelGuiLevel(self.shovel)
-        if hasattr(self, 'wateringCan'):
-            self.setWateringCanGuiLevel(self.wateringCan)
-        self.__shovelButton.hide()
-        self.__wateringCanButton.hide()
-        self.__shovelButtonFake.hide()
-        self.__wateringCanButtonFake.hide()
-        return
+                                                                                                                                                                                                      1), image=(shovelCardP,
+             shovelCardY,
+             shovelCardY,
+             shovelCardY), image_scale=(0.18, 1.0, 0.36), geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(0,
+                                                                                                                           0,
+                                                                                                                           0.2), scale=0.775, command=self.__shovelButtonClicked)
+            self.shovelButton = self.__shovelButton
+            iconGeom = iconModels.find('**/teleportIcon')
+            buttonText = TTLocalizer.GardeningWater
+            self.waterText = (buttonText,
+             buttonText,
+             buttonText,
+             '')
+            self.__wateringCanButtonFake = DirectLabel(parent=self.__gardeningGuiFake, relief=None, text=self.waterText, text_align=TextNode.ALeft, text_pos=(0.0,
+                                                                                                                                                              -0.0), text_scale=0.07, text_fg=(1,
+                                                                                                                                                                                               1,
+                                                                                                                                                                                               1,
+                                                                                                                                                                                               1), text_shadow=(0,
+                                                                                                                                                                                                                0,
+                                                                                                                                                                                                                0,
+                                                                                                                                                                                                                1), image_scale=(0.18,
+                                                                                                                                                                                                                                 1.0,
+                                                                                                                                                                                                                                 0.36), geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(0.15,
+                                                                                                                                                                                                                                                                                                         0,
+                                                                                                                                                                                                                                                                                                         0.01), scale=0.775)
+            self.wateringCanButtonFake = self.__wateringCanButtonFake
+            self.__wateringCanButton = DirectButton(parent=self.__gardeningGui, relief=None, text=self.waterText, text_align=TextNode.ACenter, text_pos=(0.0,
+                                                                                                                                                         -0.0), text_scale=0.1, text_fg=(1,
+                                                                                                                                                                                         1,
+                                                                                                                                                                                         1,
+                                                                                                                                                                                         1), text_shadow=(0,
+                                                                                                                                                                                                          0,
+                                                                                                                                                                                                          0,
+                                                                                                                                                                                                          1), image=(wateringCanCardP,
+             wateringCanCardY,
+             wateringCanCardY,
+             wateringCanCardY), image_scale=(0.18, 1.0, 0.36), geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(0,
+                                                                                                                                0,
+                                                                                                                                0.01), scale=0.775, command=self.__wateringCanButtonClicked)
+            self.wateringCanButton = self.__wateringCanButton
+            self.basketText = '%s / %s' % (self.numFlowers, self.maxFlowerBasket)
+            self.basketButton = DirectLabel(parent=self.__gardeningGui, relief=None, text=self.basketText, text_align=TextNode.ALeft, text_pos=(0.82,
+                                                                                                                                                -1.4), text_scale=0.2, text_fg=(1,
+                                                                                                                                                                                1,
+                                                                                                                                                                                1,
+                                                                                                                                                                                1), text_shadow=(0,
+                                                                                                                                                                                                 0,
+                                                                                                                                                                                                 0,
+                                                                                                                                                                                                 1), image=None, image_scale=iconScale, geom=None, geom_scale=iconScale, geom_color=iconColorWhite, pos=(-0.34,
+                                                                                                                                                                                                                                                                                                         0,
+                                                                                                                                                                                                                                                                                                         0.16), scale=0.3, textMayChange=1)
+            if hasattr(self, 'shovel'):
+                self.setShovelGuiLevel(self.shovel)
+            if hasattr(self, 'wateringCan'):
+                self.setWateringCanGuiLevel(self.wateringCan)
+            self.__shovelButton.hide()
+            self.__wateringCanButton.hide()
+            self.__shovelButtonFake.hide()
+            self.__wateringCanButtonFake.hide()
+            return
 
     def changeButtonText(self, button, text):
         button['text'] = text
@@ -1795,67 +1792,69 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def autoSetActivePlot(self):
         if self.guiConflict:
             return
-        if len(self.touchingPlantList) > 0:
-            minDist = 10000
-            minDistPlot = 0
-            for plot in self.touchingPlantList:
-                plant = base.cr.doId2do.get(plot)
-                if plant:
-                    if self.getDistance(plant) < minDist:
-                        minDist = self.getDistance(plant)
-                        minDistPlot = plot
-                else:
-                    self.touchingPlantList.remove(plot)
-
-            if len(self.touchingPlantList) == 0:
-                self.setActivePlot(None)
-            else:
-                self.setActivePlot(minDistPlot)
         else:
-            self.setActivePlot(None)
-        return
+            if len(self.touchingPlantList) > 0:
+                minDist = 10000
+                minDistPlot = 0
+                for plot in self.touchingPlantList:
+                    plant = base.cr.doId2do.get(plot)
+                    if plant:
+                        if self.getDistance(plant) < minDist:
+                            minDist = self.getDistance(plant)
+                            minDistPlot = plot
+                    else:
+                        self.touchingPlantList.remove(plot)
+
+                if len(self.touchingPlantList) == 0:
+                    self.setActivePlot(None)
+                else:
+                    self.setActivePlot(minDistPlot)
+            else:
+                self.setActivePlot(None)
+            return
 
     def setActivePlot(self, doId):
         if not self.gardenStarted:
             return
-        self.shovelRelatedDoId = doId
-        plant = base.cr.doId2do.get(doId)
-        if plant:
-            self.startStareAt(plant, Point3(0, 0, 1))
-            self.__shovelButton['state'] = DGG.NORMAL
-            if not plant.canBePicked():
-                self.hideShovelButton()
-            else:
-                self.showShovelButton()
-                self.setShovelAbility(TTLocalizer.GardeningPlant)
-                if plant.getShovelAction():
-                    self.setShovelAbility(plant.getShovelAction())
-                    if plant.getShovelAction() == TTLocalizer.GardeningPick:
-                        if not plant.unlockPick():
-                            self.__shovelButton['state'] = DGG.DISABLED
-                            self.setShovelAbility(TTLocalizer.GardeningFull)
-                self.notify.debug('self.shovelRelatedDoId = %d' % self.shovelRelatedDoId)
-                if plant.getShovelCommand():
-                    self.extraShovelCommand = plant.getShovelCommand()
-                    self.__shovelButton['command'] = self.__shovelButtonClicked
-            if plant.canBeWatered():
-                self.showWateringCanButton()
-            else:
-                self.hideWateringCanButton()
         else:
-            self.stopStareAt()
-            self.shovelRelatedDoId = 0
-            if self.__shovelButton:
-                self.__shovelButton['command'] = None
-                self.hideShovelButton()
-                self.hideWateringCanButton()
-                self.handleAllGardeningButtonsHidden()
-                if not self.inGardenAction:
-                    if hasattr(base.cr.playGame.getPlace(), 'detectedGardenPlotDone'):
-                        place = base.cr.playGame.getPlace()
-                        if place:
-                            place.detectedGardenPlotDone()
-        return
+            self.shovelRelatedDoId = doId
+            plant = base.cr.doId2do.get(doId)
+            if plant:
+                self.startStareAt(plant, Point3(0, 0, 1))
+                self.__shovelButton['state'] = DGG.NORMAL
+                if not plant.canBePicked():
+                    self.hideShovelButton()
+                else:
+                    self.showShovelButton()
+                    self.setShovelAbility(TTLocalizer.GardeningPlant)
+                    if plant.getShovelAction():
+                        self.setShovelAbility(plant.getShovelAction())
+                        if plant.getShovelAction() == TTLocalizer.GardeningPick:
+                            if not plant.unlockPick():
+                                self.__shovelButton['state'] = DGG.DISABLED
+                                self.setShovelAbility(TTLocalizer.GardeningFull)
+                    self.notify.debug('self.shovelRelatedDoId = %d' % self.shovelRelatedDoId)
+                    if plant.getShovelCommand():
+                        self.extraShovelCommand = plant.getShovelCommand()
+                        self.__shovelButton['command'] = self.__shovelButtonClicked
+                if plant.canBeWatered():
+                    self.showWateringCanButton()
+                else:
+                    self.hideWateringCanButton()
+            else:
+                self.stopStareAt()
+                self.shovelRelatedDoId = 0
+                if self.__shovelButton:
+                    self.__shovelButton['command'] = None
+                    self.hideShovelButton()
+                    self.hideWateringCanButton()
+                    self.handleAllGardeningButtonsHidden()
+                    if not self.inGardenAction:
+                        if hasattr(base.cr.playGame.getPlace(), 'detectedGardenPlotDone'):
+                            place = base.cr.playGame.getPlace()
+                            if place:
+                                place.detectedGardenPlotDone()
+            return
 
     def setPlantToWater(self, plantId):
         import pdb
@@ -1876,8 +1875,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def hasPlant(self):
         if self.plantToWater != None:
             return 1
-        return 0
-        return
+        else:
+            return 0
+            return
 
     def handleAllGardeningButtonsHidden(self):
         somethingVisible = False
@@ -2046,11 +2046,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def setInGardenAction(self, actionObject, fromObject=None):
         if actionObject:
             self.lockGardeningButtons()
+        elif fromObject:
+            self.unlockGardeningButtons()
         else:
-            if fromObject:
-                self.unlockGardeningButtons()
-            else:
-                self.unlockGardeningButtons()
+            self.unlockGardeningButtons()
         self.inGardenAction = actionObject
 
     def __wateringCanButtonClicked(self):
@@ -2130,13 +2129,14 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def addEventsPage(self):
         if hasattr(self, 'eventsPage') and self.eventsPage != None:
             return
-        if not launcher.getPhaseComplete(4):
-            self.acceptOnce('phaseComplete-4', self.addEventsPage)
+        else:
+            if not launcher.getPhaseComplete(4):
+                self.acceptOnce('phaseComplete-4', self.addEventsPage)
+                return
+            self.eventsPage = EventsPage.EventsPage()
+            self.eventsPage.load()
+            self.book.addPage(self.eventsPage, pageName=TTLocalizer.EventsPageName)
             return
-        self.eventsPage = EventsPage.EventsPage()
-        self.eventsPage.load()
-        self.book.addPage(self.eventsPage, pageName=TTLocalizer.EventsPageName)
-        return
 
     def addNewsPage(self):
         self.newsPage = NewsPage.NewsPage()
@@ -2157,15 +2157,15 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         defaultDays = base.cr.config.GetInt('account-days', -1)
         if defaultDays >= 0:
             days = defaultDays
-        else:
-            if hasattr(base.cr, 'accountDays'):
-                days = base.cr.accountDays
+        elif hasattr(base.cr, 'accountDays'):
+            days = base.cr.accountDays
         return days
 
     def hasActiveBoardingGroup(self):
         if hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty:
             return localAvatar.boardingParty.hasActiveGroup(localAvatar.doId)
-        return False
+        else:
+            return False
 
     def getZoneId(self):
         return self._zoneId
@@ -2198,9 +2198,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         av = base.cr.identifyAvatar(fromId)
         if isinstance(av, DistributedToon.DistributedToon):
             base.localAvatar.setSystemMessage(0, TTLocalizer.sleep_auto_reply % av.getName(), WhisperPopup.WTToontownBoardingGroup)
-        else:
-            if av is not None:
-                self.notify.warning('setSleepAutoReply from non-toon %s' % fromId)
+        elif av is not None:
+            self.notify.warning('setSleepAutoReply from non-toon %s' % fromId)
         return
 
     def setLastTimeReadNews(self, newTime):

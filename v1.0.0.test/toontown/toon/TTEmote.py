@@ -471,14 +471,15 @@ def singNoteEmpty(toon, volume=0):
 def returnToLastAnim(toon):
     if hasattr(toon, 'playingAnim') and toon.playingAnim:
         toon.loop(toon.playingAnim)
+    elif not hasattr(toon, 'hp') or toon.hp > 0:
+        toon.loop('neutral')
     else:
-        if not hasattr(toon, 'hp') or toon.hp > 0:
-            toon.loop('neutral')
-        else:
-            toon.loop('sad-neutral')
+        toon.loop('sad-neutral')
 
 
-EmoteFunc = [[doWave, 0],
+EmoteFunc = [
+ [
+  doWave, 0],
  [
   doHappy, 0],
  [

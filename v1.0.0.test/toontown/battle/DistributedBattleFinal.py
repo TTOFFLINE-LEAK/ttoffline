@@ -77,9 +77,8 @@ class DistributedBattleFinal(DistributedBattleBase.DistributedBattleBase):
         if len(self.toons) == 4 and len(oldtoons) < 4:
             self.notify.debug('setMembers() - battle is now full of toons')
             self.closeBattleCollision()
-        else:
-            if len(self.toons) < 4 and len(oldtoons) == 4:
-                self.openBattleCollision()
+        elif len(self.toons) < 4 and len(oldtoons) == 4:
+            self.openBattleCollision()
 
     def makeSuitJoin(self, suit, ts):
         self.notify.debug('makeSuitJoin(%d)' % suit.doId)
@@ -90,42 +89,43 @@ class DistributedBattleFinal(DistributedBattleBase.DistributedBattleBase):
     def showSuitsJoining(self, suits, ts, name, callback):
         if self.bossCog == None:
             return
-        if self.battleSide:
-            openDoor = Func(self.bossCog.doorB.request, 'open')
-            closeDoor = Func(self.bossCog.doorB.request, 'close')
         else:
-            openDoor = Func(self.bossCog.doorA.request, 'open')
-            closeDoor = Func(self.bossCog.doorA.request, 'close')
-        suitTrack = Parallel()
-        delay = 0
-        for suit in suits:
-            suit.setState('Battle')
-            if suit.dna.dept == 'l':
-                suit.reparentTo(self.bossCog)
-                suit.setPos(0, 0, 0)
-            suit.setPos(self.bossCog, 0, 0, 0)
-            suit.headsUp(self)
-            suit.setScale(3.8 / suit.height)
-            if suit in self.joiningSuits:
-                i = len(self.pendingSuits) + self.joiningSuits.index(suit)
-                destPos, h = self.suitPendingPoints[i]
-                destHpr = VBase3(h, 0, 0)
+            if self.battleSide:
+                openDoor = Func(self.bossCog.doorB.request, 'open')
+                closeDoor = Func(self.bossCog.doorB.request, 'close')
             else:
-                destPos, destHpr = self.getActorPosHpr(suit, self.suits)
-            suitTrack.append(Track((delay, self.createAdjustInterval(suit, destPos, destHpr)), (delay + 1.5, suit.scaleInterval(1.5, 1))))
-            delay += 1
+                openDoor = Func(self.bossCog.doorA.request, 'open')
+                closeDoor = Func(self.bossCog.doorA.request, 'close')
+            suitTrack = Parallel()
+            delay = 0
+            for suit in suits:
+                suit.setState('Battle')
+                if suit.dna.dept == 'l':
+                    suit.reparentTo(self.bossCog)
+                    suit.setPos(0, 0, 0)
+                suit.setPos(self.bossCog, 0, 0, 0)
+                suit.headsUp(self)
+                suit.setScale(3.8 / suit.height)
+                if suit in self.joiningSuits:
+                    i = len(self.pendingSuits) + self.joiningSuits.index(suit)
+                    destPos, h = self.suitPendingPoints[i]
+                    destHpr = VBase3(h, 0, 0)
+                else:
+                    destPos, destHpr = self.getActorPosHpr(suit, self.suits)
+                suitTrack.append(Track((delay, self.createAdjustInterval(suit, destPos, destHpr)), (delay + 1.5, suit.scaleInterval(1.5, 1))))
+                delay += 1
 
-        if self.hasLocalToon():
-            camera.reparentTo(self)
-            if random.choice([0, 1]):
-                camera.setPosHpr(20, -4, 7, 60, 0, 0)
-            else:
-                camera.setPosHpr(-20, -4, 7, -60, 0, 0)
-        done = Func(callback)
-        track = Sequence(openDoor, suitTrack, closeDoor, done, name=name)
-        track.start(ts)
-        self.storeInterval(track, name)
-        return
+            if self.hasLocalToon():
+                camera.reparentTo(self)
+                if random.choice([0, 1]):
+                    camera.setPosHpr(20, -4, 7, 60, 0, 0)
+                else:
+                    camera.setPosHpr(-20, -4, 7, -60, 0, 0)
+            done = Func(callback)
+            track = Sequence(openDoor, suitTrack, closeDoor, done, name=name)
+            track.start(ts)
+            self.storeInterval(track, name)
+            return
 
     def __playReward(self, ts, callback):
         toonTracks = Parallel()

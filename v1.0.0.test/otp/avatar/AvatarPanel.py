@@ -41,14 +41,15 @@ class AvatarPanel(DirectObject.DirectObject):
     def cleanup(self):
         if AvatarPanel.currentAvatarPanel != self:
             return
-        if self.avDisableName:
-            self.ignore(self.avDisableName)
-        if self.avGenerateName:
-            self.ignore(self.avGenerateName)
-        if self.avHpChangeName:
-            self.ignore(self.avHpChangeName)
-        AvatarPanel.currentAvatarPanel = None
-        return
+        else:
+            if self.avDisableName:
+                self.ignore(self.avDisableName)
+            if self.avGenerateName:
+                self.ignore(self.avGenerateName)
+            if self.avHpChangeName:
+                self.ignore(self.avHpChangeName)
+            AvatarPanel.currentAvatarPanel = None
+            return
 
     def __handleClose(self):
         self.cleanup()

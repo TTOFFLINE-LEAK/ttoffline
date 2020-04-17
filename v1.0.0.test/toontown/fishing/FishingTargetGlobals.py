@@ -163,25 +163,29 @@ def getNumTargets(zone):
     info = __targetInfoDict.get(zone)
     if info:
         return info[NUM_TARGETS_INDEX]
-    return 2
+    else:
+        return 2
 
 
 def getTargetCenter(zone):
     info = __targetInfoDict.get(zone)
     if info:
         return info[POS_START_INDEX:POS_END_INDEX]
-    return (0, 0, 0)
+    else:
+        return (0, 0, 0)
 
 
 def getTargetRadius(zone):
     info = __targetInfoDict.get(zone)
     if info:
         return info[RADIUS_INDEX]
-    return 10
+    else:
+        return 10
 
 
 def getWaterLevel(zone):
     info = __targetInfoDict.get(zone)
     if info:
         return info[WATER_LEVEL_INDEX]
-    return 0
+    else:
+        return 0

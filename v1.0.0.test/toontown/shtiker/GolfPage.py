@@ -89,25 +89,23 @@ class GolfPage(ShtikerPage):
             self.title['text'] = TTLocalizer.GolfPageTitleRecords
             self.recordsTab['state'] = DGG.DISABLED
             self.trophyTab['state'] = DGG.NORMAL
+        elif mode == PageMode.Trophy:
+            self.title['text'] = TTLocalizer.GolfPageTitleTrophy
+            self.recordsTab['state'] = DGG.NORMAL
+            self.trophyTab['state'] = DGG.DISABLED
         else:
-            if mode == PageMode.Trophy:
-                self.title['text'] = TTLocalizer.GolfPageTitleTrophy
-                self.recordsTab['state'] = DGG.NORMAL
-                self.trophyTab['state'] = DGG.DISABLED
-            else:
-                raise StandardError, 'GolfPage::setMode - Invalid Mode %s' % mode
+            raise StandardError, 'GolfPage::setMode - Invalid Mode %s' % mode
         self.updatePage()
 
     def updatePage(self):
         if self.mode == PageMode.Records:
             self.golfTrophies.hide()
             self.golfRecords.show()
+        elif self.mode == PageMode.Trophy:
+            self.golfTrophies.show()
+            self.golfRecords.hide()
         else:
-            if self.mode == PageMode.Trophy:
-                self.golfTrophies.show()
-                self.golfRecords.hide()
-            else:
-                raise StandardError, 'GolfPage::updatePage - Invalid Mode %s' % self.mode
+            raise StandardError, 'GolfPage::updatePage - Invalid Mode %s' % self.mode
 
 
 class GolfingRecordsUI(DirectFrame):
@@ -461,36 +459,30 @@ class GolfTrophy(DirectFrame):
                 self.greyBowl.hide()
             if level == 30:
                 self.goldBowl.setScale(4.4, 3.1, 3.1)
-            else:
-                if level == 31:
-                    self.goldBowl.setScale(3.6, 3.5, 3.5)
-                else:
-                    if level >= 32:
-                        self.goldBowl.setScale(5.6, 3.9, 3.9)
+            elif level == 31:
+                self.goldBowl.setScale(3.6, 3.5, 3.5)
+            elif level >= 32:
+                self.goldBowl.setScale(5.6, 3.9, 3.9)
             if level % 3 == 0:
                 self.column.setScale(1.3229, 1.26468, 1.11878)
                 self.top.setPos(0, 0, -1)
                 self.__bronze()
-            else:
-                if level % 3 == 1:
-                    self.column.setScale(1.3229, 1.26468, 1.61878)
-                    self.top.setPos(0, 0, -0.5)
-                    self.__silver()
-                else:
-                    if level % 3 == 2:
-                        self.column.setScale(1.3229, 1.26468, 2.11878)
-                        self.top.setPos(0, 0, 0)
-                        self.__gold()
+            elif level % 3 == 1:
+                self.column.setScale(1.3229, 1.26468, 1.61878)
+                self.top.setPos(0, 0, -0.5)
+                self.__silver()
+            elif level % 3 == 2:
+                self.column.setScale(1.3229, 1.26468, 2.11878)
+                self.top.setPos(0, 0, 0)
+                self.__gold()
             if level < 10:
                 self.__tealColumn()
+            elif level < 20:
+                self.__purpleColumn()
+            elif level < 30:
+                self.__blueColumn()
             else:
-                if level < 20:
-                    self.__purpleColumn()
-                else:
-                    if level < 30:
-                        self.__blueColumn()
-                    else:
-                        self.__redColumn()
+                self.__redColumn()
 
     def __bronze(self):
         self.statue.setColorScale(0.9, 0.6, 0.33, 1)

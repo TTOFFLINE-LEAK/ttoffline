@@ -33,14 +33,16 @@ class BoardingPartyBase:
         if avatarId in self.avIdDict:
             leaderId = self.avIdDict[avatarId]
             return leaderId
-        return
-        return
+        else:
+            return
+            return
 
     def isGroupLeader(self, avatarId):
         leaderId = self.getGroupLeader(avatarId)
         if avatarId == leaderId:
             return True
-        return False
+        else:
+            return False
 
     def getGroupMemberList(self, avatarId):
         if avatarId in self.avIdDict:
@@ -98,7 +100,8 @@ class BoardingPartyBase:
                 pendingInvite = False
         if pendingInvite:
             return True
-        return False
+        else:
+            return False
 
     def isInGroup(self, memberId, leaderId):
         if memberId in self.getGroupMemberList(leaderId) or memberId in self.getGroupInviteList(leaderId):

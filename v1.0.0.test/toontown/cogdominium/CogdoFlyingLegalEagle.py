@@ -152,16 +152,17 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         distance = toon.getDistance(self.interestConeOrigin)
         if distance > distanceThreshold:
             return False
-        if toonPos[1] > nestPos[1]:
+        else:
+            if toonPos[1] > nestPos[1]:
+                return False
+            a = toon.getPos(render) - self.interestConeOrigin.getPos(render)
+            a.normalize()
+            b = Vec3(0, -1, 0)
+            dotProduct = a.dot(b)
+            angle = math.degrees(math.acos(dotProduct))
+            if angle <= angleThreshold / 2.0:
+                return True
             return False
-        a = toon.getPos(render) - self.interestConeOrigin.getPos(render)
-        a.normalize()
-        b = Vec3(0, -1, 0)
-        dotProduct = a.dot(b)
-        angle = math.degrees(math.acos(dotProduct))
-        if angle <= angleThreshold / 2.0:
-            return True
-        return False
 
     def update(self, dt, localPlayer):
         if Globals.Dev.NoLegalEagleAttacks:
@@ -169,12 +170,10 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         inView = self.isToonInView(localPlayer.toon)
         if inView and not self.isEagleInterested:
             self.handleEnterInterest()
-        else:
-            if inView and self.isEagleInterested:
-                self.handleAgainInterest()
-            else:
-                if not inView and self.isEagleInterested:
-                    self.handleExitInterest()
+        elif inView and self.isEagleInterested:
+            self.handleAgainInterest()
+        elif not inView and self.isEagleInterested:
+            self.handleExitInterest()
 
     def updateLockOnTask(self):
         dt = globalClock.getDt()
@@ -248,8 +247,9 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
     def hasTarget(self):
         if self.target != None:
             return True
-        return False
-        return
+        else:
+            return False
+            return
 
     def setTarget(self, toon, elapsedTime=0.0):
         self.notify.debug('Setting eagle %i to target: %s, elapsed time: %s' % (self.index, toon.getName(), elapsedTime))
@@ -384,10 +384,13 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            return 'TakeOff'
-        return self.defaultFilter(request, args)
-        return
+        else:
+            if request == 'next':
+                return 'TakeOff'
+            else:
+                return self.defaultFilter(request, args)
+
+            return
 
     def exitRoost(self):
         self.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -406,13 +409,16 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            if self.hasTarget():
-                return 'LockOnToon'
-            return 'LandOnNest'
         else:
-            return self.defaultFilter(request, args)
-        return
+            if request == 'next':
+                if self.hasTarget():
+                    return 'LockOnToon'
+                else:
+                    return 'LandOnNest'
+
+            else:
+                return self.defaultFilter(request, args)
+            return
 
     def exitTakeOff(self):
         self.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -441,13 +447,16 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            if self.hasTarget():
-                return 'ChargeUpAttack'
-            return 'RetreatToNest'
         else:
-            return self.defaultFilter(request, args)
-        return
+            if request == 'next':
+                if self.hasTarget():
+                    return 'ChargeUpAttack'
+                else:
+                    return 'RetreatToNest'
+
+            else:
+                return self.defaultFilter(request, args)
+            return
 
     def exitLockOnToon(self):
         self.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -466,13 +475,16 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            if self.hasTarget():
-                return 'Attack'
-            return 'RetreatToNest'
         else:
-            return self.defaultFilter(request, args)
-        return
+            if request == 'next':
+                if self.hasTarget():
+                    return 'Attack'
+                else:
+                    return 'RetreatToNest'
+
+            else:
+                return self.defaultFilter(request, args)
+            return
 
     def exitChargeUpAttack(self):
         self.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -497,10 +509,13 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            return 'RetreatToSky'
-        return self.defaultFilter(request, args)
-        return
+        else:
+            if request == 'next':
+                return 'RetreatToSky'
+            else:
+                return self.defaultFilter(request, args)
+
+            return
 
     def exitAttack(self):
         self.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -518,10 +533,13 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            return 'Cooldown'
-        return self.defaultFilter(request, args)
-        return
+        else:
+            if request == 'next':
+                return 'Cooldown'
+            else:
+                return self.defaultFilter(request, args)
+
+            return
 
     def exitRetreatToSky(self):
         self.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -538,13 +556,16 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            if self.hasTarget():
-                return 'LockOnToon'
-            return 'LandOnNest'
         else:
-            return self.defaultFilter(request, args)
-        return
+            if request == 'next':
+                if self.hasTarget():
+                    return 'LockOnToon'
+                else:
+                    return 'LandOnNest'
+
+            else:
+                return self.defaultFilter(request, args)
+            return
 
     def exitCooldown(self):
         self.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -573,10 +594,13 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            return 'LandOnNest'
-        return self.defaultFilter(request, args)
-        return
+        else:
+            if request == 'next':
+                return 'LandOnNest'
+            else:
+                return self.defaultFilter(request, args)
+
+            return
 
     def exitRetreatToNest(self):
         self.retreatToNestSeq.clearToInitial()
@@ -592,13 +616,16 @@ class CogdoFlyingLegalEagle(DirectObject, FSM):
         self.notify.debug("filter%s( '%s', '%s' )" % (self.state, request, args))
         if request == self.state:
             return
-        if request == 'next':
-            if self.hasTarget():
-                return 'TakeOff'
-            return 'Roost'
         else:
-            return self.defaultFilter(request, args)
-        return
+            if request == 'next':
+                if self.hasTarget():
+                    return 'TakeOff'
+                else:
+                    return 'Roost'
+
+            else:
+                return self.defaultFilter(request, args)
+            return
 
     def exitLandOnNest(self):
         self.landingSeq.clearToInitial()

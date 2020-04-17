@@ -108,17 +108,18 @@ class DistributedTagGameAI(DistributedMinigameAI):
         if taggedAvatar == None:
             self.air.writeServerEvent('suspicious', taggedAvId, 'TagGameAI.tag invalid taggedAvId')
             return
-        itAvId = self.air.getAvatarIdFromSender()
-        if self.tagBack:
-            self.notify.debug('tag: ' + str(itAvId) + ' tagged: ' + str(taggedAvId))
-            if self.itAvId == itAvId:
-                self.b_setIt(taggedAvId)
-            else:
-                self.notify.warning('Got tag message from avatar that is not IT')
-                return
-            self.tagBack = 0
-            taskMgr.doMethodLater(2.0, self.clearTagBack, self.taskName('clearTagBack'))
-        return
+        else:
+            itAvId = self.air.getAvatarIdFromSender()
+            if self.tagBack:
+                self.notify.debug('tag: ' + str(itAvId) + ' tagged: ' + str(taggedAvId))
+                if self.itAvId == itAvId:
+                    self.b_setIt(taggedAvId)
+                else:
+                    self.notify.warning('Got tag message from avatar that is not IT')
+                    return
+                self.tagBack = 0
+                taskMgr.doMethodLater(2.0, self.clearTagBack, self.taskName('clearTagBack'))
+            return
 
     def b_setIt(self, avId):
         self.d_setIt(avId)

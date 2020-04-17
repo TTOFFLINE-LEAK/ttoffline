@@ -283,13 +283,11 @@ class CogdoFlyingGame(DirectObject):
             return
         if gatherable.type in [Globals.Level.GatherableTypes.LaffPowerup, Globals.Level.GatherableTypes.InvulPowerup]:
             self.distGame.d_sendRequestPickup(gatherable.serialNum, gatherable.type)
-        else:
-            if gatherable.type == Globals.Level.GatherableTypes.Memo:
-                self.distGame.d_sendRequestPickup(gatherable.serialNum, gatherable.type)
-                gatherable.disable()
-            else:
-                if gatherable.type == Globals.Level.GatherableTypes.Propeller and self.localPlayer.fuel < 1.0:
-                    self.distGame.d_sendRequestPickup(gatherable.serialNum, gatherable.type)
+        elif gatherable.type == Globals.Level.GatherableTypes.Memo:
+            self.distGame.d_sendRequestPickup(gatherable.serialNum, gatherable.type)
+            gatherable.disable()
+        elif gatherable.type == Globals.Level.GatherableTypes.Propeller and self.localPlayer.fuel < 1.0:
+            self.distGame.d_sendRequestPickup(gatherable.serialNum, gatherable.type)
 
     def pickUp(self, toonId, pickupNum, elapsedTime=0.0):
         self.notify.debugCall()

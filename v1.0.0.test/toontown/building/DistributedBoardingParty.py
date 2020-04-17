@@ -118,14 +118,13 @@ class DistributedBoardingParty(DistributedObject.DistributedObject, BoardingPart
                     messageText = TTLocalizer.BoardingMessageLeftGroup % removedMemberName
                     localAvatar.setSystemMessage(0, messageText, WhisperPopup.WTToontownBoardingGroup)
 
+        elif localAvatar.doId in oldMemberList and localAvatar.doId not in memberList:
+            messenger.send('updateGroupStatus')
+            if self.groupPanel:
+                self.groupPanel.cleanup()
+            self.groupPanel = None
         else:
-            if localAvatar.doId in oldMemberList and localAvatar.doId not in memberList:
-                messenger.send('updateGroupStatus')
-                if self.groupPanel:
-                    self.groupPanel.cleanup()
-                self.groupPanel = None
-            else:
-                self.notify.debug('new info posted on some other group')
+            self.notify.debug('new info posted on some other group')
         return
 
     def postInvite(self, leaderId, inviterId):
@@ -304,36 +303,32 @@ class DistributedBoardingParty(DistributedObject.DistributedObject, BoardingPart
                     rejectText = TTLocalizer.BoardcodeMinLaffNonLeaderSingular % (avatarNameText, minLaffPoints)
                 else:
                     rejectText = TTLocalizer.BoardcodeMinLaffNonLeaderPlural % (avatarNameText, minLaffPoints)
-        else:
-            if reason == BoardingPartyBase.BOARDCODE_PROMOTION:
-                self.notify.debug("%s 's group cannot board because it does not have enough promotion merits." % leaderId)
-                if leaderId in avatarsFailingRequirements:
-                    rejectText = TTLocalizer.BoardcodePromotionLeader
-                else:
-                    avatarNameText = getAvatarText(avatarsFailingRequirements)
-                    if len(avatarsFailingRequirements) == 1:
-                        rejectText = TTLocalizer.BoardcodePromotionNonLeaderSingular % avatarNameText
-                    else:
-                        rejectText = TTLocalizer.BoardcodePromotionNonLeaderPlural % avatarNameText
+        elif reason == BoardingPartyBase.BOARDCODE_PROMOTION:
+            self.notify.debug("%s 's group cannot board because it does not have enough promotion merits." % leaderId)
+            if leaderId in avatarsFailingRequirements:
+                rejectText = TTLocalizer.BoardcodePromotionLeader
             else:
-                if reason == BoardingPartyBase.BOARDCODE_BATTLE:
-                    self.notify.debug("%s 's group cannot board because it is in a battle" % leaderId)
-                    if leaderId in avatarsInBattle:
-                        rejectText = TTLocalizer.BoardcodeBattleLeader
-                    else:
-                        avatarNameText = getAvatarText(avatarsInBattle)
-                        if len(avatarsInBattle) == 1:
-                            rejectText = TTLocalizer.BoardcodeBattleNonLeaderSingular % avatarNameText
-                        else:
-                            rejectText = TTLocalizer.BoardcodeBattleNonLeaderPlural % avatarNameText
+                avatarNameText = getAvatarText(avatarsFailingRequirements)
+                if len(avatarsFailingRequirements) == 1:
+                    rejectText = TTLocalizer.BoardcodePromotionNonLeaderSingular % avatarNameText
                 else:
-                    if reason == BoardingPartyBase.BOARDCODE_SPACE:
-                        self.notify.debug("%s 's group cannot board there was not enough room" % leaderId)
-                        rejectText = TTLocalizer.BoardcodeSpace
-                    else:
-                        if reason == BoardingPartyBase.BOARDCODE_MISSING:
-                            self.notify.debug("%s 's group cannot board because something was missing" % leaderId)
-                            rejectText = TTLocalizer.BoardcodeMissing
+                    rejectText = TTLocalizer.BoardcodePromotionNonLeaderPlural % avatarNameText
+        elif reason == BoardingPartyBase.BOARDCODE_BATTLE:
+            self.notify.debug("%s 's group cannot board because it is in a battle" % leaderId)
+            if leaderId in avatarsInBattle:
+                rejectText = TTLocalizer.BoardcodeBattleLeader
+            else:
+                avatarNameText = getAvatarText(avatarsInBattle)
+                if len(avatarsInBattle) == 1:
+                    rejectText = TTLocalizer.BoardcodeBattleNonLeaderSingular % avatarNameText
+                else:
+                    rejectText = TTLocalizer.BoardcodeBattleNonLeaderPlural % avatarNameText
+        elif reason == BoardingPartyBase.BOARDCODE_SPACE:
+            self.notify.debug("%s 's group cannot board there was not enough room" % leaderId)
+            rejectText = TTLocalizer.BoardcodeSpace
+        elif reason == BoardingPartyBase.BOARDCODE_MISSING:
+            self.notify.debug("%s 's group cannot board because something was missing" % leaderId)
+            rejectText = TTLocalizer.BoardcodeMissing
         base.localAvatar.elevatorNotifier.showMe(rejectText)
 
     def postGroupDissolve(self, quitterId, leaderId, memberList, kick):

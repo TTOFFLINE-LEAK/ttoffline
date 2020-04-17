@@ -182,8 +182,9 @@ class PartyCog(FSM):
     def filterDown(self, request, args):
         if request == 'Down':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def setEndPoints(self, start, end, amplitude=1.7):
         self.sinAmplitude = amplitude
@@ -213,22 +214,19 @@ class PartyCog(FSM):
         if self.targetDistance > self.currentT:
             self.currentT += min(0.01, self.targetDistance - self.currentT)
             self.setAlongSpline(self.currentT)
-        else:
-            if self.targetDistance < self.currentT:
-                self.currentT += max(-0.01, self.targetDistance - self.currentT)
-                self.setAlongSpline(self.currentT)
+        elif self.targetDistance < self.currentT:
+            self.currentT += max(-0.01, self.targetDistance - self.currentT)
+            self.setAlongSpline(self.currentT)
         if self.currentT < 0.0:
             self.targetFacing = -90.0
+        elif self.currentT > 0.0:
+            self.targetFacing = 90.0
         else:
-            if self.currentT > 0.0:
-                self.targetFacing = 90.0
-            else:
-                self.targetFacing = 0.0
+            self.targetFacing = 0.0
         if self.targetFacing > self.currentFacing:
             self.currentFacing += min(10, self.targetFacing - self.currentFacing)
-        else:
-            if self.targetFacing < self.currentFacing:
-                self.currentFacing += max(-10, self.targetFacing - self.currentFacing)
+        elif self.targetFacing < self.currentFacing:
+            self.currentFacing += max(-10, self.targetFacing - self.currentFacing)
         self.root.setH(self.currentFacing)
         return task.cont
 

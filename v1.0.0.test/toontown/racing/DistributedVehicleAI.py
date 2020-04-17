@@ -122,17 +122,18 @@ class DistributedVehicleAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, FSM.
         avId = self.air.getAvatarIdFromSender()
         if avId != self.ownerId:
             return
-        owner = self.air.doId2do.get(self.ownerId)
-        if not owner or owner.getHp() < 10 or not owner.getCarActive():
+        else:
+            owner = self.air.doId2do.get(self.ownerId)
+            if not owner or owner.getHp() < 10 or not owner.getCarActive():
+                return
+            do = self.air.doId2do.get(doId)
+            if not do or do.__class__.__name__ != 'DistributedSuitAI' or not hasattr(do, 'sp') or not do.sp or not do.isWalking():
+                return
+            do.sp.removeSuit(do)
+            do.sp = None
+            owner.takeDamage(10)
+            self.sendUpdate('explosion', [])
             return
-        do = self.air.doId2do.get(doId)
-        if not do or do.__class__.__name__ != 'DistributedSuitAI' or not hasattr(do, 'sp') or not do.sp or not do.isWalking():
-            return
-        do.sp.removeSuit(do)
-        do.sp = None
-        owner.takeDamage(10)
-        self.sendUpdate('explosion', [])
-        return
 
     def d_setNonRace(self, state):
         self.sendUpdate('setNonRace', [state])

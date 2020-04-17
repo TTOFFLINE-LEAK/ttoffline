@@ -108,15 +108,12 @@ class CogHQLoader(StateData.StateData):
             self.fsm.request('quietZone', [status])
             if 'mintId' in status:
                 zoneId = status['mintId']
-            else:
-                if 'stageId' in status:
-                    zoneId = status['stageId']
-                else:
-                    if 'countryClubId' in status:
-                        zoneId = status['countryClubId']
-                    else:
-                        if status['where'] == 'factoryInterior':
-                            zoneId = ToontownGlobals.SellbotFactoryInt
+            elif 'stageId' in status:
+                zoneId = status['stageId']
+            elif 'countryClubId' in status:
+                zoneId = status['countryClubId']
+            elif status['where'] == 'factoryInterior':
+                zoneId = ToontownGlobals.SellbotFactoryInt
             if not ZoneUtil.isDynamicZone(zoneId):
                 hoodZoneId = zoneId
                 if zoneId not in (ToontownGlobals.SellbotFactoryExt, ToontownGlobals.LawbotOfficeExt):
@@ -130,7 +127,8 @@ class CogHQLoader(StateData.StateData):
     def isInThisHq(self, status):
         if ZoneUtil.isDynamicZone(status['zoneId']):
             return status['hoodId'] == self.hood.hoodId
-        return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
+        else:
+            return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
 
     def enterCogHQExterior(self, requestStatus):
         self.placeClass = self.getExteriorPlaceClass()

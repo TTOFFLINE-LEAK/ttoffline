@@ -94,22 +94,22 @@ class DistributedNPCTailor(DistributedNPCToonBase):
         self.isLocalToon = avId == base.localAvatar.doId
         if mode == NPCToons.PURCHASE_MOVIE_CLEAR:
             return
-        if mode == NPCToons.PURCHASE_MOVIE_TIMEOUT:
-            if self.cameraLerp:
-                self.cameraLerp.finish()
-                self.cameraLerp = None
-            if self.isLocalToon:
-                self.ignore(self.purchaseDoneEvent)
-                self.ignore(self.swapEvent)
-                if self.popupInfo:
-                    self.popupInfo.reparentTo(hidden)
-            if self.clothesGUI:
-                self.clothesGUI.resetClothes(self.oldStyle)
-                self.__handlePurchaseDone(timeout=1)
-            self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
-            self.resetTailor()
         else:
-            if mode == NPCToons.PURCHASE_MOVIE_START or mode == NPCToons.PURCHASE_MOVIE_START_BROWSE or mode == NPCToons.PURCHASE_MOVIE_START_NOROOM:
+            if mode == NPCToons.PURCHASE_MOVIE_TIMEOUT:
+                if self.cameraLerp:
+                    self.cameraLerp.finish()
+                    self.cameraLerp = None
+                if self.isLocalToon:
+                    self.ignore(self.purchaseDoneEvent)
+                    self.ignore(self.swapEvent)
+                    if self.popupInfo:
+                        self.popupInfo.reparentTo(hidden)
+                if self.clothesGUI:
+                    self.clothesGUI.resetClothes(self.oldStyle)
+                    self.__handlePurchaseDone(timeout=1)
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
+                self.resetTailor()
+            elif mode == NPCToons.PURCHASE_MOVIE_START or mode == NPCToons.PURCHASE_MOVIE_START_BROWSE or mode == NPCToons.PURCHASE_MOVIE_START_NOROOM:
                 if mode == NPCToons.PURCHASE_MOVIE_START:
                     self.browsing = 0
                     self.roomAvailable = 1
@@ -117,10 +117,9 @@ class DistributedNPCTailor(DistributedNPCToonBase):
                     if mode == NPCToons.PURCHASE_MOVIE_START_BROWSE:
                         self.browsing = 1
                         self.roomAvailable = 1
-                    else:
-                        if mode == NPCToons.PURCHASE_MOVIE_START_NOROOM:
-                            self.browsing = 0
-                            self.roomAvailable = 0
+                    elif mode == NPCToons.PURCHASE_MOVIE_START_NOROOM:
+                        self.browsing = 0
+                        self.roomAvailable = 0
                     self.av = base.cr.doId2do.get(avId)
                     if self.av is None:
                         self.notify.warning('Avatar %d not found in doId' % avId)
@@ -154,27 +153,25 @@ class DistributedNPCTailor(DistributedNPCToonBase):
                     print 'topsList = %s' % self.av.getClothesTopsList()
                     print 'bottomsList = %s' % self.av.getClothesBottomsList()
                     print '-------------------------------------------------'
-            else:
-                if mode == NPCToons.PURCHASE_MOVIE_COMPLETE:
-                    self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
-                    if self.av and self.isLocalToon:
-                        print '-----------ending tailor interaction-----------'
-                        print 'avid: %s, gender: %s' % (self.av.doId, self.av.style.gender)
-                        print 'current top = %s,%s,%s,%s and  bot = %s,%s,' % (self.av.style.topTex,
-                         self.av.style.topTexColor,
-                         self.av.style.sleeveTex,
-                         self.av.style.sleeveTexColor,
-                         self.av.style.botTex,
-                         self.av.style.botTexColor)
-                        print 'topsList = %s' % self.av.getClothesTopsList()
-                        print 'bottomsList = %s' % self.av.getClothesBottomsList()
-                        print '-------------------------------------------------'
-                    self.resetTailor()
-                else:
-                    if mode == NPCToons.PURCHASE_MOVIE_NO_MONEY:
-                        self.notify.warning('PURCHASE_MOVIE_NO_MONEY should not be called')
-                        self.resetTailor()
-        return
+            elif mode == NPCToons.PURCHASE_MOVIE_COMPLETE:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
+                if self.av and self.isLocalToon:
+                    print '-----------ending tailor interaction-----------'
+                    print 'avid: %s, gender: %s' % (self.av.doId, self.av.style.gender)
+                    print 'current top = %s,%s,%s,%s and  bot = %s,%s,' % (self.av.style.topTex,
+                     self.av.style.topTexColor,
+                     self.av.style.sleeveTex,
+                     self.av.style.sleeveTexColor,
+                     self.av.style.botTex,
+                     self.av.style.botTexColor)
+                    print 'topsList = %s' % self.av.getClothesTopsList()
+                    print 'bottomsList = %s' % self.av.getClothesBottomsList()
+                    print '-------------------------------------------------'
+                self.resetTailor()
+            elif mode == NPCToons.PURCHASE_MOVIE_NO_MONEY:
+                self.notify.warning('PURCHASE_MOVIE_NO_MONEY should not be called')
+                self.resetTailor()
+            return
 
     def popupPurchaseGUI(self, task):
         self.setChatAbsolute('', CFSpeech)

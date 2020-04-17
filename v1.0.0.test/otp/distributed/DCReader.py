@@ -28,58 +28,57 @@ def readDCFile(self, dcFileNames=None):
             if not readResult:
                 self.notify.error('Could not read dc file: %s' % pathname)
 
-    self.hashVal = dcFile.getHash()
-    for n in xrange(dcFile.getNumImportModules()):
-        moduleName = dcFile.getImportModule(n)[:]
-        suffix = moduleName.split('/')
-        moduleName = suffix[0]
-        suffix = suffix[1:]
-        if self.dcSuffix in suffix:
-            moduleName += self.dcSuffix
-        else:
-            if self.dcSuffix == 'UD' and 'AI' in suffix:
-                moduleName += 'AI'
-        importSymbols = []
-        for i in xrange(dcFile.getNumImportSymbols(n)):
-            symbolName = dcFile.getImportSymbol(n, i)
-            suffix = symbolName.split('/')
-            symbolName = suffix[0]
+        self.hashVal = dcFile.getHash()
+        for n in xrange(dcFile.getNumImportModules()):
+            moduleName = dcFile.getImportModule(n)[:]
+            suffix = moduleName.split('/')
+            moduleName = suffix[0]
             suffix = suffix[1:]
             if self.dcSuffix in suffix:
-                symbolName += self.dcSuffix
+                moduleName += self.dcSuffix
             else:
                 if self.dcSuffix == 'UD' and 'AI' in suffix:
-                    symbolName += 'AI'
-            importSymbols.append(symbolName)
+                    moduleName += 'AI'
+                importSymbols = []
+                for i in xrange(dcFile.getNumImportSymbols(n)):
+                    symbolName = dcFile.getImportSymbol(n, i)
+                    suffix = symbolName.split('/')
+                    symbolName = suffix[0]
+                    suffix = suffix[1:]
+                    if self.dcSuffix in suffix:
+                        symbolName += self.dcSuffix
+                    elif self.dcSuffix == 'UD' and 'AI' in suffix:
+                        symbolName += 'AI'
+                    importSymbols.append(symbolName)
 
-        self.importModule(dcImports, moduleName, importSymbols)
+            self.importModule(dcImports, moduleName, importSymbols)
 
-    for i in xrange(dcFile.getNumClasses()):
-        dclass = dcFile.getClass(i)
-        number = dclass.getNumber()
-        className = dclass.getName() + self.dcSuffix
-        classDef = dcImports.get(className)
-        if classDef is None and self.dcSuffix == 'UD':
-            className = dclass.getName() + 'AI'
+        for i in xrange(dcFile.getNumClasses()):
+            dclass = dcFile.getClass(i)
+            number = dclass.getNumber()
+            className = dclass.getName() + self.dcSuffix
             classDef = dcImports.get(className)
-        if classDef == None:
-            className = dclass.getName()
-            classDef = dcImports.get(className)
-        if classDef is None:
-            self.notify.debug('No class definition for %s.' % className)
-        else:
-            if type(classDef) == types.ModuleType:
-                if not hasattr(classDef, className):
-                    self.notify.warning('Module %s does not define class %s.' % (className, className))
-                    continue
-                classDef = getattr(classDef, className)
-            if type(classDef) != types.ClassType and type(classDef) != types.TypeType:
-                self.notify.error('Symbol %s is not a class name.' % className)
+            if classDef is None and self.dcSuffix == 'UD':
+                className = dclass.getName() + 'AI'
+                classDef = dcImports.get(className)
+            if classDef == None:
+                className = dclass.getName()
+                classDef = dcImports.get(className)
+            if classDef is None:
+                self.notify.debug('No class definition for %s.' % className)
             else:
-                dclass.setClassDef(classDef)
-        self.dclassesByName[className] = dclass
-        if number >= 0:
-            self.dclassesByNumber[number] = dclass
+                if type(classDef) == types.ModuleType:
+                    if not hasattr(classDef, className):
+                        self.notify.warning('Module %s does not define class %s.' % (className, className))
+                        continue
+                    classDef = getattr(classDef, className)
+                if type(classDef) != types.ClassType and type(classDef) != types.TypeType:
+                    self.notify.error('Symbol %s is not a class name.' % className)
+                else:
+                    dclass.setClassDef(classDef)
+            self.dclassesByName[className] = dclass
+            if number >= 0:
+                self.dclassesByNumber[number] = dclass
 
     if self.hasOwnerView():
         ownerDcSuffix = self.dcSuffix + 'OV'

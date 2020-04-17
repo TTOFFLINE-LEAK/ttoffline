@@ -208,56 +208,56 @@ class IssueFrame(DirectFrame):
     def loadWeekNavButtons(self, pageFrame):
         if self.numIssues <= 1:
             return
-        if self.myIssueIndex == self.numIssues - 1:
-            weekStr = TTLocalizer.IssueFrameThisWeek
         else:
-            if self.myIssueIndex == self.numIssues - 2:
+            if self.myIssueIndex == self.numIssues - 1:
+                weekStr = TTLocalizer.IssueFrameThisWeek
+            elif self.myIssueIndex == self.numIssues - 2:
                 weekStr = TTLocalizer.IssueFrameLastWeek
             else:
                 weeksAgo = self.numIssues - self.myIssueIndex - 1
                 weekStr = TTLocalizer.IssueFrameWeeksAgo % weeksAgo
-        prevImage = self.gui.find('**/tt_i_art_btn_ArchiveArrwLeftNormal')
-        prevImageRo = self.gui.find('**/tt_i_art_btn_ArchiveArrwLeftRo')
-        prevImageDisabled = self.gui.find('**/tt_i_art_btn_ArchiveArrwLeftDisabled')
-        actualY1 = 78.0
-        desiredY1 = 42.0
-        y1Scale = desiredY1 / actualY1
-        prevWeekBtn = DirectButton(relief=None, parent=pageFrame, image=[prevImage,
-         prevImage,
-         prevImageRo,
-         prevImageDisabled], image_scale=y1Scale, command=self.changeWeek, extraArgs=(self.myIssueIndex - 1,), pos=(0.806666,
-                                                                                                                    0,
-                                                                                                                    0.62))
-        if self.myIssueIndex == 0:
-            prevWeekBtn['state'] = DGG.DISABLED
-        nextImage = self.gui.find('**/tt_i_art_btn_ArchiveArrwRightNormal')
-        nextImageRo = self.gui.find('**/tt_i_art_btn_ArchiveArrwRightRo')
-        nextImageDisabled = self.gui.find('**/tt_i_art_btn_ArchiveArrwRightDisabled')
-        actualY2Scale = 63.0
-        desiredY2Scale = 34.0
-        y2Scale = desiredY2Scale / actualY2Scale
-        nextWeekBtn = DirectButton(relief=None, parent=pageFrame, image=[nextImage,
-         nextImage,
-         nextImageRo,
-         nextImageDisabled], image_scale=y2Scale, command=self.changeWeek, extraArgs=(self.myIssueIndex + 1,), pos=(1.16,
-                                                                                                                    0,
-                                                                                                                    0.623333))
-        if self.myIssueIndex == self.numIssues - 1:
-            nextWeekBtn['state'] = DGG.DISABLED
-        actualX = 176.0
-        desiredX = 89.0
-        imageScale = desiredX / actualX
-        midImage = self.gui.find('**/tt_i_art_btn_ArchiveMiddle')
-        weekColor = (0.0 / 255.0,
-         23.0 / 255.0,
-         140.0 / 255.0,
-         1.0)
-        weekLabel = DirectLabel(relief=None, image=midImage, image_scale=imageScale, parent=pageFrame, text=weekStr, text_font=ToontownGlobals.InterfaceFont, text_fg=weekColor, text_scale=0.043, text_pos=(0,
-                                                                                                                                                                                                             -0.01,
-                                                                                                                                                                                                             0), pos=(0.983333,
-                                                                                                                                                                                                                      0,
-                                                                                                                                                                                                                      0.62))
-        return
+            prevImage = self.gui.find('**/tt_i_art_btn_ArchiveArrwLeftNormal')
+            prevImageRo = self.gui.find('**/tt_i_art_btn_ArchiveArrwLeftRo')
+            prevImageDisabled = self.gui.find('**/tt_i_art_btn_ArchiveArrwLeftDisabled')
+            actualY1 = 78.0
+            desiredY1 = 42.0
+            y1Scale = desiredY1 / actualY1
+            prevWeekBtn = DirectButton(relief=None, parent=pageFrame, image=[prevImage,
+             prevImage,
+             prevImageRo,
+             prevImageDisabled], image_scale=y1Scale, command=self.changeWeek, extraArgs=(self.myIssueIndex - 1,), pos=(0.806666,
+                                                                                                                        0,
+                                                                                                                        0.62))
+            if self.myIssueIndex == 0:
+                prevWeekBtn['state'] = DGG.DISABLED
+            nextImage = self.gui.find('**/tt_i_art_btn_ArchiveArrwRightNormal')
+            nextImageRo = self.gui.find('**/tt_i_art_btn_ArchiveArrwRightRo')
+            nextImageDisabled = self.gui.find('**/tt_i_art_btn_ArchiveArrwRightDisabled')
+            actualY2Scale = 63.0
+            desiredY2Scale = 34.0
+            y2Scale = desiredY2Scale / actualY2Scale
+            nextWeekBtn = DirectButton(relief=None, parent=pageFrame, image=[nextImage,
+             nextImage,
+             nextImageRo,
+             nextImageDisabled], image_scale=y2Scale, command=self.changeWeek, extraArgs=(self.myIssueIndex + 1,), pos=(1.16,
+                                                                                                                        0,
+                                                                                                                        0.623333))
+            if self.myIssueIndex == self.numIssues - 1:
+                nextWeekBtn['state'] = DGG.DISABLED
+            actualX = 176.0
+            desiredX = 89.0
+            imageScale = desiredX / actualX
+            midImage = self.gui.find('**/tt_i_art_btn_ArchiveMiddle')
+            weekColor = (0.0 / 255.0,
+             23.0 / 255.0,
+             140.0 / 255.0,
+             1.0)
+            weekLabel = DirectLabel(relief=None, image=midImage, image_scale=imageScale, parent=pageFrame, text=weekStr, text_font=ToontownGlobals.InterfaceFont, text_fg=weekColor, text_scale=0.043, text_pos=(0,
+                                                                                                                                                                                                                 -0.01,
+                                                                                                                                                                                                                 0), pos=(0.983333,
+                                                                                                                                                                                                                          0,
+                                                                                                                                                                                                                          0.62))
+            return
 
     def loadNavButtons(self, pageFrame):
         buttonNames = [

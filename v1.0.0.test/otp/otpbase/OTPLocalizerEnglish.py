@@ -2897,15 +2897,19 @@ def timeElapsedString(timeDelta):
     if timeDelta.days > 0:
         if timeDelta.days == 1:
             return '1 day ago'
-        return '%s days ago' % timeDelta.days
-    else:
-        if timeDelta.seconds / 3600 > 0:
-            if timeDelta.seconds / 3600 == 1:
-                return '1 hour ago'
-            return '%s hours ago' % (timeDelta.seconds / 3600)
         else:
-            if timeDelta.seconds / 60 < 2:
-                return '1 minute ago'
+            return '%s days ago' % timeDelta.days
+
+    elif timeDelta.seconds / 3600 > 0:
+        if timeDelta.seconds / 3600 == 1:
+            return '1 hour ago'
+        else:
+            return '%s hours ago' % (timeDelta.seconds / 3600)
+
+    else:
+        if timeDelta.seconds / 60 < 2:
+            return '1 minute ago'
+        else:
             return '%s minutes ago' % (timeDelta.seconds / 60)
 
 

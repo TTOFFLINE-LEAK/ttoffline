@@ -99,33 +99,35 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
     def suitTakeOver(self, suitTrack, difficulty, buildingHeight):
         if not self.isToonBlock():
             return
-        self.updateSavedBy(None)
-        difficulty = min(difficulty, len(SuitBuildingGlobals.SuitBuildingInfo) - 1)
-        minFloors, maxFloors = self._getMinMaxFloors(difficulty)
-        if buildingHeight == None:
-            numFloors = random.randint(minFloors, maxFloors)
         else:
-            numFloors = buildingHeight + 1
-            if numFloors < minFloors or numFloors > maxFloors:
+            self.updateSavedBy(None)
+            difficulty = min(difficulty, len(SuitBuildingGlobals.SuitBuildingInfo) - 1)
+            minFloors, maxFloors = self._getMinMaxFloors(difficulty)
+            if buildingHeight == None:
                 numFloors = random.randint(minFloors, maxFloors)
-        self.track = suitTrack
-        self.difficulty = difficulty
-        self.numFloors = numFloors
-        self.becameSuitTime = time.time()
-        self.fsm.request('clearOutToonInterior')
-        return
+            else:
+                numFloors = buildingHeight + 1
+                if numFloors < minFloors or numFloors > maxFloors:
+                    numFloors = random.randint(minFloors, maxFloors)
+            self.track = suitTrack
+            self.difficulty = difficulty
+            self.numFloors = numFloors
+            self.becameSuitTime = time.time()
+            self.fsm.request('clearOutToonInterior')
+            return
 
     def cogdoTakeOver(self, suitTrack, difficulty, buildingHeight):
         if not self.isToonBlock():
             return
-        self.updateSavedBy(None)
-        numFloors = self.FieldOfficeNumFloors + (1 if suitTrack in ('s', 'l') else 0)
-        self.track = suitTrack
-        self.difficulty = difficulty
-        self.numFloors = numFloors
-        self.becameSuitTime = time.time()
-        self.fsm.request('clearOutToonInteriorForCogdo')
-        return
+        else:
+            self.updateSavedBy(None)
+            numFloors = self.FieldOfficeNumFloors + (1 if suitTrack in ('s', 'l') else 0)
+            self.track = suitTrack
+            self.difficulty = difficulty
+            self.numFloors = numFloors
+            self.becameSuitTime = time.time()
+            self.fsm.request('clearOutToonInteriorForCogdo')
+            return
 
     def toonTakeOver(self):
         isCogdo = 'cogdo' in self.fsm.getCurrentState().getName().lower()
@@ -220,27 +222,30 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
         if index == None:
             self.air.writeServerEvent('suspicious', avId, 'DistributedBuildingAI.setVictorReady from toon not in %s.' % self.victorList)
             return
-        self.victorResponses[index] = avId
-        return
+        else:
+            self.victorResponses[index] = avId
+            return
 
     def allVictorsResponded(self):
         if self.victorResponses == self.victorList:
             return 1
-        return 0
+        else:
+            return 0
 
     def setVictorReady(self):
         avId = self.air.getAvatarIdFromSender()
         if self.victorResponses == None:
             self.air.writeServerEvent('suspicious', avId, 'DistributedBuildingAI.setVictorReady in state %s.' % self.fsm.getCurrentState().getName())
             return
-        event = self.air.getAvatarExitEvent(avId)
-        self.ignore(event)
-        if self.allVictorsResponded():
+        else:
+            event = self.air.getAvatarExitEvent(avId)
+            self.ignore(event)
+            if self.allVictorsResponded():
+                return
+            self.recordVictorResponse(avId)
+            if self.allVictorsResponded():
+                self.toonTakeOver()
             return
-        self.recordVictorResponse(avId)
-        if self.allVictorsResponded():
-            self.toonTakeOver()
-        return
 
     def setVictorExited(self, avId):
         print 'victor %d exited unexpectedly for bldg %d' % (avId, self.doId)
@@ -277,8 +282,9 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
     def getToon(self, toonId):
         if toonId in self.air.doId2do:
             return self.air.doId2do[toonId]
-        self.notify.warning('getToon() - toon: %d not in repository!' % toonId)
-        return
+        else:
+            self.notify.warning('getToon() - toon: %d not in repository!' % toonId)
+            return
 
     def updateSavedBy(self, savedBy):
         if self.savedBy:
@@ -404,23 +410,18 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
         exteriorZoneId, interiorZoneId = self.getExteriorAndInteriorZoneId()
         if simbase.config.GetBool('want-new-toonhall', 1) and ZoneUtil.getCanonicalZoneId(interiorZoneId) == ToonHall:
             self.interior = DistributedToonHallInteriorAI.DistributedToonHallInteriorAI(self.block, self.air, interiorZoneId, self)
+        elif ZoneUtil.getCanonicalZoneId(interiorZoneId) == Kongdominium:
+            self.interior = DistributedKongToonInteriorAI.DistributedKongToonInteriorAI(self.block, self.air, interiorZoneId, self)
+        elif ZoneUtil.getCanonicalZoneId(interiorZoneId) == Pizzeria:
+            self.interior = DistributedPizzeriaInteriorAI.DistributedPizzeriaInteriorAI(self.block, self.air, interiorZoneId, self)
+        elif ZoneUtil.getCanonicalZoneId(interiorZoneId) == ToonyLab:
+            self.interior = DistributedToonyLabInteriorAI.DistributedToonyLabInteriorAI(self.block, self.air, interiorZoneId, self)
+        elif ZoneUtil.getCanonicalZoneId(interiorZoneId) == PrivateServerCafe:
+            self.interior = DistributedPrivateServerCafeInteriorAI.DistributedPrivateServerCafeInteriorAI(self.block, self.air, interiorZoneId, self)
+        elif ZoneUtil.getCanonicalZoneId(interiorZoneId) == GyrosLab:
+            self.interior = DistributedGyrosLabInteriorAI.DistributedGyrosLabInteriorAI(self.block, self.air, interiorZoneId, self)
         else:
-            if ZoneUtil.getCanonicalZoneId(interiorZoneId) == Kongdominium:
-                self.interior = DistributedKongToonInteriorAI.DistributedKongToonInteriorAI(self.block, self.air, interiorZoneId, self)
-            else:
-                if ZoneUtil.getCanonicalZoneId(interiorZoneId) == Pizzeria:
-                    self.interior = DistributedPizzeriaInteriorAI.DistributedPizzeriaInteriorAI(self.block, self.air, interiorZoneId, self)
-                else:
-                    if ZoneUtil.getCanonicalZoneId(interiorZoneId) == ToonyLab:
-                        self.interior = DistributedToonyLabInteriorAI.DistributedToonyLabInteriorAI(self.block, self.air, interiorZoneId, self)
-                    else:
-                        if ZoneUtil.getCanonicalZoneId(interiorZoneId) == PrivateServerCafe:
-                            self.interior = DistributedPrivateServerCafeInteriorAI.DistributedPrivateServerCafeInteriorAI(self.block, self.air, interiorZoneId, self)
-                        else:
-                            if ZoneUtil.getCanonicalZoneId(interiorZoneId) == GyrosLab:
-                                self.interior = DistributedGyrosLabInteriorAI.DistributedGyrosLabInteriorAI(self.block, self.air, interiorZoneId, self)
-                            else:
-                                self.interior = DistributedToonInteriorAI.DistributedToonInteriorAI(self.block, self.air, interiorZoneId, self)
+            self.interior = DistributedToonInteriorAI.DistributedToonInteriorAI(self.block, self.air, interiorZoneId, self)
         self.interior.generateWithRequired(interiorZoneId)
         door = self.createExteriorDoor()
         insideDoor = DistributedDoorAI.DistributedDoorAI(self.air, self.block, DoorTypes.INT_STANDARD)

@@ -95,14 +95,15 @@ def nextAvailablePole(avatar, duplicateItems):
     rodId = avatar.getFishingRod() + 1
     if rodId > FishGlobals.MaxRodId:
         return None
-    item = CatalogPoleItem(rodId)
-    while item in avatar.onOrder or item in avatar.mailboxContents:
-        rodId += 1
-        if rodId > FishGlobals.MaxRodId:
-            return None
+    else:
         item = CatalogPoleItem(rodId)
+        while item in avatar.onOrder or item in avatar.mailboxContents:
+            rodId += 1
+            if rodId > FishGlobals.MaxRodId:
+                return None
+            item = CatalogPoleItem(rodId)
 
-    return item
+        return item
 
 
 def getAllPoles():

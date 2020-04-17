@@ -68,11 +68,10 @@ class PetNameGenerator:
         firstList = self.neutralFirsts[:]
         if gender == 0:
             firstList += self.boyFirsts
+        elif gender == 1:
+            firstList += self.girlFirsts
         else:
-            if gender == 1:
-                firstList += self.girlFirsts
-            else:
-                self.error('Must be boy or girl.')
+            self.error('Must be boy or girl.')
         retString += random.choice(firstList)
         random.setstate(S)
         return retString

@@ -257,21 +257,20 @@ class DistributedTrolley(DistributedObject.DistributedObject):
     def emptySlot(self, index, avId, timestamp):
         if avId == 0:
             pass
+        elif avId in self.cr.doId2do:
+            toon = self.cr.doId2do[avId]
+            toon.setHpr(self.trolleyCar, 90, 0, 0)
+            toon.wrtReparentTo(render)
+            toon.stopSmooth()
+            sitStartDuration = toon.getDuration('sit-start')
+            track = Sequence(Parallel(ActorInterval(toon, 'sit-start', startTime=sitStartDuration, endTime=0.0), Sequence(Wait(sitStartDuration * 0.5), LerpPosInterval(toon, sitStartDuration * 0.25, Point3(-5, -4.5 + index * 3, 1.4), other=self.trolleyCar))), Func(toon.setAnimState, 'run', 1.0), LerpPosInterval(toon, TOON_EXIT_TIME, Point3(21 - index * 3, -5, 0.02), other=self.trolleyStation), Func(self.notifyToonOffTrolley, toon), Func(self.clearToonTrack, avId), name=toon.uniqueName('emptyTrolley'), autoPause=1)
+            track.delayDelete = DelayDelete.DelayDelete(toon, 'Trolley.emptySlot')
+            self.storeToonTrack(avId, track)
+            track.start()
+            if avId == base.localAvatar.getDoId() and hasattr(self.loader.place, 'trolley') and self.loader.place.trolley:
+                self.loader.place.trolley.fsm.request('exiting')
         else:
-            if avId in self.cr.doId2do:
-                toon = self.cr.doId2do[avId]
-                toon.setHpr(self.trolleyCar, 90, 0, 0)
-                toon.wrtReparentTo(render)
-                toon.stopSmooth()
-                sitStartDuration = toon.getDuration('sit-start')
-                track = Sequence(Parallel(ActorInterval(toon, 'sit-start', startTime=sitStartDuration, endTime=0.0), Sequence(Wait(sitStartDuration * 0.5), LerpPosInterval(toon, sitStartDuration * 0.25, Point3(-5, -4.5 + index * 3, 1.4), other=self.trolleyCar))), Func(toon.setAnimState, 'run', 1.0), LerpPosInterval(toon, TOON_EXIT_TIME, Point3(21 - index * 3, -5, 0.02), other=self.trolleyStation), Func(self.notifyToonOffTrolley, toon), Func(self.clearToonTrack, avId), name=toon.uniqueName('emptyTrolley'), autoPause=1)
-                track.delayDelete = DelayDelete.DelayDelete(toon, 'Trolley.emptySlot')
-                self.storeToonTrack(avId, track)
-                track.start()
-                if avId == base.localAvatar.getDoId() and hasattr(self.loader.place, 'trolley') and self.loader.place.trolley:
-                    self.loader.place.trolley.fsm.request('exiting')
-            else:
-                DistributedTrolley.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the trolley!')
+            DistributedTrolley.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the trolley!')
 
     def rejectBoard(self, avId):
         self.loader.place.trolley.handleRejectBoard()
@@ -329,7 +328,8 @@ class DistributedTrolley(DistributedObject.DistributedObject):
             self.clockNode.setText(timeStr)
         if task.time >= task.duration:
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def countdown(self, duration):
         countdownTask = Task(self.timerTask)

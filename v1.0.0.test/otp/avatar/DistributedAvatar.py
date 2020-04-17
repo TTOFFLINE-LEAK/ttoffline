@@ -185,23 +185,21 @@ class DistributedAvatar(DistributedActor, Avatar):
                     g = 1.0
                     b = 0
                     a = 1
+                elif bonus == 2:
+                    r = 1.0
+                    g = 0.5
+                    b = 0
+                    a = 1
+                elif number < 0:
+                    r = 0.9
+                    g = 0
+                    b = 0
+                    a = 1
                 else:
-                    if bonus == 2:
-                        r = 1.0
-                        g = 0.5
-                        b = 0
-                        a = 1
-                    else:
-                        if number < 0:
-                            r = 0.9
-                            g = 0
-                            b = 0
-                            a = 1
-                        else:
-                            r = 0
-                            g = 0.9
-                            b = 0
-                            a = 1
+                    r = 0
+                    g = 0.9
+                    b = 0
+                    a = 1
                 self.HpTextGenerator.setTextColor(r, g, b, a)
                 self.hpTextNode = self.HpTextGenerator.generate()
                 self.hpText = self.attachNewNode(self.hpTextNode)

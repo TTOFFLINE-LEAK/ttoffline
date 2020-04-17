@@ -26,9 +26,8 @@ class VisibilityExtender(Entity.Entity):
         if doExtend:
             if not self.extended:
                 self.extend()
-        else:
-            if self.extended:
-                self.retract()
+        elif self.extended:
+            self.retract()
 
     def extend(self):
         zoneEnt = self.level.getEntity(self.getZoneEntId())

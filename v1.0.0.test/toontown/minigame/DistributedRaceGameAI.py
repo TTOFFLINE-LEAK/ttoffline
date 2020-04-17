@@ -72,7 +72,8 @@ class DistributedRaceGameAI(DistributedMinigameAI):
         if choice not in RaceGameGlobals.ValidChoices:
             self.notify.warning('checkChoice: invalid choice: ' + str(choice))
             return RaceGameGlobals.ValidChoices[0]
-        return choice
+        else:
+            return choice
 
     def resetChoices(self):
         for avId in self.avIdList:

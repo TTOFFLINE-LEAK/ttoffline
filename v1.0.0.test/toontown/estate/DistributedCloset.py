@@ -181,22 +181,23 @@ class DistributedCloset(DistributedFurnitureItem.DistributedFurnitureItem):
     def handleEnterSphere(self, collEntry):
         if self.smoothStarted:
             return
-        if base.localAvatar.doId == self.lastAvId and globalClock.getFrameTime() <= self.lastTime + 0.5:
-            self.notify.info('Ignoring duplicate entry for avatar.')
+        else:
+            if base.localAvatar.doId == self.lastAvId and globalClock.getFrameTime() <= self.lastTime + 0.5:
+                self.notify.info('Ignoring duplicate entry for avatar.')
+                return
+            if self.hasLocalAvatar:
+                self.freeAvatar()
+            self.notify.debug('Entering Closet Sphere....%s' % self.closetSphereEnterEvent)
+            if self.cr.playGame.getPlace() == None:
+                self.notify.info('Not opening closet before place is defined.')
+                return
+            self.ignore(self.closetSphereEnterEvent)
+            if not self.locked:
+                self.cr.playGame.getPlace().fsm.request('closet')
+                self.accept('closetAsleep', self._handleCancel)
+                self.sendUpdate('enterAvatar', [])
+                self.hasLocalAvatar = 1
             return
-        if self.hasLocalAvatar:
-            self.freeAvatar()
-        self.notify.debug('Entering Closet Sphere....%s' % self.closetSphereEnterEvent)
-        if self.cr.playGame.getPlace() == None:
-            self.notify.info('Not opening closet before place is defined.')
-            return
-        self.ignore(self.closetSphereEnterEvent)
-        if not self.locked:
-            self.cr.playGame.getPlace().fsm.request('closet')
-            self.accept('closetAsleep', self._handleCancel)
-            self.sendUpdate('enterAvatar', [])
-            self.hasLocalAvatar = 1
-        return
 
     def setState(self, mode, avId, ownerId, gender, topList, botList):
         self.notify.debug('setState, mode=%s, avId=%s, ownerId=%d' % (mode, avId, ownerId))
@@ -205,25 +206,26 @@ class DistributedCloset(DistributedFurnitureItem.DistributedFurnitureItem):
         if mode == ClosetGlobals.CLOSED:
             self.fsm.request('closed')
             return
-        if mode == ClosetGlobals.OPEN:
-            self.customerId = avId
-            self.av = self.cr.doId2do.get(self.customerId, None)
-            if self.av:
-                if base.localAvatar.getDoId() == self.customerId:
-                    self.gender = self.av.style.gender
-                    self.topList = topList
-                    self.botList = botList
-                    self.oldTopList = self.topList[0:]
-                    self.oldBotList = self.botList[0:]
-                    print '-----------Starting closet interaction-----------'
-                    self.printInfo()
-                    print '-------------------------------------------------'
-                    if not self.isOwner:
-                        self.__popupNotOwnerPanel()
-                    else:
-                        taskMgr.doMethodLater(0.5, self.popupChangeClothesGUI, self.uniqueName('popupChangeClothesGUI'))
-                self.fsm.request('open')
-        return
+        else:
+            if mode == ClosetGlobals.OPEN:
+                self.customerId = avId
+                self.av = self.cr.doId2do.get(self.customerId, None)
+                if self.av:
+                    if base.localAvatar.getDoId() == self.customerId:
+                        self.gender = self.av.style.gender
+                        self.topList = topList
+                        self.botList = botList
+                        self.oldTopList = self.topList[0:]
+                        self.oldBotList = self.botList[0:]
+                        print '-----------Starting closet interaction-----------'
+                        self.printInfo()
+                        print '-------------------------------------------------'
+                        if not self.isOwner:
+                            self.__popupNotOwnerPanel()
+                        else:
+                            taskMgr.doMethodLater(0.5, self.popupChangeClothesGUI, self.uniqueName('popupChangeClothesGUI'))
+                    self.fsm.request('open')
+            return
 
     def _revertGender(self):
         if self.gender:
@@ -389,17 +391,17 @@ class DistributedCloset(DistributedFurnitureItem.DistributedFurnitureItem):
         self.lastTime = globalClock.getFrameTime()
         if mode == ClosetGlobals.CLOSET_MOVIE_CLEAR:
             return
-        if mode == ClosetGlobals.CLOSET_MOVIE_COMPLETE:
-            if self.isLocalToon:
-                self._revertGender()
-                print '-----------ending trunk interaction-----------'
-                self.printInfo()
-                print '-------------------------------------------------'
-                self.resetCloset()
-                self.freeAvatar()
-                return
         else:
-            if mode == ClosetGlobals.CLOSET_MOVIE_TIMEOUT:
+            if mode == ClosetGlobals.CLOSET_MOVIE_COMPLETE:
+                if self.isLocalToon:
+                    self._revertGender()
+                    print '-----------ending trunk interaction-----------'
+                    self.printInfo()
+                    print '-------------------------------------------------'
+                    self.resetCloset()
+                    self.freeAvatar()
+                    return
+            elif mode == ClosetGlobals.CLOSET_MOVIE_TIMEOUT:
                 if self.cameraLerp:
                     self.cameraLerp.finish()
                     self.cameraLerp = None
@@ -413,7 +415,7 @@ class DistributedCloset(DistributedFurnitureItem.DistributedFurnitureItem):
                         self.resetCloset()
                     self._popupTimeoutPanel()
                     self.freeAvatar()
-        return
+            return
 
     def freeAvatar(self):
         self.notify.debug('freeAvatar()')

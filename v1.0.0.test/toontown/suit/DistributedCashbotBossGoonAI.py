@@ -66,17 +66,14 @@ class DistributedCashbotBossGoonAI(DistributedGoonAI.DistributedGoonAI, Distribu
     def sendMovie(self, type, avId=0, pauseTime=0):
         if type == GoonGlobals.GOON_MOVIE_WALK:
             self.demand('Walk')
+        elif type == GoonGlobals.GOON_MOVIE_BATTLE:
+            self.demand('Battle')
+        elif type == GoonGlobals.GOON_MOVIE_STUNNED:
+            self.demand('Stunned')
+        elif type == GoonGlobals.GOON_MOVIE_RECOVERY:
+            self.demand('Recovery')
         else:
-            if type == GoonGlobals.GOON_MOVIE_BATTLE:
-                self.demand('Battle')
-            else:
-                if type == GoonGlobals.GOON_MOVIE_STUNNED:
-                    self.demand('Stunned')
-                else:
-                    if type == GoonGlobals.GOON_MOVIE_RECOVERY:
-                        self.demand('Recovery')
-                    else:
-                        self.notify.warning('Ignoring movie type %s' % type)
+            self.notify.warning('Ignoring movie type %s' % type)
 
     def __chooseTarget(self, extraDelay=0):
         direction = self.__chooseDirection()
@@ -85,20 +82,21 @@ class DistributedCashbotBossGoonAI(DistributedGoonAI.DistributedGoonAI, Distribu
             self.arrivalTime = None
             self.b_destroyGoon()
             return
-        heading, dist = direction
-        dist = min(dist, self.legLength)
-        targetH = PythonUtil.reduceAngle(self.getH() + heading)
-        origH = self.getH()
-        h = PythonUtil.fitDestAngle2Src(origH, targetH)
-        delta = abs(h - origH)
-        turnTime = delta / (self.velocity * 5)
-        walkTime = dist / self.velocity
-        self.setH(targetH)
-        self.target = self.boss.scene.getRelativePoint(self, Point3(0, dist, 0))
-        self.departureTime = globalClock.getFrameTime()
-        self.arrivalTime = self.departureTime + turnTime + walkTime + extraDelay
-        self.d_setTarget(self.target[0], self.target[1], h, globalClockDelta.localToNetworkTime(self.arrivalTime))
-        return
+        else:
+            heading, dist = direction
+            dist = min(dist, self.legLength)
+            targetH = PythonUtil.reduceAngle(self.getH() + heading)
+            origH = self.getH()
+            h = PythonUtil.fitDestAngle2Src(origH, targetH)
+            delta = abs(h - origH)
+            turnTime = delta / (self.velocity * 5)
+            walkTime = dist / self.velocity
+            self.setH(targetH)
+            self.target = self.boss.scene.getRelativePoint(self, Point3(0, dist, 0))
+            self.departureTime = globalClock.getFrameTime()
+            self.arrivalTime = self.departureTime + turnTime + walkTime + extraDelay
+            self.d_setTarget(self.target[0], self.target[1], h, globalClockDelta.localToNetworkTime(self.arrivalTime))
+            return
 
     def __chooseDirection(self):
         self.tubeNode.setIntoCollideMask(self.offMask)
@@ -126,34 +124,36 @@ class DistributedCashbotBossGoonAI(DistributedGoonAI.DistributedGoonAI, Distribu
         if netScore == 0:
             self.notify.info('Could not find a path for %s' % self.doId)
             return None
-        s = random.uniform(0, netScore)
-        for i in xrange(len(self.directionTable)):
-            s -= scoreTable[i]
-            if s <= 0:
-                heading, weight = self.directionTable[i]
-                seg = self.feelers[i]
-                dist = entries.get(seg, self.feelerLength)
-                return (
-                 heading, dist)
+        else:
+            s = random.uniform(0, netScore)
+            for i in xrange(len(self.directionTable)):
+                s -= scoreTable[i]
+                if s <= 0:
+                    heading, weight = self.directionTable[i]
+                    seg = self.feelers[i]
+                    dist = entries.get(seg, self.feelerLength)
+                    return (
+                     heading, dist)
 
-        self.notify.warning('Fell off end of weighted table.')
-        return (
-         0, self.legLength)
+            self.notify.warning('Fell off end of weighted table.')
+            return (
+             0, self.legLength)
 
     def __startWalk(self):
         if self.arrivalTime == None:
             return
-        now = globalClock.getFrameTime()
-        availableTime = self.arrivalTime - now
-        if availableTime > 0:
-            point = self.getRelativePoint(self.boss.scene, self.target)
-            self.tube.setPointB(point)
-            self.node().resetPrevTransform()
-            taskMgr.doMethodLater(availableTime, self.__reachedTarget, self.uniqueName('reachedTarget'))
-            self.isWalking = 1
         else:
-            self.__reachedTarget(None)
-        return
+            now = globalClock.getFrameTime()
+            availableTime = self.arrivalTime - now
+            if availableTime > 0:
+                point = self.getRelativePoint(self.boss.scene, self.target)
+                self.tube.setPointB(point)
+                self.node().resetPrevTransform()
+                taskMgr.doMethodLater(availableTime, self.__reachedTarget, self.uniqueName('reachedTarget'))
+                self.isWalking = 1
+            else:
+                self.__reachedTarget(None)
+            return
 
     def __stopWalk(self, pauseTime=None):
         if self.isWalking:

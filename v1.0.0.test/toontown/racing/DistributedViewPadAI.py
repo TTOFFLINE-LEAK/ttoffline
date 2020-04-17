@@ -27,11 +27,12 @@ class DistributedViewPadAI(DistributedKartPadAI):
         av = self.air.doId2do.get(avId)
         if not av.hasKart():
             return KartGlobals.ERROR_CODE.eNoKart
-        if not startingBlock.avId:
-            self.b_setLastEntered(globalClockDelta.getRealNetworkTime())
-            taskMgr.doMethodLater(KartGlobals.COUNTDOWN_TIME, self.kickAvatar, startingBlock.uniqueName('viewTimer'), extraArgs=[avId, startingBlock])
-            return KartGlobals.ERROR_CODE.success
-        return KartGlobals.ERROR_CODE.eOccupied
+        else:
+            if not startingBlock.avId:
+                self.b_setLastEntered(globalClockDelta.getRealNetworkTime())
+                taskMgr.doMethodLater(KartGlobals.COUNTDOWN_TIME, self.kickAvatar, startingBlock.uniqueName('viewTimer'), extraArgs=[avId, startingBlock])
+                return KartGlobals.ERROR_CODE.success
+            return KartGlobals.ERROR_CODE.eOccupied
 
     def kickAvatar(self, avId, startingBlock):
         if avId == startingBlock.avId:

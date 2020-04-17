@@ -391,12 +391,13 @@ class TrunkGUI(StateData.StateData):
         if self.hatChoice < 0 or self.hatChoice >= len(self.hats) or len(self.hats[self.hatChoice]) != 3:
             self.notify.warning('hatChoice index is out of range!')
             return
-        hat = self.hats[self.hatChoice]
-        self.toon.setHat(hat[0], hat[1], hat[2])
-        if self.swapHatEvent != None:
-            messenger.send(self.swapHatEvent)
-        messenger.send('wakeup')
-        return
+        else:
+            hat = self.hats[self.hatChoice]
+            self.toon.setHat(hat[0], hat[1], hat[2])
+            if self.swapHatEvent != None:
+                messenger.send(self.swapHatEvent)
+            messenger.send('wakeup')
+            return
 
     def swapGlasses(self, offset):
         length = len(self.glasses)
@@ -407,12 +408,13 @@ class TrunkGUI(StateData.StateData):
         if self.glassesChoice < 0 or self.glassesChoice >= len(self.glasses) or len(self.glasses[self.glassesChoice]) != 3:
             self.notify.warning('glassesChoice index is out of range!')
             return
-        glasses = self.glasses[self.glassesChoice]
-        self.toon.setGlasses(glasses[0], glasses[1], glasses[2])
-        if self.swapGlassesEvent != None:
-            messenger.send(self.swapGlassesEvent)
-        messenger.send('wakeup')
-        return
+        else:
+            glasses = self.glasses[self.glassesChoice]
+            self.toon.setGlasses(glasses[0], glasses[1], glasses[2])
+            if self.swapGlassesEvent != None:
+                messenger.send(self.swapGlassesEvent)
+            messenger.send('wakeup')
+            return
 
     def swapBackpack(self, offset):
         length = len(self.backpacks)
@@ -423,12 +425,13 @@ class TrunkGUI(StateData.StateData):
         if self.backpackChoice < 0 or self.backpackChoice >= len(self.backpacks) or len(self.backpacks[self.backpackChoice]) != 3:
             self.notify.warning('backpackChoice index is out of range!')
             return
-        backpack = self.backpacks[self.backpackChoice]
-        self.toon.setBackpack(backpack[0], backpack[1], backpack[2])
-        if self.swapBackpackEvent != None:
-            messenger.send(self.swapBackpackEvent)
-        messenger.send('wakeup')
-        return
+        else:
+            backpack = self.backpacks[self.backpackChoice]
+            self.toon.setBackpack(backpack[0], backpack[1], backpack[2])
+            if self.swapBackpackEvent != None:
+                messenger.send(self.swapBackpackEvent)
+            messenger.send('wakeup')
+            return
 
     def swapShoes(self, offset):
         length = len(self.shoes)
@@ -439,12 +442,13 @@ class TrunkGUI(StateData.StateData):
         if self.shoesChoice < 0 or self.shoesChoice >= len(self.shoes) or len(self.shoes[self.shoesChoice]) != 3:
             self.notify.warning('shoesChoice index is out of range!')
             return
-        shoes = self.shoes[self.shoesChoice]
-        self.toon.setShoes(shoes[0], shoes[1], shoes[2])
-        if self.swapShoesEvent != None:
-            messenger.send(self.swapShoesEvent)
-        messenger.send('wakeup')
-        return
+        else:
+            shoes = self.shoes[self.shoesChoice]
+            self.toon.setShoes(shoes[0], shoes[1], shoes[2])
+            if self.swapShoesEvent != None:
+                messenger.send(self.swapShoesEvent)
+            messenger.send('wakeup')
+            return
 
     def updateScrollButtons(self, choice, length, startTex, lButton, rButton):
         if choice >= length - 1:
@@ -518,9 +522,8 @@ class TrunkGUI(StateData.StateData):
             del self.hats[index]
             if self.hatChoice > index:
                 self.hatChoice -= 1
-            else:
-                if self.hatChoice == index:
-                    self.hatChoice = 0
+            elif self.hatChoice == index:
+                self.hatChoice = 0
             return 1
         return 0
 
@@ -530,9 +533,8 @@ class TrunkGUI(StateData.StateData):
             del self.glasses[index]
             if self.glassesChoice > index:
                 self.glassesChoice -= 1
-            else:
-                if self.glassesChoice == index:
-                    self.glassesChoice = 0
+            elif self.glassesChoice == index:
+                self.glassesChoice = 0
             return 1
         return 0
 
@@ -542,9 +544,8 @@ class TrunkGUI(StateData.StateData):
             del self.backpacks[index]
             if self.backpackChoice > index:
                 self.backpackChoice -= 1
-            else:
-                if self.backpackChoice == index:
-                    self.backpackChoice = 0
+            elif self.backpackChoice == index:
+                self.backpackChoice = 0
             return 1
         return 0
 
@@ -554,9 +555,8 @@ class TrunkGUI(StateData.StateData):
             del self.shoes[index]
             if self.shoesChoice > index:
                 self.shoesChoice -= 1
-            else:
-                if self.shoesChoice == index:
-                    self.shoesChoice = 0
+            elif self.shoesChoice == index:
+                self.shoesChoice = 0
             return 1
         return 0
 
@@ -573,14 +573,12 @@ class TrunkGUI(StateData.StateData):
         abortDeletion = False
         if which == ToonDNA.HAT:
             item = TTLocalizer.TrunkHat
+        elif which == ToonDNA.GLASSES:
+            item = TTLocalizer.TrunkGlasses
+        elif which == ToonDNA.BACKPACK:
+            item = TTLocalizer.TrunkBackpack
         else:
-            if which == ToonDNA.GLASSES:
-                item = TTLocalizer.TrunkGlasses
-            else:
-                if which == ToonDNA.BACKPACK:
-                    item = TTLocalizer.TrunkBackpack
-                else:
-                    item = TTLocalizer.TrunkShoes
+            item = TTLocalizer.TrunkShoes
         self.verify = TTDialog.TTGlobalDialog(doneEvent='verifyDone', message=TTLocalizer.ClosetVerifyDelete % item, style=TTDialog.TwoChoice)
         self.verify.show()
         self.accept('verifyDone', Functor(self.__handleVerifyDelete, which))

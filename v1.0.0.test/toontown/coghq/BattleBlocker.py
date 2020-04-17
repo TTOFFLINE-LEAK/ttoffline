@@ -62,14 +62,14 @@ class BattleBlocker(BasicEntities.DistributedNodePathEntity):
     def startBattle(self):
         if not self.active:
             return
-        callback = None
-        if self.battleId != None and self.battleId in base.cr.doId2do:
-            battle = base.cr.doId2do.get(self.battleId)
-            if battle:
-                self.notify.debug('act like we collided with battle %d' % self.battleId)
-                callback = battle.handleBattleBlockerCollision
         else:
-            if len(self.suitIds) > 0:
+            callback = None
+            if self.battleId != None and self.battleId in base.cr.doId2do:
+                battle = base.cr.doId2do.get(self.battleId)
+                if battle:
+                    self.notify.debug('act like we collided with battle %d' % self.battleId)
+                    callback = battle.handleBattleBlockerCollision
+            elif len(self.suitIds) > 0:
                 for suitId in self.suitIds:
                     suit = base.cr.doId2do.get(suitId)
                     if suit:
@@ -77,8 +77,8 @@ class BattleBlocker(BasicEntities.DistributedNodePathEntity):
                         callback = suit.handleBattleBlockerCollision
                         break
 
-        self.showReaction(callback)
-        return
+            self.showReaction(callback)
+            return
 
     def showReaction(self, callback=None):
         if not base.localAvatar.wantBattles:

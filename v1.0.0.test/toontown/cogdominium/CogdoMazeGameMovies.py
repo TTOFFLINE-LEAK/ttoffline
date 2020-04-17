@@ -141,14 +141,12 @@ class CogdoMazeGameIntro(CogdoGameMovie):
             self._camHelperNode.setPos(self._camTarget.getPos() + self._camOffset)
             camera.setPos(self._camHelperNode, 0, self._camDistance, 0)
             camera.lookAt(self._camTarget, 0, 0, 4)
-        else:
-            if self._state == 2:
-                camera.lookAt(self._camTarget, 0, 0, 5)
-            else:
-                if self._state == 3:
-                    self._camHelperNode.setHpr(self._camHelperNode, dt, dt, 0)
-                    camera.setY(camera, 0.8 * dt)
-                    camera.lookAt(self._camTarget, 0, 0, 3)
+        elif self._state == 2:
+            camera.lookAt(self._camTarget, 0, 0, 5)
+        elif self._state == 3:
+            self._camHelperNode.setHpr(self._camHelperNode, dt, dt, 0)
+            camera.setY(camera, 0.8 * dt)
+            camera.lookAt(self._camTarget, 0, 0, 3)
         return task.cont
 
     def unload(self):

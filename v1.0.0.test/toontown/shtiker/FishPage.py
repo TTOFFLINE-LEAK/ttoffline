@@ -151,32 +151,30 @@ class FishPage(ShtikerPage.ShtikerPage):
             self.tankTab['state'] = DGG.DISABLED
             self.collectionTab['state'] = DGG.NORMAL
             self.trophyTab['state'] = DGG.NORMAL
-        else:
-            if mode == FishPage_Collection:
-                self.title['text'] = TTLocalizer.FishPageTitleCollection
-                if hasattr(self, 'picker'):
-                    self.picker.hide()
-                if not hasattr(self, 'browser'):
-                    self.createFishBrowser()
-                self.browser.show()
-                if hasattr(self, 'trophyFrame'):
-                    self.trophyFrame.hide()
-                self.tankTab['state'] = DGG.NORMAL
-                self.collectionTab['state'] = DGG.DISABLED
-                self.trophyTab['state'] = DGG.NORMAL
-            else:
-                if mode == FishPage_Trophy:
-                    self.title['text'] = TTLocalizer.FishPageTitleTrophy
-                    if hasattr(self, 'picker'):
-                        self.picker.hide()
-                    if hasattr(self, 'browser'):
-                        self.browser.hide()
-                    if not hasattr(self, 'trophyFrame'):
-                        self.createFishTrophyFrame()
-                    self.trophyFrame.show()
-                    self.tankTab['state'] = DGG.NORMAL
-                    self.collectionTab['state'] = DGG.NORMAL
-                    self.trophyTab['state'] = DGG.DISABLED
+        elif mode == FishPage_Collection:
+            self.title['text'] = TTLocalizer.FishPageTitleCollection
+            if hasattr(self, 'picker'):
+                self.picker.hide()
+            if not hasattr(self, 'browser'):
+                self.createFishBrowser()
+            self.browser.show()
+            if hasattr(self, 'trophyFrame'):
+                self.trophyFrame.hide()
+            self.tankTab['state'] = DGG.NORMAL
+            self.collectionTab['state'] = DGG.DISABLED
+            self.trophyTab['state'] = DGG.NORMAL
+        elif mode == FishPage_Trophy:
+            self.title['text'] = TTLocalizer.FishPageTitleTrophy
+            if hasattr(self, 'picker'):
+                self.picker.hide()
+            if hasattr(self, 'browser'):
+                self.browser.hide()
+            if not hasattr(self, 'trophyFrame'):
+                self.createFishTrophyFrame()
+            self.trophyFrame.show()
+            self.tankTab['state'] = DGG.NORMAL
+            self.collectionTab['state'] = DGG.NORMAL
+            self.trophyTab['state'] = DGG.DISABLED
         self.updatePage()
 
     def unload(self):
@@ -203,18 +201,16 @@ class FishPage(ShtikerPage.ShtikerPage):
             if hasattr(self, 'picker'):
                 newTankFish = base.localAvatar.fishTank.getFish()
                 self.picker.update(newTankFish)
-        else:
-            if self.mode == FishPage_Collection:
-                if hasattr(self, 'browser'):
-                    self.browser.update()
-            else:
-                if self.mode == FishPage_Trophy:
-                    if hasattr(self, 'trophies'):
-                        for trophy in self.trophies:
-                            trophy.setLevel(-1)
+        elif self.mode == FishPage_Collection:
+            if hasattr(self, 'browser'):
+                self.browser.update()
+        elif self.mode == FishPage_Trophy:
+            if hasattr(self, 'trophies'):
+                for trophy in self.trophies:
+                    trophy.setLevel(-1)
 
-                        for trophyId in base.localAvatar.getFishingTrophies():
-                            self.trophies[trophyId].setLevel(trophyId)
+                for trophyId in base.localAvatar.getFishingTrophies():
+                    self.trophies[trophyId].setLevel(trophyId)
 
     def destroy(self):
         self.notify.debug('destroy')
@@ -259,67 +255,59 @@ class FishingTrophy(DirectFrame):
             self.trophy.hide()
             self.bowl.hide()
             self.nameLabel.hide()
-        else:
-            if level == 0:
-                self.trophy.show()
-                self.bowl.hide()
-                self.nameLabel.show()
-                self.column.setScale(1.3229, 1.26468, 1.11878)
-                self.top.setPos(0, 0, -1)
-                self.__bronze()
-            else:
-                if level == 1:
-                    self.trophy.show()
-                    self.bowl.hide()
-                    self.nameLabel.show()
-                    self.column.setScale(1.3229, 1.26468, 1.61878)
-                    self.top.setPos(0, 0, -0.5)
-                    self.__bronze()
-                else:
-                    if level == 2:
-                        self.trophy.show()
-                        self.bowl.hide()
-                        self.nameLabel.show()
-                        self.column.setScale(1.3229, 1.26468, 2.11878)
-                        self.top.setPos(0, 0, 0)
-                        self.__silver()
-                    else:
-                        if level == 3:
-                            self.trophy.show()
-                            self.bowl.hide()
-                            self.nameLabel.show()
-                            self.column.setScale(1.3229, 1.26468, 2.61878)
-                            self.top.setPos(0, 0, 0.5)
-                            self.__silver()
-                        else:
-                            if level == 4:
-                                self.trophy.show()
-                                self.bowl.hide()
-                                self.nameLabel.show()
-                                self.column.setScale(1.3229, 1.26468, 3.11878)
-                                self.top.setPos(0, 0, 1)
-                                self.__gold()
-                            else:
-                                if level == 5:
-                                    self.trophy.hide()
-                                    self.bowl.show()
-                                    self.bowlTop.setScale(1.75)
-                                    self.nameLabel.show()
-                                    self.__bronze()
-                                else:
-                                    if level == 6:
-                                        self.trophy.hide()
-                                        self.bowl.show()
-                                        self.bowlTop.setScale(2.0)
-                                        self.nameLabel.show()
-                                        self.__silver()
-                                    else:
-                                        if level >= 7:
-                                            self.trophy.hide()
-                                            self.bowl.show()
-                                            self.bowlTop.setScale(2.25)
-                                            self.nameLabel.show()
-                                            self.__gold()
+        elif level == 0:
+            self.trophy.show()
+            self.bowl.hide()
+            self.nameLabel.show()
+            self.column.setScale(1.3229, 1.26468, 1.11878)
+            self.top.setPos(0, 0, -1)
+            self.__bronze()
+        elif level == 1:
+            self.trophy.show()
+            self.bowl.hide()
+            self.nameLabel.show()
+            self.column.setScale(1.3229, 1.26468, 1.61878)
+            self.top.setPos(0, 0, -0.5)
+            self.__bronze()
+        elif level == 2:
+            self.trophy.show()
+            self.bowl.hide()
+            self.nameLabel.show()
+            self.column.setScale(1.3229, 1.26468, 2.11878)
+            self.top.setPos(0, 0, 0)
+            self.__silver()
+        elif level == 3:
+            self.trophy.show()
+            self.bowl.hide()
+            self.nameLabel.show()
+            self.column.setScale(1.3229, 1.26468, 2.61878)
+            self.top.setPos(0, 0, 0.5)
+            self.__silver()
+        elif level == 4:
+            self.trophy.show()
+            self.bowl.hide()
+            self.nameLabel.show()
+            self.column.setScale(1.3229, 1.26468, 3.11878)
+            self.top.setPos(0, 0, 1)
+            self.__gold()
+        elif level == 5:
+            self.trophy.hide()
+            self.bowl.show()
+            self.bowlTop.setScale(1.75)
+            self.nameLabel.show()
+            self.__bronze()
+        elif level == 6:
+            self.trophy.hide()
+            self.bowl.show()
+            self.bowlTop.setScale(2.0)
+            self.nameLabel.show()
+            self.__silver()
+        elif level >= 7:
+            self.trophy.hide()
+            self.bowl.show()
+            self.bowlTop.setScale(2.25)
+            self.nameLabel.show()
+            self.__gold()
 
     def __bronze(self):
         self.top.setColorScale(0.9, 0.6, 0.33, 1)

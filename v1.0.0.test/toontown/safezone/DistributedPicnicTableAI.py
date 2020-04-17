@@ -88,17 +88,18 @@ class DistributedPicnicTableAI(DistributedNodeAI):
         if self.findAvatar(avId) != None:
             self.notify.warning('Ignoring multiple requests from %s to board.' % avId)
             return
-        av = self.air.doId2do.get(avId)
-        if av:
-            if av.hp > 0 and self.isAccepting and self.seats[si] == None:
-                self.notify.debug('accepting boarder %d' % avId)
-                self.acceptBoarder(avId, si, x, y, z, h, p, r)
-            else:
-                self.notify.debug('rejecting boarder %d' % avId)
-                self.sendUpdateToAvatarId(avId, 'rejectJoin', [])
         else:
-            self.notify.warning('avid: %s does not exist, but tried to board a picnicTable' % avId)
-        return
+            av = self.air.doId2do.get(avId)
+            if av:
+                if av.hp > 0 and self.isAccepting and self.seats[si] == None:
+                    self.notify.debug('accepting boarder %d' % avId)
+                    self.acceptBoarder(avId, si, x, y, z, h, p, r)
+                else:
+                    self.notify.debug('rejecting boarder %d' % avId)
+                    self.sendUpdateToAvatarId(avId, 'rejectJoin', [])
+            else:
+                self.notify.warning('avid: %s does not exist, but tried to board a picnicTable' % avId)
+            return
 
     def acceptBoarder(self, avId, seatIndex, x, y, z, h, p, r):
         self.notify.debug('acceptBoarder %d' % avId)
@@ -154,17 +155,15 @@ class DistributedPicnicTableAI(DistributedNodeAI):
             if simbase.config.GetBool('want-chinese', 0):
                 self.game = DistributedChineseCheckersAI.DistributedChineseCheckersAI(self.air, self.doId, 'chinese', self.getX(), self.getY(), self.getZ() + 2.83, self.getH(), self.getP(), self.getR())
                 self.sendUpdate('setZone', [self.game.zoneId])
-        else:
-            if gameNum == 2:
-                if x <= 2:
-                    if simbase.config.GetBool('want-checkers', 0):
-                        self.game = DistributedCheckersAI.DistributedCheckersAI(self.air, self.doId, 'checkers', self.getX(), self.getY(), self.getZ() + 2.83, self.getH(), self.getP(), self.getR())
-                        self.sendUpdate('setZone', [self.game.zoneId])
-            else:
-                if x <= 2:
-                    if simbase.config.GetBool('want-findfour', 0):
-                        self.game = DistributedFindFourAI.DistributedFindFourAI(self.air, self.doId, 'findFour', self.getX(), self.getY(), self.getZ() + 2.83, self.getH(), self.getP(), self.getR())
-                        self.sendUpdate('setZone', [self.game.zoneId])
+        elif gameNum == 2:
+            if x <= 2:
+                if simbase.config.GetBool('want-checkers', 0):
+                    self.game = DistributedCheckersAI.DistributedCheckersAI(self.air, self.doId, 'checkers', self.getX(), self.getY(), self.getZ() + 2.83, self.getH(), self.getP(), self.getR())
+                    self.sendUpdate('setZone', [self.game.zoneId])
+        elif x <= 2:
+            if simbase.config.GetBool('want-findfour', 0):
+                self.game = DistributedFindFourAI.DistributedFindFourAI(self.air, self.doId, 'findFour', self.getX(), self.getY(), self.getZ() + 2.83, self.getH(), self.getP(), self.getR())
+                self.sendUpdate('setZone', [self.game.zoneId])
         return
 
     def requestZone(self):

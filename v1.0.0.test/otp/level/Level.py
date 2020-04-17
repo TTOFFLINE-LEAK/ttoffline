@@ -105,13 +105,12 @@ class Level:
         announce = False
         if entity is 'nonlocal':
             self.nonlocalEntIds[entId] = None
+        elif entity is 'nothing':
+            self.nothingEntIds[entId] = None
+            announce = True
         else:
-            if entity is 'nothing':
-                self.nothingEntIds[entId] = None
-                announce = True
-            else:
-                self.createdEntIds.append(entId)
-                announce = True
+            self.createdEntIds.append(entId)
+            announce = True
         if announce:
             self.onEntityCreate(entId)
         return entity
@@ -129,8 +128,9 @@ class Level:
     def getEntity(self, entId):
         if hasattr(self, 'entities'):
             return self.entities.get(entId)
-        return
-        return
+        else:
+            return
+            return
 
     def getEntityType(self, entId):
         return self.levelSpec.getEntityType(entId)
@@ -142,7 +142,8 @@ class Level:
         zoneEntId = self.getEntityZoneEntId(entId)
         if not hasattr(self, 'zoneNum2zoneId'):
             return None
-        return self.zoneNum2zoneId.get(zoneEntId)
+        else:
+            return self.zoneNum2zoneId.get(zoneEntId)
 
     def getZoneId(self, zoneEntId):
         return self.zoneNum2zoneId[zoneEntId]
@@ -196,11 +197,10 @@ class Level:
         ent = self.getEntity(entId)
         if ent is not None:
             callNow = True
+        elif entId in self.nothingEntIds:
+            callNow = True
         else:
-            if entId in self.nothingEntIds:
-                callNow = True
-            else:
-                callNow = False
+            callNow = False
         if callNow:
             callback()
         else:
@@ -254,10 +254,8 @@ class Level:
             if entId in self.createdEntIds:
                 entity = self.getEntity(entId)
                 entity.destroy()
-            else:
-                if entId in self.nothingEntIds:
-                    del self.nothingEntIds[entId]
-                else:
-                    if entId in self.nonlocalEntIds:
-                        del self.nonlocalEntIds[entId]
+            elif entId in self.nothingEntIds:
+                del self.nothingEntIds[entId]
+            elif entId in self.nonlocalEntIds:
+                del self.nonlocalEntIds[entId]
             self.entType2ids[self.getEntityType(entId)].remove(entId)

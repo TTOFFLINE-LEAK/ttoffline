@@ -119,7 +119,8 @@ class DummyLauncherBase:
         if percentComplete >= 100.0:
             messenger.send('phaseComplete-' + `(task.phase)`)
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def downloadDoneTask(self, task):
         self._downloadComplete = True

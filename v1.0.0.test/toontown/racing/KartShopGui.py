@@ -470,11 +470,11 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                     self.accDescription.destroy()
                 except:
                     pass
-                else:
-                    try:
-                        self.kartView.destroy()
-                    except:
-                        pass
+
+                try:
+                    self.kartView.destroy()
+                except:
+                    pass
 
                 DirectFrame.destroy(self)
 
@@ -521,27 +521,24 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
              KartDNA.bwwType]:
                 texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            else:
-                if accType == KartDNA.rimsType:
-                    if accID == InvalidEntry:
-                        texNodePath = getTexCardNode(getDefaultRim())
-                    else:
-                        texNodePath = getTexCardNode(accID)
-                    tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
+            elif accType == KartDNA.rimsType:
+                if accID == InvalidEntry:
+                    texNodePath = getTexCardNode(getDefaultRim())
                 else:
-                    if accType in [KartDNA.bodyColor, KartDNA.accColor]:
-                        tex = loader.loadTexture('phase_6/maps/Kartmenu_paintbucket.jpg', 'phase_6/maps/Kartmenu_paintbucket_a.rgb')
-                        if accID == InvalidEntry:
-                            self.kartView.component('geom0').setColorScale(getDefaultColor())
-                        else:
-                            self.kartView.component('geom0').setColorScale(getAccessory(accID))
-                    else:
-                        if accType == KartDNA.decalType:
-                            kartDecal = getDecalId(base.localAvatar.getKartBodyType())
-                            texNodePath = getTexCardNode(accID)
-                            tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
-                        else:
-                            tex = loader.loadTexture('phase_6/maps/NoAccessoryIcon3.jpg', 'phase_6/maps/NoAccessoryIcon3_a.rgb')
+                    texNodePath = getTexCardNode(accID)
+                tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
+            elif accType in [KartDNA.bodyColor, KartDNA.accColor]:
+                tex = loader.loadTexture('phase_6/maps/Kartmenu_paintbucket.jpg', 'phase_6/maps/Kartmenu_paintbucket_a.rgb')
+                if accID == InvalidEntry:
+                    self.kartView.component('geom0').setColorScale(getDefaultColor())
+                else:
+                    self.kartView.component('geom0').setColorScale(getAccessory(accID))
+            elif accType == KartDNA.decalType:
+                kartDecal = getDecalId(base.localAvatar.getKartBodyType())
+                texNodePath = getTexCardNode(accID)
+                tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
+            else:
+                tex = loader.loadTexture('phase_6/maps/NoAccessoryIcon3.jpg', 'phase_6/maps/NoAccessoryIcon3_a.rgb')
             tex.setMinfilter(Texture.FTLinearMipmapLinear)
             self.kartView.component('geom0').setTexture(tex, 1)
             self.initialize = True
@@ -597,27 +594,24 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
              KartDNA.bwwType]:
                 texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            else:
-                if accType == KartDNA.rimsType:
-                    if accID == InvalidEntry:
-                        texNodePath = getTexCardNode(getDefaultRim())
-                    else:
-                        texNodePath = getTexCardNode(accID)
-                    tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
+            elif accType == KartDNA.rimsType:
+                if accID == InvalidEntry:
+                    texNodePath = getTexCardNode(getDefaultRim())
                 else:
-                    if accType in [KartDNA.bodyColor, KartDNA.accColor]:
-                        tex = loader.loadTexture('phase_6/maps/Kartmenu_paintbucket.jpg', 'phase_6/maps/Kartmenu_paintbucket_a.rgb')
-                        if accID == InvalidEntry:
-                            self.kartView.component('geom0').setColorScale(getDefaultColor())
-                        else:
-                            self.kartView.component('geom0').setColorScale(getAccessory(accID))
-                    else:
-                        if accType == KartDNA.decalType:
-                            kartDecal = getDecalId(base.localAvatar.getKartBodyType())
-                            texNodePath = getTexCardNode(accID)
-                            tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
-                        else:
-                            tex = loader.loadTexture('phase_6/maps/NoAccessoryIcon3.jpg', 'phase_6/maps/NoAccessoryIcon3_a.rgb')
+                    texNodePath = getTexCardNode(accID)
+                tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
+            elif accType in [KartDNA.bodyColor, KartDNA.accColor]:
+                tex = loader.loadTexture('phase_6/maps/Kartmenu_paintbucket.jpg', 'phase_6/maps/Kartmenu_paintbucket_a.rgb')
+                if accID == InvalidEntry:
+                    self.kartView.component('geom0').setColorScale(getDefaultColor())
+                else:
+                    self.kartView.component('geom0').setColorScale(getAccessory(accID))
+            elif accType == KartDNA.decalType:
+                kartDecal = getDecalId(base.localAvatar.getKartBodyType())
+                texNodePath = getTexCardNode(accID)
+                tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
+            else:
+                tex = loader.loadTexture('phase_6/maps/NoAccessoryIcon3.jpg', 'phase_6/maps/NoAccessoryIcon3_a.rgb')
             tex.setMinfilter(Texture.FTLinearMipmapLinear)
             self.kartView.component('geom0').setTexture(tex, 1)
             self.initialize = True
@@ -729,20 +723,16 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
         self.acceptOnce(eventType, eventHandler)
         if dialogType == MENUS.ConfirmBuyKart:
             self.dialog = eventDlg(eventType, self.kartID)
+        elif dialogType == MENUS.BoughtKart:
+            self.dialog = eventDlg(eventType, self.kartID)
+        elif dialogType == MENUS.ConfirmBuyAccessory:
+            self.dialog = eventDlg(eventType, self.accID)
+        elif dialogType == MENUS.BoughtAccessory:
+            self.dialog = eventDlg(eventType, self.accID)
+        elif dialogType == MENUS.TeaserPanel:
+            self.dialog = eventDlg(pageName='karting', doneFunc=self.__doLastMenu)
         else:
-            if dialogType == MENUS.BoughtKart:
-                self.dialog = eventDlg(eventType, self.kartID)
-            else:
-                if dialogType == MENUS.ConfirmBuyAccessory:
-                    self.dialog = eventDlg(eventType, self.accID)
-                else:
-                    if dialogType == MENUS.BoughtAccessory:
-                        self.dialog = eventDlg(eventType, self.accID)
-                    else:
-                        if dialogType == MENUS.TeaserPanel:
-                            self.dialog = eventDlg(pageName='karting', doneFunc=self.__doLastMenu)
-                        else:
-                            self.dialog = eventDlg(eventType)
+            self.dialog = eventDlg(eventType)
         if not dialogType == MENUS.TeaserPanel:
             self.lastMenu = dialogType
 
@@ -750,12 +740,10 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
         self.notify.debug('__handleMainMenuDlg: Handling MainMenu Dialog Selection.')
         if exitType == MM_OPTIONS.Cancel:
             messenger.send(self.eventDict['guiDone'])
-        else:
-            if exitType == MM_OPTIONS.BuyKart:
-                self.__doDialog(MENUS.BuyKart)
-            else:
-                if exitType == MM_OPTIONS.BuyAccessory:
-                    self.__doDialog(MENUS.BuyAccessory)
+        elif exitType == MM_OPTIONS.BuyKart:
+            self.__doDialog(MENUS.BuyKart)
+        elif exitType == MM_OPTIONS.BuyAccessory:
+            self.__doDialog(MENUS.BuyAccessory)
 
     def __handleBoughtKartDlg(self, exitType):
         self.notify.debug('__handleBoughtKartDlg: Telling the player their purchase was successful')
@@ -795,39 +783,36 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
         self.notify.debug('__handleReturnKartDlg: Handling ReturnKart Dialog Selection.')
         if exitType == RK_OPTIONS.Cancel:
             self.__doDialog(MENUS.BuyKart)
-        else:
-            if exitType == RK_OPTIONS.ReturnKart:
-                self.__doDialog(MENUS.ConfirmBuyKart)
+        elif exitType == RK_OPTIONS.ReturnKart:
+            self.__doDialog(MENUS.ConfirmBuyKart)
 
     def __handleConfirmBuyAccessoryDlg(self, exitType, args=[]):
         self.notify.debug('__handleConfirmBuyAccessoryDlg: Handling ConfirmBuyAccessory Dialog Selection.')
         if exitType == CBA_OPTIONS.Cancel:
             self.__doDialog(MENUS.BuyAccessory)
             self.accID = -1
-        else:
-            if exitType == CBA_OPTIONS.BuyAccessory:
-                if self.accID != -1:
-                    messenger.send(self.eventDict['buyAccessory'], [self.accID])
-                oldTickets = base.localAvatar.getTickets()
-                accInfo = getAccessoryInfo(self.accID)
-                cost = accInfo[AccInfo.cost]
-                base.localAvatar.setTickets(oldTickets - cost)
-                accList = base.localAvatar.getKartAccessoriesOwned()
-                accList.append(self.accID)
-                base.localAvatar.setKartAccessoriesOwned(accList)
-                self.accID = -1
-                self.__doDialog(MENUS.BuyAccessory)
+        elif exitType == CBA_OPTIONS.BuyAccessory:
+            if self.accID != -1:
+                messenger.send(self.eventDict['buyAccessory'], [self.accID])
+            oldTickets = base.localAvatar.getTickets()
+            accInfo = getAccessoryInfo(self.accID)
+            cost = accInfo[AccInfo.cost]
+            base.localAvatar.setTickets(oldTickets - cost)
+            accList = base.localAvatar.getKartAccessoriesOwned()
+            accList.append(self.accID)
+            base.localAvatar.setKartAccessoriesOwned(accList)
+            self.accID = -1
+            self.__doDialog(MENUS.BuyAccessory)
 
     def __handleConfirmBuyKartDlg(self, exitType, args=[]):
         self.notify.debug('__handleConfirmBuyKartDlg: Handling ConfirmBuyKart Dialog Selection.')
         if exitType == CBK_OPTIONS.Cancel:
             self.__doDialog(MENUS.BuyKart)
             self.kartID = -1
-        else:
-            if exitType == CBK_OPTIONS.BuyKart:
-                if self.kartID != -1:
-                    messenger.send(self.eventDict['buyKart'], [self.kartID])
-                self.__doDialog(MENUS.BoughtKart)
+        elif exitType == CBK_OPTIONS.BuyKart:
+            if self.kartID != -1:
+                messenger.send(self.eventDict['buyKart'], [self.kartID])
+            self.__doDialog(MENUS.BoughtKart)
         if __name__ == '__main__':
 
             class Main(DirectObject.DirectObject):

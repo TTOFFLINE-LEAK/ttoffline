@@ -47,11 +47,10 @@ def makeLabel(itemName, itemNum, *extraArgs):
     if intVersion < 0:
         textColor = Vec4(0, 0, 1, 1)
         intVersion = -intVersion
+    elif intVersion == 0:
+        textColor = Vec4(0, 0, 0, 1)
     else:
-        if intVersion == 0:
-            textColor = Vec4(0, 0, 0, 1)
-        else:
-            textColor = Vec4(1, 0, 0, 1)
+        textColor = Vec4(1, 0, 0, 1)
     return DirectLabel(text=str(intVersion), text_fg=textColor, relief=DGG.RIDGE, frameSize=(-1.2,
                                                                                              1.2,
                                                                                              -0.225,
@@ -63,9 +62,10 @@ def map3dToAspect2d(node, point):
     p2 = Point2()
     if not base.camLens.project(p3, p2):
         return None
-    r2d = Point3(p2[0], 0, p2[1])
-    a2d = aspect2d.getRelativePoint(render2d, r2d)
-    return a2d
+    else:
+        r2d = Point3(p2[0], 0, p2[1])
+        a2d = aspect2d.getRelativePoint(render2d, r2d)
+        return a2d
 
 
 def invertTable(table):
@@ -554,12 +554,10 @@ class DistributedTravelGame(DistributedMinigame):
                 reasonStr = TTLocalizer.TravelGameReasonVotesPlural % {'dir': TTLocalizer.TravelGameDirections[directionToGo], 'numVotes': diffVotes}
             else:
                 reasonStr = TTLocalizer.TravelGameReasonVotesSingular % {'dir': TTLocalizer.TravelGameDirections[directionToGo], 'numVotes': diffVotes}
-        else:
-            if directionReason == TravelGameGlobals.ReasonRandom:
-                reasonStr = TTLocalizer.TravelGameReasonRandom % {'dir': TTLocalizer.TravelGameDirections[directionToGo], 'numVotes': directionTotals[directionToGo]}
-            else:
-                if directionReason == TravelGameGlobals.ReasonPlaceDecider:
-                    reasonStr = TravelGameReasonPlace % {'name': 'TODO NAME', 'dir': TTLocalizer.TravelGameDirections[directionToGo]}
+        elif directionReason == TravelGameGlobals.ReasonRandom:
+            reasonStr = TTLocalizer.TravelGameReasonRandom % {'dir': TTLocalizer.TravelGameDirections[directionToGo], 'numVotes': directionTotals[directionToGo]}
+        elif directionReason == TravelGameGlobals.ReasonPlaceDecider:
+            reasonStr = TravelGameReasonPlace % {'name': 'TODO NAME', 'dir': TTLocalizer.TravelGameDirections[directionToGo]}
         self.resultsStr += reasonStr
         self.dialog = TTDialog.TTDialog(text=self.resultsStr, command=self.__cleanupDialog, style=TTDialog.NoButtons, pos=(0,
                                                                                                                            0,
@@ -752,10 +750,11 @@ class DistributedTravelGame(DistributedMinigame):
     def setTimerStartTime(self, timestamp):
         if not self.hasLocalToon:
             return
-        self.timerStartTime = globalClockDelta.networkToLocalTime(timestamp)
-        if self.timer != None:
-            self.startTimer()
-        return
+        else:
+            self.timerStartTime = globalClockDelta.networkToLocalTime(timestamp)
+            if self.timer != None:
+                self.startTimer()
+            return
 
     def handleChoiceTimeout(self):
         self.sendUpdate('setAvatarChoice', [0, 0])
@@ -796,11 +795,10 @@ class DistributedTravelGame(DistributedMinigame):
         selectedIndex = self.scrollList.getSelectedIndex()
         if selectedIndex < self.zeroVoteIndex:
             retval = 0
+        elif selectedIndex == self.zeroVoteIndex:
+            retval = 0
         else:
-            if selectedIndex == self.zeroVoteIndex:
-                retval = 0
-            else:
-                retval = 1
+            retval = 1
         return retval
 
     def makeTextMatchChoice(self):
@@ -814,12 +812,11 @@ class DistributedTravelGame(DistributedMinigame):
         if selectedIndex < self.zeroVoteIndex:
             self.votesToGoLabel.show()
             self.upLabel.show()
+        elif selectedIndex == self.zeroVoteIndex:
+            self.votesPeriodLabel.show()
         else:
-            if selectedIndex == self.zeroVoteIndex:
-                self.votesPeriodLabel.show()
-            else:
-                self.votesToGoLabel.show()
-                self.downLabel.show()
+            self.votesToGoLabel.show()
+            self.downLabel.show()
 
     def scrollChoiceChanged(self):
         choiceVotes = self.getAbsVoteChoice()

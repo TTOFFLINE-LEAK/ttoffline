@@ -108,7 +108,8 @@ class CogdoBarrelRoomAI:
         toon = self.cogdoInteriorAI.air.doId2do.get(toonId)
         if toon != None:
             return not toon.isToonedUp()
-        return
+        else:
+            return
 
     def __allBarrelsCollected(self):
         toonsNeedingLaff = Set(filter(lambda toon: self.__toonIdNeedsLaff(toon), self.cogdoInteriorAI.toons))

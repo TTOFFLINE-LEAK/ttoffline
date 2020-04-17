@@ -117,44 +117,41 @@ class WordPage(ShtikerPage.ShtikerPage):
             self.acc1Page.exit()
             self.acc2Tab['state'] = DGG.NORMAL
             self.acc2Page.exit()
+        elif mode == PageMode.IDs:
+            self.mode = PageMode.IDs
+            self.title['text'] = TTLocalizer.ClothingPageTitle
+            self.wordsTab['state'] = DGG.NORMAL
+            self.wordsTabPage.exit()
+            self.idsTab['state'] = DGG.DISABLED
+            self.clothingTabPage.enter()
+            self.acc1Tab['state'] = DGG.NORMAL
+            self.acc1Page.exit()
+            self.acc2Tab['state'] = DGG.NORMAL
+            self.acc2Page.exit()
+        elif mode == PageMode.Acc1:
+            self.mode = PageMode.Acc1
+            self.title['text'] = TTLocalizer.AccessoriesPageHead
+            self.wordsTab['state'] = DGG.NORMAL
+            self.wordsTabPage.exit()
+            self.idsTab['state'] = DGG.NORMAL
+            self.clothingTabPage.exit()
+            self.acc1Tab['state'] = DGG.DISABLED
+            self.acc1Page.enter()
+            self.acc2Tab['state'] = DGG.NORMAL
+            self.acc2Page.exit()
+        elif mode == PageMode.Acc2:
+            self.mode = PageMode.Acc2
+            self.title['text'] = TTLocalizer.AccessoriesPageBody
+            self.wordsTab['state'] = DGG.NORMAL
+            self.wordsTabPage.exit()
+            self.idsTab['state'] = DGG.NORMAL
+            self.clothingTabPage.exit()
+            self.acc1Tab['state'] = DGG.NORMAL
+            self.acc1Page.exit()
+            self.acc2Tab['state'] = DGG.DISABLED
+            self.acc2Page.enter()
         else:
-            if mode == PageMode.IDs:
-                self.mode = PageMode.IDs
-                self.title['text'] = TTLocalizer.ClothingPageTitle
-                self.wordsTab['state'] = DGG.NORMAL
-                self.wordsTabPage.exit()
-                self.idsTab['state'] = DGG.DISABLED
-                self.clothingTabPage.enter()
-                self.acc1Tab['state'] = DGG.NORMAL
-                self.acc1Page.exit()
-                self.acc2Tab['state'] = DGG.NORMAL
-                self.acc2Page.exit()
-            else:
-                if mode == PageMode.Acc1:
-                    self.mode = PageMode.Acc1
-                    self.title['text'] = TTLocalizer.AccessoriesPageHead
-                    self.wordsTab['state'] = DGG.NORMAL
-                    self.wordsTabPage.exit()
-                    self.idsTab['state'] = DGG.NORMAL
-                    self.clothingTabPage.exit()
-                    self.acc1Tab['state'] = DGG.DISABLED
-                    self.acc1Page.enter()
-                    self.acc2Tab['state'] = DGG.NORMAL
-                    self.acc2Page.exit()
-                else:
-                    if mode == PageMode.Acc2:
-                        self.mode = PageMode.Acc2
-                        self.title['text'] = TTLocalizer.AccessoriesPageBody
-                        self.wordsTab['state'] = DGG.NORMAL
-                        self.wordsTabPage.exit()
-                        self.idsTab['state'] = DGG.NORMAL
-                        self.clothingTabPage.exit()
-                        self.acc1Tab['state'] = DGG.NORMAL
-                        self.acc1Page.exit()
-                        self.acc2Tab['state'] = DGG.DISABLED
-                        self.acc2Page.enter()
-                    else:
-                        raise StandardError, 'WordPage::setMode - Invalid Mode %s' % mode
+            raise StandardError, 'WordPage::setMode - Invalid Mode %s' % mode
 
 
 class WordsTabPage(DirectFrame):
@@ -338,14 +335,15 @@ class WordsTabPage(DirectFrame):
         numWords = len(sortedWords)
         if returnWords:
             return numWords
-        currentWordIndex = 0
-        while currentWordIndex < numWords:
-            newWordButton = DirectButton(parent=self, relief=None, text=sortedWords[currentWordIndex], text_align=TextNode.ALeft, text_scale=0.05, text1_bg=Vec4(0.5, 0.9, 1, 1), text2_bg=Vec4(1, 1, 0, 1), text3_fg=Vec4(0.4, 0.8, 0.4, 1), textMayChange=0, command=self.showWordInfo, extraArgs=[currentWordIndex])
-            self.magicWords.append(newWordButton)
-            self.shownMagicWords.append(newWordButton)
-            currentWordIndex += 1
+        else:
+            currentWordIndex = 0
+            while currentWordIndex < numWords:
+                newWordButton = DirectButton(parent=self, relief=None, text=sortedWords[currentWordIndex], text_align=TextNode.ALeft, text_scale=0.05, text1_bg=Vec4(0.5, 0.9, 1, 1), text2_bg=Vec4(1, 1, 0, 1), text3_fg=Vec4(0.4, 0.8, 0.4, 1), textMayChange=0, command=self.showWordInfo, extraArgs=[currentWordIndex])
+                self.magicWords.append(newWordButton)
+                self.shownMagicWords.append(newWordButton)
+                currentWordIndex += 1
 
-        return
+            return
 
     def showWordInfo(self, wordNum):
         for word in self.magicWords:
@@ -392,12 +390,13 @@ class WordsTabPage(DirectFrame):
 
         if not wordName:
             return
-        phrase = base.cr.magicWordManager.chatPrefix + wordName + ' '
-        localAvatar.book.closeBook()
-        localAvatar.chatMgr.fsm.request('mainMenu')
-        localAvatar.chatMgr.chatInputNormal.typeCallback(None)
-        localAvatar.chatMgr.chatInputNormal.chatEntry.enterText(phrase)
-        return
+        else:
+            phrase = base.cr.magicWordManager.chatPrefix + wordName + ' '
+            localAvatar.book.closeBook()
+            localAvatar.chatMgr.fsm.request('mainMenu')
+            localAvatar.chatMgr.chatInputNormal.typeCallback(None)
+            localAvatar.chatMgr.chatInputNormal.chatEntry.enterText(phrase)
+            return
 
     def showInfoPanel(self):
         wordName = None
@@ -408,26 +407,27 @@ class WordsTabPage(DirectFrame):
 
         if not wordName:
             return
-        wordInfo = magicWordIndex[wordName.lower()]
-        wordText = TTLocalizer.WordPageDescription + wordInfo['desc']
-        prefix = base.cr.magicWordManager.chatPrefix
-        if not wordInfo['example']:
-            exampleText = TTLocalizer.WordPageExample + prefix + wordName.lower()
         else:
-            exampleText = TTLocalizer.WordPageExample + prefix + wordName.lower() + ' ' + wordInfo['example']
-        aliasText = TTLocalizer.WordPageAliases
-        for alias in wordInfo['aliases']:
-            aliasText += alias
-            if wordInfo['aliases'].index(alias) != len(wordInfo['aliases']) - 1:
-                aliasText += ', '
+            wordInfo = magicWordIndex[wordName.lower()]
+            wordText = TTLocalizer.WordPageDescription + wordInfo['desc']
+            prefix = base.cr.magicWordManager.chatPrefix
+            if not wordInfo['example']:
+                exampleText = TTLocalizer.WordPageExample + prefix + wordName.lower()
+            else:
+                exampleText = TTLocalizer.WordPageExample + prefix + wordName.lower() + ' ' + wordInfo['example']
+            aliasText = TTLocalizer.WordPageAliases
+            for alias in wordInfo['aliases']:
+                aliasText += alias
+                if wordInfo['aliases'].index(alias) != len(wordInfo['aliases']) - 1:
+                    aliasText += ', '
 
-        accessLevelText = TTLocalizer.WordPageAccessLevel + wordInfo['access'] + ' (' + str(OTPGlobals.AccessLevelName2Int.get(wordInfo['access'])) + ')'
-        lineBreak = '\n\n'
-        infoText = wordText + lineBreak + exampleText + lineBreak + aliasText + lineBreak + accessLevelText
-        self.magicWordTitle['text'] = wordName
-        self.magicWordInfoLabel['text'] = infoText
-        self.magicWordInfo.show()
-        return
+            accessLevelText = TTLocalizer.WordPageAccessLevel + wordInfo['access'] + ' (' + str(OTPGlobals.AccessLevelName2Int.get(wordInfo['access'])) + ')'
+            lineBreak = '\n\n'
+            infoText = wordText + lineBreak + exampleText + lineBreak + aliasText + lineBreak + accessLevelText
+            self.magicWordTitle['text'] = wordName
+            self.magicWordInfoLabel['text'] = infoText
+            self.magicWordInfo.show()
+            return
 
     def hideInfoPanel(self):
         self.magicWordTitle['text'] = TTLocalizer.WordPageNA
@@ -499,18 +499,14 @@ class ClothingTabPage(DirectFrame):
     def scrollListTo(self, scrollList, slider):
         if slider == 'shirt':
             slider = self.shirtslider
-        else:
-            if slider == 'sleeve':
-                slider = self.sleeveslider
-            else:
-                if slider == 'boypants':
-                    slider = self.pantslider1
-                else:
-                    if slider == 'girlpants':
-                        slider = self.pantslider2
-                    else:
-                        if slider == 'color':
-                            slider = self.colorslider
+        elif slider == 'sleeve':
+            slider = self.sleeveslider
+        elif slider == 'boypants':
+            slider = self.pantslider1
+        elif slider == 'girlpants':
+            slider = self.pantslider2
+        elif slider == 'color':
+            slider = self.colorslider
         scrollList.scrollTo(int(slider['value']))
 
     def makeList(self):
@@ -518,9 +514,8 @@ class ClothingTabPage(DirectFrame):
             self.l['self.shirts' + str(x)] = DirectButton(parent=self, relief=None, text=str(x) + ' - ' + ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', ''), text_align=TextNode.ALeft, text_scale=0.05, text1_bg=self.textDownColor, text2_bg=self.textRolloverColor, text3_fg=self.textDisabledColor, textMayChange=1, command=self.showWordInfo, extraArgs=[x, self.word1Desc, 'shirt'])
             if ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('apparel/') or ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tiers/'):
                 self.l[('self.shirts' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', '')
-            else:
-                if ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
-                    self.l[('self.shirts' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
+            elif ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
+                self.l[('self.shirts' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.Shirts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
             self.shirtList.append(self.l[('self.shirts' + str(x))])
             self.shirtIDs.append(x)
 
@@ -528,9 +523,8 @@ class ClothingTabPage(DirectFrame):
             self.l['self.sleeves' + str(x)] = DirectButton(parent=self, relief=None, text=str(x) + ' - ' + ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', ''), text_align=TextNode.ALeft, text_scale=0.05, text1_bg=self.textDownColor, text2_bg=self.textRolloverColor, text3_fg=self.textDisabledColor, textMayChange=1, command=self.showWordInfo, extraArgs=[x, self.word1Desc, 'sleeve'])
             if ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('apparel/') or ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tiers/'):
                 self.l[('self.sleeves' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', '')
-            else:
-                if ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
-                    self.l[('self.sleeves' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
+            elif ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
+                self.l[('self.sleeves' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.Sleeves[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
             self.sleeveList.append(self.l[('self.sleeves' + str(x))])
             self.sleeveIDs.append(x)
 
@@ -538,9 +532,8 @@ class ClothingTabPage(DirectFrame):
             self.l['self.boypants' + str(x)] = DirectButton(parent=self, relief=None, text=str(x) + ' - ' + ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', ''), text_align=TextNode.ALeft, text_scale=0.05, text1_bg=self.textDownColor, text2_bg=self.textRolloverColor, text3_fg=self.textDisabledColor, textMayChange=1, command=self.showWordInfo, extraArgs=[x, self.word1Desc, 'pants'])
             if ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('apparel/') or ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tiers/'):
                 self.l[('self.boypants' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', '')
-            else:
-                if ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
-                    self.l[('self.boypants' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
+            elif ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
+                self.l[('self.boypants' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.BoyShorts[x].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
             self.boyPantList.append(self.l[('self.boypants' + str(x))])
             self.boyPantIDs.append(x)
 
@@ -550,9 +543,8 @@ class ClothingTabPage(DirectFrame):
             self.l['self.girlpants' + str(x)] = DirectButton(parent=self, relief=None, text=str(x) + ' - ' + ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', ''), text_align=TextNode.ALeft, text_scale=0.05, text1_bg=self.textDownColor, text2_bg=self.textRolloverColor, text3_fg=self.textDisabledColor, textMayChange=1, command=self.showWordInfo, extraArgs=[x, self.word1Desc, 'pants'])
             if ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('apparel/') or ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tiers/'):
                 self.l[('self.girlpants' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].split('/', 1)[(-1)].replace('.jpg', '')
-            else:
-                if ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
-                    self.l[('self.girlpants' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
+            elif ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].startswith('tt_t_chr_'):
+                self.l[('self.girlpants' + str(x))]['text'] = str(x) + ' - ' + ToonDNA.GirlBottoms[x][0].split('/', 1)[(-1)].split('/', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].split('_', 1)[(-1)].replace('.jpg', '')
             self.girlPantList.append(self.l[('self.girlpants' + str(x))])
             self.girlPantIDs.append(x)
             self.girlPantTypes.append(pantsTypes[ToonDNA.GirlBottoms[x][1]])
@@ -724,11 +716,10 @@ class ClothingTabPage(DirectFrame):
     def makeButtons(self):
         if self.torsoSize == 'l':
             b = 'Long'
+        elif self.torsoSize == 'm':
+            b = 'Med'
         else:
-            if self.torsoSize == 'm':
-                b = 'Med'
-            else:
-                b = 'Short'
+            b = 'Short'
         if self.gender == 0:
             a = 'Male'
         else:
@@ -830,43 +821,41 @@ class ClothingTabPage(DirectFrame):
                 self.pantScrollList1.show()
                 self.pantslider1.show()
                 self.toggleGender['text'] = 'Toggle Gender (Male)'
-        else:
-            if type == 'body':
-                if self.torsoSize == 'm':
-                    self.torsoSize = 'l'
-                    self.toggleBody['text'] = 'Toggle Body (Long)'
-                elif self.torsoSize == 'l':
-                    self.torsoSize = 's'
-                    self.toggleBody['text'] = 'Toggle Body (Short)'
-                else:
-                    self.torsoSize = 'm'
-                    self.toggleBody['text'] = 'Toggle Body (Med)'
+        elif type == 'body':
+            if self.torsoSize == 'm':
+                self.torsoSize = 'l'
+                self.toggleBody['text'] = 'Toggle Body (Long)'
+            elif self.torsoSize == 'l':
+                self.torsoSize = 's'
+                self.toggleBody['text'] = 'Toggle Body (Short)'
             else:
-                if type == 'nude':
-                    if self.torsoType == '':
-                        self.torsoType = 's'
-                        if self.gender == 1:
-                            try:
-                                self.torsoType = self.girlPantTypes[self.pant]
-                            except:
-                                self.torso = self.girlPantIDs[(-1)]
-                                self.torsoType = self.girlPantTypes[(-1)]
+                self.torsoSize = 'm'
+                self.toggleBody['text'] = 'Toggle Body (Med)'
+        elif type == 'nude':
+            if self.torsoType == '':
+                self.torsoType = 's'
+                if self.gender == 1:
+                    try:
+                        self.torsoType = self.girlPantTypes[self.pant]
+                    except:
+                        self.torso = self.girlPantIDs[(-1)]
+                        self.torsoType = self.girlPantTypes[(-1)]
 
-                        self.toggleGender['state'] = DGG.NORMAL
-                        self.colorShirt['state'] = DGG.NORMAL
-                        self.colorSleeve['state'] = DGG.NORMAL
-                        self.colorPant['state'] = DGG.NORMAL
-                        self.colorTest['state'] = DGG.NORMAL
-                        self.toggleNude['text'] = 'Streak'
-                    else:
-                        self.torsoType = ''
-                        self.toggleGender['state'] = DGG.DISABLED
-                        self.colorShirt['state'] = DGG.DISABLED
-                        self.colorSleeve['state'] = DGG.DISABLED
-                        self.colorPant['state'] = DGG.DISABLED
-                        self.colorTest['state'] = DGG.DISABLED
-                        self.toggleNude['text'] = 'Clothe'
-                    self.toggleAllWords()
+                self.toggleGender['state'] = DGG.NORMAL
+                self.colorShirt['state'] = DGG.NORMAL
+                self.colorSleeve['state'] = DGG.NORMAL
+                self.colorPant['state'] = DGG.NORMAL
+                self.colorTest['state'] = DGG.NORMAL
+                self.toggleNude['text'] = 'Streak'
+            else:
+                self.torsoType = ''
+                self.toggleGender['state'] = DGG.DISABLED
+                self.colorShirt['state'] = DGG.DISABLED
+                self.colorSleeve['state'] = DGG.DISABLED
+                self.colorPant['state'] = DGG.DISABLED
+                self.colorTest['state'] = DGG.DISABLED
+                self.toggleNude['text'] = 'Clothe'
+            self.toggleAllWords()
         self.createModel()
 
     def toggleAllWords(self):
@@ -877,11 +866,10 @@ class ClothingTabPage(DirectFrame):
             for word in list:
                 if self.torsoType == '':
                     word['state'] = DGG.DISABLED
+                elif currentEnabled[i] == j:
+                    word['state'] = DGG.DISABLED
                 else:
-                    if currentEnabled[i] == j:
-                        word['state'] = DGG.DISABLED
-                    else:
-                        word['state'] = DGG.NORMAL
+                    word['state'] = DGG.NORMAL
                 j += 1
 
             i += 1
@@ -892,20 +880,16 @@ class ClothingTabPage(DirectFrame):
             wordNum = self.color
         if clothType == 'sleeve':
             clothList = self.sleeveList
+        elif clothType == 'pants' and self.gender == 0:
+            clothList = self.boyPantList
+        elif clothType == 'pants' and self.gender == 1:
+            clothList = self.girlPantList
+        elif clothType == 'color':
+            clothList = self.colorList
+        elif clothType == 'all':
+            pass
         else:
-            if clothType == 'pants' and self.gender == 0:
-                clothList = self.boyPantList
-            else:
-                if clothType == 'pants' and self.gender == 1:
-                    clothList = self.girlPantList
-                else:
-                    if clothType == 'color':
-                        clothList = self.colorList
-                    else:
-                        if clothType == 'all':
-                            pass
-                        else:
-                            clothList = self.shirtList
+            clothList = self.shirtList
         if not isColorChange:
             for word in clothList:
                 if word['state'] != DGG.NORMAL:
@@ -931,47 +915,41 @@ class ClothingTabPage(DirectFrame):
             else:
                 self.sleeve = wordNum
                 self.model.find('**/sleeves').setTexture(loader.loadTexture(ToonDNA.Sleeves[wordNum]), 1)
-        else:
-            if clothType == 'pants':
-                if isColorChange:
-                    self.pantColor = wordNum
-                else:
-                    self.pant = wordNum
-                if self.gender == 1 and self.girlPantTypes[wordNum] != self.torsoType:
-                    self.torsoType = self.girlPantTypes[wordNum]
-                    self.createModel()
-                elif self.gender == 0 and self.torsoType != 's':
-                    self.torsoType = 's'
-                    self.createModel()
-                elif isColorChange:
-                    self.model.find('**/torso-bot').setColor(ToonDNA.ClothesColors[wordNum], 1)
-                elif self.gender == 1:
-                    self.model.find('**/torso-bot').setTexture(loader.loadTexture(ToonDNA.GirlBottoms[wordNum][0]), 1)
-                else:
-                    self.model.find('**/torso-bot').setTexture(loader.loadTexture(ToonDNA.BoyShorts[wordNum]), 1)
+        elif clothType == 'pants':
+            if isColorChange:
+                self.pantColor = wordNum
             else:
-                if clothType == 'color':
-                    self.color = wordNum
-                else:
-                    if isColorChange:
-                        self.shirtColor = wordNum
-                        self.model.find('**/torso-top').setColor(ToonDNA.ClothesColors[wordNum], 1)
-                    else:
-                        self.shirt = wordNum
-                        self.model.find('**/torso-top').setTexture(loader.loadTexture(ToonDNA.Shirts[wordNum]), 1)
+                self.pant = wordNum
+            if self.gender == 1 and self.girlPantTypes[wordNum] != self.torsoType:
+                self.torsoType = self.girlPantTypes[wordNum]
+                self.createModel()
+            elif self.gender == 0 and self.torsoType != 's':
+                self.torsoType = 's'
+                self.createModel()
+            elif isColorChange:
+                self.model.find('**/torso-bot').setColor(ToonDNA.ClothesColors[wordNum], 1)
+            elif self.gender == 1:
+                self.model.find('**/torso-bot').setTexture(loader.loadTexture(ToonDNA.GirlBottoms[wordNum][0]), 1)
+            else:
+                self.model.find('**/torso-bot').setTexture(loader.loadTexture(ToonDNA.BoyShorts[wordNum]), 1)
+        elif clothType == 'color':
+            self.color = wordNum
+        elif isColorChange:
+            self.shirtColor = wordNum
+            self.model.find('**/torso-top').setColor(ToonDNA.ClothesColors[wordNum], 1)
+        else:
+            self.shirt = wordNum
+            self.model.find('**/torso-top').setTexture(loader.loadTexture(ToonDNA.Shirts[wordNum]), 1)
         if clothType == 'shirt':
             self.shirtLabel['text'] = 'Shirt ID: ' + str(self.shirt) + ' / ' + str(self.shirtColor)
-        else:
-            if clothType == 'sleeve':
-                self.sleeveLabel['text'] = 'Sleeve ID: ' + str(self.sleeve) + ' / ' + str(self.sleeveColor)
-            else:
-                if clothType == 'pants':
-                    self.pantLabel['text'] = 'Pants ID: ' + str(self.pant) + ' / ' + str(self.pantColor)
-                else:
-                    if clothType == 'color':
-                        self.colorSelectedLabel['text'] = 'Color Selected: ' + str(self.color)
-                        self.colorTest.setColor(ToonDNA.ClothesColors[self.color])
-                        self.colorTest['text2_fg'] = Vec4(0, 0, 0, 1) + Vec4(ToonDNA.ClothesColors[self.color][0], ToonDNA.ClothesColors[self.color][1], ToonDNA.ClothesColors[self.color][2], 1) / 3
+        elif clothType == 'sleeve':
+            self.sleeveLabel['text'] = 'Sleeve ID: ' + str(self.sleeve) + ' / ' + str(self.sleeveColor)
+        elif clothType == 'pants':
+            self.pantLabel['text'] = 'Pants ID: ' + str(self.pant) + ' / ' + str(self.pantColor)
+        elif clothType == 'color':
+            self.colorSelectedLabel['text'] = 'Color Selected: ' + str(self.color)
+            self.colorTest.setColor(ToonDNA.ClothesColors[self.color])
+            self.colorTest['text2_fg'] = Vec4(0, 0, 0, 1) + Vec4(ToonDNA.ClothesColors[self.color][0], ToonDNA.ClothesColors[self.color][1], ToonDNA.ClothesColors[self.color][2], 1) / 3
 
     def makeScrollLists(self):
         gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
@@ -1172,15 +1150,12 @@ class AccTabPage1(DirectFrame):
     def scrollListTo(self, scrollList, slider):
         if slider == 'hat':
             slider = self.hatslider
-        else:
-            if slider == 'hatTex':
-                slider = self.hattexslider
-            else:
-                if slider == 'glasses':
-                    slider = self.glassesslider
-                else:
-                    if slider == 'glassesTex':
-                        slider = self.glassestexslider
+        elif slider == 'hatTex':
+            slider = self.hattexslider
+        elif slider == 'glasses':
+            slider = self.glassesslider
+        elif slider == 'glassesTex':
+            slider = self.glassestexslider
         scrollList.scrollTo(int(slider['value']))
 
     def makeSplit(self, string):
@@ -1361,13 +1336,12 @@ class AccTabPage1(DirectFrame):
             else:
                 self.gender = 'm'
                 self.toggleGender['text'] = 'Toggle Gender (Male)'
-        else:
-            if type == 'species':
-                self.headType = self.headType + 1
-                if self.headType > 33:
-                    self.headType = 0
-                self.headName = ToonDNA.toonHeadTypes[self.headType]
-                self.toggleBody['text'] = 'Toggle Head (%s)' % self.headName
+        elif type == 'species':
+            self.headType = self.headType + 1
+            if self.headType > 33:
+                self.headType = 0
+            self.headName = ToonDNA.toonHeadTypes[self.headType]
+            self.toggleBody['text'] = 'Toggle Head (%s)' % self.headName
         self.createModel()
 
     def showWordInfo(self, wordNum, desc, clothType):
@@ -1377,29 +1351,24 @@ class AccTabPage1(DirectFrame):
         else:
             if clothType == 'hatTex':
                 clothList = self.hatTexList
-            else:
-                if clothType == 'glasses':
-                    clothList = self.glassesList
-                else:
-                    if clothType == 'glassesTex':
-                        clothList = self.glassesTexList
-        for word in clothList:
-            if word['state'] != DGG.NORMAL:
-                word['state'] = DGG.NORMAL
+            elif clothType == 'glasses':
+                clothList = self.glassesList
+            elif clothType == 'glassesTex':
+                clothList = self.glassesTexList
+            for word in clothList:
+                if word['state'] != DGG.NORMAL:
+                    word['state'] = DGG.NORMAL
 
         wordName = clothList[listNum]
         wordName['state'] = DGG.DISABLED
         if clothType == 'hat':
             self.hat = wordNum
-        else:
-            if clothType == 'hatTex':
-                self.hatTex = wordNum
-            else:
-                if clothType == 'glasses':
-                    self.glasses = wordNum
-                else:
-                    if clothType == 'glassesTex':
-                        self.glassesTex = wordNum
+        elif clothType == 'hatTex':
+            self.hatTex = wordNum
+        elif clothType == 'glasses':
+            self.glasses = wordNum
+        elif clothType == 'glassesTex':
+            self.glassesTex = wordNum
         self.hatLabel['text'] = 'Hat ID: (' + str(self.hat) + ', ' + str(self.hatTex) + ', 0)'
         self.glassesLabel['text'] = 'Glasses ID: (' + str(self.glasses) + ', ' + str(self.glassesTex) + ', 0)'
         self.createModel()
@@ -1559,11 +1528,10 @@ class AccTabPage2(DirectFrame):
         if len(av.style.torso) == 1:
             self.nudity = True
             self.gender = 'f'
+        elif av.style.torso[1] == 'd':
+            self.gender = 'f'
         else:
-            if av.style.torso[1] == 'd':
-                self.gender = 'f'
-            else:
-                self.gender = 'm'
+            self.gender = 'm'
         self.l = locals()
         self.makeList()
         self.backpackWords = list(self.backpackList)
@@ -1578,15 +1546,12 @@ class AccTabPage2(DirectFrame):
     def scrollListTo(self, scrollList, slider):
         if slider == 'backpack':
             slider = self.backpackslider
-        else:
-            if slider == 'backpackTex':
-                slider = self.backpacktexslider
-            else:
-                if slider == 'shoes':
-                    slider = self.shoesslider
-                else:
-                    if slider == 'shoesTex':
-                        slider = self.shoestexslider
+        elif slider == 'backpackTex':
+            slider = self.backpacktexslider
+        elif slider == 'shoes':
+            slider = self.shoesslider
+        elif slider == 'shoesTex':
+            slider = self.shoestexslider
         scrollList.scrollTo(int(slider['value']))
 
     def makeSplit(self, string):
@@ -1710,9 +1675,8 @@ class AccTabPage2(DirectFrame):
         bodyEnd = 's'
         if self.nudity:
             bodyEnd = ''
-        else:
-            if self.gender == 'f':
-                bodyEnd = 'd'
+        elif self.gender == 'f':
+            bodyEnd = 'd'
         dna.newToon(('dls', self.torsoType + bodyEnd, self.torsoType, self.gender))
         dna.sleeveTexColor = 27
         dna.topTexColor = 27
@@ -1743,18 +1707,16 @@ class AccTabPage2(DirectFrame):
     def makeButtons(self):
         if self.torsoType == 'l':
             b = 'Long'
+        elif self.torsoType == 'm':
+            b = 'Med'
         else:
-            if self.torsoType == 'm':
-                b = 'Med'
-            else:
-                b = 'Short'
+            b = 'Short'
         if self.nudity:
             a = 'None'
+        elif self.gender == 'f':
+            a = 'Skirt'
         else:
-            if self.gender == 'f':
-                a = 'Skirt'
-            else:
-                a = 'Shorts'
+            a = 'Shorts'
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui')
         self.toggleGender = DirectButton(parent=self, image=(
          gui.find('**/QuitBtn_UP'), gui.find('**/QuitBtn_DN'), gui.find('**/QuitBtn_RLVR')), relief=None, text='Toggle Clothes (%s)' % a, text_scale=0.04, text_pos=(0,
@@ -1790,17 +1752,16 @@ class AccTabPage2(DirectFrame):
             else:
                 self.gender = 'f'
                 self.toggleGender['text'] = 'Toggle Clothes (Skirt)'
-        else:
-            if type == 'body':
-                if self.torsoType == 'm':
-                    self.torsoType = 'l'
-                    self.toggleBody['text'] = 'Toggle Body (Long)'
-                elif self.torsoType == 'l':
-                    self.torsoType = 's'
-                    self.toggleBody['text'] = 'Toggle Body (Short)'
-                else:
-                    self.torsoType = 'm'
-                    self.toggleBody['text'] = 'Toggle Body (Med)'
+        elif type == 'body':
+            if self.torsoType == 'm':
+                self.torsoType = 'l'
+                self.toggleBody['text'] = 'Toggle Body (Long)'
+            elif self.torsoType == 'l':
+                self.torsoType = 's'
+                self.toggleBody['text'] = 'Toggle Body (Short)'
+            else:
+                self.torsoType = 'm'
+                self.toggleBody['text'] = 'Toggle Body (Med)'
         self.createModel()
 
     def showWordInfo(self, wordNum, desc, clothType):
@@ -1809,29 +1770,24 @@ class AccTabPage2(DirectFrame):
         else:
             if clothType == 'backpackTex':
                 clothList = self.backpackTexList
-            else:
-                if clothType == 'shoes':
-                    clothList = self.shoesList
-                else:
-                    if clothType == 'shoesTex':
-                        clothList = self.shoesTexList
-        for word in clothList:
-            if word['state'] != DGG.NORMAL:
-                word['state'] = DGG.NORMAL
+            elif clothType == 'shoes':
+                clothList = self.shoesList
+            elif clothType == 'shoesTex':
+                clothList = self.shoesTexList
+            for word in clothList:
+                if word['state'] != DGG.NORMAL:
+                    word['state'] = DGG.NORMAL
 
         wordName = clothList[wordNum]
         wordName['state'] = DGG.DISABLED
         if clothType == 'backpack':
             self.backpack = wordNum
-        else:
-            if clothType == 'backpackTex':
-                self.backpackTex = wordNum
-            else:
-                if clothType == 'shoes':
-                    self.shoes = wordNum
-                else:
-                    if clothType == 'shoesTex':
-                        self.shoesTex = wordNum
+        elif clothType == 'backpackTex':
+            self.backpackTex = wordNum
+        elif clothType == 'shoes':
+            self.shoes = wordNum
+        elif clothType == 'shoesTex':
+            self.shoesTex = wordNum
         self.backpackLabel['text'] = 'Backpack ID: (' + str(self.backpack) + ', ' + str(self.backpackTex) + ', 0)'
         self.shoesLabel['text'] = 'shoes ID: (' + str(self.shoes) + ', ' + str(self.shoesTex) + ', 0)'
         self.createModel()

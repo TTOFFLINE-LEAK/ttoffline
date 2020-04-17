@@ -81,18 +81,19 @@ class Trajectory:
     def checkCollisionWithDisc(self, discCenter, discRadius):
         if self.__reachesHeight(discCenter[2]) == 0:
             return -1.0
-        t_atDiscHeight = self.calcTimeOfImpactOnPlane(discCenter[2])
-        if t_atDiscHeight < 0:
+        else:
+            t_atDiscHeight = self.calcTimeOfImpactOnPlane(discCenter[2])
+            if t_atDiscHeight < 0:
+                return -1.0
+            p_atDiscHeight = self.getPos(t_atDiscHeight)
+            offset_x = p_atDiscHeight[0] - discCenter[0]
+            offset_y = p_atDiscHeight[1] - discCenter[1]
+            offset_from_center_SQUARED = offset_x * offset_x + offset_y * offset_y
+            max_offset = discRadius
+            max_offset_SQUARED = max_offset * max_offset
+            if offset_from_center_SQUARED < max_offset_SQUARED:
+                return t_atDiscHeight
             return -1.0
-        p_atDiscHeight = self.getPos(t_atDiscHeight)
-        offset_x = p_atDiscHeight[0] - discCenter[0]
-        offset_y = p_atDiscHeight[1] - discCenter[1]
-        offset_from_center_SQUARED = offset_x * offset_x + offset_y * offset_y
-        max_offset = discRadius
-        max_offset_SQUARED = max_offset * max_offset
-        if offset_from_center_SQUARED < max_offset_SQUARED:
-            return t_atDiscHeight
-        return -1.0
 
     def calcEnterAndLeaveCylinderXY(self, cylBottomCenter, cylRadius):
         v = Vec2(cylBottomCenter[0], cylBottomCenter[1])

@@ -50,33 +50,34 @@ class DistributedGridAI(DistributedEntityAI.DistributedEntityAI):
             self.initializeGrid()
         if self.objPos.get(objId, None):
             return 1
-        x, y = pos[0], pos[1]
-        col = min(int(x / self.cellSize), self.numCol - width)
-        row = min(int(y / self.cellSize), self.numRow - width)
-        self.notify.debug('attempt add %d at %s, row,col = %d,%d' % (objId,
-         pos,
-         row,
-         col))
-        while 1:
-            if col >= 0 and col < self.numCol:
-                while 1:
-                    if row >= 0 and row < self.numRow:
-                        if self.addObjectByRowCol(objId, row, col):
-                            return 1
-                        row += 2
-                else:
-                    row = 0
-                    col += 2
-
         else:
-            self.notify.debug('requestObjPos: row/col out of range %s/%s' % (row, col))
-            row = min(row, self.numRow)
-            row = max(0, row)
-            col = min(col, self.numRow)
-            col = max(0, col)
-            return self.addObjectByRowCol(objId, row, col)
+            x, y = pos[0], pos[1]
+            col = min(int(x / self.cellSize), self.numCol - width)
+            row = min(int(y / self.cellSize), self.numRow - width)
+            self.notify.debug('attempt add %d at %s, row,col = %d,%d' % (objId,
+             pos,
+             row,
+             col))
+            while 1:
+                if col >= 0 and col < self.numCol:
+                    while 1:
+                        if row >= 0 and row < self.numRow:
+                            if self.addObjectByRowCol(objId, row, col):
+                                return 1
+                            row += 2
+                    else:
+                        row = 0
+                        col += 2
 
-        return
+            else:
+                self.notify.debug('requestObjPos: row/col out of range %s/%s' % (row, col))
+                row = min(row, self.numRow)
+                row = max(0, row)
+                col = min(col, self.numRow)
+                col = max(0, col)
+                return self.addObjectByRowCol(objId, row, col)
+
+            return
 
     def addObjectByRowCol(self, objId, row, col):
         if row >= 0 and row < self.numRow - 1 and col >= 0 and col < self.numCol - 1:
@@ -164,14 +165,12 @@ class DistributedGridAI(DistributedEntityAI.DistributedEntityAI):
         validMove = 1
         if dRow < 0:
             validMove = validMove & self.__isEmpty(row - 1, col) & self.__isEmpty(row - 1, col + 1)
-        else:
-            if dRow > 0:
-                validMove = validMove & self.__isEmpty(row + 2, col) & self.__isEmpty(row + 2, col + 1)
+        elif dRow > 0:
+            validMove = validMove & self.__isEmpty(row + 2, col) & self.__isEmpty(row + 2, col + 1)
         if dCol < 0:
             validMove = validMove & self.__isEmpty(row, col - 1) & self.__isEmpty(row + 1, col - 1)
-        else:
-            if dCol > 0:
-                validMove = validMove & self.__isEmpty(row, col + 2) & self.__isEmpty(row + 1, col + 2)
+        elif dCol > 0:
+            validMove = validMove & self.__isEmpty(row, col + 2) & self.__isEmpty(row + 1, col + 2)
         return validMove
 
     def doMove(self, objId, dRow, dCol):

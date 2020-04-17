@@ -98,11 +98,10 @@ class NameShop(StateData.StateData):
         listName = others[1]
         if alig == TextNode.ARight:
             newpos = (0.44, 0, 0)
+        elif alig == TextNode.ALeft:
+            newpos = (0, 0, 0)
         else:
-            if alig == TextNode.ALeft:
-                newpos = (0, 0, 0)
-            else:
-                newpos = (0.2, 0, 0)
+            newpos = (0.2, 0, 0)
         df = DirectFrame(state='normal', relief=None, text=te, text_scale=TTLocalizer.NSmakeLabel, text_pos=newpos, text_align=alig, textMayChange=0)
         df.bind(DGG.B1PRESS, lambda x, df=df: self.nameClickedOn(listName, index))
         return df
@@ -110,14 +109,12 @@ class NameShop(StateData.StateData):
     def nameClickedOn(self, listType, index):
         if listType == 'title':
             self.titleIndex = index
+        elif listType == 'first':
+            self.firstIndex = index
+        elif listType == 'prefix':
+            self.prefixIndex = index
         else:
-            if listType == 'first':
-                self.firstIndex = index
-            else:
-                if listType == 'prefix':
-                    self.prefixIndex = index
-                else:
-                    self.suffixIndex = index
+            self.suffixIndex = index
         self.updateLists()
         self.__listsChanged()
 
@@ -132,116 +129,117 @@ class NameShop(StateData.StateData):
 
         if toon == None:
             return
-        self.toon = toon
-        if self.toon.style.gender == 'm':
-            self.boy = 1
-            self.girl = 0
         else:
-            self.boy = 0
-            self.girl = 1
-        self.usedNames = usedNames
-        if not self.addedGenderSpecific or self.oldBoy != self.boy:
-            self.oldBoy = self.boy
-            self.listsLoaded = 0
-            self.allTitles = [' '] + [' '] + self.nameGen.boyTitles * self.boy + self.nameGen.girlTitles * self.girl + self.nameGen.neutralTitles
-            self.allTitles.sort()
-            self.allTitles += [' '] + [' ']
-            self.allFirsts = [' '] + [' '] + self.nameGen.boyFirsts * self.boy + self.nameGen.girlFirsts * self.girl + self.nameGen.neutralFirsts
-            self.allFirsts.sort()
-            self.allFirsts += [' '] + [' ']
-            try:
-                k = self.allFirsts.index('Von')
-                self.allFirsts[k] = 'von'
-            except:
-                print "NameShop: Couldn't find von"
+            self.toon = toon
+            if self.toon.style.gender == 'm':
+                self.boy = 1
+                self.girl = 0
+            else:
+                self.boy = 0
+                self.girl = 1
+            self.usedNames = usedNames
+            if not self.addedGenderSpecific or self.oldBoy != self.boy:
+                self.oldBoy = self.boy
+                self.listsLoaded = 0
+                self.allTitles = [' '] + [' '] + self.nameGen.boyTitles * self.boy + self.nameGen.girlTitles * self.girl + self.nameGen.neutralTitles
+                self.allTitles.sort()
+                self.allTitles += [' '] + [' ']
+                self.allFirsts = [' '] + [' '] + self.nameGen.boyFirsts * self.boy + self.nameGen.girlFirsts * self.girl + self.nameGen.neutralFirsts
+                self.allFirsts.sort()
+                self.allFirsts += [' '] + [' ']
+                try:
+                    k = self.allFirsts.index('Von')
+                    self.allFirsts[k] = 'von'
+                except:
+                    print "NameShop: Couldn't find von"
 
-            if not self.addedGenderSpecific:
-                nameShopGui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_nameShop')
-                self.namePanel = DirectFrame(parent=aspect2d, image=None, relief='flat', state='disabled', pos=(-0.42,
-                                                                                                                0,
-                                                                                                                -0.15), image_pos=(0,
-                                                                                                                                   0,
-                                                                                                                                   0.025), frameColor=(1,
-                                                                                                                                                       1,
-                                                                                                                                                       1,
-                                                                                                                                                       0.3))
-                panel = nameShopGui.find('**/tt_t_gui_mat_namePanel')
-                self.panelFrame = DirectFrame(image=panel, scale=(0.75, 0.7, 0.7), relief='flat', frameColor=(1,
-                                                                                                              1,
-                                                                                                              1,
-                                                                                                              0), pos=(-0.0163,
-                                                                                                                       0,
-                                                                                                                       0.1199))
-                self.panelFrame.reparentTo(self.namePanel, sort=1)
-                self.pickANameGUIElements.append(self.namePanel)
-                self.pickANameGUIElements.append(self.panelFrame)
-                self.nameResult.reparentTo(self.namePanel, sort=2)
-                self.circle = nameShopGui.find('**/tt_t_gui_mat_namePanelCircle')
-                self.titleCheck = self.makeCheckBox((-0.615, 0, 0.371), TTLocalizer.TitleCheckBox, (0,
-                                                                                                    0.25,
-                                                                                                    0.5,
-                                                                                                    1), self.titleToggle)
-                self.firstCheck = self.makeCheckBox((-0.2193, 0, 0.371), TTLocalizer.FirstCheckBox, (0,
-                                                                                                     0.25,
-                                                                                                     0.5,
-                                                                                                     1), self.firstToggle)
-                self.lastCheck = self.makeCheckBox((0.3886, 0, 0.371), TTLocalizer.LastCheckBox, (0,
-                                                                                                  0.25,
-                                                                                                  0.5,
-                                                                                                  1), self.lastToggle)
-                del self.circle
-                self.pickANameGUIElements.append(self.titleCheck)
-                self.pickANameGUIElements.append(self.firstCheck)
-                self.pickANameGUIElements.append(self.lastCheck)
-                self.titleCheck.reparentTo(self.namePanel, sort=2)
-                self.firstCheck.reparentTo(self.namePanel, sort=2)
-                self.lastCheck.reparentTo(self.namePanel, sort=2)
-                nameShopGui.removeNode()
-                self.lastprefixScrollList.reparentTo(self.namePanel)
-                self.lastprefixScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
-                self.lastprefixScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
-                self.lastsuffixScrollList.reparentTo(self.namePanel)
-                self.lastsuffixScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
-                self.lastsuffixScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
-                self.titleHigh.reparentTo(self.namePanel)
-                self.prefixHigh.reparentTo(self.namePanel)
-                self.firstHigh.reparentTo(self.namePanel)
-                self.suffixHigh.reparentTo(self.namePanel)
-                self.randomButton.reparentTo(self.namePanel, sort=2)
-                self.typeANameButton.reparentTo(self.namePanel, sort=2)
-            self.pickANameGUIElements.remove(self.titleScrollList)
-            self.pickANameGUIElements.remove(self.firstnameScrollList)
-            self.titleScrollList.destroy()
-            self.firstnameScrollList.destroy()
-            self.titleScrollList = self.makeScrollList(None, (-0.6, 0, 0.202), (1,
-                                                                                0.8,
-                                                                                0.8,
-                                                                                1), self.allTitles, self.makeLabel, [TextNode.ACenter, 'title'])
-            self.firstnameScrollList = self.makeScrollList(None, (-0.2, 0, 0.202), (0.8,
-                                                                                    1,
+                if not self.addedGenderSpecific:
+                    nameShopGui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_nameShop')
+                    self.namePanel = DirectFrame(parent=aspect2d, image=None, relief='flat', state='disabled', pos=(-0.42,
+                                                                                                                    0,
+                                                                                                                    -0.15), image_pos=(0,
+                                                                                                                                       0,
+                                                                                                                                       0.025), frameColor=(1,
+                                                                                                                                                           1,
+                                                                                                                                                           1,
+                                                                                                                                                           0.3))
+                    panel = nameShopGui.find('**/tt_t_gui_mat_namePanel')
+                    self.panelFrame = DirectFrame(image=panel, scale=(0.75, 0.7, 0.7), relief='flat', frameColor=(1,
+                                                                                                                  1,
+                                                                                                                  1,
+                                                                                                                  0), pos=(-0.0163,
+                                                                                                                           0,
+                                                                                                                           0.1199))
+                    self.panelFrame.reparentTo(self.namePanel, sort=1)
+                    self.pickANameGUIElements.append(self.namePanel)
+                    self.pickANameGUIElements.append(self.panelFrame)
+                    self.nameResult.reparentTo(self.namePanel, sort=2)
+                    self.circle = nameShopGui.find('**/tt_t_gui_mat_namePanelCircle')
+                    self.titleCheck = self.makeCheckBox((-0.615, 0, 0.371), TTLocalizer.TitleCheckBox, (0,
+                                                                                                        0.25,
+                                                                                                        0.5,
+                                                                                                        1), self.titleToggle)
+                    self.firstCheck = self.makeCheckBox((-0.2193, 0, 0.371), TTLocalizer.FirstCheckBox, (0,
+                                                                                                         0.25,
+                                                                                                         0.5,
+                                                                                                         1), self.firstToggle)
+                    self.lastCheck = self.makeCheckBox((0.3886, 0, 0.371), TTLocalizer.LastCheckBox, (0,
+                                                                                                      0.25,
+                                                                                                      0.5,
+                                                                                                      1), self.lastToggle)
+                    del self.circle
+                    self.pickANameGUIElements.append(self.titleCheck)
+                    self.pickANameGUIElements.append(self.firstCheck)
+                    self.pickANameGUIElements.append(self.lastCheck)
+                    self.titleCheck.reparentTo(self.namePanel, sort=2)
+                    self.firstCheck.reparentTo(self.namePanel, sort=2)
+                    self.lastCheck.reparentTo(self.namePanel, sort=2)
+                    nameShopGui.removeNode()
+                    self.lastprefixScrollList.reparentTo(self.namePanel)
+                    self.lastprefixScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
+                    self.lastprefixScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
+                    self.lastsuffixScrollList.reparentTo(self.namePanel)
+                    self.lastsuffixScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
+                    self.lastsuffixScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
+                    self.titleHigh.reparentTo(self.namePanel)
+                    self.prefixHigh.reparentTo(self.namePanel)
+                    self.firstHigh.reparentTo(self.namePanel)
+                    self.suffixHigh.reparentTo(self.namePanel)
+                    self.randomButton.reparentTo(self.namePanel, sort=2)
+                    self.typeANameButton.reparentTo(self.namePanel, sort=2)
+                self.pickANameGUIElements.remove(self.titleScrollList)
+                self.pickANameGUIElements.remove(self.firstnameScrollList)
+                self.titleScrollList.destroy()
+                self.firstnameScrollList.destroy()
+                self.titleScrollList = self.makeScrollList(None, (-0.6, 0, 0.202), (1,
                                                                                     0.8,
-                                                                                    1), self.allFirsts, self.makeLabel, [TextNode.ACenter, 'first'])
-            self.pickANameGUIElements.append(self.titleScrollList)
-            self.pickANameGUIElements.append(self.firstnameScrollList)
-            self.titleScrollList.reparentTo(self.namePanel, sort=-1)
-            self.titleScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
-            self.titleScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
-            self.firstnameScrollList.reparentTo(self.namePanel, sort=-1)
-            self.firstnameScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
-            self.firstnameScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
-            self.listsLoaded = 1
-            self.addedGenderSpecific = 1
-            self.__randomName()
-        self.typeANameButton['text'] = TTLocalizer.TypeANameButton
-        if self.isLoaded == 0:
-            self.load()
-        self.ubershow(self.pickANameGUIElements)
-        self.acceptOnce('next', self.__handleDone)
-        self.acceptOnce('last', self.__handleBackward)
-        self.acceptOnce('skipTutorial', self.__handleSkipTutorial)
-        self.__listsChanged()
-        self.fsm.request('PayState')
-        return
+                                                                                    0.8,
+                                                                                    1), self.allTitles, self.makeLabel, [TextNode.ACenter, 'title'])
+                self.firstnameScrollList = self.makeScrollList(None, (-0.2, 0, 0.202), (0.8,
+                                                                                        1,
+                                                                                        0.8,
+                                                                                        1), self.allFirsts, self.makeLabel, [TextNode.ACenter, 'first'])
+                self.pickANameGUIElements.append(self.titleScrollList)
+                self.pickANameGUIElements.append(self.firstnameScrollList)
+                self.titleScrollList.reparentTo(self.namePanel, sort=-1)
+                self.titleScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
+                self.titleScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
+                self.firstnameScrollList.reparentTo(self.namePanel, sort=-1)
+                self.firstnameScrollList.decButton.wrtReparentTo(self.namePanel, sort=2)
+                self.firstnameScrollList.incButton.wrtReparentTo(self.namePanel, sort=2)
+                self.listsLoaded = 1
+                self.addedGenderSpecific = 1
+                self.__randomName()
+            self.typeANameButton['text'] = TTLocalizer.TypeANameButton
+            if self.isLoaded == 0:
+                self.load()
+            self.ubershow(self.pickANameGUIElements)
+            self.acceptOnce('next', self.__handleDone)
+            self.acceptOnce('last', self.__handleBackward)
+            self.acceptOnce('skipTutorial', self.__handleSkipTutorial)
+            self.__listsChanged()
+            self.fsm.request('PayState')
+            return
 
     def __overflowNameInput(self):
         self.rejectName(TTLocalizer.NameTooLong)
@@ -250,11 +248,12 @@ class NameShop(StateData.StateData):
         self.notify.debug('exit')
         if self.isLoaded == 0:
             return
-        self.ignore('next')
-        self.ignore('last')
-        self.ignore('skipTutorial')
-        self.hideAll()
-        return
+        else:
+            self.ignore('next')
+            self.ignore('last')
+            self.ignore('skipTutorial')
+            self.hideAll()
+            return
 
     def __listsChanged(self):
         newname = ''
@@ -413,148 +412,150 @@ class NameShop(StateData.StateData):
         self.notify.debug('load')
         if self.isLoaded == 1:
             return
-        nameBalloon = loader.loadModel('phase_3/models/props/chatbox_input')
-        guiButton = loader.loadModel('phase_3/models/gui/quit_button')
-        gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_nameShop')
-        self.arrowUp = gui.find('**/tt_t_gui_mat_namePanelArrowUp')
-        self.arrowDown = gui.find('**/tt_t_gui_mat_namePanelArrowDown')
-        self.arrowHover = gui.find('**/tt_t_gui_mat_namePanelArrowHover')
-        self.squareUp = gui.find('**/tt_t_gui_mat_namePanelSquareUp')
-        self.squareDown = gui.find('**/tt_t_gui_mat_namePanelSquareDown')
-        self.squareHover = gui.find('**/tt_t_gui_mat_namePanelSquareHover')
-        typePanel = gui.find('**/tt_t_gui_mat_typeNamePanel')
-        self.typeNamePanel = DirectFrame(parent=aspect2d, image=None, relief='flat', scale=(0.75,
-                                                                                            0.7,
-                                                                                            0.7), state='disabled', pos=(-0.0163333,
-                                                                                                                         0,
-                                                                                                                         0.075), image_pos=(0,
-                                                                                                                                            0,
-                                                                                                                                            0.025), frameColor=(1,
-                                                                                                                                                                1,
-                                                                                                                                                                1,
-                                                                                                                                                                0))
-        self.typePanelFrame = DirectFrame(image=typePanel, relief='flat', frameColor=(1,
-                                                                                      1,
-                                                                                      1,
-                                                                                      0), pos=(-0.008,
-                                                                                               0,
-                                                                                               0.019))
-        self.typePanelFrame.reparentTo(self.typeNamePanel, sort=1)
-        self.typeANameGUIElements.append(self.typeNamePanel)
-        self.typeANameGUIElements.append(self.typePanelFrame)
-        self.nameLabel = OnscreenText.OnscreenText(TTLocalizer.PleaseTypeName, parent=aspect2d, style=OnscreenText.ScreenPrompt, scale=TTLocalizer.NSnameLabel, pos=(-0.0163333,
-                                                                                                                                                                     0.53))
-        self.nameLabel.wrtReparentTo(self.typeNamePanel, sort=2)
-        self.typeANameGUIElements.append(self.nameLabel)
-        self.typeNotification = OnscreenText.OnscreenText(TTLocalizer.AllNewNames, parent=aspect2d, style=OnscreenText.ScreenPrompt, scale=TTLocalizer.NStypeNotification, pos=(-0.0163333,
-                                                                                                                                                                                0.15))
-        self.typeNotification.wrtReparentTo(self.typeNamePanel, sort=2)
-        self.typeANameGUIElements.append(self.typeNotification)
-        self.nameMessages = OnscreenText.OnscreenText(TTLocalizer.NameMessages, parent=aspect2d, style=OnscreenText.ScreenPrompt, scale=0.06, pos=(-0.0163333,
-                                                                                                                                                   -0.05))
-        self.nameMessages.wrtReparentTo(self.typeNamePanel, sort=2)
-        self.typeANameGUIElements.append(self.nameMessages)
-        tempForceCapitalization = False
-        self.nameEntry = DirectEntry(parent=aspect2d, relief=None, scale=TTLocalizer.NSnameEntry, entryFont=getToonFont(), width=MAX_NAME_WIDTH, numLines=2, focus=0, cursorKeys=1, pos=(0.0,
-                                                                                                                                                                                         0.0,
-                                                                                                                                                                                         0.39), text_align=TextNode.ACenter, command=self.__typedAName, autoCapitalize=tempForceCapitalization)
-        self.nameEntry.wrtReparentTo(self.typeNamePanel, sort=2)
-        self.typeANameGUIElements.append(self.nameEntry)
-        self.submitButton = DirectButton(parent=aspect2d, relief=None, image=(self.squareUp,
-         self.squareDown,
-         self.squareHover,
-         self.squareUp), image_scale=(1.2, 0, 1.1), pos=(-0.01, 0, -0.25), text=TTLocalizer.NameShopSubmitButton, text_scale=0.06, text_pos=(0,
-                                                                                                                                             -0.02), command=self.__typedAName)
-        self.submitButton.wrtReparentTo(self.typeNamePanel, sort=2)
-        self.typeNamePanel.setPos(-0.42, 0, -0.078)
-        self.typeANameGUIElements.append(self.submitButton)
-        self.randomButton = DirectButton(parent=aspect2d, relief=None, image=(self.squareUp,
-         self.squareDown,
-         self.squareHover,
-         self.squareUp), image_scale=(1.15, 1.1, 1.1), scale=(1.05, 1, 1), pos=(0,
-                                                                                0,
-                                                                                -0.25), text=TTLocalizer.ShuffleButton, text_scale=0.06, text_pos=(0,
-                                                                                                                                                   -0.02), command=self.__randomName)
-        self.pickANameGUIElements.append(self.randomButton)
-        self.typeANameButton = DirectButton(parent=aspect2d, relief=None, image=(self.squareUp,
-         self.squareDown,
-         self.squareHover,
-         self.squareUp), image_scale=(1, 1.1, 0.9), pos=(0.0033, 0, -0.38833), scale=(1.2,
-                                                                                      1,
-                                                                                      1.2), text=TTLocalizer.TypeANameButton, text_scale=TTLocalizer.NStypeANameButton, text_pos=TTLocalizer.NStypeANameButtonPos, command=self.__typeAName)
-        if base.cr.productName in ('DE', 'BR'):
-            self.typeANameButton.hide()
-        self.pickANameGUIElements.append(self.typeANameButton)
-        self.nameResult = DirectLabel(parent=aspect2d, relief=None, scale=TTLocalizer.NSnameResult, pos=(0.005,
-                                                                                                         0,
-                                                                                                         0.585), text=' \n ', text_scale=0.8, text_align=TextNode.ACenter, text_wordwrap=MAX_NAME_WIDTH)
-        self.pickANameGUIElements.append(self.nameResult)
-        self.allPrefixes = self.nameGen.lastPrefixes[:]
-        self.allSuffixes = self.nameGen.lastSuffixes[:]
-        self.allPrefixes.sort()
-        self.allSuffixes.sort()
-        self.allPrefixes = [' '] + [' '] + self.allPrefixes + [' '] + [' ']
-        self.allSuffixes = [' '] + [' '] + self.allSuffixes + [' '] + [' ']
-        self.titleScrollList = self.makeScrollList(gui, (-0.6, 0, 0.202), (1, 0.8,
-                                                                           0.8, 1), self.allTitles, self.makeLabel, [TextNode.ACenter, 'title'])
-        self.firstnameScrollList = self.makeScrollList(gui, (-0.2, 0, 0.202), (0.8,
-                                                                               1,
+        else:
+            nameBalloon = loader.loadModel('phase_3/models/props/chatbox_input')
+            guiButton = loader.loadModel('phase_3/models/gui/quit_button')
+            gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_nameShop')
+            self.arrowUp = gui.find('**/tt_t_gui_mat_namePanelArrowUp')
+            self.arrowDown = gui.find('**/tt_t_gui_mat_namePanelArrowDown')
+            self.arrowHover = gui.find('**/tt_t_gui_mat_namePanelArrowHover')
+            self.squareUp = gui.find('**/tt_t_gui_mat_namePanelSquareUp')
+            self.squareDown = gui.find('**/tt_t_gui_mat_namePanelSquareDown')
+            self.squareHover = gui.find('**/tt_t_gui_mat_namePanelSquareHover')
+            typePanel = gui.find('**/tt_t_gui_mat_typeNamePanel')
+            self.typeNamePanel = DirectFrame(parent=aspect2d, image=None, relief='flat', scale=(0.75,
+                                                                                                0.7,
+                                                                                                0.7), state='disabled', pos=(-0.0163333,
+                                                                                                                             0,
+                                                                                                                             0.075), image_pos=(0,
+                                                                                                                                                0,
+                                                                                                                                                0.025), frameColor=(1,
+                                                                                                                                                                    1,
+                                                                                                                                                                    1,
+                                                                                                                                                                    0))
+            self.typePanelFrame = DirectFrame(image=typePanel, relief='flat', frameColor=(1,
+                                                                                          1,
+                                                                                          1,
+                                                                                          0), pos=(-0.008,
+                                                                                                   0,
+                                                                                                   0.019))
+            self.typePanelFrame.reparentTo(self.typeNamePanel, sort=1)
+            self.typeANameGUIElements.append(self.typeNamePanel)
+            self.typeANameGUIElements.append(self.typePanelFrame)
+            self.nameLabel = OnscreenText.OnscreenText(TTLocalizer.PleaseTypeName, parent=aspect2d, style=OnscreenText.ScreenPrompt, scale=TTLocalizer.NSnameLabel, pos=(-0.0163333,
+                                                                                                                                                                         0.53))
+            self.nameLabel.wrtReparentTo(self.typeNamePanel, sort=2)
+            self.typeANameGUIElements.append(self.nameLabel)
+            self.typeNotification = OnscreenText.OnscreenText(TTLocalizer.AllNewNames, parent=aspect2d, style=OnscreenText.ScreenPrompt, scale=TTLocalizer.NStypeNotification, pos=(-0.0163333,
+                                                                                                                                                                                    0.15))
+            self.typeNotification.wrtReparentTo(self.typeNamePanel, sort=2)
+            self.typeANameGUIElements.append(self.typeNotification)
+            self.nameMessages = OnscreenText.OnscreenText(TTLocalizer.NameMessages, parent=aspect2d, style=OnscreenText.ScreenPrompt, scale=0.06, pos=(-0.0163333,
+                                                                                                                                                       -0.05))
+            self.nameMessages.wrtReparentTo(self.typeNamePanel, sort=2)
+            self.typeANameGUIElements.append(self.nameMessages)
+            tempForceCapitalization = False
+            self.nameEntry = DirectEntry(parent=aspect2d, relief=None, scale=TTLocalizer.NSnameEntry, entryFont=getToonFont(), width=MAX_NAME_WIDTH, numLines=2, focus=0, cursorKeys=1, pos=(0.0,
+                                                                                                                                                                                             0.0,
+                                                                                                                                                                                             0.39), text_align=TextNode.ACenter, command=self.__typedAName, autoCapitalize=tempForceCapitalization)
+            self.nameEntry.wrtReparentTo(self.typeNamePanel, sort=2)
+            self.typeANameGUIElements.append(self.nameEntry)
+            self.submitButton = DirectButton(parent=aspect2d, relief=None, image=(self.squareUp,
+             self.squareDown,
+             self.squareHover,
+             self.squareUp), image_scale=(1.2, 0, 1.1), pos=(-0.01, 0, -0.25), text=TTLocalizer.NameShopSubmitButton, text_scale=0.06, text_pos=(0,
+                                                                                                                                                 -0.02), command=self.__typedAName)
+            self.submitButton.wrtReparentTo(self.typeNamePanel, sort=2)
+            self.typeNamePanel.setPos(-0.42, 0, -0.078)
+            self.typeANameGUIElements.append(self.submitButton)
+            self.randomButton = DirectButton(parent=aspect2d, relief=None, image=(self.squareUp,
+             self.squareDown,
+             self.squareHover,
+             self.squareUp), image_scale=(1.15, 1.1, 1.1), scale=(1.05, 1, 1), pos=(0,
+                                                                                    0,
+                                                                                    -0.25), text=TTLocalizer.ShuffleButton, text_scale=0.06, text_pos=(0,
+                                                                                                                                                       -0.02), command=self.__randomName)
+            self.pickANameGUIElements.append(self.randomButton)
+            self.typeANameButton = DirectButton(parent=aspect2d, relief=None, image=(self.squareUp,
+             self.squareDown,
+             self.squareHover,
+             self.squareUp), image_scale=(1, 1.1, 0.9), pos=(0.0033, 0, -0.38833), scale=(1.2,
+                                                                                          1,
+                                                                                          1.2), text=TTLocalizer.TypeANameButton, text_scale=TTLocalizer.NStypeANameButton, text_pos=TTLocalizer.NStypeANameButtonPos, command=self.__typeAName)
+            if base.cr.productName in ('DE', 'BR'):
+                self.typeANameButton.hide()
+            self.pickANameGUIElements.append(self.typeANameButton)
+            self.nameResult = DirectLabel(parent=aspect2d, relief=None, scale=TTLocalizer.NSnameResult, pos=(0.005,
+                                                                                                             0,
+                                                                                                             0.585), text=' \n ', text_scale=0.8, text_align=TextNode.ACenter, text_wordwrap=MAX_NAME_WIDTH)
+            self.pickANameGUIElements.append(self.nameResult)
+            self.allPrefixes = self.nameGen.lastPrefixes[:]
+            self.allSuffixes = self.nameGen.lastSuffixes[:]
+            self.allPrefixes.sort()
+            self.allSuffixes.sort()
+            self.allPrefixes = [' '] + [' '] + self.allPrefixes + [' '] + [' ']
+            self.allSuffixes = [' '] + [' '] + self.allSuffixes + [' '] + [' ']
+            self.titleScrollList = self.makeScrollList(gui, (-0.6, 0, 0.202), (1, 0.8,
                                                                                0.8,
-                                                                               1), self.allFirsts, self.makeLabel, [TextNode.ACenter, 'first'])
-        self.lastprefixScrollList = self.makeScrollList(gui, (0.2, 0, 0.202), (0.8,
-                                                                               0.8,
-                                                                               1,
-                                                                               1), self.allPrefixes, self.makeLabel, [TextNode.ARight, 'prefix'])
-        self.lastsuffixScrollList = self.makeScrollList(gui, (0.55, 0, 0.202), (0.8,
-                                                                                0.8,
-                                                                                1,
-                                                                                1), self.allSuffixes, self.makeLabel, [TextNode.ALeft, 'suffix'])
-        gui.removeNode()
-        self.pickANameGUIElements.append(self.lastprefixScrollList)
-        self.pickANameGUIElements.append(self.lastsuffixScrollList)
-        self.pickANameGUIElements.append(self.titleScrollList)
-        self.pickANameGUIElements.append(self.firstnameScrollList)
-        self.titleHigh = self.makeHighlight((-0.710367, 0.0, 0.122967))
-        self.firstHigh = self.makeHighlight((-0.310367, 0.0, 0.122967))
-        self.pickANameGUIElements.append(self.titleHigh)
-        self.pickANameGUIElements.append(self.firstHigh)
-        self.prefixHigh = self.makeHighlight((0.09, 0.0, 0.122967))
-        self.suffixHigh = self.makeHighlight((0.44, 0.0, 0.122967))
-        self.pickANameGUIElements.append(self.prefixHigh)
-        self.pickANameGUIElements.append(self.suffixHigh)
-        nameBalloon.removeNode()
-        imageList = (guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR'))
-        buttonImage = [imageList, imageList]
-        buttonText = [TTLocalizer.NameShopPay, TTLocalizer.NameShopPlay]
-        self.payDialog = DirectDialog(dialogName='paystate', topPad=0, fadeScreen=0.2, pos=(0,
-                                                                                            0.1,
-                                                                                            0.1), button_relief=None, text_align=TextNode.ACenter, text=TTLocalizer.NameShopOnlyPaid, buttonTextList=buttonText, buttonImageList=buttonImage, image_color=GlobalDialogColor, buttonValueList=[1, 0], command=self.payAction)
-        self.payDialog.buttonList[0].setPos(0, 0, -0.27)
-        self.payDialog.buttonList[1].setPos(0, 0, -0.4)
-        self.payDialog.buttonList[0]['image_scale'] = (1.2, 1, 1.1)
-        self.payDialog.buttonList[1]['image_scale'] = (1.2, 1, 1.1)
-        self.payDialog['image_scale'] = (0.8, 1, 0.77)
-        self.payDialog.buttonList[0]['text_pos'] = (0, -0.02)
-        self.payDialog.buttonList[1]['text_pos'] = (0, -0.02)
-        self.payDialog.hide()
-        buttonText = [TTLocalizer.NameShopContinueSubmission, TTLocalizer.NameShopChooseAnother]
-        self.approvalDialog = DirectDialog(dialogName='approvalstate', topPad=0, fadeScreen=0.2, pos=(0,
-                                                                                                      0.1,
-                                                                                                      0.1), button_relief=None, image_color=GlobalDialogColor, text_align=TextNode.ACenter, text=TTLocalizer.NameShopToonCouncil, buttonTextList=buttonText, buttonImageList=buttonImage, buttonValueList=[1, 0], command=self.approvalAction)
-        self.approvalDialog.buttonList[0].setPos(0, 0, -0.3)
-        self.approvalDialog.buttonList[1].setPos(0, 0, -0.43)
-        self.approvalDialog['image_scale'] = (0.8, 1, 0.77)
-        for x in xrange(0, 2):
-            self.approvalDialog.buttonList[x]['text_pos'] = (0, -0.01)
-            self.approvalDialog.buttonList[x]['text_scale'] = (0.04, 0.05999)
-            self.approvalDialog.buttonList[x].setScale(1.2, 1, 1)
+                                                                               1), self.allTitles, self.makeLabel, [TextNode.ACenter, 'title'])
+            self.firstnameScrollList = self.makeScrollList(gui, (-0.2, 0, 0.202), (0.8,
+                                                                                   1,
+                                                                                   0.8,
+                                                                                   1), self.allFirsts, self.makeLabel, [TextNode.ACenter, 'first'])
+            self.lastprefixScrollList = self.makeScrollList(gui, (0.2, 0, 0.202), (0.8,
+                                                                                   0.8,
+                                                                                   1,
+                                                                                   1), self.allPrefixes, self.makeLabel, [TextNode.ARight, 'prefix'])
+            self.lastsuffixScrollList = self.makeScrollList(gui, (0.55, 0, 0.202), (0.8,
+                                                                                    0.8,
+                                                                                    1,
+                                                                                    1), self.allSuffixes, self.makeLabel, [TextNode.ALeft, 'suffix'])
+            gui.removeNode()
+            self.pickANameGUIElements.append(self.lastprefixScrollList)
+            self.pickANameGUIElements.append(self.lastsuffixScrollList)
+            self.pickANameGUIElements.append(self.titleScrollList)
+            self.pickANameGUIElements.append(self.firstnameScrollList)
+            self.titleHigh = self.makeHighlight((-0.710367, 0.0, 0.122967))
+            self.firstHigh = self.makeHighlight((-0.310367, 0.0, 0.122967))
+            self.pickANameGUIElements.append(self.titleHigh)
+            self.pickANameGUIElements.append(self.firstHigh)
+            self.prefixHigh = self.makeHighlight((0.09, 0.0, 0.122967))
+            self.suffixHigh = self.makeHighlight((0.44, 0.0, 0.122967))
+            self.pickANameGUIElements.append(self.prefixHigh)
+            self.pickANameGUIElements.append(self.suffixHigh)
+            nameBalloon.removeNode()
+            imageList = (guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR'))
+            buttonImage = [imageList, imageList]
+            buttonText = [TTLocalizer.NameShopPay, TTLocalizer.NameShopPlay]
+            self.payDialog = DirectDialog(dialogName='paystate', topPad=0, fadeScreen=0.2, pos=(0,
+                                                                                                0.1,
+                                                                                                0.1), button_relief=None, text_align=TextNode.ACenter, text=TTLocalizer.NameShopOnlyPaid, buttonTextList=buttonText, buttonImageList=buttonImage, image_color=GlobalDialogColor, buttonValueList=[1, 0], command=self.payAction)
+            self.payDialog.buttonList[0].setPos(0, 0, -0.27)
+            self.payDialog.buttonList[1].setPos(0, 0, -0.4)
+            self.payDialog.buttonList[0]['image_scale'] = (1.2, 1, 1.1)
+            self.payDialog.buttonList[1]['image_scale'] = (1.2, 1, 1.1)
+            self.payDialog['image_scale'] = (0.8, 1, 0.77)
+            self.payDialog.buttonList[0]['text_pos'] = (0, -0.02)
+            self.payDialog.buttonList[1]['text_pos'] = (0, -0.02)
+            self.payDialog.hide()
+            buttonText = [TTLocalizer.NameShopContinueSubmission, TTLocalizer.NameShopChooseAnother]
+            self.approvalDialog = DirectDialog(dialogName='approvalstate', topPad=0, fadeScreen=0.2, pos=(0,
+                                                                                                          0.1,
+                                                                                                          0.1), button_relief=None, image_color=GlobalDialogColor, text_align=TextNode.ACenter, text=TTLocalizer.NameShopToonCouncil, buttonTextList=buttonText, buttonImageList=buttonImage, buttonValueList=[1, 0], command=self.approvalAction)
+            self.approvalDialog.buttonList[0].setPos(0, 0, -0.3)
+            self.approvalDialog.buttonList[1].setPos(0, 0, -0.43)
+            self.approvalDialog['image_scale'] = (0.8, 1, 0.77)
+            for x in xrange(0, 2):
+                self.approvalDialog.buttonList[x]['text_pos'] = (0, -0.01)
+                self.approvalDialog.buttonList[x]['text_scale'] = (0.04, 0.05999)
+                self.approvalDialog.buttonList[x].setScale(1.2, 1, 1)
 
-        self.approvalDialog.hide()
-        guiButton.removeNode()
-        self.uberhide(self.typeANameGUIElements)
-        self.uberhide(self.pickANameGUIElements)
-        self.isLoaded = 1
-        return
+            self.approvalDialog.hide()
+            guiButton.removeNode()
+            self.uberhide(self.typeANameGUIElements)
+            self.uberhide(self.pickANameGUIElements)
+            self.isLoaded = 1
+            return
 
     def ubershow(self, guiObjectsToShow):
         self.notify.debug('ubershow %s' % str(guiObjectsToShow))
@@ -601,22 +602,23 @@ class NameShop(StateData.StateData):
         self.notify.debug('unload')
         if self.isLoaded == 0:
             return
-        self.exit()
-        cleanupDialog('globalDialog')
-        self.uberdestroy(self.pickANameGUIElements)
-        self.uberdestroy(self.typeANameGUIElements)
-        del self.toon
-        self.payDialog.cleanup()
-        self.approvalDialog.cleanup()
-        del self.payDialog
-        del self.approvalDialog
-        self.parentFSM.getStateNamed('NameShop').removeChild(self.fsm)
-        del self.parentFSM
-        del self.fsm
-        self.ignoreAll()
-        self.isLoaded = 0
-        self.makeAToon = None
-        return
+        else:
+            self.exit()
+            cleanupDialog('globalDialog')
+            self.uberdestroy(self.pickANameGUIElements)
+            self.uberdestroy(self.typeANameGUIElements)
+            del self.toon
+            self.payDialog.cleanup()
+            self.approvalDialog.cleanup()
+            del self.payDialog
+            del self.approvalDialog
+            self.parentFSM.getStateNamed('NameShop').removeChild(self.fsm)
+            del self.parentFSM
+            del self.fsm
+            self.ignoreAll()
+            self.isLoaded = 0
+            self.makeAToon = None
+            return
 
     def _checkNpcNames(self, name):
 
@@ -636,7 +638,8 @@ class NameShop(StateData.StateData):
         problem = NameCheck.checkName(name, [self._checkNpcNames], font=self.nameEntry.getFont())
         if problem:
             return problem
-        return
+        else:
+            return
 
     def setShopsVisited(self, list):
         self.shopsVisited = list
@@ -662,10 +665,10 @@ class NameShop(StateData.StateData):
         if self.fsm.getCurrentState().getName() == 'TypeAName':
             self.__typedAName()
             return
-        if not self.avExists or self.avExists and self.avId == 'deleteMe':
-            self.serverCreateAvatar(skipTutorial)
         else:
-            if self.names[0] == '':
+            if not self.avExists or self.avExists and self.avId == 'deleteMe':
+                self.serverCreateAvatar(skipTutorial)
+            elif self.names[0] == '':
                 self.rejectName(TTLocalizer.EmptyNameError)
             else:
                 rejectReason = self.nameIsValid(self.names[0])
@@ -673,7 +676,7 @@ class NameShop(StateData.StateData):
                     self.rejectName(rejectReason)
                 else:
                     self.checkNamePattern()
-        return
+            return
 
     def acceptName(self):
         self.notify.debug('acceptName')
@@ -758,27 +761,27 @@ class NameShop(StateData.StateData):
         except:
             print 'NameShop : Should have found title, uh oh!'
             print uberReturn
-        else:
-            try:
-                self.firstIndex = self.allFirsts.index(uberReturn[4])
-                self.nameIndices[1] = self.nameGen.returnUniqueID(uberReturn[4], 1)
-                self.nameFlags[1] = 1
-            except:
-                print 'NameShop : Should have found first name, uh oh!'
-                print uberReturn
 
-            try:
-                self.prefixIndex = self.allPrefixes.index(uberReturn[5])
-                self.suffixIndex = self.allSuffixes.index(uberReturn[6].lower())
-                self.nameIndices[2] = self.nameGen.returnUniqueID(uberReturn[5], 2)
-                self.nameIndices[3] = self.nameGen.returnUniqueID(uberReturn[6].lower(), 3)
-                if uberReturn[5] in self.nameGen.capPrefixes:
-                    self.nameFlags[3] = 1
-                else:
-                    self.nameFlags[3] = 0
-            except:
-                print 'NameShop : Some part of last name not found, uh oh!'
-                print uberReturn
+        try:
+            self.firstIndex = self.allFirsts.index(uberReturn[4])
+            self.nameIndices[1] = self.nameGen.returnUniqueID(uberReturn[4], 1)
+            self.nameFlags[1] = 1
+        except:
+            print 'NameShop : Should have found first name, uh oh!'
+            print uberReturn
+
+        try:
+            self.prefixIndex = self.allPrefixes.index(uberReturn[5])
+            self.suffixIndex = self.allSuffixes.index(uberReturn[6].lower())
+            self.nameIndices[2] = self.nameGen.returnUniqueID(uberReturn[5], 2)
+            self.nameIndices[3] = self.nameGen.returnUniqueID(uberReturn[6].lower(), 3)
+            if uberReturn[5] in self.nameGen.capPrefixes:
+                self.nameFlags[3] = 1
+            else:
+                self.nameFlags[3] = 0
+        except:
+            print 'NameShop : Some part of last name not found, uh oh!'
+            print uberReturn
 
         self.updateCheckBoxes()
         self.updateLists()
@@ -1042,29 +1045,26 @@ class NameShop(StateData.StateData):
             else:
                 self.notify.debug('typed name response did not contain any return fields')
                 self.rejectName(TTLocalizer.NameError)
-        else:
-            if status == 2:
-                style = self.toon.getStyle()
-                avDNA = style.makeNetString()
-                newPotAv = PotentialAvatar.PotentialAvatar(avId, (self.nameEntry.get(), '', '', ''), avDNA, self.index, 1, wishState='LOCKED')
+        elif status == 2:
+            style = self.toon.getStyle()
+            avDNA = style.makeNetString()
+            newPotAv = PotentialAvatar.PotentialAvatar(avId, (self.nameEntry.get(), '', '', ''), avDNA, self.index, 1, wishState='LOCKED')
+            self.avList.append(newPotAv)
+            self.fsm.request('Accepted')
+        elif status == 1:
+            style = self.toon.getStyle()
+            avDNA = style.makeNetString()
+            self.names[1] = self.nameEntry.get()
+            self.notify.debug('typed name needs approval')
+            newPotAv = PotentialAvatar.PotentialAvatar(avId, self.names, avDNA, self.index, 1)
+            if not self.newwarp:
                 self.avList.append(newPotAv)
-                self.fsm.request('Accepted')
-            else:
-                if status == 1:
-                    style = self.toon.getStyle()
-                    avDNA = style.makeNetString()
-                    self.names[1] = self.nameEntry.get()
-                    self.notify.debug('typed name needs approval')
-                    newPotAv = PotentialAvatar.PotentialAvatar(avId, self.names, avDNA, self.index, 1)
-                    if not self.newwarp:
-                        self.avList.append(newPotAv)
-                    self.fsm.request('ApprovalAccepted')
-                else:
-                    if status == 0:
-                        self.fsm.request('Rejected')
-                    else:
-                        self.notify.debug("name typed accepted but didn't fill any return fields")
-                        self.rejectName(TTLocalizer.NameError)
+            self.fsm.request('ApprovalAccepted')
+        elif status == 0:
+            self.fsm.request('Rejected')
+        else:
+            self.notify.debug("name typed accepted but didn't fill any return fields")
+            self.rejectName(TTLocalizer.NameError)
 
     def serverCreateAvatar(self, skipTutorial=False):
         self.notify.debug('serverCreateAvatar')
@@ -1098,23 +1098,20 @@ class NameShop(StateData.StateData):
             self.doneStatus = 'done'
             self.storeSkipTutorialRequest()
             messenger.send(self.doneEvent)
+        elif self.nameAction == 1:
+            self.checkNamePattern()
+        elif self.nameAction == 2:
+            self.checkNameTyped()
+        elif self.nameAction == 3:
+            self.toon.setName(self.nameEntry.get())
+            newPotAv = PotentialAvatar.PotentialAvatar(self.avId, (self.nameEntry.get(), '', '', ''), self.newDNA, self.index, 1, wishState='LOCKED')
+            self.avList.append(newPotAv)
+            self.doneStatus = 'done'
+            self.storeSkipTutorialRequest()
+            messenger.send(self.doneEvent)
         else:
-            if self.nameAction == 1:
-                self.checkNamePattern()
-            else:
-                if self.nameAction == 2:
-                    self.checkNameTyped()
-                else:
-                    if self.nameAction == 3:
-                        self.toon.setName(self.nameEntry.get())
-                        newPotAv = PotentialAvatar.PotentialAvatar(self.avId, (self.nameEntry.get(), '', '', ''), self.newDNA, self.index, 1, wishState='LOCKED')
-                        self.avList.append(newPotAv)
-                        self.doneStatus = 'done'
-                        self.storeSkipTutorialRequest()
-                        messenger.send(self.doneEvent)
-                    else:
-                        self.notify.debug('avatar invalid nameAction')
-                        self.rejectName(TTLocalizer.NameError)
+            self.notify.debug('avatar invalid nameAction')
+            self.rejectName(TTLocalizer.NameError)
 
     def waitForServer(self):
         self.waitForServerDialog = TTDialog.TTDialog(text=TTLocalizer.WaitingForNameSubmission, style=TTDialog.NoButtons)
@@ -1143,11 +1140,10 @@ class NameShop(StateData.StateData):
     def __isFirstTime(self):
         if self.makeAToon.warp:
             self.__createAvatar()
+        elif base.cr.moddingManager.getDefaultMaxToon():
+            self.promptMaxToon()
         else:
-            if base.cr.moddingManager.getDefaultMaxToon():
-                self.promptMaxToon()
-            else:
-                self.promptTutorial()
+            self.promptTutorial()
 
     def promptTutorial(self):
         self.promptTutorialDialog = TTDialog.TTDialog(parent=aspect2dp, text=TTLocalizer.PromptTutorial, text_scale=0.06, text_align=TextNode.ACenter, text_wordwrap=22, command=self.__openTutorialDialog, fadeScreen=0.5, style=TTDialog.TwoChoice, buttonTextList=[
@@ -1185,15 +1181,15 @@ class NameShop(StateData.StateData):
             dislId = launcher.getValue('GAME_DISL_ID')
         except:
             pass
-        else:
-            if not dislId:
-                self.notify.warning('No dislId, using 0')
-                dislId = 0
-            gameSource = '0'
-            try:
-                gameSource = launcher.getValue('GAME_SOURCE')
-            except:
-                pass
+
+        if not dislId:
+            self.notify.warning('No dislId, using 0')
+            dislId = 0
+        gameSource = '0'
+        try:
+            gameSource = launcher.getValue('GAME_SOURCE')
+        except:
+            pass
 
         if not gameSource:
             gameSource = '0'

@@ -214,7 +214,8 @@ class DistributedMintRoom(DistributedLevel.DistributedLevel, MintRoomBase.MintRo
     def __str__(self):
         if hasattr(self, 'roomId'):
             return '%s %s: %s' % (self.__class__.__name__, self.roomId, MintRoomSpecs.CashbotMintRoomId2RoomName[self.roomId])
-        return 'DistributedMintRoom'
+        else:
+            return 'DistributedMintRoom'
 
     def __repr__(self):
         return str(self)

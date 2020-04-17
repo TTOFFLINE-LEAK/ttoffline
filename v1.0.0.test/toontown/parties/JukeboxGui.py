@@ -24,25 +24,26 @@ class JukeboxGui(DirectObject):
     def load(self):
         if self.isLoaded():
             return
-        guiNode = loader.loadModel('phase_13/models/parties/jukeboxGUI')
-        self._timerGui = PartyUtils.getNewToontownTimer()
-        self._windowFrame = DirectFrame(image=guiNode.find('**/background'), relief=None, pos=(0,
-                                                                                               0,
-                                                                                               0), scale=0.7)
-        self._songFrame = DirectFrame(image=guiNode.find('**/songTitle_background'), parent=self._windowFrame, relief=None)
-        self._currentlyPlayingLabel = self.__createLabel(guiNode, 'currentlyPlaying', parent=self._windowFrame, text=TTLocalizer.JukeboxCurrentlyPlayingNothing, scale=TTLocalizer.JGcurrentlyPlayingLabel)
-        self._songNameLabel = self.__createLabel(guiNode, 'songName', parent=self._windowFrame, text=TTLocalizer.JukeboxCurrentSongNothing, scale=TTLocalizer.JGsongNameLabel)
-        self._queueList, self._queueLabel = self.__createLabeledScrolledList(guiNode, 'queue', label=TTLocalizer.JukeboxQueueLabel, parent=self._windowFrame)
-        self._songsList, self._songsLabel = self.__createLabeledScrolledList(guiNode, 'songs', label=TTLocalizer.JukeboxSongsLabel, parent=self._windowFrame)
-        pos = guiNode.find('**/addButton_text_locator').getPos()
-        self._addSongButton = self.__createButton(guiNode, 'addSongButton', parent=self._windowFrame, command=self.__handleAddSongButtonClick, image3_color=Vec4(0.6, 0.6, 0.6, 0.6), text=TTLocalizer.JukeboxAddSong, text_align=TextNode.ACenter, text_pos=(pos[0], pos[2]), text_scale=TTLocalizer.JGaddSongButton)
-        self._closeButton = self.__createButton(guiNode, 'can_cancelButton', parent=self._windowFrame, command=self.__handleCloseButtonClick)
-        pos = guiNode.find('**/close_text_locator').getPos()
-        self._closeButton = self.__createButton(guiNode, 'close', parent=self._windowFrame, command=self.__handleCloseButtonClick, text=TTLocalizer.JukeboxClose, text_align=TextNode.ACenter, text_pos=(pos[0], pos[2]), text_scale=0.08)
-        self._moveToTopButton = self.__createButton(guiNode, 'moveToTop', command=self.__handleMoveToTopButtonClick)
-        guiNode.removeNode()
-        self._loaded = True
-        return
+        else:
+            guiNode = loader.loadModel('phase_13/models/parties/jukeboxGUI')
+            self._timerGui = PartyUtils.getNewToontownTimer()
+            self._windowFrame = DirectFrame(image=guiNode.find('**/background'), relief=None, pos=(0,
+                                                                                                   0,
+                                                                                                   0), scale=0.7)
+            self._songFrame = DirectFrame(image=guiNode.find('**/songTitle_background'), parent=self._windowFrame, relief=None)
+            self._currentlyPlayingLabel = self.__createLabel(guiNode, 'currentlyPlaying', parent=self._windowFrame, text=TTLocalizer.JukeboxCurrentlyPlayingNothing, scale=TTLocalizer.JGcurrentlyPlayingLabel)
+            self._songNameLabel = self.__createLabel(guiNode, 'songName', parent=self._windowFrame, text=TTLocalizer.JukeboxCurrentSongNothing, scale=TTLocalizer.JGsongNameLabel)
+            self._queueList, self._queueLabel = self.__createLabeledScrolledList(guiNode, 'queue', label=TTLocalizer.JukeboxQueueLabel, parent=self._windowFrame)
+            self._songsList, self._songsLabel = self.__createLabeledScrolledList(guiNode, 'songs', label=TTLocalizer.JukeboxSongsLabel, parent=self._windowFrame)
+            pos = guiNode.find('**/addButton_text_locator').getPos()
+            self._addSongButton = self.__createButton(guiNode, 'addSongButton', parent=self._windowFrame, command=self.__handleAddSongButtonClick, image3_color=Vec4(0.6, 0.6, 0.6, 0.6), text=TTLocalizer.JukeboxAddSong, text_align=TextNode.ACenter, text_pos=(pos[0], pos[2]), text_scale=TTLocalizer.JGaddSongButton)
+            self._closeButton = self.__createButton(guiNode, 'can_cancelButton', parent=self._windowFrame, command=self.__handleCloseButtonClick)
+            pos = guiNode.find('**/close_text_locator').getPos()
+            self._closeButton = self.__createButton(guiNode, 'close', parent=self._windowFrame, command=self.__handleCloseButtonClick, text=TTLocalizer.JukeboxClose, text_align=TextNode.ACenter, text_pos=(pos[0], pos[2]), text_scale=0.08)
+            self._moveToTopButton = self.__createButton(guiNode, 'moveToTop', command=self.__handleMoveToTopButtonClick)
+            guiNode.removeNode()
+            self._loaded = True
+            return
 
     def __createButton(self, guiNode, imagePrefix, parent=hidden, **kwargs):
         return DirectButton(parent=parent, relief=None, image=(guiNode.find('**/%s_up' % imagePrefix), guiNode.find('**/%s_down' % imagePrefix), guiNode.find('**/%s_rollover' % imagePrefix)), **kwargs)
@@ -87,16 +88,17 @@ class JukeboxGui(DirectObject):
         self.ignoreAll()
         if not self.isLoaded():
             return
-        if self._windowFrame is not None:
-            self._windowFrame.destroy()
-            self._windowFrame = None
-            self._moveToTopButton.destroy()
-            del self._moveToTopButton
-        if self._timerGui is not None:
-            self._timerGui.destroy()
-            self._timerGui = None
-        self._loaded = False
-        return
+        else:
+            if self._windowFrame is not None:
+                self._windowFrame.destroy()
+                self._windowFrame = None
+                self._moveToTopButton.destroy()
+                del self._moveToTopButton
+            if self._timerGui is not None:
+                self._timerGui.destroy()
+                self._timerGui = None
+            self._loaded = False
+            return
 
     def isLoaded(self):
         return self._loaded
@@ -173,7 +175,8 @@ class JukeboxGui(DirectObject):
                 self._addSongButton['text'] = TTLocalizer.JukeboxAddSong
             item.removeNode()
             return item
-        return
+        else:
+            return
 
     def setSongCurrentlyPlaying(self, phase, filename):
         songs = self.phaseToMusicData.get(phase / 1)

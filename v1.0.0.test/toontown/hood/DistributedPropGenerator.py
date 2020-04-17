@@ -188,27 +188,28 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
     def addProp(self, propId, propName, propPosHprScale, propColorScale, spawnTime, creatorAvId, creatorName, editorAvId, editorName, lockedState, reparentProp, reparentState):
         if not BattleProps.globalPropPool.propTypes.get(propName, None):
             return
-        prop = BattleProps.globalPropPool.getProp(propName)
-        prop.flattenLight()
-        prop.clearTransform()
-        prop.reparentTo(self.propNode)
-        if BattleProps.globalPropPool.propTypes[propName] == 'actor':
-            prop.loop(propName)
-        collisions = prop.findAllMatches('**/+CollisionNode')
-        if collisions:
-            for coll in collisions:
-                coll.stash()
+        else:
+            prop = BattleProps.globalPropPool.getProp(propName)
+            prop.flattenLight()
+            prop.clearTransform()
+            prop.reparentTo(self.propNode)
+            if BattleProps.globalPropPool.propTypes[propName] == 'actor':
+                prop.loop(propName)
+            collisions = prop.findAllMatches('**/+CollisionNode')
+            if collisions:
+                for coll in collisions:
+                    coll.stash()
 
-        originalScale = prop.getScale()
-        prop.setPosHprScale(*propPosHprScale)
-        prop.setScale(prop.getScale().getX() * originalScale.getX(), prop.getScale().getY() * originalScale.getY(), prop.getScale().getZ() * originalScale.getZ())
-        prop.setColorScale(*propColorScale)
-        propInfo = [
-         propName, prop, spawnTime, creatorAvId, creatorName, editorAvId, editorName, lockedState, reparentProp, reparentState]
-        self.propList[propId] = propInfo
-        prop.setTag(self.propTag, str(propId))
-        self.updatePropCount()
-        return
+            originalScale = prop.getScale()
+            prop.setPosHprScale(*propPosHprScale)
+            prop.setScale(prop.getScale().getX() * originalScale.getX(), prop.getScale().getY() * originalScale.getY(), prop.getScale().getZ() * originalScale.getZ())
+            prop.setColorScale(*propColorScale)
+            propInfo = [
+             propName, prop, spawnTime, creatorAvId, creatorName, editorAvId, editorName, lockedState, reparentProp, reparentState]
+            self.propList[propId] = propInfo
+            prop.setTag(self.propTag, str(propId))
+            self.updatePropCount()
+            return
 
     def generatePropEditor(self):
         geom = loader.loadModel('phase_3/models/gui/dialog_box_gui')
@@ -418,14 +419,12 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                     if effectIndex in range(2):
                         pos = (
                          -0.3, 0.0, 0.3125 - 0.17 * (effectIndex + 1))
-                    else:
-                        if effectIndex in range(2, 4):
-                            pos = (
-                             0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
-                        else:
-                            if effectIndex == 4:
-                                pos = (
-                                 -0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
+                    elif effectIndex in range(2, 4):
+                        pos = (
+                         0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
+                    elif effectIndex == 4:
+                        pos = (
+                         -0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
                     settingsButton = DirectButton(parent=self.pages[effectPageIndex], relief=None, image=(
                      submitButtonGui.find('**/QuitBtn_UP'),
                      submitButtonGui.find('**/QuitBtn_DN'),
@@ -494,10 +493,9 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                     if effectIndex in range(2):
                         pos = (
                          -0.3, 0.0, 0.3125 - 0.17 * (effectIndex + 1))
-                    else:
-                        if effectIndex in range(2, 4):
-                            pos = (
-                             0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
+                    elif effectIndex in range(2, 4):
+                        pos = (
+                         0.3, 0.0, 0.3125 - 0.17 * (effectIndex - 1))
                     settingsButton = DirectButton(parent=self.pages[effectPageIndex], relief=None, image=(
                      submitButtonGui.find('**/QuitBtn_UP'),
                      submitButtonGui.find('**/QuitBtn_DN'),
@@ -532,17 +530,18 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         if propInfo[7] in (2, 3) and not base.localAvatar.getAccessLevel() >= OTPGlobals.AccessLevelName2Int.get('MODERATOR') and base.localAvatar.getDoId() != propInfo[3] or base.localAvatar.getAccessLevel() == OTPGlobals.AccessLevelName2Int.get('NO_ACCESS'):
             self.selectedProp = None
             return
-        if self.windowOpen == 2:
-            self.closeNewPropWindow()
-        for cell in base.rightCells:
-            base.setCellsAvailable([cell], 0)
+        else:
+            if self.windowOpen == 2:
+                self.closeNewPropWindow()
+            for cell in base.rightCells:
+                base.setCellsAvailable([cell], 0)
 
-        base.localAvatar.chatMgr.fsm.request('otherDialog')
-        self.updatePropInfo()
-        if self.editorGUI:
-            self.editorGUI.show()
-        self.windowOpen = 1
-        return
+            base.localAvatar.chatMgr.fsm.request('otherDialog')
+            self.updatePropInfo()
+            if self.editorGUI:
+                self.editorGUI.show()
+            self.windowOpen = 1
+            return
 
     def closePropEditor(self):
         messenger.send('wakeup')
@@ -619,21 +618,21 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
             self.propTitle.setText(TTLocalizer.WordPageNA)
             self.currentProp = -1
             return
-        while nextProp in self.hiddenPropPreviews:
-            nextProp += 1 * direction
+        else:
+            while nextProp in self.hiddenPropPreviews:
+                nextProp += 1 * direction
+                if nextProp > max(self.availablePropPreviews):
+                    nextProp = min(self.availablePropPreviews)
+                elif nextProp < min(self.availablePropPreviews):
+                    nextProp = max(self.availablePropPreviews)
+
             if nextProp > max(self.availablePropPreviews):
                 nextProp = min(self.availablePropPreviews)
             elif nextProp < min(self.availablePropPreviews):
                 nextProp = max(self.availablePropPreviews)
-
-        if nextProp > max(self.availablePropPreviews):
-            nextProp = min(self.availablePropPreviews)
-        else:
-            if nextProp < min(self.availablePropPreviews):
-                nextProp = max(self.availablePropPreviews)
-        self.currentProp = nextProp
-        self.createProp(nextProp)
-        return
+            self.currentProp = nextProp
+            self.createProp(nextProp)
+            return
 
     def createProp(self, propIndex):
         propName = BattleProps.globalPropPool.propStrings.keys()[propIndex]
@@ -678,9 +677,8 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         nextPage = self.currentPage + 1 * direction
         if nextPage == 7:
             nextPage = 0
-        else:
-            if nextPage == -1:
-                nextPage = 6
+        elif nextPage == -1:
+            nextPage = 6
         self.currentPage = nextPage
         self.pages[nextPage].show()
 
@@ -755,9 +753,8 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         else:
             if 6 <= infoPanelIndex <= 8:
                 multiplier *= 0.1
-            else:
-                if 9 <= infoPanelIndex <= 11:
-                    multiplier *= 0.5
+            elif 9 <= infoPanelIndex <= 11:
+                multiplier *= 0.5
             input += 1 * multiplier
             inputStr = str(input)
             if len(inputStr) >= 8:
@@ -767,22 +764,19 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                 input = 9999.0
             elif input < -10000:
                 input = -9999.0
-        else:
-            if 3 <= infoPanelIndex <= 5:
-                if input > 360 or input < -360:
-                    input = 0.0
-            else:
-                if 6 <= infoPanelIndex <= 8:
-                    if input > 5:
-                        input = 5.0
-                    elif input < 0.1:
-                        input = 0.1
-                else:
-                    if 9 <= infoPanelIndex <= 11:
-                        if input > 255:
-                            input = 255.0
-                        elif input < 0:
-                            input = 0.0
+        elif 3 <= infoPanelIndex <= 5:
+            if input > 360 or input < -360:
+                input = 0.0
+        elif 6 <= infoPanelIndex <= 8:
+            if input > 5:
+                input = 5.0
+            elif input < 0.1:
+                input = 0.1
+        elif 9 <= infoPanelIndex <= 11:
+            if input > 255:
+                input = 255.0
+            elif input < 0:
+                input = 0.0
         infoPanel.enterText(str(input))
         self.updatePropPreview()
 
@@ -802,133 +796,135 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
     def runCounter(self, infoPanelIndex, multiplier, task):
         if task.time - task.prevTime < task.delayTime:
             return Task.cont
-        task.delayTime = max(0.01, task.delayTime * 0.85)
-        task.prevTime = task.time
-        hitLimit = self.updateInfoPanel(infoPanelIndex, multiplier)
-        if hitLimit:
-            return Task.done
-        return Task.cont
+        else:
+            task.delayTime = max(0.01, task.delayTime * 0.85)
+            task.prevTime = task.time
+            hitLimit = self.updateInfoPanel(infoPanelIndex, multiplier)
+            if hitLimit:
+                return Task.done
+            return Task.cont
 
     def updatePropPreview(self, extraArgs=None):
         if not self.selectedProp:
             return
-        info = []
-        for infoPanel in self.propInfoPanels:
-            try:
-                input = float(infoPanel.get())
-                info.append(input)
-            except:
-                return
+        else:
+            info = []
+            for infoPanel in self.propInfoPanels:
+                try:
+                    input = float(infoPanel.get())
+                    info.append(input)
+                except:
+                    return
 
-        for x in range(len(info)):
-            value = info[x]
-            if 0 <= x <= 2:
-                if value > 10000:
-                    info[x] = 9999.0
-                elif value < -10000:
-                    info[x] = -9999.0
-            elif 3 <= x <= 5:
-                if value > 360 or value < -360:
-                    info[x] = 0.0
-            elif 6 <= x <= 8:
-                if value > 5:
-                    info[x] = 5.0
-                elif value < 0.1:
-                    info[x] = 0.1
-            elif 9 <= x <= 11:
-                if value > 255:
-                    info[x] = 255.0
-                elif value < 0:
-                    info[x] = 0.0
+            for x in range(len(info)):
+                value = info[x]
+                if 0 <= x <= 2:
+                    if value > 10000:
+                        info[x] = 9999.0
+                    elif value < -10000:
+                        info[x] = -9999.0
+                elif 3 <= x <= 5:
+                    if value > 360 or value < -360:
+                        info[x] = 0.0
+                elif 6 <= x <= 8:
+                    if value > 5:
+                        info[x] = 5.0
+                    elif value < 0.1:
+                        info[x] = 0.1
+                elif 9 <= x <= 11:
+                    if value > 255:
+                        info[x] = 255.0
+                    elif value < 0:
+                        info[x] = 0.0
 
-        if self.previewProp:
-            self.previewProp.removeNode()
-            self.previewProp = None
-        self.previewProp = self.selectedProp.copyTo(self.selectedProp.getParent())
-        self.previewProp.setPosHprScale(info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8])
-        self.previewProp.setColorScale(info[9] / 255, info[10] / 255, info[11] / 255, 0.3)
-        self.previewProp.setTransparency(1)
-        return
+            if self.previewProp:
+                self.previewProp.removeNode()
+                self.previewProp = None
+            self.previewProp = self.selectedProp.copyTo(self.selectedProp.getParent())
+            self.previewProp.setPosHprScale(info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], info[8])
+            self.previewProp.setColorScale(info[9] / 255, info[10] / 255, info[11] / 255, 0.3)
+            self.previewProp.setTransparency(1)
+            return
 
     def confirmUpdateProp(self, toggleSettings=None):
         messenger.send('wakeup')
         if not self.selectedProp:
             return
-        propIndex = int(self.selectedProp.getTag(self.propTag))
-        propInfo = self.propList[propIndex]
-        if toggleSettings == 4:
-            self.sendUpdate('d_dupeProp', [propIndex])
-            return
-        propName = propInfo[0]
-        spawnTime = propInfo[2]
-        creatorAvId = propInfo[3]
-        creatorName = propInfo[4]
-        editorAvId = base.localAvatar.getDoId()
-        editorName = base.localAvatar.getName()
-        lockedState = 0
-        if self.propInfoLabels[5]['text'] == TTLocalizer.PropEditorPage7[1] and toggleSettings == 1:
-            lockedState += 1
         else:
-            if self.propInfoLabels[5]['text'] == TTLocalizer.PropEditorPage7UnlockDeletion and toggleSettings != 1:
-                lockedState += 1
-        if self.propInfoLabels[6]['text'] == TTLocalizer.PropEditorPage7[2] and toggleSettings == 2:
-            lockedState += 2
-        else:
-            if self.propInfoLabels[6]['text'] == TTLocalizer.PropEditorPage7UnlockEditing and toggleSettings != 2:
-                lockedState += 2
-        reparentProp = propInfo[8]
-        reparentState = propInfo[9]
-        info = []
-        for infoPanel in self.propInfoPanels:
-            try:
-                input = float(infoPanel.get())
-                info.append(input)
-            except:
+            propIndex = int(self.selectedProp.getTag(self.propTag))
+            propInfo = self.propList[propIndex]
+            if toggleSettings == 4:
+                self.sendUpdate('d_dupeProp', [propIndex])
                 return
+            propName = propInfo[0]
+            spawnTime = propInfo[2]
+            creatorAvId = propInfo[3]
+            creatorName = propInfo[4]
+            editorAvId = base.localAvatar.getDoId()
+            editorName = base.localAvatar.getName()
+            lockedState = 0
+            if self.propInfoLabels[5]['text'] == TTLocalizer.PropEditorPage7[1] and toggleSettings == 1:
+                lockedState += 1
+            elif self.propInfoLabels[5]['text'] == TTLocalizer.PropEditorPage7UnlockDeletion and toggleSettings != 1:
+                lockedState += 1
+            if self.propInfoLabels[6]['text'] == TTLocalizer.PropEditorPage7[2] and toggleSettings == 2:
+                lockedState += 2
+            else:
+                if self.propInfoLabels[6]['text'] == TTLocalizer.PropEditorPage7UnlockEditing and toggleSettings != 2:
+                    lockedState += 2
+                reparentProp = propInfo[8]
+                reparentState = propInfo[9]
+                info = []
+                for infoPanel in self.propInfoPanels:
+                    try:
+                        input = float(infoPanel.get())
+                        info.append(input)
+                    except:
+                        return
 
-        for x in range(len(info)):
-            value = info[x]
-            if 0 <= x <= 2:
-                if value > 10000:
-                    info[x] = 9999.0
-                elif value < -10000:
-                    info[x] = -9999.0
-            elif 3 <= x <= 5:
-                if value > 360 or value < -360:
-                    info[x] = 0.0
-            elif 6 <= x <= 8:
-                if value > 5:
-                    info[x] = 5.0
-                elif value < 0.1:
-                    info[x] = 0.1
-            elif 9 <= x <= 11:
-                if value > 255:
-                    info[x] = 255.0
-                elif value < 0:
-                    info[x] = 0.0
+                for x in range(len(info)):
+                    value = info[x]
+                    if 0 <= x <= 2:
+                        if value > 10000:
+                            info[x] = 9999.0
+                        elif value < -10000:
+                            info[x] = -9999.0
+                    elif 3 <= x <= 5:
+                        if value > 360 or value < -360:
+                            info[x] = 0.0
+                    elif 6 <= x <= 8:
+                        if value > 5:
+                            info[x] = 5.0
+                        elif value < 0.1:
+                            info[x] = 0.1
+                    elif 9 <= x <= 11:
+                        if value > 255:
+                            info[x] = 255.0
+                        elif value < 0:
+                            info[x] = 0.0
 
-        if toggleSettings == 3 and self.savedValues:
-            pos = self.savedValues['pos']
-            info[0], info[1], info[2] = pos[0], pos[1], pos[2]
-            hpr = self.savedValues['hpr']
-            info[3], info[4], info[5] = hpr[0], hpr[1], hpr[2]
-            scale = self.savedValues['scale']
-            info[6], info[7], info[8] = scale[0], scale[1], scale[2]
-            colorscale = self.savedValues['colorscale']
-            info[9], info[10], info[11] = colorscale[0], colorscale[1], colorscale[2]
-        self.savedValues['pos'] = (info[0], info[1], info[2])
-        self.savedValues['hpr'] = (info[3], info[4], info[5])
-        self.savedValues['scale'] = (info[6], info[7], info[8])
-        self.savedValues['colorscale'] = (info[9], info[10], info[11])
-        if self.previewProp:
-            self.previewProp.removeNode()
-            self.previewProp = None
-        self.sendUpdate('confirmUpdateProp', [
-         (propIndex, propName, info[0], info[1], info[2], info[3], info[4],
-          info[5], info[6], info[7], info[8], info[9] / 255, info[10] / 255,
-          info[11] / 255, 1.0, spawnTime, creatorAvId, creatorName, editorAvId,
-          editorName, lockedState, reparentProp, reparentState)])
-        return
+            if toggleSettings == 3 and self.savedValues:
+                pos = self.savedValues['pos']
+                info[0], info[1], info[2] = pos[0], pos[1], pos[2]
+                hpr = self.savedValues['hpr']
+                info[3], info[4], info[5] = hpr[0], hpr[1], hpr[2]
+                scale = self.savedValues['scale']
+                info[6], info[7], info[8] = scale[0], scale[1], scale[2]
+                colorscale = self.savedValues['colorscale']
+                info[9], info[10], info[11] = colorscale[0], colorscale[1], colorscale[2]
+            self.savedValues['pos'] = (info[0], info[1], info[2])
+            self.savedValues['hpr'] = (info[3], info[4], info[5])
+            self.savedValues['scale'] = (info[6], info[7], info[8])
+            self.savedValues['colorscale'] = (info[9], info[10], info[11])
+            if self.previewProp:
+                self.previewProp.removeNode()
+                self.previewProp = None
+            self.sendUpdate('confirmUpdateProp', [
+             (propIndex, propName, info[0], info[1], info[2], info[3], info[4],
+              info[5], info[6], info[7], info[8], info[9] / 255, info[10] / 255,
+              info[11] / 255, 1.0, spawnTime, creatorAvId, creatorName, editorAvId,
+              editorName, lockedState, reparentProp, reparentState)])
+            return
 
     def updateProp(self, propData):
         propId, propName, x, y, z, h, p, r, sX, sY, sZ, csR, csG, csB, csA, spawnTime, creatorAvId, creatorName, editorAvId, editorName, lockedState, reparentProp, reparentState = propData
@@ -939,28 +935,29 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         if not updatedProp:
             self.addProp(propId, propName, propPosHprScale, propColorScale, spawnTime, creatorAvId, creatorName, editorAvId, editorName, lockedState, reparentProp, reparentState)
             return
-        updatedProp[1].setPosHprScale(*propPosHprScale)
-        updatedProp[1].setColorScale(*propColorScale)
-        updatedProp[2] = spawnTime
-        updatedProp[5] = editorAvId
-        updatedProp[6] = editorName
-        updatedProp[7] = lockedState
-        updatedProp[8] = reparentProp
-        updatedProp[9] = reparentState
-        if reparentState:
-            secondaryPropInfo = self.propList.get(reparentProp)
-            if secondaryPropInfo:
-                updatedProp[1].reparentTo(secondaryPropInfo[1])
-            else:
-                self.notify.warning('Could not find parent prop %d for child prop %s!  Parenting to propNode instead...' % (reparentProp, propName))
-                updatedProp[1].wrtReparentTo(self.propNode)
         else:
-            updatedProp[1].wrtReparentTo(self.propNode)
-        if self.selectedProp:
-            propIndex = int(self.selectedProp.getTag(self.propTag))
-            if propIndex == propId:
-                self.updatePropInfo()
-        return
+            updatedProp[1].setPosHprScale(*propPosHprScale)
+            updatedProp[1].setColorScale(*propColorScale)
+            updatedProp[2] = spawnTime
+            updatedProp[5] = editorAvId
+            updatedProp[6] = editorName
+            updatedProp[7] = lockedState
+            updatedProp[8] = reparentProp
+            updatedProp[9] = reparentState
+            if reparentState:
+                secondaryPropInfo = self.propList.get(reparentProp)
+                if secondaryPropInfo:
+                    updatedProp[1].reparentTo(secondaryPropInfo[1])
+                else:
+                    self.notify.warning('Could not find parent prop %d for child prop %s!  Parenting to propNode instead...' % (reparentProp, propName))
+                    updatedProp[1].wrtReparentTo(self.propNode)
+            else:
+                updatedProp[1].wrtReparentTo(self.propNode)
+            if self.selectedProp:
+                propIndex = int(self.selectedProp.getTag(self.propTag))
+                if propIndex == propId:
+                    self.updatePropInfo()
+            return
 
     def toggleColorPage(self):
         if not self.colorPageToggle:
@@ -968,12 +965,11 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
             infoPanel = self.pages[5].find('infoEntryNode')
             infoPanel.hide()
             self.colorPicker.show()
-        else:
-            if self.colorPageToggle:
-                self.colorPageToggle = False
-                infoPanel = self.pages[5].find('infoEntryNode')
-                infoPanel.show()
-                self.colorPicker.hide()
+        elif self.colorPageToggle:
+            self.colorPageToggle = False
+            infoPanel = self.pages[5].find('infoEntryNode')
+            infoPanel.show()
+            self.colorPicker.hide()
 
     def colorProp(self, rgb):
         colorIndexes = range(9, 12)
@@ -985,9 +981,8 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
     def togglePropSettings(self, index):
         if not index:
             self.confirmDeleteProp()
-        else:
-            if index in range(1, 5):
-                self.confirmUpdateProp(index)
+        elif index in range(1, 5):
+            self.confirmUpdateProp(index)
 
     def confirmDeleteProp(self):
         messenger.send('wakeup')
@@ -1017,35 +1012,35 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
             self.propInfoLabels[13].setText('')
             self.confirmUpdateProp()
             return
-        if secondaryProp is None:
-            self.acceptOnce('selectSecondaryProp', self.toggleReparent, extraArgs=[index])
-            self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ChooseProp)
-            return
-        if secondaryProp == 0:
-            if propInfo[9]:
-                secondaryPropIndex = propInfo[8]
-                secondaryPropInfo = self.propList[secondaryPropIndex]
-                self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
-            else:
-                self.propInfoLabels[13].setText('')
-            return
-        secondaryPropIndex = int(secondaryProp.getTag(self.propTag))
-        secondaryPropInfo = self.propList[secondaryPropIndex]
-        if secondaryPropInfo[8] == propIndex:
-            if propInfo[9]:
-                secondaryPropIndex = propInfo[8]
-                secondaryPropInfo = self.propList[secondaryPropIndex]
-                self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
-            else:
-                self.propInfoLabels[13].setText('')
-            return
-        if index == 0:
-            propInfo[8] = secondaryPropIndex
-            propInfo[9] = True
-            self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
-            self.confirmUpdateProp()
         else:
-            if index == 1:
+            if secondaryProp is None:
+                self.acceptOnce('selectSecondaryProp', self.toggleReparent, extraArgs=[index])
+                self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ChooseProp)
+                return
+            if secondaryProp == 0:
+                if propInfo[9]:
+                    secondaryPropIndex = propInfo[8]
+                    secondaryPropInfo = self.propList[secondaryPropIndex]
+                    self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+                else:
+                    self.propInfoLabels[13].setText('')
+                return
+            secondaryPropIndex = int(secondaryProp.getTag(self.propTag))
+            secondaryPropInfo = self.propList[secondaryPropIndex]
+            if secondaryPropInfo[8] == propIndex:
+                if propInfo[9]:
+                    secondaryPropIndex = propInfo[8]
+                    secondaryPropInfo = self.propList[secondaryPropIndex]
+                    self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+                else:
+                    self.propInfoLabels[13].setText('')
+                return
+            if index == 0:
+                propInfo[8] = secondaryPropIndex
+                propInfo[9] = True
+                self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
+                self.confirmUpdateProp()
+            elif index == 1:
                 self.selectedProp.wrtReparentTo(secondaryProp)
                 pos = self.selectedProp.getPos()
                 for infoPanelIndex in range(3):
@@ -1066,16 +1061,15 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
                 propInfo[9] = True
                 self.propInfoLabels[13].setText(TTLocalizer.PropEditorPage5ReparentedTo % secondaryPropInfo[0] + '_' + str(secondaryPropIndex + 1))
                 self.confirmUpdateProp()
-            else:
-                if index == 3:
-                    self.propInfoLabels[13].setText('')
-                    pos = secondaryProp.getPos()
-                    for infoPanelIndex in range(3):
-                        infoPanel = self.propInfoPanels[infoPanelIndex]
-                        infoPanel.enterText(str(pos[infoPanelIndex]))
+            elif index == 3:
+                self.propInfoLabels[13].setText('')
+                pos = secondaryProp.getPos()
+                for infoPanelIndex in range(3):
+                    infoPanel = self.propInfoPanels[infoPanelIndex]
+                    infoPanel.enterText(str(pos[infoPanelIndex]))
 
-                    self.confirmUpdateProp()
-        return
+                self.confirmUpdateProp()
+            return
 
     def toggleEntryFocus(self, lose=False):
         if lose:
@@ -1107,10 +1101,9 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
         if not state:
             self.generatorGUI.find('**/propPickerNode').hide()
             self.generatorGUI.find('**/propSettingsNode').show()
-        else:
-            if state:
-                self.generatorGUI.find('**/propSettingsNode').hide()
-                self.generatorGUI.find('**/propPickerNode').show()
+        elif state:
+            self.generatorGUI.find('**/propSettingsNode').hide()
+            self.generatorGUI.find('**/propPickerNode').show()
 
     def propMessage(self, index):
         base.localAvatar.setSystemMessage(0, TTLocalizer.PropMessages[index], WhisperPopup.WTEmote)
@@ -1163,4 +1156,5 @@ class DistributedPropGenerator(DistributedObject.DistributedObject):
     def getButton(self, type):
         if not type:
             return self.editorGUI
-        return self.generatorGUI
+        else:
+            return self.generatorGUI

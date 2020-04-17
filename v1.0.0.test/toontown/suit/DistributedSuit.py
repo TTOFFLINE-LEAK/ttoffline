@@ -173,24 +173,25 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
     def setPathEndpoints(self, start, end, minPathLen, maxPathLen):
         if self.pathEndpointStart == start and self.pathEndpointEnd == end and self.minPathLen == minPathLen and self.maxPathLen == maxPathLen and self.path != None:
             return
-        self.pathEndpointStart = start
-        self.pathEndpointEnd = end
-        self.minPathLen = minPathLen
-        self.maxPathLen = maxPathLen
-        self.path = None
-        self.pathLength = 0
-        self.currentLeg = -1
-        self.legList = None
-        if self.maxPathLen == 0:
+        else:
+            self.pathEndpointStart = start
+            self.pathEndpointEnd = end
+            self.minPathLen = minPathLen
+            self.maxPathLen = maxPathLen
+            self.path = None
+            self.pathLength = 0
+            self.currentLeg = -1
+            self.legList = None
+            if self.maxPathLen == 0:
+                return
+            if not self.verifySuitPlanner():
+                return
+            self.startPoint = self.sp.pointIndexes[self.pathEndpointStart]
+            self.endPoint = self.sp.pointIndexes[self.pathEndpointEnd]
+            path = self.sp.genPath(self.startPoint, self.endPoint, self.minPathLen, self.maxPathLen)
+            self.setPath(path)
+            self.makeLegList()
             return
-        if not self.verifySuitPlanner():
-            return
-        self.startPoint = self.sp.pointIndexes[self.pathEndpointStart]
-        self.endPoint = self.sp.pointIndexes[self.pathEndpointEnd]
-        path = self.sp.genPath(self.startPoint, self.endPoint, self.minPathLen, self.maxPathLen)
-        self.setPath(path)
-        self.makeLegList()
-        return
 
     def verifySuitPlanner(self):
         if self.sp == None and self.spDoId != 0:
@@ -198,18 +199,20 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
             self.sp = self.cr.doId2do.get(self.spDoId, None)
         if self.sp == None:
             return 0
-        return 1
+        else:
+            return 1
 
     def setPathPosition(self, index, timestamp):
         if not self.verifySuitPlanner():
             return
-        if self.path == None:
-            self.setPathEndpoints(self.pathEndpointStart, self.pathEndpointEnd, self.minPathLen, self.maxPathLen)
-        self.pathPositionIndex = index
-        self.pathPositionTimestamp = globalClockDelta.networkToLocalTime(timestamp)
-        if self.legList != None:
-            self.pathStartTime = self.pathPositionTimestamp - self.legList.getStartTime(self.pathPositionIndex)
-        return
+        else:
+            if self.path == None:
+                self.setPathEndpoints(self.pathEndpointStart, self.pathEndpointEnd, self.minPathLen, self.maxPathLen)
+            self.pathPositionIndex = index
+            self.pathPositionTimestamp = globalClockDelta.networkToLocalTime(timestamp)
+            if self.legList != None:
+                self.pathStartTime = self.pathPositionTimestamp - self.legList.getStartTime(self.pathPositionIndex)
+            return
 
     def setPathState(self, state):
         self.pathState = state
@@ -222,39 +225,40 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         if messageAge < -(chug + 0.5) or messageAge > chug + 1.0:
             print 'Apparently out of sync with AI by %0.2f seconds.  Suggest resync!' % messageAge
             return
-        localElapsed = now - self.pathStartTime
-        timeDiff = localElapsed - (elapsed + messageAge)
-        if abs(timeDiff) > 0.2:
-            print "%s (%d) appears to be %0.2f seconds out of sync along its path.  Suggest '~cogs sync'." % (self.getName(), self.getDoId(), timeDiff)
+        else:
+            localElapsed = now - self.pathStartTime
+            timeDiff = localElapsed - (elapsed + messageAge)
+            if abs(timeDiff) > 0.2:
+                print "%s (%d) appears to be %0.2f seconds out of sync along its path.  Suggest '~cogs sync'." % (self.getName(), self.getDoId(), timeDiff)
+                return
+            if self.legList == None:
+                print "%s (%d) doesn't have a legList yet." % (self.getName(), self.getDoId())
+                return
+            netPos = Point3(x, y, 0.0)
+            leg = self.legList.getLeg(currentLeg)
+            calcPos = leg.getPosAtTime(elapsed - leg.getStartTime())
+            calcPos.setZ(0.0)
+            calcDelta = Vec3(netPos - calcPos)
+            diff = calcDelta.length()
+            if diff > 4.0:
+                print '%s (%d) is %0.2f feet from the AI computed path!' % (self.getName(), self.getDoId(), diff)
+                print 'Probably your DNA files are out of sync.'
+                return
+            localPos = Point3(self.getX(), self.getY(), 0.0)
+            localDelta = Vec3(netPos - localPos)
+            diff = localDelta.length()
+            if diff > 10.0:
+                print '%s (%d) in state %s is %0.2f feet from its correct position!' % (self.getName(),
+                 self.getDoId(),
+                 self.fsm.getCurrentState().getName(),
+                 diff)
+                print 'Should be at (%0.2f, %0.2f), but is at (%0.2f, %0.2f).' % (x,
+                 y,
+                 localPos[0],
+                 localPos[1])
+                return
+            print '%s (%d) is in the correct position.' % (self.getName(), self.getDoId())
             return
-        if self.legList == None:
-            print "%s (%d) doesn't have a legList yet." % (self.getName(), self.getDoId())
-            return
-        netPos = Point3(x, y, 0.0)
-        leg = self.legList.getLeg(currentLeg)
-        calcPos = leg.getPosAtTime(elapsed - leg.getStartTime())
-        calcPos.setZ(0.0)
-        calcDelta = Vec3(netPos - calcPos)
-        diff = calcDelta.length()
-        if diff > 4.0:
-            print '%s (%d) is %0.2f feet from the AI computed path!' % (self.getName(), self.getDoId(), diff)
-            print 'Probably your DNA files are out of sync.'
-            return
-        localPos = Point3(self.getX(), self.getY(), 0.0)
-        localDelta = Vec3(netPos - localPos)
-        diff = localDelta.length()
-        if diff > 10.0:
-            print '%s (%d) in state %s is %0.2f feet from its correct position!' % (self.getName(),
-             self.getDoId(),
-             self.fsm.getCurrentState().getName(),
-             diff)
-            print 'Should be at (%0.2f, %0.2f), but is at (%0.2f, %0.2f).' % (x,
-             y,
-             localPos[0],
-             localPos[1])
-            return
-        print '%s (%d) is in the correct position.' % (self.getName(), self.getDoId())
-        return
 
     def denyBattle(self):
         DistributedSuitBase.DistributedSuitBase.denyBattle(self)
@@ -287,21 +291,22 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         if self.legList == None:
             self.notify.warning('Suit %d does not have a path!' % self.getDoId())
             return Task.done
-        now = globalClock.getFrameTime()
-        elapsed = now - self.pathStartTime
-        nextLeg = self.legList.getLegIndexAtTime(elapsed, self.currentLeg)
-        numLegs = self.legList.getNumLegs()
-        if self.currentLeg != nextLeg:
-            self.currentLeg = nextLeg
-            self.doPathLeg(self.legList[nextLeg], elapsed - self.legList.getStartTime(nextLeg))
-        nextLeg += 1
-        if nextLeg < numLegs:
-            nextTime = self.legList.getStartTime(nextLeg)
-            delay = nextTime - elapsed
-            name = self.taskName('move')
-            taskMgr.remove(name)
-            taskMgr.doMethodLater(delay, self.moveToNextLeg, name)
-        return Task.done
+        else:
+            now = globalClock.getFrameTime()
+            elapsed = now - self.pathStartTime
+            nextLeg = self.legList.getLegIndexAtTime(elapsed, self.currentLeg)
+            numLegs = self.legList.getNumLegs()
+            if self.currentLeg != nextLeg:
+                self.currentLeg = nextLeg
+                self.doPathLeg(self.legList[nextLeg], elapsed - self.legList.getStartTime(nextLeg))
+            nextLeg += 1
+            if nextLeg < numLegs:
+                nextTime = self.legList.getStartTime(nextLeg)
+                delay = nextTime - elapsed
+                name = self.taskName('move')
+                taskMgr.remove(name)
+                taskMgr.doMethodLater(delay, self.moveToNextLeg, name)
+            return Task.done
 
     def doPathLeg(self, leg, time):
         self.fsm.request(SuitLeg.getTypeName(leg.getType()), [leg, time])
@@ -318,15 +323,18 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         if ydelta == 0:
             if xdelta > 0:
                 return -90
-            return 90
-        else:
-            if xdelta == 0:
-                if ydelta > 0:
-                    return 0
-                return 180
             else:
-                angle = math.atan2(ydelta, xdelta)
-                return rad2Deg(angle) - 90
+                return 90
+
+        elif xdelta == 0:
+            if ydelta > 0:
+                return 0
+            else:
+                return 180
+
+        else:
+            angle = math.atan2(ydelta, xdelta)
+            return rad2Deg(angle) - 90
 
     def beginBuildingMove(self, moveIn, doneEvent, suit=0):
         doorPt = Point3(0)
@@ -349,8 +357,9 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
             else:
                 moveTime = SuitTimings.toToonBuilding
             return self.beginMove(doneEvent, buildingPt, time=moveTime)
-        return self.beginMove(doneEvent, doorPt, buildingPt, time=SuitTimings.fromSuitBuilding)
-        return
+        else:
+            return self.beginMove(doneEvent, doorPt, buildingPt, time=SuitTimings.fromSuitBuilding)
+            return
 
     def setSPDoId(self, doId):
         self.spDoId = doId
@@ -588,9 +597,8 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         result = int(round((avatarPos[0] + avatarPos[1]) / 2))
         if result > 100:
             result = 100
-        else:
-            if result < 0:
-                result = 0
+        elif result < 0:
+            result = 0
         volumeList = range(100, -1, -1)
         return volumeList[result]
 
@@ -600,14 +608,13 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         self.__currentDialogue = dialogue
         if dialogue:
             base.playSfx(dialogue, node=self)
-        else:
-            if chatFlags & CFSpeech != 0:
-                if self.nametag.getNumChatPages() > 0:
-                    self.playDialogueForString(self.nametag.getChat())
-                    if self.soundChatBubble != None:
-                        base.playSfx(self.soundChatBubble, node=self)
-                elif self.nametag.getChatStomp() > 0:
-                    self.playDialogueForString(self.nametag.getStompText(), self.nametag.getStompDelay())
+        elif chatFlags & CFSpeech != 0:
+            if self.nametag.getNumChatPages() > 0:
+                self.playDialogueForString(self.nametag.getChat())
+                if self.soundChatBubble != None:
+                    base.playSfx(self.soundChatBubble, node=self)
+            elif self.nametag.getChatStomp() > 0:
+                self.playDialogueForString(self.nametag.getStompText(), self.nametag.getStompDelay())
         return
 
     def playDialogueForString(self, chatString, delay=0.0):
@@ -616,28 +623,23 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         searchString = chatString.lower()
         if searchString.find(OTPLocalizer.DialogSpecial) >= 0:
             type = 'special'
+        elif searchString.find(OTPLocalizer.DialogExclamation) >= 0:
+            type = 'exclamation'
+        elif searchString.find(OTPLocalizer.DialogQuestion) >= 0:
+            type = 'question'
+        elif random.randint(0, 1):
+            type = 'statementA'
         else:
-            if searchString.find(OTPLocalizer.DialogExclamation) >= 0:
-                type = 'exclamation'
-            else:
-                if searchString.find(OTPLocalizer.DialogQuestion) >= 0:
-                    type = 'question'
-                else:
-                    if random.randint(0, 1):
-                        type = 'statementA'
-                    else:
-                        type = 'statementB'
+            type = 'statementB'
         stringLength = len(chatString)
         if stringLength <= OTPLocalizer.DialogLength1:
             length = 1
+        elif stringLength <= OTPLocalizer.DialogLength2:
+            length = 2
+        elif stringLength <= OTPLocalizer.DialogLength3:
+            length = 3
         else:
-            if stringLength <= OTPLocalizer.DialogLength2:
-                length = 2
-            else:
-                if stringLength <= OTPLocalizer.DialogLength3:
-                    length = 3
-                else:
-                    length = 4
+            length = 4
         self.playDialogue(type, length, chatString, delay)
 
     def playDialogue(self, type, length, chatString='', delay=0.0):
@@ -647,46 +649,46 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
             soundSequence.start()
             self.cleanUpSoundList()
             return
-        dialogueArray = self.getDialogueArray()
-        if dialogueArray == None:
-            return
-        sfxIndex = None
-        if type == 'statementA' or type == 'statementB':
-            if length == 1:
-                sfxIndex = 0
-            elif length == 2:
-                sfxIndex = 1
-            elif length >= 3:
-                sfxIndex = 2
         else:
-            if type == 'question':
+            dialogueArray = self.getDialogueArray()
+            if dialogueArray == None:
+                return
+            sfxIndex = None
+            if type == 'statementA' or type == 'statementB':
+                if length == 1:
+                    sfxIndex = 0
+                elif length == 2:
+                    sfxIndex = 1
+                elif length >= 3:
+                    sfxIndex = 2
+            elif type == 'question':
                 sfxIndex = 3
+            elif type == 'exclamation':
+                sfxIndex = 4
+            elif type == 'special':
+                sfxIndex = 5
             else:
-                if type == 'exclamation':
-                    sfxIndex = 4
-                else:
-                    if type == 'special':
-                        sfxIndex = 5
-                    else:
-                        notify.error('unrecognized dialogue type: ', type)
-        if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
-            soundSequence = Sequence(Wait(delay), SoundInterval(dialogueArray[sfxIndex], node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
-            self.soundSequenceList.append(soundSequence)
-            soundSequence.start()
-            self.cleanUpSoundList()
-        return
+                notify.error('unrecognized dialogue type: ', type)
+            if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
+                soundSequence = Sequence(Wait(delay), SoundInterval(dialogueArray[sfxIndex], node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
+                self.soundSequenceList.append(soundSequence)
+                soundSequence.start()
+                self.cleanUpSoundList()
+            return
 
     def playTTS(self, chatString):
         try:
             if self.getTTSVolume() == 0:
                 return
-            if sys.platform == 'darwin':
-                voice = ToontownGlobals.DefaultVoiceSuit
-                Popen(['say', voice, chatString])
             else:
-                volume = '-a' + str(self.getTTSVolume())
-                Popen([base.textToSpeechPath, volume, '-ven', chatString])
-            return
+                if sys.platform == 'darwin':
+                    voice = ToontownGlobals.DefaultVoiceSuit
+                    Popen(['say', voice, chatString])
+                else:
+                    volume = '-a' + str(self.getTTSVolume())
+                    Popen([base.textToSpeechPath, volume, '-ven', chatString])
+                return
+
         except:
             base.resetTextToSpeech()
             self.setSystemMessage(0, TTLocalizer.TextToSpeechWarning)

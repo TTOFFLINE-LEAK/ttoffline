@@ -23,21 +23,20 @@ class FriendInfo(AvatarHandle):
     def getName(self):
         if self.avatarName:
             return self.avatarName
-        if self.playerName:
-            return self.playerName
-        return ''
+        else:
+            if self.playerName:
+                return self.playerName
+            return ''
 
     def isUnderstandable(self):
         result = False
         try:
             if self.openChatFriendshipYesNo:
                 result = True
-            else:
-                if self.openChatEnabledYesNo and base.cr.openChatEnabled:
-                    result = True
-                else:
-                    if self.wlChatEnabledYesNo and base.cr.whiteListChatEnabled:
-                        result = True
+            elif self.openChatEnabledYesNo and base.cr.openChatEnabled:
+                result = True
+            elif self.wlChatEnabledYesNo and base.cr.whiteListChatEnabled:
+                result = True
         except:
             pass
 

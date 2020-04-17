@@ -19,11 +19,12 @@ class Entity(DirectObject):
     def __str__(self):
         if hasattr(self, 'level') and self.level:
             return 'ent%s(%s)' % (self.entId, self.level.getEntityType(self.entId))
-        if hasattr(self, 'name'):
-            return self.name
-        if hasattr(self, 'entId'):
-            return '%s-%s' % (self.__class__.__name__, self.entId)
-        return self.__class__.__name__
+        else:
+            if hasattr(self, 'name'):
+                return self.name
+            if hasattr(self, 'entId'):
+                return '%s-%s' % (self.__class__.__name__, self.entId)
+            return self.__class__.__name__
 
     def destroy(self):
         Entity.notify.debug('Entity.destroy() %s' % self.entId)
@@ -62,7 +63,8 @@ class Entity(DirectObject):
         setFuncName = 'set%s%s' % (string.upper(attrib[0]), attrib[1:])
         if hasattr(self, setFuncName):
             return getattr(self, setFuncName)
-        return
+        else:
+            return
 
     def callSetters(self, *attribs):
         self.privCallSetters(0, *attribs)

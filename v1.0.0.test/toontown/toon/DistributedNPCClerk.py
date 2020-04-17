@@ -85,19 +85,19 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.isLocalToon = avId == base.localAvatar.doId
         if mode == NPCToons.PURCHASE_MOVIE_CLEAR:
             return
-        if mode == NPCToons.PURCHASE_MOVIE_TIMEOUT:
-            taskMgr.remove(self.uniqueName('popupPurchaseGUI'))
-            if self.cameraLerp:
-                self.cameraLerp.finish()
-                self.cameraLerp = None
-            if self.isLocalToon:
-                self.ignore(self.purchaseDoneEvent)
-            if self.purchase:
-                self.__handlePurchaseDone()
-            self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
-            self.resetClerk()
         else:
-            if mode == NPCToons.PURCHASE_MOVIE_START:
+            if mode == NPCToons.PURCHASE_MOVIE_TIMEOUT:
+                taskMgr.remove(self.uniqueName('popupPurchaseGUI'))
+                if self.cameraLerp:
+                    self.cameraLerp.finish()
+                    self.cameraLerp = None
+                if self.isLocalToon:
+                    self.ignore(self.purchaseDoneEvent)
+                if self.purchase:
+                    self.__handlePurchaseDone()
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
+                self.resetClerk()
+            elif mode == NPCToons.PURCHASE_MOVIE_START:
                 self.av = base.cr.doId2do.get(avId)
                 if self.av is None:
                     self.notify.warning('Avatar %d not found in doId' % avId)
@@ -111,15 +111,13 @@ class DistributedNPCClerk(DistributedNPCToonBase):
                 self.setChatAbsolute(TTLocalizer.STOREOWNER_GREETING, CFSpeech | CFTimeout)
                 if self.isLocalToon:
                     taskMgr.doMethodLater(1.0, self.popupPurchaseGUI, self.uniqueName('popupPurchaseGUI'))
-            else:
-                if mode == NPCToons.PURCHASE_MOVIE_COMPLETE:
-                    self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
-                    self.resetClerk()
-                else:
-                    if mode == NPCToons.PURCHASE_MOVIE_NO_MONEY:
-                        self.setChatAbsolute(TTLocalizer.STOREOWNER_NEEDJELLYBEANS, CFSpeech | CFTimeout)
-                        self.resetClerk()
-        return
+            elif mode == NPCToons.PURCHASE_MOVIE_COMPLETE:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
+                self.resetClerk()
+            elif mode == NPCToons.PURCHASE_MOVIE_NO_MONEY:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_NEEDJELLYBEANS, CFSpeech | CFTimeout)
+                self.resetClerk()
+            return
 
     def popupPurchaseGUI(self, task):
         self.setChatAbsolute('', CFSpeech)

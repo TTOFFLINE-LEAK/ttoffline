@@ -725,7 +725,8 @@ def canBeCaughtByRod(genus, species, rodIndex):
     minRodWeight, maxRodWeight = getRodWeightRange(rodIndex)
     if minRodWeight <= maxFishWeight and maxRodWeight >= minFishWeight:
         return 1
-    return 0
+    else:
+        return 0
 
 
 def getRodWeightRange(rodIndex):
@@ -782,8 +783,9 @@ def getRandomFishVitals(zoneId, rodId, rNumGen=None):
          genus,
          species,
          weight)
-    return (0, 0, 0, 0)
-    return
+    else:
+        return (0, 0, 0, 0)
+        return
 
 
 def getWeightRange(genus, species):
@@ -808,9 +810,8 @@ def getValue(genus, species, weight):
             holidayIds = base.cr.newsManager.getHolidayIdList()
             if ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY in holidayIds or ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY_MONTH in holidayIds:
                 finalValue *= JellybeanFishingHolidayScoreMultiplier
-    else:
-        if ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY in simbase.air.holidayManager.currentHolidays or ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY_MONTH in simbase.air.holidayManager.currentHolidays:
-            finalValue *= JellybeanFishingHolidayScoreMultiplier
+    elif ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY in simbase.air.holidayManager.currentHolidays or ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY_MONTH in simbase.air.holidayManager.currentHolidays:
+        finalValue *= JellybeanFishingHolidayScoreMultiplier
     return finalValue
 
 

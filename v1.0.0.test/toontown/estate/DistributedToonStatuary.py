@@ -224,28 +224,22 @@ class DistributedToonStatuary(DistributedStatuary.DistributedStatuary):
     def poseToonFromTypeIndex(self, typeIndex):
         if typeIndex == 205:
             self.toon.pose('wave', 18)
-        else:
-            if typeIndex == 206:
-                self.toon.pose('victory', 116)
-            else:
-                if typeIndex == 207:
-                    self.toon.pose('bored', 96)
-                else:
-                    if typeIndex == 208:
-                        self.toon.pose('think', 59)
+        elif typeIndex == 206:
+            self.toon.pose('victory', 116)
+        elif typeIndex == 207:
+            self.toon.pose('bored', 96)
+        elif typeIndex == 208:
+            self.toon.pose('think', 59)
 
     def poseToonFromSpecialsIndex(self, specialsIndex):
         if specialsIndex == 105:
             self.toon.pose('wave', 18)
-        else:
-            if specialsIndex == 106:
-                self.toon.pose('victory', 116)
-            else:
-                if specialsIndex == 107:
-                    self.toon.pose('bored', 96)
-                else:
-                    if specialsIndex == 108:
-                        self.toon.pose('think', 59)
+        elif specialsIndex == 106:
+            self.toon.pose('victory', 116)
+        elif specialsIndex == 107:
+            self.toon.pose('bored', 96)
+        elif specialsIndex == 108:
+            self.toon.pose('think', 59)
 
     def getToonHeadModel(self):
         headType = ToonDNA.toonHeadTypes.index(base.localAvatar.style.head)

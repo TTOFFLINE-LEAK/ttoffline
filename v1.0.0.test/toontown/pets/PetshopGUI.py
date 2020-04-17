@@ -145,21 +145,19 @@ class PetshopGUI(DirectObject):
             if listType == 'alphabet':
                 self.curLetter = self.letters[index]
                 self.rebuildNameList()
-            else:
-                if listType == 'name':
-                    self.curName = self.curNames[index]
-                    self.updateNameText()
+            elif listType == 'name':
+                self.curName = self.curNames[index]
+                self.updateNameText()
 
         def makeLabel(self, te, index, others):
             alig = others[0]
             listName = others[1]
             if alig == TextNode.ARight:
                 newpos = (0.44, 0, 0)
+            elif alig == TextNode.ALeft:
+                newpos = (0, 0, 0)
             else:
-                if alig == TextNode.ALeft:
-                    newpos = (0, 0, 0)
-                else:
-                    newpos = (0.2, 0, 0)
+                newpos = (0.2, 0, 0)
             df = DirectButton(parent=self, state='normal', relief=None, text=te, text_scale=0.1, text_pos=(0.2,
                                                                                                            0,
                                                                                                            0), text_align=alig, textMayChange=0, command=lambda : self.nameClickedOn(listName, index))
@@ -177,14 +175,13 @@ class PetshopGUI(DirectObject):
                  gui.find('**/ArrowSmUpRollover'),
                  gui.find('**/ArrowSmUpButton'))
                 fHeight = 0.09
-            else:
-                if listType == 'name':
-                    arrowList = (
-                     gui.find('**/ArrowUpBigButton'),
-                     gui.find('**/ArrowUpBigRollover'),
-                     gui.find('**/ArrowUpBigRollover'),
-                     gui.find('**/ArrowUpBigButton'))
-                    fHeight = 0.119
+            elif listType == 'name':
+                arrowList = (
+                 gui.find('**/ArrowUpBigButton'),
+                 gui.find('**/ArrowUpBigRollover'),
+                 gui.find('**/ArrowUpBigRollover'),
+                 gui.find('**/ArrowUpBigButton'))
+                fHeight = 0.119
             ds = DirectScrolledList(parent=self, items=it, itemMakeFunction=nitemMakeFunction, itemMakeExtraArgs=nitemMakeExtraArgs, relief=None, command=None, pos=ipos, scale=0.44, incButton_image=arrowList, incButton_image_pos=(1.015,
                                                                                                                                                                                                                                       0,
                                                                                                                                                                                                                                       3.32), incButton_relief=None, incButton_scale=incScale, incButton_image3_color=Vec4(0.4, 0.4, 0.4, 1), decButton_image=arrowList, decButton_image_pos=(1.015,
@@ -515,51 +512,41 @@ class PetshopGUI(DirectObject):
         if nDialog == Dialog_MainMenu:
             self.acceptOnce(self.mainMenuDoneEvent, self.__handleMainMenuDlg)
             self.dialog = self.MainMenuDlg(self.mainMenuDoneEvent)
-        else:
-            if nDialog == Dialog_AdoptPet:
-                self.acceptOnce(self.adoptPetDoneEvent, self.__handleAdoptPetDlg)
-                self.dialog = self.AdoptPetDlg(self.adoptPetDoneEvent, self.petSeeds[self.adoptPetNum], self.adoptPetNameIndex)
-            else:
-                if nDialog == Dialog_ChoosePet:
-                    self.acceptOnce(self.petChooserDoneEvent, self.__handleChoosePetDlg)
-                    self.dialog = self.ChoosePetDlg(self.petChooserDoneEvent, self.petSeeds)
-                else:
-                    if nDialog == Dialog_ReturnPet:
-                        self.acceptOnce(self.returnPetDoneEvent, self.__handleReturnPetDlg)
-                        self.dialog = self.ReturnPetDlg(self.returnPetDoneEvent)
-                    else:
-                        if nDialog == Dialog_SellFish:
-                            self.acceptOnce(self.fishGuiDoneEvent, self.__handleFishSellDlg)
-                            self.dialog = FishSellGUI.FishSellGUI(self.fishGuiDoneEvent)
-                        else:
-                            if nDialog == Dialog_NamePicker:
-                                self.acceptOnce(self.namePickerDoneEvent, self.__handleNamePickerDlg)
-                                self.dialog = self.NamePicker(self.namePickerDoneEvent, self.petSeeds[self.adoptPetNum], gender=self.adoptPetNum % 2)
-                            else:
-                                if nDialog == Dialog_GoHome:
-                                    self.acceptOnce(self.goHomeDlgDoneEvent, self.__handleGoHomeDlg)
-                                    self.dialog = self.GoHomeDlg(self.goHomeDlgDoneEvent)
+        elif nDialog == Dialog_AdoptPet:
+            self.acceptOnce(self.adoptPetDoneEvent, self.__handleAdoptPetDlg)
+            self.dialog = self.AdoptPetDlg(self.adoptPetDoneEvent, self.petSeeds[self.adoptPetNum], self.adoptPetNameIndex)
+        elif nDialog == Dialog_ChoosePet:
+            self.acceptOnce(self.petChooserDoneEvent, self.__handleChoosePetDlg)
+            self.dialog = self.ChoosePetDlg(self.petChooserDoneEvent, self.petSeeds)
+        elif nDialog == Dialog_ReturnPet:
+            self.acceptOnce(self.returnPetDoneEvent, self.__handleReturnPetDlg)
+            self.dialog = self.ReturnPetDlg(self.returnPetDoneEvent)
+        elif nDialog == Dialog_SellFish:
+            self.acceptOnce(self.fishGuiDoneEvent, self.__handleFishSellDlg)
+            self.dialog = FishSellGUI.FishSellGUI(self.fishGuiDoneEvent)
+        elif nDialog == Dialog_NamePicker:
+            self.acceptOnce(self.namePickerDoneEvent, self.__handleNamePickerDlg)
+            self.dialog = self.NamePicker(self.namePickerDoneEvent, self.petSeeds[self.adoptPetNum], gender=self.adoptPetNum % 2)
+        elif nDialog == Dialog_GoHome:
+            self.acceptOnce(self.goHomeDlgDoneEvent, self.__handleGoHomeDlg)
+            self.dialog = self.GoHomeDlg(self.goHomeDlgDoneEvent)
 
     def __handleMainMenuDlg(self, exitVal):
         if exitVal == 0:
             messenger.send(self.eventDict['guiDone'])
-        else:
-            if exitVal == 1:
-                self.doDialog(Dialog_SellFish)
-            else:
-                if exitVal == 2:
-                    self.doDialog(Dialog_ChoosePet)
-                else:
-                    if exitVal == 3:
-                        self.doDialog(Dialog_ReturnPet)
+        elif exitVal == 1:
+            self.doDialog(Dialog_SellFish)
+        elif exitVal == 2:
+            self.doDialog(Dialog_ChoosePet)
+        elif exitVal == 3:
+            self.doDialog(Dialog_ReturnPet)
 
     def __handleFishSellDlg(self, exitVal):
         if exitVal == 0:
             self.popDialog()
-        else:
-            if exitVal == 1:
-                self.destroyDialog()
-                messenger.send(self.eventDict['fishSold'])
+        elif exitVal == 1:
+            self.destroyDialog()
+            messenger.send(self.eventDict['fishSold'])
 
     def __handleChoosePetDlg(self, exitVal):
         if exitVal == -1:
@@ -581,33 +568,30 @@ class PetshopGUI(DirectObject):
     def __handleAdoptPetDlg(self, exitVal):
         if exitVal == 0:
             self.popDialog()
-        else:
-            if exitVal == 1:
-                self.destroyDialog()
-                messenger.send(self.eventDict['petAdopted'], [self.adoptPetNum, self.adoptPetNameIndex])
-                messenger.send(self.eventDict['guiDone'])
+        elif exitVal == 1:
+            self.destroyDialog()
+            messenger.send(self.eventDict['petAdopted'], [self.adoptPetNum, self.adoptPetNameIndex])
+            messenger.send(self.eventDict['guiDone'])
 
     def __handleGoHomeDlg(self, exitVal):
         if exitVal == 0:
             messenger.send(self.eventDict['guiDone'])
-        else:
-            if exitVal == 1:
-                messenger.send(self.eventDict['guiDone'])
-                place = base.cr.playGame.getPlace()
-                if place == None:
-                    self.notify.warning('Tried to go home, but place is None.')
-                    return
-                place.goHomeNow(base.localAvatar.lastHood)
+        elif exitVal == 1:
+            messenger.send(self.eventDict['guiDone'])
+            place = base.cr.playGame.getPlace()
+            if place == None:
+                self.notify.warning('Tried to go home, but place is None.')
+                return
+            place.goHomeNow(base.localAvatar.lastHood)
         return
 
     def __handleReturnPetDlg(self, exitVal):
         if exitVal == 0:
             self.popDialog()
-        else:
-            if exitVal == 1:
-                if self.dialogStack[(len(self.dialogStack) - 2)] == Dialog_NamePicker:
-                    self.doDialog(Dialog_AdoptPet)
-                else:
-                    self.destroyDialog()
-                    messenger.send(self.eventDict['petReturned'])
-                    messenger.send(self.eventDict['guiDone'])
+        elif exitVal == 1:
+            if self.dialogStack[(len(self.dialogStack) - 2)] == Dialog_NamePicker:
+                self.doDialog(Dialog_AdoptPet)
+            else:
+                self.destroyDialog()
+                messenger.send(self.eventDict['petReturned'])
+                messenger.send(self.eventDict['guiDone'])

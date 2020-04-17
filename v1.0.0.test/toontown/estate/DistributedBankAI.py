@@ -42,14 +42,12 @@ class DistributedBankAI(DistributedFurnitureItemAI):
             av.b_setMoney(money - amount)
             av.b_setBankMoney(bankMoney + amount)
             self.d_setMovie(BankGlobals.BANK_MOVIE_WITHDRAW, avId)
-        else:
-            if amount > 0 and money < av.getMaxBankMoney():
-                if money < amount:
-                    self.air.writeServerEvent('suspicious', avId, 'av tried to deposit more money than they have')
-                    return
-                av.b_setMoney(money - amount)
-                av.b_setBankMoney(bankMoney + amount)
-                self.d_setMovie(BankGlobals.BANK_MOVIE_DEPOSIT, avId)
-            else:
-                if amount == 0:
-                    self.d_setMovie(BankGlobals.BANK_MOVIE_NO_OP, avId)
+        elif amount > 0 and money < av.getMaxBankMoney():
+            if money < amount:
+                self.air.writeServerEvent('suspicious', avId, 'av tried to deposit more money than they have')
+                return
+            av.b_setMoney(money - amount)
+            av.b_setBankMoney(bankMoney + amount)
+            self.d_setMovie(BankGlobals.BANK_MOVIE_DEPOSIT, avId)
+        elif amount == 0:
+            self.d_setMovie(BankGlobals.BANK_MOVIE_NO_OP, avId)

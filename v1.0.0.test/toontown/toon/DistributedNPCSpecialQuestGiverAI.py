@@ -34,27 +34,28 @@ class DistributedNPCSpecialQuestGiverAI(DistributedNPCToonBaseAI):
         if not self.pendingAvId:
             self.notify.warning('chooseQuest: not expecting an answer from any avatar: %s' % avId)
             return
-        if self.pendingAvId != avId:
-            self.notify.warning('chooseQuest: not expecting an answer from this avatar: %s' % avId)
-            return
-        if questId == 0:
-            self.pendingAvId = None
-            self.pendingQuests = None
-            self.air.questManager.avatarCancelled(avId)
-            self.cancelChoseQuest(avId)
-            return
-        for quest in self.pendingQuests:
-            if questId == quest[0]:
+        else:
+            if self.pendingAvId != avId:
+                self.notify.warning('chooseQuest: not expecting an answer from this avatar: %s' % avId)
+                return
+            if questId == 0:
                 self.pendingAvId = None
                 self.pendingQuests = None
-                self.air.questManager.avatarChoseQuest(avId, self, *quest)
+                self.air.questManager.avatarCancelled(avId)
+                self.cancelChoseQuest(avId)
                 return
+            for quest in self.pendingQuests:
+                if questId == quest[0]:
+                    self.pendingAvId = None
+                    self.pendingQuests = None
+                    self.air.questManager.avatarChoseQuest(avId, self, *quest)
+                    return
 
-        self.air.questManager.avatarChoseQuest(avId, self, *quest)
-        self.notify.warning('chooseQuest: avatar: %s chose a quest not offered: %s' % (avId, questId))
-        self.pendingAvId = None
-        self.pendingQuests = None
-        return
+            self.air.questManager.avatarChoseQuest(avId, self, *quest)
+            self.notify.warning('chooseQuest: avatar: %s chose a quest not offered: %s' % (avId, questId))
+            self.pendingAvId = None
+            self.pendingQuests = None
+            return
 
     def chooseTrack(self, trackId):
         avId = self.air.getAvatarIdFromSender()
@@ -62,29 +63,30 @@ class DistributedNPCSpecialQuestGiverAI(DistributedNPCToonBaseAI):
         if not self.pendingAvId:
             self.notify.warning('chooseTrack: not expecting an answer from any avatar: %s' % avId)
             return
-        if self.pendingAvId != avId:
-            self.notify.warning('chooseTrack: not expecting an answer from this avatar: %s' % avId)
-            return
-        if trackId == -1:
-            self.pendingAvId = None
-            self.pendingTracks = None
-            self.pendingTrackQuest = None
-            self.air.questManager.avatarCancelled(avId)
-            self.cancelChoseTrack(avId)
-            return
-        for track in self.pendingTracks:
-            if trackId == track:
-                self.air.questManager.avatarChoseTrack(avId, self, self.pendingTrackQuest, trackId)
+        else:
+            if self.pendingAvId != avId:
+                self.notify.warning('chooseTrack: not expecting an answer from this avatar: %s' % avId)
+                return
+            if trackId == -1:
                 self.pendingAvId = None
                 self.pendingTracks = None
                 self.pendingTrackQuest = None
+                self.air.questManager.avatarCancelled(avId)
+                self.cancelChoseTrack(avId)
                 return
+            for track in self.pendingTracks:
+                if trackId == track:
+                    self.air.questManager.avatarChoseTrack(avId, self, self.pendingTrackQuest, trackId)
+                    self.pendingAvId = None
+                    self.pendingTracks = None
+                    self.pendingTrackQuest = None
+                    return
 
-        self.notify.warning('chooseTrack: avatar: %s chose a track not offered: %s' % (avId, trackId))
-        self.pendingAvId = None
-        self.pendingTracks = None
-        self.pendingTrackQuest = None
-        return
+            self.notify.warning('chooseTrack: avatar: %s chose a track not offered: %s' % (avId, trackId))
+            self.pendingAvId = None
+            self.pendingTracks = None
+            self.pendingTrackQuest = None
+            return
 
     def sendTimeoutMovie(self, task):
         self.pendingAvId = None
@@ -217,8 +219,7 @@ class DistributedNPCSpecialQuestGiverAI(DistributedNPCToonBaseAI):
         if self.busy == avId:
             taskMgr.remove(self.uniqueName('clearMovie'))
             self.sendClearMovie(None)
-        else:
-            if self.busy:
-                self.air.writeServerEvent('suspicious', avId, 'DistributedNPCToonAI.setMovieDone busy with %s' % self.busy)
-                self.notify.warning('somebody called setMovieDone that I was not busy with! avId: %s' % avId)
+        elif self.busy:
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCToonAI.setMovieDone busy with %s' % self.busy)
+            self.notify.warning('somebody called setMovieDone that I was not busy with! avId: %s' % avId)
         return

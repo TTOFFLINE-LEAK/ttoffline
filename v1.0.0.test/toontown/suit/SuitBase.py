@@ -27,14 +27,16 @@ class SuitBase:
     def getStyleName(self):
         if hasattr(self, 'dna') and self.dna:
             return self.dna.name
-        self.notify.error('called getStyleName() before dna was set!')
-        return 'unknown'
+        else:
+            self.notify.error('called getStyleName() before dna was set!')
+            return 'unknown'
 
     def getStyleDept(self):
         if hasattr(self, 'dna') and self.dna:
             return SuitDNA.getDeptFullname(self.dna.dept)
-        self.notify.error('called getStyleDept() before dna was set!')
-        return 'unknown'
+        else:
+            self.notify.error('called getStyleDept() before dna was set!')
+            return 'unknown'
 
     def getLevel(self):
         return self.level
@@ -58,8 +60,9 @@ class SuitBase:
         if hasattr(self, 'dna'):
             lv = SuitBattleGlobals.getActualFromRelativeLevel(self.getStyleName(), self.level)
             return ToontownGlobals.SuitLevels[lv]
-        self.notify.warning('called getActualLevel with no DNA, returning 1 for level')
-        return 1
+        else:
+            self.notify.warning('called getActualLevel with no DNA, returning 1 for level')
+            return 1
 
     def setPath(self, path):
         self.path = path

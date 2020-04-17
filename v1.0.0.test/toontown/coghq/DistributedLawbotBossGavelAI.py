@@ -34,9 +34,8 @@ class DistributedLawbotBossGavelAI(DistributedObjectAI.DistributedObjectAI, FSM.
         newState = state
         if state == 'On':
             newState = 'N'
-        else:
-            if state == 'Off':
-                newState = 'F'
+        elif state == 'Off':
+            newState = 'F'
         self.sendUpdate('setState', [newState])
 
     def b_setState(self, state):

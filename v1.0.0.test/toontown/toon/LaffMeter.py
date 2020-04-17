@@ -38,32 +38,24 @@ class LaffMeter(DirectFrame):
             hType = self.style.getType()
             if hType == 'dog':
                 headModel = gui.find('**/doghead')
+            elif hType == 'cat':
+                headModel = gui.find('**/cathead')
+            elif hType == 'mouse':
+                headModel = gui.find('**/mousehead')
+            elif hType == 'horse':
+                headModel = gui.find('**/horsehead')
+            elif hType == 'rabbit':
+                headModel = gui.find('**/bunnyhead')
+            elif hType in ('duck', 'gyro', 'scrooge'):
+                headModel = gui.find('**/duckhead')
+            elif hType == 'monkey':
+                headModel = gui.find('**/monkeyhead')
+            elif hType == 'bear':
+                headModel = gui.find('**/bearhead')
+            elif hType == 'pig':
+                headModel = gui.find('**/pighead')
             else:
-                if hType == 'cat':
-                    headModel = gui.find('**/cathead')
-                else:
-                    if hType == 'mouse':
-                        headModel = gui.find('**/mousehead')
-                    else:
-                        if hType == 'horse':
-                            headModel = gui.find('**/horsehead')
-                        else:
-                            if hType == 'rabbit':
-                                headModel = gui.find('**/bunnyhead')
-                            else:
-                                if hType in ('duck', 'gyro', 'scrooge'):
-                                    headModel = gui.find('**/duckhead')
-                                else:
-                                    if hType == 'monkey':
-                                        headModel = gui.find('**/monkeyhead')
-                                    else:
-                                        if hType == 'bear':
-                                            headModel = gui.find('**/bearhead')
-                                        else:
-                                            if hType == 'pig':
-                                                headModel = gui.find('**/pighead')
-                                            else:
-                                                raise StandardError('unknown toon species: ', hType)
+                raise StandardError('unknown toon species: ', hType)
             self.color = self.style.getHeadColor()
             self.resetFrameSize()
             self.setScale(0.1)
@@ -171,22 +163,21 @@ class LaffMeter(DirectFrame):
                 if self.magicRainbow.isPlaying():
                     self.magicRainbow.finish()
                 self.image.setColor(self.deathColor)
+            elif self.hp >= self.maxHp:
+                self.smile.show()
+                self.eyes.show()
+                self.image.setColor(self.color)
+                if self.style.headColor == 27 and self.magicRainbow.isStopped():
+                    self.magicRainbow.loop()
             else:
-                if self.hp >= self.maxHp:
-                    self.smile.show()
-                    self.eyes.show()
-                    self.image.setColor(self.color)
-                    if self.style.headColor == 27 and self.magicRainbow.isStopped():
-                        self.magicRainbow.loop()
-                else:
-                    self.openSmile.show()
-                    self.eyes.show()
-                    self.maxLabel.show()
-                    self.hpLabel.show()
-                    self.image.setColor(self.color)
-                    if self.style.headColor == 27 and self.magicRainbow.isStopped():
-                        self.magicRainbow.loop()
-                    self.adjustTeeth()
+                self.openSmile.show()
+                self.eyes.show()
+                self.maxLabel.show()
+                self.hpLabel.show()
+                self.image.setColor(self.color)
+                if self.style.headColor == 27 and self.magicRainbow.isStopped():
+                    self.magicRainbow.loop()
+                self.adjustTeeth()
             self.adjustText()
             if not quietly:
                 self.animatedEffect(delta)

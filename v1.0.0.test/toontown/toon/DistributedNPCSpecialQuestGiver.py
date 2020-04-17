@@ -126,116 +126,113 @@ class DistributedNPCSpecialQuestGiver(DistributedNPCToonBase):
             self.startLookAround()
             self.detectAvatars()
             return
-        av = base.cr.doId2do.get(avId)
-        if av is None:
-            self.notify.warning('Avatar %d not found in doId' % avId)
-            return
-        if mode == NPCToons.QUEST_MOVIE_REJECT:
-            rejectString = Quests.chooseQuestDialogReject()
-            rejectString = Quests.fillInQuestNames(rejectString, avName=av.name)
-            self.setChatAbsolute(rejectString, CFSpeech | CFTimeout)
-            if isLocalToon:
-                base.localAvatar.posCamera(0, 0)
-                base.cr.playGame.getPlace().setState('walk')
-            return
-        if mode == NPCToons.QUEST_MOVIE_TIER_NOT_DONE:
-            rejectString = Quests.chooseQuestDialogTierNotDone()
-            rejectString = Quests.fillInQuestNames(rejectString, avName=av.name)
-            self.setChatAbsolute(rejectString, CFSpeech | CFTimeout)
-            if isLocalToon:
-                base.localAvatar.posCamera(0, 0)
-                base.cr.playGame.getPlace().setState('walk')
-            return
-        self.setupAvatars(av)
-        fullString = ''
-        toNpcId = None
-        if mode == NPCToons.QUEST_MOVIE_COMPLETE:
-            questId, rewardId, toNpcId = quests
-            scriptId = 'quest_complete_' + str(questId)
-            if QuestParser.questDefined(scriptId):
-                self.curQuestMovie = QuestParser.NPCMoviePlayer(scriptId, av, self)
-                self.curQuestMovie.play()
-                return
-            if isLocalToon:
-                self.setupCamera(mode)
-            greetingString = Quests.chooseQuestDialog(questId, Quests.GREETING)
-            if greetingString:
-                fullString += greetingString + '\x07'
-            fullString += Quests.chooseQuestDialog(questId, Quests.COMPLETE) + '\x07'
-            if rewardId:
-                fullString += Quests.getReward(rewardId).getString()
-            leavingString = Quests.chooseQuestDialog(questId, Quests.LEAVING)
-            if leavingString:
-                fullString += '\x07' + leavingString
         else:
-            if mode == NPCToons.QUEST_MOVIE_QUEST_CHOICE_CANCEL:
+            av = base.cr.doId2do.get(avId)
+            if av is None:
+                self.notify.warning('Avatar %d not found in doId' % avId)
+                return
+            if mode == NPCToons.QUEST_MOVIE_REJECT:
+                rejectString = Quests.chooseQuestDialogReject()
+                rejectString = Quests.fillInQuestNames(rejectString, avName=av.name)
+                self.setChatAbsolute(rejectString, CFSpeech | CFTimeout)
+                if isLocalToon:
+                    base.localAvatar.posCamera(0, 0)
+                    base.cr.playGame.getPlace().setState('walk')
+                return
+            if mode == NPCToons.QUEST_MOVIE_TIER_NOT_DONE:
+                rejectString = Quests.chooseQuestDialogTierNotDone()
+                rejectString = Quests.fillInQuestNames(rejectString, avName=av.name)
+                self.setChatAbsolute(rejectString, CFSpeech | CFTimeout)
+                if isLocalToon:
+                    base.localAvatar.posCamera(0, 0)
+                    base.cr.playGame.getPlace().setState('walk')
+                return
+            self.setupAvatars(av)
+            fullString = ''
+            toNpcId = None
+            if mode == NPCToons.QUEST_MOVIE_COMPLETE:
+                questId, rewardId, toNpcId = quests
+                scriptId = 'quest_complete_' + str(questId)
+                if QuestParser.questDefined(scriptId):
+                    self.curQuestMovie = QuestParser.NPCMoviePlayer(scriptId, av, self)
+                    self.curQuestMovie.play()
+                    return
+                if isLocalToon:
+                    self.setupCamera(mode)
+                greetingString = Quests.chooseQuestDialog(questId, Quests.GREETING)
+                if greetingString:
+                    fullString += greetingString + '\x07'
+                fullString += Quests.chooseQuestDialog(questId, Quests.COMPLETE) + '\x07'
+                if rewardId:
+                    fullString += Quests.getReward(rewardId).getString()
+                leavingString = Quests.chooseQuestDialog(questId, Quests.LEAVING)
+                if leavingString:
+                    fullString += '\x07' + leavingString
+            elif mode == NPCToons.QUEST_MOVIE_QUEST_CHOICE_CANCEL:
                 fullString = TTLocalizer.QuestMovieQuestChoiceCancel
+            elif mode == NPCToons.QUEST_MOVIE_TRACK_CHOICE_CANCEL:
+                fullString = TTLocalizer.QuestMovieTrackChoiceCancel
+            elif mode == NPCToons.QUEST_MOVIE_INCOMPLETE:
+                questId, completeStatus, toNpcId = quests
+                scriptId = 'quest_incomplete_' + str(questId)
+                if QuestParser.questDefined(scriptId):
+                    if self.curQuestMovie:
+                        self.curQuestMovie.timeout()
+                        self.curQuestMovie.cleanup()
+                        self.curQuestMovie = None
+                    self.curQuestMovie = QuestParser.NPCMoviePlayer(scriptId, av, self)
+                    self.curQuestMovie.play()
+                    return
+                if isLocalToon:
+                    self.setupCamera(mode)
+                greetingString = Quests.chooseQuestDialog(questId, Quests.GREETING)
+                if greetingString:
+                    fullString += greetingString + '\x07'
+                fullString += Quests.chooseQuestDialog(questId, completeStatus)
+                leavingString = Quests.chooseQuestDialog(questId, Quests.LEAVING)
+                if leavingString:
+                    fullString += '\x07' + leavingString
+            elif mode == NPCToons.QUEST_MOVIE_ASSIGN:
+                questId, rewardId, toNpcId = quests
+                scriptId = 'quest_assign_' + str(questId)
+                if QuestParser.questDefined(scriptId):
+                    if self.curQuestMovie:
+                        self.curQuestMovie.timeout()
+                        self.curQuestMovie.cleanup()
+                        self.curQuestMovie = None
+                    self.curQuestMovie = QuestParser.NPCMoviePlayer(scriptId, av, self)
+                    self.curQuestMovie.play()
+                    return
+                if isLocalToon:
+                    self.setupCamera(mode)
+                fullString += Quests.chooseQuestDialog(questId, Quests.QUEST)
+                leavingString = Quests.chooseQuestDialog(questId, Quests.LEAVING)
+                if leavingString:
+                    fullString += '\x07' + leavingString
             else:
-                if mode == NPCToons.QUEST_MOVIE_TRACK_CHOICE_CANCEL:
-                    fullString = TTLocalizer.QuestMovieTrackChoiceCancel
-                else:
-                    if mode == NPCToons.QUEST_MOVIE_INCOMPLETE:
-                        questId, completeStatus, toNpcId = quests
-                        scriptId = 'quest_incomplete_' + str(questId)
-                        if QuestParser.questDefined(scriptId):
-                            if self.curQuestMovie:
-                                self.curQuestMovie.timeout()
-                                self.curQuestMovie.cleanup()
-                                self.curQuestMovie = None
-                            self.curQuestMovie = QuestParser.NPCMoviePlayer(scriptId, av, self)
-                            self.curQuestMovie.play()
-                            return
-                        if isLocalToon:
-                            self.setupCamera(mode)
-                        greetingString = Quests.chooseQuestDialog(questId, Quests.GREETING)
-                        if greetingString:
-                            fullString += greetingString + '\x07'
-                        fullString += Quests.chooseQuestDialog(questId, completeStatus)
-                        leavingString = Quests.chooseQuestDialog(questId, Quests.LEAVING)
-                        if leavingString:
-                            fullString += '\x07' + leavingString
-                    else:
-                        if mode == NPCToons.QUEST_MOVIE_ASSIGN:
-                            questId, rewardId, toNpcId = quests
-                            scriptId = 'quest_assign_' + str(questId)
-                            if QuestParser.questDefined(scriptId):
-                                if self.curQuestMovie:
-                                    self.curQuestMovie.timeout()
-                                    self.curQuestMovie.cleanup()
-                                    self.curQuestMovie = None
-                                self.curQuestMovie = QuestParser.NPCMoviePlayer(scriptId, av, self)
-                                self.curQuestMovie.play()
-                                return
-                            if isLocalToon:
-                                self.setupCamera(mode)
-                            fullString += Quests.chooseQuestDialog(questId, Quests.QUEST)
-                            leavingString = Quests.chooseQuestDialog(questId, Quests.LEAVING)
-                            if leavingString:
-                                fullString += '\x07' + leavingString
-                        else:
-                            if mode == NPCToons.QUEST_MOVIE_QUEST_CHOICE:
-                                if isLocalToon:
-                                    self.setupCamera(mode)
-                                self.setChatAbsolute(TTLocalizer.QuestMovieQuestChoice, CFSpeech)
-                                if isLocalToon:
-                                    self.acceptOnce('chooseQuest', self.sendChooseQuest)
-                                    self.questChoiceGui = QuestChoiceGui.QuestChoiceGui()
-                                    self.questChoiceGui.setQuests(quests, npcId, ChoiceTimeout)
-                                return
-                            if mode == NPCToons.QUEST_MOVIE_TRACK_CHOICE:
-                                if isLocalToon:
-                                    self.setupCamera(mode)
-                                tracks = quests
-                                self.setChatAbsolute(TTLocalizer.QuestMovieTrackChoice, CFSpeech)
-                                if isLocalToon:
-                                    self.acceptOnce('chooseTrack', self.sendChooseTrack)
-                                    self.trackChoiceGui = TrackChoiceGui.TrackChoiceGui(tracks, ChoiceTimeout)
-                                return
-        fullString = Quests.fillInQuestNames(fullString, avName=av.name, fromNpcId=npcId, toNpcId=toNpcId)
-        self.acceptOnce(self.uniqueName('doneChatPage'), self.finishMovie, extraArgs=[av, isLocalToon])
-        self.clearChat()
-        self.setPageChat(avId, 0, fullString, 1)
-        return
+                if mode == NPCToons.QUEST_MOVIE_QUEST_CHOICE:
+                    if isLocalToon:
+                        self.setupCamera(mode)
+                    self.setChatAbsolute(TTLocalizer.QuestMovieQuestChoice, CFSpeech)
+                    if isLocalToon:
+                        self.acceptOnce('chooseQuest', self.sendChooseQuest)
+                        self.questChoiceGui = QuestChoiceGui.QuestChoiceGui()
+                        self.questChoiceGui.setQuests(quests, npcId, ChoiceTimeout)
+                    return
+                if mode == NPCToons.QUEST_MOVIE_TRACK_CHOICE:
+                    if isLocalToon:
+                        self.setupCamera(mode)
+                    tracks = quests
+                    self.setChatAbsolute(TTLocalizer.QuestMovieTrackChoice, CFSpeech)
+                    if isLocalToon:
+                        self.acceptOnce('chooseTrack', self.sendChooseTrack)
+                        self.trackChoiceGui = TrackChoiceGui.TrackChoiceGui(tracks, ChoiceTimeout)
+                    return
+            fullString = Quests.fillInQuestNames(fullString, avName=av.name, fromNpcId=npcId, toNpcId=toNpcId)
+            self.acceptOnce(self.uniqueName('doneChatPage'), self.finishMovie, extraArgs=[av, isLocalToon])
+            self.clearChat()
+            self.setPageChat(avId, 0, fullString, 1)
+            return
 
     def sendChooseQuest(self, questId):
         if self.questChoiceGui:

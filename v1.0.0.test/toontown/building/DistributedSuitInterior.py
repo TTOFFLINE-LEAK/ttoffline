@@ -264,37 +264,37 @@ class DistributedSuitInterior(DistributedObject.DistributedObject):
                 self.floorModel = loader.loadModel('phase_7/models/modules/cubicle_room')
                 SuitHs = self.Cubicle_SuitHs
                 SuitPositions = self.Cubicle_SuitPositions
-        self.floorModel.reparentTo(render)
-        elevIn = self.floorModel.find('**/elevator-in')
-        elevOut = self.floorModel.find('**/elevator-out')
-        for index in xrange(len(self.suits)):
-            self.suits[index].setPos(SuitPositions[index])
-            if len(self.suits) > 2:
-                self.suits[index].setH(SuitHs[index])
-            else:
-                self.suits[index].setH(170)
-            self.suits[index].loop('neutral')
+            self.floorModel.reparentTo(render)
+            elevIn = self.floorModel.find('**/elevator-in')
+            elevOut = self.floorModel.find('**/elevator-out')
+            for index in xrange(len(self.suits)):
+                self.suits[index].setPos(SuitPositions[index])
+                if len(self.suits) > 2:
+                    self.suits[index].setH(SuitHs[index])
+                else:
+                    self.suits[index].setH(170)
+                self.suits[index].loop('neutral')
 
-        for toon in self.toons:
-            toon.reparentTo(self.elevatorModelIn)
-            index = self.toonIds.index(toon.doId)
-            toon.setPos(ElevatorPoints[index][0], ElevatorPoints[index][1], ElevatorPoints[index][2])
-            toon.setHpr(180, 0, 0)
-            toon.loop('neutral')
+            for toon in self.toons:
+                toon.reparentTo(self.elevatorModelIn)
+                index = self.toonIds.index(toon.doId)
+                toon.setPos(ElevatorPoints[index][0], ElevatorPoints[index][1], ElevatorPoints[index][2])
+                toon.setHpr(180, 0, 0)
+                toon.loop('neutral')
 
-        self.elevatorModelIn.reparentTo(elevIn)
-        self.leftDoorIn.setPos(3.5, 0, 0)
-        self.rightDoorIn.setPos(-3.5, 0, 0)
-        self.elevatorModelOut.reparentTo(elevOut)
-        self.leftDoorOut.setPos(3.5, 0, 0)
-        self.rightDoorOut.setPos(-3.5, 0, 0)
-        camera.reparentTo(self.elevatorModelIn)
-        camera.setH(180)
-        camera.setPos(0, 14, 4)
-        base.playMusic(self.elevatorMusic, looping=1, volume=0.8)
-        track = Sequence(ElevatorUtils.getRideElevatorInterval(ELEVATOR_NORMAL), ElevatorUtils.getOpenInterval(self, self.leftDoorIn, self.rightDoorIn, self.openSfx, None, type=ELEVATOR_NORMAL), Func(camera.wrtReparentTo, render))
-        for toon in self.toons:
-            track.append(Func(toon.wrtReparentTo, render))
+            self.elevatorModelIn.reparentTo(elevIn)
+            self.leftDoorIn.setPos(3.5, 0, 0)
+            self.rightDoorIn.setPos(-3.5, 0, 0)
+            self.elevatorModelOut.reparentTo(elevOut)
+            self.leftDoorOut.setPos(3.5, 0, 0)
+            self.rightDoorOut.setPos(-3.5, 0, 0)
+            camera.reparentTo(self.elevatorModelIn)
+            camera.setH(180)
+            camera.setPos(0, 14, 4)
+            base.playMusic(self.elevatorMusic, looping=1, volume=0.8)
+            track = Sequence(ElevatorUtils.getRideElevatorInterval(ELEVATOR_NORMAL), ElevatorUtils.getOpenInterval(self, self.leftDoorIn, self.rightDoorIn, self.openSfx, None, type=ELEVATOR_NORMAL), Func(camera.wrtReparentTo, render))
+            for toon in self.toons:
+                track.append(Func(toon.wrtReparentTo, render))
 
         track.append(Func(callback))
         track.start(ts)

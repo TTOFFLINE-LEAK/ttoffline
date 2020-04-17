@@ -92,9 +92,8 @@ class DistributedClosetAI(DistributedFurnitureItemAI):
         testDNA.makeFromNetString(dnaString)
         if itemType == ClosetGlobals.SHIRT:
             self.removedShirts.append((testDNA.topTex, testDNA.topTexColor, testDNA.sleeveTex, testDNA.sleeveTexColor))
-        else:
-            if itemType == ClosetGlobals.SHORTS:
-                self.removedBottoms.append((testDNA.botTex, testDNA.botTexColor))
+        elif itemType == ClosetGlobals.SHORTS:
+            self.removedBottoms.append((testDNA.botTex, testDNA.botTexColor))
 
     def setDNA(self, dnaString, finished, whichItems):
         avId = self.air.getAvatarIdFromSender()
@@ -102,37 +101,37 @@ class DistributedClosetAI(DistributedFurnitureItemAI):
         if not av:
             self.air.writeServerEvent('suspicious', avId, 'av not in same shard as closet!')
             return
-        if av.getLocation() != self.getLocation():
-            self.air.writeServerEvent('suspicious', avId, 'av not in same zone as closet!')
-            return
-        if avId != self.customerId:
-            if self.customerId:
-                self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA customer is %s' % self.customerId)
-                self.notify.warning('customerId: %s, but got setDNA for: %s' % (self.customerId, avId))
-            return
-        testDNA = ToonDNA.ToonDNA()
-        if not testDNA.isValidNetString(dnaString):
-            self.air.writeServerEvent('suspicious', avId, 'DistributedClosetAI.setDNA: invalid dna: %s' % dnaString)
-            return
-        testDNA.makeFromNetString(dnaString)
-        if finished == 0:
-            if not self.__validChange(testDNA):
-                self.air.writeServerEvent('suspicious', avId, 'DistributedClosetAI.setDNA: av tried to switch body dna')
-                return
-            self.sendUpdate('setCustomerDNA', [avId, dnaString])
-            return
-        if finished == 1:
-            av.b_setDNAString(self.customerDNA.makeNetString())
-            self.customerId = 0
-            self.customerDNA = None
-            self.gender = ''
-            self.__resetItemLists()
-            self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_COMPLETE, avId)
-            self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
-            self.sendUpdate('setCustomerDNA', [0, ''])
-            self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.topList, self.bottomList)
         else:
-            if finished == 2:
+            if av.getLocation() != self.getLocation():
+                self.air.writeServerEvent('suspicious', avId, 'av not in same zone as closet!')
+                return
+            if avId != self.customerId:
+                if self.customerId:
+                    self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA customer is %s' % self.customerId)
+                    self.notify.warning('customerId: %s, but got setDNA for: %s' % (self.customerId, avId))
+                return
+            testDNA = ToonDNA.ToonDNA()
+            if not testDNA.isValidNetString(dnaString):
+                self.air.writeServerEvent('suspicious', avId, 'DistributedClosetAI.setDNA: invalid dna: %s' % dnaString)
+                return
+            testDNA.makeFromNetString(dnaString)
+            if finished == 0:
+                if not self.__validChange(testDNA):
+                    self.air.writeServerEvent('suspicious', avId, 'DistributedClosetAI.setDNA: av tried to switch body dna')
+                    return
+                self.sendUpdate('setCustomerDNA', [avId, dnaString])
+                return
+            if finished == 1:
+                av.b_setDNAString(self.customerDNA.makeNetString())
+                self.customerId = 0
+                self.customerDNA = None
+                self.gender = ''
+                self.__resetItemLists()
+                self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_COMPLETE, avId)
+                self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
+                self.sendUpdate('setCustomerDNA', [0, ''])
+                self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.topList, self.bottomList)
+            elif finished == 2:
                 if avId != self.ownerId:
                     self.air.writeServerEvent('suspicious', avId, 'av tried to steal clothing!')
                     return
@@ -175,9 +174,9 @@ class DistributedClosetAI(DistributedFurnitureItemAI):
                 self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
                 self.sendUpdate('setCustomerDNA', [0, ''])
                 self.d_setState(ClosetGlobals.CLOSED, avId, self.ownerId, self.gender, self.topList, self.bottomList)
-        taskMgr.remove('closet-timeout-%d' % avId)
-        self.ignore(self.air.getAvatarExitEvent(avId))
-        return
+            taskMgr.remove('closet-timeout-%d' % avId)
+            self.ignore(self.air.getAvatarExitEvent(avId))
+            return
 
     def d_setMovie(self, mode, avId):
         self.sendUpdate('setMovie', [mode, avId, globalClockDelta.getRealNetworkTime()])
@@ -192,14 +191,15 @@ class DistributedClosetAI(DistributedFurnitureItemAI):
         if avId != self.customerId:
             self.notify.warning('received unexpected exit for av %s that is not using the closet!' % avId)
             return
-        self.customerId = 0
-        self.customerDNA = None
-        self.gender = ''
-        self.__resetItemLists()
-        self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
-        self.sendUpdate('setCustomerDNA', [0, ''])
-        self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.topList, self.bottomList)
-        return
+        else:
+            self.customerId = 0
+            self.customerDNA = None
+            self.gender = ''
+            self.__resetItemLists()
+            self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
+            self.sendUpdate('setCustomerDNA', [0, ''])
+            self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.topList, self.bottomList)
+            return
 
     def __validChange(self, style):
         if style.head != self.customerDNA.head:

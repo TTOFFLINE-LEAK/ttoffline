@@ -102,9 +102,10 @@ class DistributedTravelGameAI(DistributedMinigameAI):
         def voteCompare(directionVoteA, directionVoteB):
             if directionVoteA[1] < directionVoteB[1]:
                 return -1
-            if directionVoteA[1] == directionVoteB[1]:
-                return 0
-            return 1
+            else:
+                if directionVoteA[1] == directionVoteB[1]:
+                    return 0
+                return 1
 
         self.directionVotes.sort(voteCompare, reverse=True)
         winningVotes = self.directionVotes[0][1]

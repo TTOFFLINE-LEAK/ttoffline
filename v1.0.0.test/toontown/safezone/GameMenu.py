@@ -24,13 +24,12 @@ class GameMenu(DirectFrame):
                                                                                                                                                                                                          1,
                                                                                                                                                                                                          1,
                                                                                                                                                                                                          1))
-        else:
-            if menuType == 2:
-                self.title = DirectLabel(self, relief=None, text=TTLocalizer.PicnicTableMenuSelect, text_pos=(0.0,
-                                                                                                              -0.04), text_fg=(1,
-                                                                                                                               0,
-                                                                                                                               0,
-                                                                                                                               1), text_scale=0.09, text_font=ToontownGlobals.getSignFont())
+        elif menuType == 2:
+            self.title = DirectLabel(self, relief=None, text=TTLocalizer.PicnicTableMenuSelect, text_pos=(0.0,
+                                                                                                          -0.04), text_fg=(1,
+                                                                                                                           0,
+                                                                                                                           0,
+                                                                                                                           1), text_scale=0.09, text_font=ToontownGlobals.getSignFont())
         self.selectionButtons = loader.loadModel('phase_6/models/golf/picnic_game_menu.bam')
         btn1 = self.selectionButtons.find('**/Btn1')
         btn2 = self.selectionButtons.find('**/Btn2')

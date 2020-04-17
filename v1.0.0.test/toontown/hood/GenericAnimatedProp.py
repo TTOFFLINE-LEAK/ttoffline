@@ -19,22 +19,20 @@ class GenericAnimatedProp(AnimatedProp.AnimatedProp):
         else:
             if code.startswith('animated_prop_generic_'):
                 pathStr = code[len('animated_prop_generic_'):].split('__')[0]
-            else:
-                if code.startswith('animated_prop_'):
-                    tempStr = code[len('animated_prop_'):]
-                    nextUnderscore = tempStr.find('_')
-                    finalStr = tempStr[nextUnderscore + 1:]
-                    pathStr = finalStr.split('__')[0]
-                else:
-                    if code.startswith('animated_building_'):
-                        pathStr = code[len('animated_building_'):].split('__')[0]
-        phaseDelimeter = len('phase_') + pathStr[len('phase_'):].find('_')
-        phaseStr = pathStr[:phaseDelimeter]
-        pathTokens = pathStr[phaseDelimeter + 1:].split('_')
-        self.path = phaseStr
-        for path in pathTokens:
-            self.path += '/'
-            self.path += path
+            elif code.startswith('animated_prop_'):
+                tempStr = code[len('animated_prop_'):]
+                nextUnderscore = tempStr.find('_')
+                finalStr = tempStr[nextUnderscore + 1:]
+                pathStr = finalStr.split('__')[0]
+            elif code.startswith('animated_building_'):
+                pathStr = code[len('animated_building_'):].split('__')[0]
+            phaseDelimeter = len('phase_') + pathStr[len('phase_'):].find('_')
+            phaseStr = pathStr[:phaseDelimeter]
+            pathTokens = pathStr[phaseDelimeter + 1:].split('_')
+            self.path = phaseStr
+            for path in pathTokens:
+                self.path += '/'
+                self.path += path
 
         self.notify.debug('self.path=%s' % self.path)
         self.calcHoodId(node)

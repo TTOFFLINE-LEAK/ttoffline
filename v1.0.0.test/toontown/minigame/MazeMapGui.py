@@ -217,9 +217,8 @@ class MazeMapGui(DirectFrame):
             self.notify.warning('len(_revealedCells): %s' % (len(self._revealedCells),))
             if tY < len(self._revealedCells):
                 self.notify.warning('len(_revealedCells[tY]): %s' % (len(self._revealedCells[tY]),))
-            else:
-                if len(self._revealedCells) > 0:
-                    self.notify.warning('len(_revealedCells[0]): %s' % (len(self._revealedCells[0]),))
+            elif len(self._revealedCells) > 0:
+                self.notify.warning('len(_revealedCells[0]): %s' % (len(self._revealedCells[0]),))
             return
         if not self._revealedCells[tY][tX]:
             self._drawHole(x, y)

@@ -117,17 +117,14 @@ class DistributedLaserField(BattleBlocker.BattleBlocker):
         self.gridGameText = gameName
         if gameName == 'MineSweeper':
             self.gridGameText = TTLocalizer.LaserGameMine
+        elif gameName == 'Roll':
+            self.gridGameText = TTLocalizer.LaserGameRoll
+        elif gameName == 'Avoid':
+            self.gridGameText = TTLocalizer.LaserGameAvoid
+        elif gameName == 'Drag':
+            self.gridGameText = TTLocalizer.LaserGameDrag
         else:
-            if gameName == 'Roll':
-                self.gridGameText = TTLocalizer.LaserGameRoll
-            else:
-                if gameName == 'Avoid':
-                    self.gridGameText = TTLocalizer.LaserGameAvoid
-                else:
-                    if gameName == 'Drag':
-                        self.gridGameText = TTLocalizer.LaserGameDrag
-                    else:
-                        self.gridGameText = TTLocalizer.LaserGameDefault
+            self.gridGameText = TTLocalizer.LaserGameDefault
 
     def setActiveLF(self, active=1):
         if active:
@@ -396,9 +393,8 @@ class DistributedLaserField(BattleBlocker.BattleBlocker):
                     self.isToonIn = 0
                     self.genGrid()
                 self.isToonIn = 0
-        else:
-            if self.isToonInRange:
-                self.doToonOutOfRange()
+        elif self.isToonInRange:
+            self.doToonOutOfRange()
         taskMgr.doMethodLater(0.1, self.__detect, self.detectName)
         return Task.done
 

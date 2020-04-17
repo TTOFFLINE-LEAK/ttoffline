@@ -52,11 +52,10 @@ class LoginTTAccount(LoginBase.LoginBase, TTAccount.TTAccount):
     def __addTokenType(self, datagram):
         if self.useTTSpecificLogin:
             datagram.addInt32(CLIENT_LOGIN_3_DISL_TOKEN)
+        elif self.playTokenIsEncrypted:
+            datagram.addInt32(CLIENT_LOGIN_2_PLAY_TOKEN)
         else:
-            if self.playTokenIsEncrypted:
-                datagram.addInt32(CLIENT_LOGIN_2_PLAY_TOKEN)
-            else:
-                datagram.addInt32(CLIENT_LOGIN_2_PLAY_TOKEN)
+            datagram.addInt32(CLIENT_LOGIN_2_PLAY_TOKEN)
 
     def getErrorCode(self):
         return self.response.getInt('errorCode', 0)
@@ -78,21 +77,20 @@ class LoginTTAccount(LoginBase.LoginBase, TTAccount.TTAccount):
                 return (
                  0, str(e))
 
-        else:
-            if self.useTTSpecificLogin:
-                try:
-                    errorMsg = self.talk('authenticateParentPasswordNewStyle', data=self.makeLoginDict(loginName, parentPassword))
-                    if not errorMsg:
-                        return (1, None)
-                    if self.response.getInt('errorCode') in (5, 72):
-                        return (0, None)
-                    return (0, errorMsg)
-                except TTAccountException as e:
-                    return (
-                     0, str(e))
+        elif self.useTTSpecificLogin:
+            try:
+                errorMsg = self.talk('authenticateParentPasswordNewStyle', data=self.makeLoginDict(loginName, parentPassword))
+                if not errorMsg:
+                    return (1, None)
+                if self.response.getInt('errorCode') in (5, 72):
+                    return (0, None)
+                return (0, errorMsg)
+            except TTAccountException as e:
+                return (
+                 0, str(e))
 
-            else:
-                return TTAccount.TTAccount.authenticateParentPassword(self, loginName, password, parentPassword)
+        else:
+            return TTAccount.TTAccount.authenticateParentPassword(self, loginName, password, parentPassword)
         return
 
     def authenticateDelete(self, loginName, password):

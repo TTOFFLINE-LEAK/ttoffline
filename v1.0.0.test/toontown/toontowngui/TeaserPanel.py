@@ -170,9 +170,10 @@ class TeaserPanel(DirectObject):
     def removed(self):
         if hasattr(self, 'dialog') and self.dialog:
             return self.dialog.removed()
-        if hasattr(self, 'leaveDialog') and self.leaveDialog:
-            return self.leaveDialog.removed()
-        return 1
+        else:
+            if hasattr(self, 'leaveDialog') and self.leaveDialog:
+                return self.leaveDialog.removed()
+            return 1
 
 
 class FeatureBrowser(DirectScrolledList):

@@ -254,13 +254,12 @@ class ChatLog(DirectButton):
         else:
             if type == WhisperPopup.WTGlobal:
                 tab = 2
-            else:
-                if type == WhisperPopup.WTQuickTalker:
-                    tab = 1
-                    if name == base.localAvatar.getName():
-                        name = OTPLocalizer.MeToReceiver % name
-                    else:
-                        name = OTPLocalizer.ReceiverToMe % name
+            elif type == WhisperPopup.WTQuickTalker:
+                tab = 1
+                if name == base.localAvatar.getName():
+                    name = OTPLocalizer.MeToReceiver % name
+                else:
+                    name = OTPLocalizer.ReceiverToMe % name
             self.logs[tab].append('\x01%s\x01\x01%s\x01%s%s\x02\x02 \x01%s\x01%s\x02' % (OTPLocalizer.getPropertiesForFont(font),
              OTPLocalizer.getPropertiesForColor(color),
              name, colon, OTPLocalizer.getPropertiesForFont(speechFont),

@@ -101,9 +101,8 @@ class Nametag3d(Nametag, PandaNode):
         page_button = None
         if has_page_button:
             page_button = NametagGlobals.getPageButton(v5)
-        else:
-            if has_quit_button:
-                page_button = NametagGlobals.getQuitButton(v5)
+        elif has_quit_button:
+            page_button = NametagGlobals.getQuitButton(v5)
         reversed = self.m_group.m_chat_flags & CFReversed
         new_button = [None]
         balloon_result = balloon.generate(text, self.m_group.getChatFont(), self.m_wordwrap, text_color, balloon_color, self.m_is_3d, self.m_has_draw_order, self.m_draw_order, page_button, self.m_group.willHaveButton(), reversed, new_button)
@@ -307,9 +306,8 @@ class Nametag3d(Nametag, PandaNode):
             v118 = self.m_group.m_nametag3d_flag
             if v89:
                 v118 = max(v118, 1)
-            else:
-                if v118 <= 2:
-                    v118 = 2
+            elif v118 <= 2:
+                v118 = 2
             self.m_group.setNametag3dFlag(v118)
             return
         self.m_group.incrementNametag3dFlag(2)

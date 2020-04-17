@@ -127,10 +127,9 @@ class TTOffMagicWordManager(DistributedObject.DistributedObject):
         magicWordInfo = magicWordIndex[word]
         if magicWordInfo['execLocation'] == EXEC_LOC_INVALID:
             raise ValueError(('execLocation not set for magic word {}!').format(magicWordInfo['classname']))
-        else:
-            if magicWordInfo['execLocation'] in [EXEC_LOC_SERVER, EXEC_LOC_CLIENT]:
-                self.sendUpdate('requestExecuteMagicWord', [
-                 affectRange, affectType, affectExtra, self.lastClickedAvId, magicWordNoPrefix])
+        elif magicWordInfo['execLocation'] in [EXEC_LOC_SERVER, EXEC_LOC_CLIENT]:
+            self.sendUpdate('requestExecuteMagicWord', [
+             affectRange, affectType, affectExtra, self.lastClickedAvId, magicWordNoPrefix])
 
     def executeMagicWord(self, word, commandName, targetIds, args, affectRange, affectType, affectExtra, lastClickedAvId):
         command = getMagicWord(commandName)

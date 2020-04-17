@@ -21,19 +21,17 @@ class DistributedSpecialZonePortalAI(DistributedObjectAI.DistributedObjectAI):
         if state == 0:
             taskMgr.doMethodLater(78.25, self.togglePortal, self.uniqueName('closePortal'), extraArgs=[
              1, avId, zoneId, npcId])
-        else:
-            if state == 2:
-                npcId = random.choice(ToontownGlobals.MeetHereNpcIds)
-                taskMgr.doMethodLater(5.517, self.setPortalState, self.uniqueName('setPortalState'), extraArgs=[2])
-                taskMgr.doMethodLater(20.517, self.togglePortal, self.uniqueName('noResponse'), extraArgs=[
-                 3, avId, zoneId, npcId])
+        elif state == 2:
+            npcId = random.choice(ToontownGlobals.MeetHereNpcIds)
+            taskMgr.doMethodLater(5.517, self.setPortalState, self.uniqueName('setPortalState'), extraArgs=[2])
+            taskMgr.doMethodLater(20.517, self.togglePortal, self.uniqueName('noResponse'), extraArgs=[
+             3, avId, zoneId, npcId])
+        elif state in (1, 3):
+            if state == 1:
+                time = 16.0
             else:
-                if state in (1, 3):
-                    if state == 1:
-                        time = 16.0
-                    else:
-                        time = 7.87
-                    taskMgr.doMethodLater(time, self.setPortalState, self.uniqueName('setPortalState'), extraArgs=[0])
+                time = 7.87
+            taskMgr.doMethodLater(time, self.setPortalState, self.uniqueName('setPortalState'), extraArgs=[0])
         self.sendUpdate('togglePortal', [state, zoneId, npcId, avId, ClockDelta.globalClockDelta.getRealNetworkTime()])
 
     def setPortalState(self, state):

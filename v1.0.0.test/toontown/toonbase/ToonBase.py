@@ -56,11 +56,10 @@ class ToonBase(OTPBase.OTPBase):
             else:
                 programFiles = os.environ['PROGRAMFILES']
             self.defaultTextToSpeechPath = programFiles + '\\eSpeak\\command_line\\espeak'
+        elif sys.platform == 'linux2':
+            self.defaultTextToSpeechPath = '/usr/bin/espeak'
         else:
-            if sys.platform == 'linux2':
-                self.defaultTextToSpeechPath = '/usr/bin/espeak'
-            else:
-                self.defaultTextToSpeechPath = ''
+            self.defaultTextToSpeechPath = ''
         self.textToSpeechPath = self.defaultTextToSpeechPath
         self.globalChatWhispers = self.config.GetBool('global-chat-whispers', 1)
         self.chatLogOpen = self.config.GetBool('chat-log-open', False)
@@ -262,50 +261,51 @@ class ToonBase(OTPBase.OTPBase):
         timedif = globalClock.getRealTime() - self.lastScreenShotTime
         if self.glitchCount > 10 and self.walking:
             return
-        if timedif < 1.0 and self.walking:
-            self.glitchCount += 1
-            return
-        if not hasattr(self, 'localAvatar'):
-            self.screenshot(namePrefix=namePrefix)
+        else:
+            if timedif < 1.0 and self.walking:
+                self.glitchCount += 1
+                return
+            if not hasattr(self, 'localAvatar'):
+                self.screenshot(namePrefix=namePrefix)
+                self.lastScreenShotTime = globalClock.getRealTime()
+                return
+            coordOnScreen = self.config.GetBool('screenshot-coords', 0)
+            self.localAvatar.stopThisFrame = 1
+            ctext = self.localAvatar.getAvPosStr()
+            self.screenshotStr = ''
+            messenger.send('takingScreenshot')
+            if coordOnScreen:
+                coordTextLabel = DirectLabel(pos=(-0.81, 0.001, -0.87), text=ctext, text_scale=0.05, text_fg=VBase4(1.0, 1.0, 1.0, 1.0), text_bg=(0,
+                                                                                                                                                  0,
+                                                                                                                                                  0,
+                                                                                                                                                  0), text_shadow=(0,
+                                                                                                                                                                   0,
+                                                                                                                                                                   0,
+                                                                                                                                                                   1), relief=None)
+                coordTextLabel.setBin('gui-popup', 0)
+                strTextLabel = None
+                if len(self.screenshotStr):
+                    strTextLabel = DirectLabel(pos=(0.0, 0.001, 0.9), text=self.screenshotStr, text_scale=0.05, text_fg=VBase4(1.0, 1.0, 1.0, 1.0), text_bg=(0,
+                                                                                                                                                             0,
+                                                                                                                                                             0,
+                                                                                                                                                             0), text_shadow=(0,
+                                                                                                                                                                              0,
+                                                                                                                                                                              0,
+                                                                                                                                                                              1), relief=None)
+                    strTextLabel.setBin('gui-popup', 0)
+            self.graphicsEngine.renderFrame()
+            self.screenshot(namePrefix=namePrefix, imageComment=ctext + ' ' + self.screenshotStr)
             self.lastScreenShotTime = globalClock.getRealTime()
+            if coordOnScreen:
+                if strTextLabel is not None:
+                    strTextLabel.destroy()
+                coordTextLabel.destroy()
+            base.playSfx(self.screenshotSfx)
+            if self.screenshotSeq and self.screenshotSeq.isPlaying():
+                self.screenshotSeq.finish()
+            self.screenshotSeq = Sequence(Func(self.transitions.irisOut, 0.2), Wait(0.2), Func(self.transitions.irisIn, 0.6))
+            self.screenshotSeq.start()
             return
-        coordOnScreen = self.config.GetBool('screenshot-coords', 0)
-        self.localAvatar.stopThisFrame = 1
-        ctext = self.localAvatar.getAvPosStr()
-        self.screenshotStr = ''
-        messenger.send('takingScreenshot')
-        if coordOnScreen:
-            coordTextLabel = DirectLabel(pos=(-0.81, 0.001, -0.87), text=ctext, text_scale=0.05, text_fg=VBase4(1.0, 1.0, 1.0, 1.0), text_bg=(0,
-                                                                                                                                              0,
-                                                                                                                                              0,
-                                                                                                                                              0), text_shadow=(0,
-                                                                                                                                                               0,
-                                                                                                                                                               0,
-                                                                                                                                                               1), relief=None)
-            coordTextLabel.setBin('gui-popup', 0)
-            strTextLabel = None
-            if len(self.screenshotStr):
-                strTextLabel = DirectLabel(pos=(0.0, 0.001, 0.9), text=self.screenshotStr, text_scale=0.05, text_fg=VBase4(1.0, 1.0, 1.0, 1.0), text_bg=(0,
-                                                                                                                                                         0,
-                                                                                                                                                         0,
-                                                                                                                                                         0), text_shadow=(0,
-                                                                                                                                                                          0,
-                                                                                                                                                                          0,
-                                                                                                                                                                          1), relief=None)
-                strTextLabel.setBin('gui-popup', 0)
-        self.graphicsEngine.renderFrame()
-        self.screenshot(namePrefix=namePrefix, imageComment=ctext + ' ' + self.screenshotStr)
-        self.lastScreenShotTime = globalClock.getRealTime()
-        if coordOnScreen:
-            if strTextLabel is not None:
-                strTextLabel.destroy()
-            coordTextLabel.destroy()
-        base.playSfx(self.screenshotSfx)
-        if self.screenshotSeq and self.screenshotSeq.isPlaying():
-            self.screenshotSeq.finish()
-        self.screenshotSeq = Sequence(Func(self.transitions.irisOut, 0.2), Wait(0.2), Func(self.transitions.irisIn, 0.6))
-        self.screenshotSeq.start()
-        return
 
     def addScreenshotString(self, str):
         if len(self.screenshotStr):
@@ -410,15 +410,15 @@ class ToonBase(OTPBase.OTPBase):
                 self.notify.info('Using gameServer from launcher: %s ' % gameServer)
             else:
                 gameServer = '127.0.0.1'
-        serverPort = base.config.GetInt('server-port', 7198)
-        serverList = []
-        for name in gameServer.split(';'):
-            url = URLSpec(name, 1)
-            if config.GetBool('want-ssl', False):
-                url.setScheme('s')
-            if not url.hasPort():
-                url.setPort(serverPort)
-            serverList.append(url)
+            serverPort = base.config.GetInt('server-port', 7198)
+            serverList = []
+            for name in gameServer.split(';'):
+                url = URLSpec(name, 1)
+                if config.GetBool('want-ssl', False):
+                    url.setScheme('s')
+                if not url.hasPort():
+                    url.setPort(serverPort)
+                serverList.append(url)
 
         if len(serverList) == 1:
             failover = base.config.GetString('server-failover', '')
@@ -430,9 +430,9 @@ class ToonBase(OTPBase.OTPBase):
                     url.setPort(port)
                 except:
                     url = URLSpec(arg, 1)
-                else:
-                    if url != serverURL:
-                        serverList.append(url)
+
+                if url != serverURL:
+                    serverList.append(url)
 
         cr.loginFSM.request('connect', [serverList])
         self.ttAccess = ToontownAccess.ToontownAccess()
@@ -465,17 +465,17 @@ class ToonBase(OTPBase.OTPBase):
             self.localAvatar.d_setAnimState('TeleportOut', 1)
         except:
             pass
-        else:
-            if hasattr(self, 'ttAccess'):
-                self.ttAccess.delete()
-            if self.cr.timeManager:
-                self.cr.timeManager.setDisconnectReason(ToontownGlobals.DisconnectCloseWindow)
-            base.cr._userLoggingOut = False
-            try:
-                localAvatar
-            except:
-                pass
 
+        if hasattr(self, 'ttAccess'):
+            self.ttAccess.delete()
+        if self.cr.timeManager:
+            self.cr.timeManager.setDisconnectReason(ToontownGlobals.DisconnectCloseWindow)
+        base.cr._userLoggingOut = False
+        try:
+            localAvatar
+        except:
+            pass
+        else:
             messenger.send('clientLogout')
             self.cr.dumpAllSubShardObjects()
 
@@ -510,11 +510,10 @@ class ToonBase(OTPBase.OTPBase):
                 else:
                     programFiles = os.environ['PROGRAMFILES']
                 defaultPath = programFiles + '\\eSpeak\\command_line\\espeak'
+            elif sys.platform == 'linux2':
+                defaultPath = '/usr/bin/espeak'
             else:
-                if sys.platform == 'linux2':
-                    defaultPath = '/usr/bin/espeak'
-                else:
-                    defaultPath = ''
+                defaultPath = ''
             textToSpeechPath = self.settings.getString('game', 'text-to-speech-path', defaultPath)
             globalChatWhispers = self.settings.getBool('game', 'global-chat-whispers', True)
             chatLogOpen = self.settings.getBool('game', 'chat-log-open', False)
@@ -567,8 +566,7 @@ class ToonBase(OTPBase.OTPBase):
             else:
                 programFiles = os.environ['PROGRAMFILES']
             filePath = programFiles + '\\eSpeak\\command_line\\espeak'
-        else:
-            if sys.platform == 'linux2':
-                filePath = '/usr/bin/espeak'
+        elif sys.platform == 'linux2':
+            filePath = '/usr/bin/espeak'
         self.textToSpeechPath = filePath
         self.settings.updateSetting('game', 'text-to-speech-path', filePath)

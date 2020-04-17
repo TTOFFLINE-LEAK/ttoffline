@@ -40,37 +40,30 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
          State.State('Off', self.enterOff, self.exitOff, [])], 'Neutral', 'Off')
         if self.npcId == 2018 or self.npcId == 2019:
             self.startAnimState = 'ScientistJealous'
-        else:
-            if self.npcId == 2020:
-                self.startAnimState = 'ScientistEmcee'
+        elif self.npcId == 2020:
+            self.startAnimState = 'ScientistEmcee'
         self.scientistFSM.enterInitialState()
 
     def selectPhase(self, newPhase):
         try:
             if newPhase <= 4:
                 gotoPhase = '0'
+            elif newPhase <= 6:
+                gotoPhase = '1'
+            elif newPhase <= 11:
+                gotoPhase = '2'
+            elif newPhase <= 12:
+                gotoPhase = '2_5'
+            elif newPhase <= 13:
+                gotoPhase = '3'
+            elif newPhase <= 14:
+                gotoPhase = '4'
+            elif newPhase <= 15:
+                gotoPhase = '5'
             else:
-                if newPhase <= 6:
-                    gotoPhase = '1'
-                else:
-                    if newPhase <= 11:
-                        gotoPhase = '2'
-                    else:
-                        if newPhase <= 12:
-                            gotoPhase = '2_5'
-                        else:
-                            if newPhase <= 13:
-                                gotoPhase = '3'
-                            else:
-                                if newPhase <= 14:
-                                    gotoPhase = '4'
-                                else:
-                                    if newPhase <= 15:
-                                        gotoPhase = '5'
-                                    else:
-                                        if not self.scientistFSM.getCurrentState() == self.scientistFSM.getStateNamed('Neutral'):
-                                            self.scientistFSM.request('Neutral')
-                                        return
+                if not self.scientistFSM.getCurrentState() == self.scientistFSM.getStateNamed('Neutral'):
+                    self.scientistFSM.request('Neutral')
+                return
             gotoPhase = 'Phase' + gotoPhase
             if not self.scientistFSM.getCurrentState() == self.scientistFSM.getStateNamed(gotoPhase):
                 self.scientistFSM.request(gotoPhase)
@@ -108,9 +101,8 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
     def enterPhase0(self):
         if self.npcId == 2020:
             self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsPhasePreTopTopic, endPause=30)
-        else:
-            if self.npcId == 2018 or self.npcId == 2019:
-                self.d_setAnimState('ScientistJealous', 1.0)
+        elif self.npcId == 2018 or self.npcId == 2019:
+            self.d_setAnimState('ScientistJealous', 1.0)
         self.accept('SillyMeterPhase', self.selectPhase)
 
     def exitPhase0(self):
@@ -121,9 +113,8 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
     def enterPhase1(self):
         if self.npcId == 2020:
             self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsPhasePreTopTopic, endPause=30)
-        else:
-            if self.npcId == 2018 or self.npcId == 2019:
-                self.d_setAnimState('ScientistJealous', 1.0)
+        elif self.npcId == 2018 or self.npcId == 2019:
+            self.d_setAnimState('ScientistJealous', 1.0)
         self.accept('SillyMeterPhase', self.selectPhase)
 
     def exitPhase1(self):
@@ -134,9 +125,8 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
     def enterPhase2(self):
         if self.npcId == 2020:
             self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsPhasePreTopTopic, endPause=30)
-        else:
-            if self.npcId == 2018 or self.npcId == 2019:
-                self.d_setAnimState('ScientistWork', 1.0)
+        elif self.npcId == 2018 or self.npcId == 2019:
+            self.d_setAnimState('ScientistWork', 1.0)
         self.accept('SillyMeterPhase', self.selectPhase)
 
     def exitPhase2(self):
@@ -150,9 +140,8 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsExtPhaseTopTopic, endPause=30)
             else:
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsPhaseTopTopic, endPause=30)
-        else:
-            if self.npcId == 2018 or self.npcId == 2019:
-                self.d_setAnimState('ScientistLessWork', 1.0)
+        elif self.npcId == 2018 or self.npcId == 2019:
+            self.d_setAnimState('ScientistLessWork', 1.0)
         self.accept('SillyMeterPhase', self.selectPhase)
 
     def exitPhase2_5(self):
@@ -169,9 +158,8 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsExtPhaseTopTopic, endPause=30)
             else:
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsPhasePostTopTopic, endPause=30)
-        else:
-            if self.npcId == 2018 or self.npcId == 2019:
-                self.d_setAnimState('ScientistPlay', 1.0)
+        elif self.npcId == 2018 or self.npcId == 2019:
+            self.d_setAnimState('ScientistPlay', 1.0)
         self.accept('SillyMeterPhase', self.selectPhase)
 
     def exitPhase3(self):
@@ -188,9 +176,8 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsExtPhaseTopTopic, endPause=30)
             else:
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsPhasePostTopTopic, endPause=30)
-        else:
-            if self.npcId == 2018 or self.npcId == 2019:
-                self.d_setAnimState('ScientistPlay', 1.0)
+        elif self.npcId == 2018 or self.npcId == 2019:
+            self.d_setAnimState('ScientistPlay', 1.0)
         self.accept('SillyMeterPhase', self.selectPhase)
 
     def exitPhase4(self):
@@ -207,9 +194,8 @@ class DistributedNPCScientistAI(DistributedNPCToonBaseAI.DistributedNPCToonBaseA
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsExtPhaseTopTopic, endPause=30)
             else:
                 self.air.dialogueManager.requestDialogue(self, TTLocalizer.AprilToonsPhasePostTopTopic, endPause=30)
-        else:
-            if self.npcId == 2018 or self.npcId == 2019:
-                self.d_setAnimState('ScientistPlay', 1.0)
+        elif self.npcId == 2018 or self.npcId == 2019:
+            self.d_setAnimState('ScientistPlay', 1.0)
         self.accept('SillyMeterPhase', self.selectPhase)
 
     def exitPhase5(self):

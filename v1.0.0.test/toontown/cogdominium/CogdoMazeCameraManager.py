@@ -66,9 +66,8 @@ class CogdoMazeCameraManager:
     def _updateCameraDistance(self):
         if self._camDistance < self._camTargetDistance:
             self._camDistance += min(0.4 * (self._camDistance / self._camTargetDistance), self._camTargetDistance - self._camDistance)
-        else:
-            if self._camDistance > self._camTargetDistance:
-                self._camDistance += max(-0.4 * (self._camDistance / self._camTargetDistance), self._camTargetDistance - self._camDistance)
+        elif self._camDistance > self._camTargetDistance:
+            self._camDistance += max(-0.4 * (self._camDistance / self._camTargetDistance), self._camTargetDistance - self._camDistance)
         self.camera.setY(self._camDistance)
 
     def updateShake(self, dt):
@@ -95,11 +94,10 @@ class CogdoMazeCameraManager:
             if newHeight >= maxHeight:
                 newHeight = maxHeight
                 self.toonJumpDir = -1.0
-            else:
-                if newHeight <= 0.0:
-                    newHeight = 0.0
-                    self.toonJumpDir = 1.0
-                    self.toonIsShaking = False
+            elif newHeight <= 0.0:
+                newHeight = 0.0
+                self.toonJumpDir = 1.0
+                self.toonIsShaking = False
             self.toon.setZ(newHeight)
 
     def updateRumble(self, dt):

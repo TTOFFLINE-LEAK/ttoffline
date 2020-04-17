@@ -15,17 +15,18 @@ offset = Point3(0, 4.0, 0)
 def doPetSOSs(PetSOSs):
     if len(PetSOSs) == 0:
         return (None, None)
-    track = Sequence()
-    textTrack = Sequence()
-    for p in PetSOSs:
-        ival = __doPetSOS(p)
-        if ival:
-            track.append(ival)
+    else:
+        track = Sequence()
+        textTrack = Sequence()
+        for p in PetSOSs:
+            ival = __doPetSOS(p)
+            if ival:
+                track.append(ival)
 
-    camDuration = track.getDuration()
-    camTrack = MovieCamera.chooseHealShot(PetSOSs, camDuration)
-    return (
-     track, camTrack)
+        camDuration = track.getDuration()
+        camTrack = MovieCamera.chooseHealShot(PetSOSs, camDuration)
+        return (
+         track, camTrack)
 
 
 def __doPetSOS(sos):
@@ -47,11 +48,10 @@ def __healToon(toon, hp, gender, callerToonId, ineffective=0):
                 laughter = TTLocalizer.MoviePetSOSTrickSucceedBoy
             else:
                 laughter = TTLocalizer.MoviePetSOSTrickSucceedGirl
+        elif hp >= maxDam - 1:
+            laughter = random.choice(TTLocalizer.MovieHealLaughterHits2)
         else:
-            if hp >= maxDam - 1:
-                laughter = random.choice(TTLocalizer.MovieHealLaughterHits2)
-            else:
-                laughter = random.choice(TTLocalizer.MovieHealLaughterHits1)
+            laughter = random.choice(TTLocalizer.MovieHealLaughterHits1)
     if nolaughter == 0:
         toon.setChatAbsolute(laughter, CFSpeech | CFTimeout)
     if hp > 0 and toon.hp != None:

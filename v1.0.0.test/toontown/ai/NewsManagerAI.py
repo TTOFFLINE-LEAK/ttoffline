@@ -99,14 +99,13 @@ class NewsManagerAI(DistributedObjectAI):
                                  ToontownGlobals.SILLY_SATURDAY_BINGO], appendTask=True)
                             else:
                                 self.air.holidayManager.startHoliday(ToontownGlobals.SILLY_SATURDAY_BINGO)
-                    else:
-                        if not self.air.holidayManager.isHolidayRunning(ToontownGlobals.SILLY_SATURDAY_CIRCUIT):
-                            if self.air.holidayManager.isHolidayRunning(ToontownGlobals.SILLY_SATURDAY_BINGO):
-                                self.air.holidayManager.endHoliday(ToontownGlobals.SILLY_SATURDAY_BINGO)
-                                taskMgr.doMethodLater(5, self.air.holidayManager.startHoliday, self.uniqueName('start-silly-saturday-circuit'), extraArgs=[
-                                 ToontownGlobals.SILLY_SATURDAY_CIRCUIT], appendTask=True)
-                            else:
-                                self.air.holidayManager.startHoliday(ToontownGlobals.SILLY_SATURDAY_CIRCUIT)
+                    elif not self.air.holidayManager.isHolidayRunning(ToontownGlobals.SILLY_SATURDAY_CIRCUIT):
+                        if self.air.holidayManager.isHolidayRunning(ToontownGlobals.SILLY_SATURDAY_BINGO):
+                            self.air.holidayManager.endHoliday(ToontownGlobals.SILLY_SATURDAY_BINGO)
+                            taskMgr.doMethodLater(5, self.air.holidayManager.startHoliday, self.uniqueName('start-silly-saturday-circuit'), extraArgs=[
+                             ToontownGlobals.SILLY_SATURDAY_CIRCUIT], appendTask=True)
+                        else:
+                            self.air.holidayManager.startHoliday(ToontownGlobals.SILLY_SATURDAY_CIRCUIT)
                     currentEpoch = time.mktime(datetime.datetime.now(tz=self.air.toontownTimeManager.serverTimeZone).timetuple()) + datetime.datetime.now(tz=self.air.toontownTimeManager.serverTimeZone).microsecond * 1e-06
                     task.delayTime = 3600.0 - currentEpoch % 3600.0
                     return task.again

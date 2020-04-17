@@ -224,15 +224,13 @@ class Street(BattlePlace.BattlePlace):
                 pass
             else:
                 self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where in ('suitInterior', 'cogdoInterior'):
+            self.doneStatus = doneStatus
+            messenger.send(self.doneEvent)
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where in ('suitInterior', 'cogdoInterior'):
-                    self.doneStatus = doneStatus
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
+            self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
 
     def enterTunnelIn(self, requestStatus):
         self.enterZone(requestStatus['zoneId'])
@@ -291,12 +289,11 @@ class Street(BattlePlace.BattlePlace):
             else:
                 self.doneStatus = requestStatus
                 messenger.send(self.doneEvent)
+        elif hoodId == ToontownGlobals.MyEstate:
+            self.getEstateZoneAndGoHome(requestStatus)
         else:
-            if hoodId == ToontownGlobals.MyEstate:
-                self.getEstateZoneAndGoHome(requestStatus)
-            else:
-                self.doneStatus = requestStatus
-                messenger.send(self.doneEvent)
+            self.doneStatus = requestStatus
+            messenger.send(self.doneEvent)
         return
 
     def exitTeleportOut(self):
@@ -386,26 +383,27 @@ class Street(BattlePlace.BattlePlace):
     def replaceStreetSignTextures(self):
         if not hasattr(base.cr, 'playGame'):
             return
-        place = base.cr.playGame.getPlace()
-        if place is None:
-            return
-        geom = base.cr.playGame.getPlace().loader.geom
-        signs = geom.findAllMatches('**/*tunnelAheadSign*;+s')
-        if signs.getNumPaths() > 0:
-            streetSign = base.cr.streetSign
-            signTexturePath = streetSign.StreetSignBaseDir + '/' + streetSign.StreetSignFileName
-            loaderTexturePath = Filename(str(signTexturePath))
-            alphaPath = 'phase_4/maps/tt_t_ara_gen_tunnelAheadSign_a.rgb'
-            inDreamland = False
-            if place.zoneId and ZoneUtil.getCanonicalHoodId(place.zoneId) == ToontownGlobals.DonaldsDreamland:
-                inDreamland = True
-            alphaPath = 'phase_4/maps/tt_t_ara_gen_tunnelAheadSign_a.rgb'
-            if Filename(signTexturePath).exists():
-                signTexture = loader.loadTexture(loaderTexturePath, alphaPath)
-            for sign in signs:
+        else:
+            place = base.cr.playGame.getPlace()
+            if place is None:
+                return
+            geom = base.cr.playGame.getPlace().loader.geom
+            signs = geom.findAllMatches('**/*tunnelAheadSign*;+s')
+            if signs.getNumPaths() > 0:
+                streetSign = base.cr.streetSign
+                signTexturePath = streetSign.StreetSignBaseDir + '/' + streetSign.StreetSignFileName
+                loaderTexturePath = Filename(str(signTexturePath))
+                alphaPath = 'phase_4/maps/tt_t_ara_gen_tunnelAheadSign_a.rgb'
+                inDreamland = False
+                if place.zoneId and ZoneUtil.getCanonicalHoodId(place.zoneId) == ToontownGlobals.DonaldsDreamland:
+                    inDreamland = True
+                alphaPath = 'phase_4/maps/tt_t_ara_gen_tunnelAheadSign_a.rgb'
                 if Filename(signTexturePath).exists():
-                    sign.setTexture(signTexture, 1)
-                if inDreamland:
-                    sign.setColorScale(0.525, 0.525, 0.525, 1)
+                    signTexture = loader.loadTexture(loaderTexturePath, alphaPath)
+                for sign in signs:
+                    if Filename(signTexturePath).exists():
+                        sign.setTexture(signTexture, 1)
+                    if inDreamland:
+                        sign.setColorScale(0.525, 0.525, 0.525, 1)
 
-        return
+            return

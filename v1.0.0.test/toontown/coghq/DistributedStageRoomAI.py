@@ -31,7 +31,8 @@ class DistributedStageRoomAI(DistributedLevelAI.DistributedLevelAI, StageRoomBas
         if stage is None:
             self.notify.warning('getFloorNum: could not find stage %s' % self.stageDoId)
             return 0
-        return stage.floorNum
+        else:
+            return stage.floorNum
 
     def generate(self):
         self.notify.debug('generate %s: room=%s' % (self.doId, self.roomId))

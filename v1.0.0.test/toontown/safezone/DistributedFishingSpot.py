@@ -262,25 +262,22 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
     def setMovie(self, mode, code, itemDesc1, itemDesc2, itemDesc3, power, h):
         if self.av == None:
             return
-        if mode == FishGlobals.NoMovie:
-            pass
         else:
-            if mode == FishGlobals.EnterMovie:
+            if mode == FishGlobals.NoMovie:
+                pass
+            elif mode == FishGlobals.EnterMovie:
                 self.fsm.request('waiting')
-            else:
-                if mode == FishGlobals.ExitMovie:
-                    self.fsm.request('leaving')
-                else:
-                    if mode == FishGlobals.CastMovie:
-                        if not self.localToonFishing:
-                            self.fsm.request('distCasting', [power, h])
-                    else:
-                        if mode == FishGlobals.PullInMovie:
-                            self.fsm.request('reward', [code,
-                             itemDesc1,
-                             itemDesc2,
-                             itemDesc3])
-        return
+            elif mode == FishGlobals.ExitMovie:
+                self.fsm.request('leaving')
+            elif mode == FishGlobals.CastMovie:
+                if not self.localToonFishing:
+                    self.fsm.request('distCasting', [power, h])
+            elif mode == FishGlobals.PullInMovie:
+                self.fsm.request('reward', [code,
+                 itemDesc1,
+                 itemDesc2,
+                 itemDesc3])
+            return
 
     def getStareAtNodeAndOffset(self):
         return (
@@ -459,10 +456,9 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         self.castButton.bind(DGG.B3RELEASE, requestLocalCasting)
         if self.firstCast and len(self.av.fishCollection) == 0 and len(self.av.fishTank) == 0:
             self.__showHowTo(TTLocalizer.FishingHowToFirstTime)
-        else:
-            if base.wantBingo and self.pond.hasPondBingoManager() and not self.av.bFishBingoTutorialDone:
-                self.__showHowTo(TTLocalizer.FishBingoHelpMain)
-                self.av.b_setFishBingoTutorialDone(True)
+        elif base.wantBingo and self.pond.hasPondBingoManager() and not self.av.bFishBingoTutorialDone:
+            self.__showHowTo(TTLocalizer.FishBingoHelpMain)
+            self.av.b_setFishBingoTutorialDone(True)
 
     def __moneyChange(self, money):
         self.jar['text'] = str(money)
@@ -601,101 +597,103 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
             self.notify.info('QA-REGRESSION: FISHING: ZoneId: %s' % self.pond.getArea())
         if self.madeGui:
             return
-        self.timer = ToontownTimer.ToontownTimer()
-        self.timer.posInTopRightCorner()
-        self.timer.hide()
-        self.castGui = loader.loadModel('phase_4/models/gui/fishingGui')
-        self.castGui.setScale(0.67)
-        self.castGui.setPos(0, 0, 1)
-        for nodeName in ('bucket', 'jar', 'display_bucket', 'display_jar'):
-            self.castGui.find('**/' + nodeName).reparentTo(self.castGui)
+        else:
+            self.timer = ToontownTimer.ToontownTimer()
+            self.timer.posInTopRightCorner()
+            self.timer.hide()
+            self.castGui = loader.loadModel('phase_4/models/gui/fishingGui')
+            self.castGui.setScale(0.67)
+            self.castGui.setPos(0, 0, 1)
+            for nodeName in ('bucket', 'jar', 'display_bucket', 'display_jar'):
+                self.castGui.find('**/' + nodeName).reparentTo(self.castGui)
 
-        self.castGui.find('**/boards').setScale(2, 1, 1)
-        self.exitButton = DirectButton(parent=self.castGui, relief=None, text=('', TTLocalizer.FishingExit, TTLocalizer.FishingExit), text_align=TextNode.ACenter, text_scale=0.1, text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0.0,
-                                                                                                                                                                                                                                                     -0.12), pos=(1.75,
-                                                                                                                                                                                                                                                                  0,
-                                                                                                                                                                                                                                                                  -1.33), textMayChange=0, image=(self.castGui.find('**/exit_buttonUp'), self.castGui.find('**/exit_buttonDown'), self.castGui.find('**/exit_buttonRollover')), command=self.__userExit)
-        self.castGui.find('**/exitButton').removeNode()
-        self.castButton = DirectButton(parent=self.castGui, relief=None, text=TTLocalizer.FishingCast, text_align=TextNode.ACenter, text_scale=(3, 2.25, 2.25), text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0,
-                                                                                                                                                                                                                                  -4), image=self.castGui.find('**/castButton'), image0_color=(1,
-                                                                                                                                                                                                                                                                                               0,
-                                                                                                                                                                                                                                                                                               0,
-                                                                                                                                                                                                                                                                                               1), image1_color=(0,
-                                                                                                                                                                                                                                                                                                                 1,
-                                                                                                                                                                                                                                                                                                                 0,
-                                                                                                                                                                                                                                                                                                                 1), image2_color=(1,
-                                                                                                                                                                                                                                                                                                                                   1,
-                                                                                                                                                                                                                                                                                                                                   0,
-                                                                                                                                                                                                                                                                                                                                   1), image3_color=(0.8,
-                                                                                                                                                                                                                                                                                                                                                     0.5,
-                                                                                                                                                                                                                                                                                                                                                     0.5,
-                                                                                                                                                                                                                                                                                                                                                     1), pos=(0,
-                                                                                                                                                                                                                                                                                                                                                              -0.05,
-                                                                                                                                                                                                                                                                                                                                                              -0.666), scale=(0.036,
-                                                                                                                                                                                                                                                                                                                                                                              1,
-                                                                                                                                                                                                                                                                                                                                                                              0.048))
-        self.castGui.find('**/castButton').removeNode()
-        self.arrow = self.castGui.find('**/arrow')
-        self.arrowTip = self.arrow.find('**/arrowTip')
-        self.arrowTail = self.arrow.find('**/arrowTail')
-        self.arrow.reparentTo(self.castGui)
-        self.arrow.setColorScale(0.9, 0.9, 0.1, 0.7)
-        self.arrow.hide()
-        self.jar = DirectLabel(parent=self.castGui, relief=None, text=str(self.av.getMoney()), text_scale=0.16, text_fg=(0.95,
-                                                                                                                         0.95,
-                                                                                                                         0,
-                                                                                                                         1), text_font=ToontownGlobals.getSignFont(), pos=(-1.12,
-                                                                                                                                                                           0,
-                                                                                                                                                                           -1.3))
-        self.bucket = DirectLabel(parent=self.castGui, relief=None, text='', text_scale=0.09, text_fg=(0.95,
-                                                                                                       0.95,
-                                                                                                       0,
-                                                                                                       1), text_shadow=(0,
-                                                                                                                        0,
-                                                                                                                        0,
-                                                                                                                        1), pos=(1.14,
-                                                                                                                                 0,
-                                                                                                                                 -1.33))
-        self.__updateFishTankGui()
-        self.itemGui = NodePath('itemGui')
-        self.itemFrame = DirectFrame(parent=self.itemGui, relief=None, geom=DGG.getDefaultDialogGeom(), geom_color=ToontownGlobals.GlobalDialogColor, geom_scale=(1,
-                                                                                                                                                                  1,
-                                                                                                                                                                  0.6), text=TTLocalizer.FishingItemFound, text_pos=(0,
-                                                                                                                                                                                                                     0.2), text_scale=0.08, pos=(0,
-                                                                                                                                                                                                                                                 0,
-                                                                                                                                                                                                                                                 0.587))
-        self.itemLabel = DirectLabel(parent=self.itemFrame, text='', text_scale=0.06, pos=(0,
-                                                                                           0,
-                                                                                           -0.25))
-        buttons = loader.loadModel('phase_3/models/gui/dialog_box_buttons_gui')
-        self.itemGuiCloseButton = DirectButton(parent=self.itemFrame, pos=(0.44, 0,
-                                                                           -0.24), relief=None, image=(buttons.find('**/CloseBtn_UP'), buttons.find('**/CloseBtn_DN'), buttons.find('**/CloseBtn_Rllvr')), image_scale=(0.7,
-                                                                                                                                                                                                                        1,
-                                                                                                                                                                                                                        0.7), command=self.__itemGuiClose)
-        buttons.removeNode()
-        jarGui = loader.loadModel('phase_3.5/models/gui/jar_gui')
-        bootGui = loader.loadModel('phase_4/models/gui/fishing_boot')
-        packageGui = loader.loadModel('phase_3.5/models/gui/stickerbook_gui').find('**/package')
-        self.itemJellybean = DirectFrame(parent=self.itemFrame, relief=None, image=jarGui, scale=0.5)
-        self.itemBoot = DirectFrame(parent=self.itemFrame, relief=None, image=bootGui, scale=0.2)
-        self.itemPackage = DirectFrame(parent=self.itemFrame, relief=None, image=packageGui, scale=0.25)
-        self.itemJellybean.hide()
-        self.itemBoot.hide()
-        self.itemPackage.hide()
-        self.failureDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('failureDialog'), doneEvent=self.uniqueName('failureDialog'), command=self.__userExit, message=TTLocalizer.FishingFailure, style=TTDialog.CancelOnly, cancelButtonText=TTLocalizer.FishingExit)
-        self.failureDialog.hide()
-        self.sellFishDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('sellFishDialog'), doneEvent=self.uniqueName('sellFishDialog'), command=self.__sellFish, message=TTLocalizer.FishBingoOfferToSellFish, style=TTDialog.YesNo)
-        self.sellFishDialog.hide()
-        self.sellFishConfirmDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('sellFishConfirmDialog'), doneEvent=self.uniqueName('sellFishConfirmDialog'), command=self.__sellFishConfirm, message=TTLocalizer.STOREOWNER_TROPHY, style=TTDialog.Acknowledge)
-        self.sellFishConfirmDialog.hide()
-        self.brokeDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('brokeDialog'), doneEvent=self.uniqueName('brokeDialog'), command=self.__userExit, message=TTLocalizer.FishingBroke, style=TTDialog.CancelOnly, cancelButtonText=TTLocalizer.FishingExit)
-        self.brokeDialog.hide()
-        self.howToDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('howToDialog'), doneEvent=self.uniqueName('howToDialog'), fadeScreen=0, message=TTLocalizer.FishingHowToFailed, style=TTDialog.Acknowledge)
-        self.howToDialog['command'] = self.__hideHowTo
-        self.howToDialog.setPos(-0.3, 0, 0.5)
-        self.howToDialog.hide()
-        self.madeGui = 1
-        return
+            self.castGui.find('**/boards').setScale(2, 1, 1)
+            self.exitButton = DirectButton(parent=self.castGui, relief=None, text=('', TTLocalizer.FishingExit, TTLocalizer.FishingExit), text_align=TextNode.ACenter, text_scale=0.1, text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0.0,
+                                                                                                                                                                                                                                                         -0.12), pos=(1.75,
+                                                                                                                                                                                                                                                                      0,
+                                                                                                                                                                                                                                                                      -1.33), textMayChange=0, image=(self.castGui.find('**/exit_buttonUp'), self.castGui.find('**/exit_buttonDown'), self.castGui.find('**/exit_buttonRollover')), command=self.__userExit)
+            self.castGui.find('**/exitButton').removeNode()
+            self.castButton = DirectButton(parent=self.castGui, relief=None, text=TTLocalizer.FishingCast, text_align=TextNode.ACenter, text_scale=(3, 2.25, 2.25), text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0,
+                                                                                                                                                                                                                                      -4), image=self.castGui.find('**/castButton'), image0_color=(1,
+                                                                                                                                                                                                                                                                                                   0,
+                                                                                                                                                                                                                                                                                                   0,
+                                                                                                                                                                                                                                                                                                   1), image1_color=(0,
+                                                                                                                                                                                                                                                                                                                     1,
+                                                                                                                                                                                                                                                                                                                     0,
+                                                                                                                                                                                                                                                                                                                     1), image2_color=(1,
+                                                                                                                                                                                                                                                                                                                                       1,
+                                                                                                                                                                                                                                                                                                                                       0,
+                                                                                                                                                                                                                                                                                                                                       1), image3_color=(0.8,
+                                                                                                                                                                                                                                                                                                                                                         0.5,
+                                                                                                                                                                                                                                                                                                                                                         0.5,
+                                                                                                                                                                                                                                                                                                                                                         1), pos=(0,
+                                                                                                                                                                                                                                                                                                                                                                  -0.05,
+                                                                                                                                                                                                                                                                                                                                                                  -0.666), scale=(0.036,
+                                                                                                                                                                                                                                                                                                                                                                                  1,
+                                                                                                                                                                                                                                                                                                                                                                                  0.048))
+            self.castGui.find('**/castButton').removeNode()
+            self.arrow = self.castGui.find('**/arrow')
+            self.arrowTip = self.arrow.find('**/arrowTip')
+            self.arrowTail = self.arrow.find('**/arrowTail')
+            self.arrow.reparentTo(self.castGui)
+            self.arrow.setColorScale(0.9, 0.9, 0.1, 0.7)
+            self.arrow.hide()
+            self.jar = DirectLabel(parent=self.castGui, relief=None, text=str(self.av.getMoney()), text_scale=0.16, text_fg=(0.95,
+                                                                                                                             0.95,
+                                                                                                                             0,
+                                                                                                                             1), text_font=ToontownGlobals.getSignFont(), pos=(-1.12,
+                                                                                                                                                                               0,
+                                                                                                                                                                               -1.3))
+            self.bucket = DirectLabel(parent=self.castGui, relief=None, text='', text_scale=0.09, text_fg=(0.95,
+                                                                                                           0.95,
+                                                                                                           0,
+                                                                                                           1), text_shadow=(0,
+                                                                                                                            0,
+                                                                                                                            0,
+                                                                                                                            1), pos=(1.14,
+                                                                                                                                     0,
+                                                                                                                                     -1.33))
+            self.__updateFishTankGui()
+            self.itemGui = NodePath('itemGui')
+            self.itemFrame = DirectFrame(parent=self.itemGui, relief=None, geom=DGG.getDefaultDialogGeom(), geom_color=ToontownGlobals.GlobalDialogColor, geom_scale=(1,
+                                                                                                                                                                      1,
+                                                                                                                                                                      0.6), text=TTLocalizer.FishingItemFound, text_pos=(0,
+                                                                                                                                                                                                                         0.2), text_scale=0.08, pos=(0,
+                                                                                                                                                                                                                                                     0,
+                                                                                                                                                                                                                                                     0.587))
+            self.itemLabel = DirectLabel(parent=self.itemFrame, text='', text_scale=0.06, pos=(0,
+                                                                                               0,
+                                                                                               -0.25))
+            buttons = loader.loadModel('phase_3/models/gui/dialog_box_buttons_gui')
+            self.itemGuiCloseButton = DirectButton(parent=self.itemFrame, pos=(0.44,
+                                                                               0,
+                                                                               -0.24), relief=None, image=(buttons.find('**/CloseBtn_UP'), buttons.find('**/CloseBtn_DN'), buttons.find('**/CloseBtn_Rllvr')), image_scale=(0.7,
+                                                                                                                                                                                                                            1,
+                                                                                                                                                                                                                            0.7), command=self.__itemGuiClose)
+            buttons.removeNode()
+            jarGui = loader.loadModel('phase_3.5/models/gui/jar_gui')
+            bootGui = loader.loadModel('phase_4/models/gui/fishing_boot')
+            packageGui = loader.loadModel('phase_3.5/models/gui/stickerbook_gui').find('**/package')
+            self.itemJellybean = DirectFrame(parent=self.itemFrame, relief=None, image=jarGui, scale=0.5)
+            self.itemBoot = DirectFrame(parent=self.itemFrame, relief=None, image=bootGui, scale=0.2)
+            self.itemPackage = DirectFrame(parent=self.itemFrame, relief=None, image=packageGui, scale=0.25)
+            self.itemJellybean.hide()
+            self.itemBoot.hide()
+            self.itemPackage.hide()
+            self.failureDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('failureDialog'), doneEvent=self.uniqueName('failureDialog'), command=self.__userExit, message=TTLocalizer.FishingFailure, style=TTDialog.CancelOnly, cancelButtonText=TTLocalizer.FishingExit)
+            self.failureDialog.hide()
+            self.sellFishDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('sellFishDialog'), doneEvent=self.uniqueName('sellFishDialog'), command=self.__sellFish, message=TTLocalizer.FishBingoOfferToSellFish, style=TTDialog.YesNo)
+            self.sellFishDialog.hide()
+            self.sellFishConfirmDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('sellFishConfirmDialog'), doneEvent=self.uniqueName('sellFishConfirmDialog'), command=self.__sellFishConfirm, message=TTLocalizer.STOREOWNER_TROPHY, style=TTDialog.Acknowledge)
+            self.sellFishConfirmDialog.hide()
+            self.brokeDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('brokeDialog'), doneEvent=self.uniqueName('brokeDialog'), command=self.__userExit, message=TTLocalizer.FishingBroke, style=TTDialog.CancelOnly, cancelButtonText=TTLocalizer.FishingExit)
+            self.brokeDialog.hide()
+            self.howToDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('howToDialog'), doneEvent=self.uniqueName('howToDialog'), fadeScreen=0, message=TTLocalizer.FishingHowToFailed, style=TTDialog.Acknowledge)
+            self.howToDialog['command'] = self.__hideHowTo
+            self.howToDialog.setPos(-0.3, 0, 0.5)
+            self.howToDialog.hide()
+            self.madeGui = 1
+            return
 
     def __setBingoCastGui(self):
         if self.pond.hasPondBingoManager():
@@ -801,12 +799,11 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         if angle < minAngle:
             self.arrow.setColorScale(1, 0, 0, 1)
             angle = minAngle
+        elif angle > maxAngle:
+            self.arrow.setColorScale(1, 0, 0, 1)
+            angle = maxAngle
         else:
-            if angle > maxAngle:
-                self.arrow.setColorScale(1, 0, 0, 1)
-                angle = maxAngle
-            else:
-                self.arrow.setColorScale(1, 1 - math.pow(self.power, 3), 0.1, 0.7)
+            self.arrow.setColorScale(1, 1 - math.pow(self.power, 3), 0.1, 0.7)
         self.arrowTail.setScale(0.075, 0.075, self.power * 0.2)
         self.arrow.setR(angle)
         self.angleNP.setH(-angle)
@@ -851,7 +848,8 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         if pos[2] < self.waterLevel:
             self.fsm.request('fishing')
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def __showBob(self):
         self.__hideBob()
@@ -948,19 +946,20 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
             self.av.loop('pole-neutral')
             self.track = None
             return
-        castCost = FishGlobals.getCastCost(self.av.getFishingRod())
-        self.jar['text'] = str(max(self.av.getMoney() - castCost, 0))
-        if not self.castTrack:
-            self.createCastTrack()
-        self.castTrack.pause()
-        startT = 0.7 + (1 - self.power) * 0.3
-        self.castTrack.start(startT)
-        self.track = Sequence(Wait(1.2 - startT), Func(self.startMoveBobTask), Func(self.__showLineCasting))
-        self.track.start()
-        heading = self.angleNP.getH()
-        self.d_doCast(self.power, heading)
-        self.timer.countdown(FishGlobals.CastTimeout)
-        return
+        else:
+            castCost = FishGlobals.getCastCost(self.av.getFishingRod())
+            self.jar['text'] = str(max(self.av.getMoney() - castCost, 0))
+            if not self.castTrack:
+                self.createCastTrack()
+            self.castTrack.pause()
+            startT = 0.7 + (1 - self.power) * 0.3
+            self.castTrack.start(startT)
+            self.track = Sequence(Wait(1.2 - startT), Func(self.startMoveBobTask), Func(self.__showLineCasting))
+            self.track.start()
+            heading = self.angleNP.getH()
+            self.d_doCast(self.power, heading)
+            self.timer.countdown(FishGlobals.CastTimeout)
+            return
 
     def exitLocalCasting(self):
         taskMgr.remove(self.taskName('moveBobTask'))

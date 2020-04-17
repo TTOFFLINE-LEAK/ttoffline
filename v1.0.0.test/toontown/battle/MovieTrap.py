@@ -14,118 +14,121 @@ notify = DirectNotifyGlobal.directNotify.newCategory('MovieTrap')
 def doTraps(traps):
     if len(traps) == 0:
         return (None, None)
-    npcArrivals, npcDepartures, npcs = MovieNPCSOS.doNPCTeleports(traps)
-    hasUberTrapConflict = False
-    suitTrapsDict = {}
-    for trap in traps:
-        targets = trap['target']
-        if len(targets) == 1:
-            suitId = targets[0]['suit'].doId
-            if suitId in suitTrapsDict:
-                suitTrapsDict[suitId].append(trap)
-            else:
-                suitTrapsDict[suitId] = [
-                 trap]
-        else:
-            for target in targets:
-                suitId = target['suit'].doId
-                if suitId not in suitTrapsDict:
+    else:
+        npcArrivals, npcDepartures, npcs = MovieNPCSOS.doNPCTeleports(traps)
+        hasUberTrapConflict = False
+        suitTrapsDict = {}
+        for trap in traps:
+            targets = trap['target']
+            if len(targets) == 1:
+                suitId = targets[0]['suit'].doId
+                if suitId in suitTrapsDict:
+                    suitTrapsDict[suitId].append(trap)
+                else:
                     suitTrapsDict[suitId] = [
                      trap]
-                    break
-
-            if trap['level'] == UBER_GAG_LEVEL_INDEX:
-                if len(traps) > 1:
-                    hasUberTrapConflict = True
-                for oneTarget in trap['target']:
-                    suit = oneTarget['suit']
-                    if suit.battleTrap != NO_TRAP:
-                        hasUberTrapConflict = True
-
-    suitTrapLists = suitTrapsDict.values()
-    mtrack = Parallel()
-    for trapList in suitTrapLists:
-        trapPropList = []
-        for i in xrange(len(trapList)):
-            trap = trapList[i]
-            level = trap['level']
-            if level == 0:
-                banana = globalPropPool.getProp('banana')
-                banana2 = MovieUtil.copyProp(banana)
-                trapPropList.append([banana, banana2])
-            elif level == 1:
-                rake = globalPropPool.getProp('rake')
-                rake2 = MovieUtil.copyProp(rake)
-                rake.pose('rake', 0)
-                rake2.pose('rake', 0)
-                trapPropList.append([rake, rake2])
-            elif level == 2:
-                marbles = globalPropPool.getProp('marbles')
-                marbles2 = MovieUtil.copyProp(marbles)
-                trapPropList.append([marbles, marbles2])
-            elif level == 3:
-                trapPropList.append([globalPropPool.getProp('quicksand')])
-            elif level == 4:
-                trapPropList.append([globalPropPool.getProp('trapdoor')])
-            elif level == 5:
-                tnt = globalPropPool.getProp('tnt')
-                tnt2 = MovieUtil.copyProp(tnt)
-                trapPropList.append([tnt, tnt2])
-            elif level == 6:
-                tnt = globalPropPool.getProp('traintrack')
-                tnt2 = MovieUtil.copyProp(tnt)
-                trapPropList.append([tnt, tnt2])
             else:
-                notify.warning('__doTraps() - Incorrect trap level:                 %d' % level)
+                for target in targets:
+                    suitId = target['suit'].doId
+                    if suitId not in suitTrapsDict:
+                        suitTrapsDict[suitId] = [
+                         trap]
+                        break
 
-        if len(trapList) == 1 and not hasUberTrapConflict:
-            ival = __doTrapLevel(trapList[0], trapPropList[0])
-            if ival:
-                mtrack.append(ival)
-        else:
-            subMtrack = Parallel()
+                if trap['level'] == UBER_GAG_LEVEL_INDEX:
+                    if len(traps) > 1:
+                        hasUberTrapConflict = True
+                    for oneTarget in trap['target']:
+                        suit = oneTarget['suit']
+                        if suit.battleTrap != NO_TRAP:
+                            hasUberTrapConflict = True
+
+        suitTrapLists = suitTrapsDict.values()
+        mtrack = Parallel()
+        for trapList in suitTrapLists:
+            trapPropList = []
             for i in xrange(len(trapList)):
                 trap = trapList[i]
-                trapProps = trapPropList[i]
-                ival = __doTrapLevel(trap, trapProps, explode=1)
+                level = trap['level']
+                if level == 0:
+                    banana = globalPropPool.getProp('banana')
+                    banana2 = MovieUtil.copyProp(banana)
+                    trapPropList.append([banana, banana2])
+                elif level == 1:
+                    rake = globalPropPool.getProp('rake')
+                    rake2 = MovieUtil.copyProp(rake)
+                    rake.pose('rake', 0)
+                    rake2.pose('rake', 0)
+                    trapPropList.append([rake, rake2])
+                elif level == 2:
+                    marbles = globalPropPool.getProp('marbles')
+                    marbles2 = MovieUtil.copyProp(marbles)
+                    trapPropList.append([marbles, marbles2])
+                elif level == 3:
+                    trapPropList.append([globalPropPool.getProp('quicksand')])
+                elif level == 4:
+                    trapPropList.append([globalPropPool.getProp('trapdoor')])
+                elif level == 5:
+                    tnt = globalPropPool.getProp('tnt')
+                    tnt2 = MovieUtil.copyProp(tnt)
+                    trapPropList.append([tnt, tnt2])
+                elif level == 6:
+                    tnt = globalPropPool.getProp('traintrack')
+                    tnt2 = MovieUtil.copyProp(tnt)
+                    trapPropList.append([tnt, tnt2])
+                else:
+                    notify.warning('__doTraps() - Incorrect trap level:                 %d' % level)
+
+            if len(trapList) == 1 and not hasUberTrapConflict:
+                ival = __doTrapLevel(trapList[0], trapPropList[0])
                 if ival:
-                    subMtrack.append(ival)
+                    mtrack.append(ival)
+            else:
+                subMtrack = Parallel()
+                for i in xrange(len(trapList)):
+                    trap = trapList[i]
+                    trapProps = trapPropList[i]
+                    ival = __doTrapLevel(trap, trapProps, explode=1)
+                    if ival:
+                        subMtrack.append(ival)
 
-            mtrack.append(subMtrack)
+                mtrack.append(subMtrack)
 
-    trapTrack = Sequence(npcArrivals, mtrack, npcDepartures)
-    camDuration = mtrack.getDuration()
-    enterDuration = npcArrivals.getDuration()
-    exitDuration = npcDepartures.getDuration()
-    camTrack = MovieCamera.chooseTrapShot(traps, camDuration, enterDuration, exitDuration)
-    return (
-     trapTrack, camTrack)
+        trapTrack = Sequence(npcArrivals, mtrack, npcDepartures)
+        camDuration = mtrack.getDuration()
+        enterDuration = npcArrivals.getDuration()
+        exitDuration = npcDepartures.getDuration()
+        camTrack = MovieCamera.chooseTrapShot(traps, camDuration, enterDuration, exitDuration)
+        return (
+         trapTrack, camTrack)
 
 
 def __doTrapLevel(trap, trapProps, explode=0):
     level = trap['level']
     if level == 0:
         return __trapBanana(trap, trapProps, explode)
-    if level == 1:
-        return __trapRake(trap, trapProps, explode)
-    if level == 2:
-        return __trapMarbles(trap, trapProps, explode)
-    if level == 3:
-        return __trapQuicksand(trap, trapProps, explode)
-    if level == 4:
-        return __trapTrapdoor(trap, trapProps, explode)
-    if level == 5:
-        return __trapTNT(trap, trapProps, explode)
-    if level == 6:
-        return __trapTrain(trap, trapProps, explode)
-    return
+    else:
+        if level == 1:
+            return __trapRake(trap, trapProps, explode)
+        if level == 2:
+            return __trapMarbles(trap, trapProps, explode)
+        if level == 3:
+            return __trapQuicksand(trap, trapProps, explode)
+        if level == 4:
+            return __trapTrapdoor(trap, trapProps, explode)
+        if level == 5:
+            return __trapTNT(trap, trapProps, explode)
+        if level == 6:
+            return __trapTrain(trap, trapProps, explode)
+        return
 
 
 def getSoundTrack(fileName, delay=0.01, duration=None, node=None):
     soundEffect = globalBattleSoundCache.getSound(fileName)
     if duration:
         return Sequence(Wait(delay), SoundInterval(soundEffect, duration=duration, node=node))
-    return Sequence(Wait(delay), SoundInterval(soundEffect, node=node))
+    else:
+        return Sequence(Wait(delay), SoundInterval(soundEffect, node=node))
 
 
 def __createThrownTrapMultiTrack(trap, propList, propName, propPos=None, propHpr=None, anim=0, explode=0):
@@ -141,11 +144,10 @@ def __createThrownTrapMultiTrack(trap, propList, propName, propPos=None, propHpr
     torso = torso[0]
     if torso == 'l':
         throwDelay = 2.3
+    elif torso == 'm':
+        throwDelay = 2.3
     else:
-        if torso == 'm':
-            throwDelay = 2.3
-        else:
-            throwDelay = 1.9
+        throwDelay = 1.9
     throwDuration = 0.9
     animBreakPoint = throwDelay + throwDuration
     animDelay = 3.1
@@ -193,45 +195,42 @@ def __createThrownTrapMultiTrack(trap, propList, propName, propPos=None, propHpr
         throwTrack.append(Wait(0.25))
         throwTrack.append(Func(thrownProp.wrtReparentTo, suit))
         throwTrack.append(Parallel(motionTrack, hprTrack, scaleTrack, soundTrack))
+    elif trapName == 'tnt':
+        trapPoint, trapHpr = battle.getActorPosHpr(suit)
+        trapPoint.setY(MovieUtil.SUIT_TRAP_TNT_DISTANCE - 3.9)
+        trapPoint.setZ(trapPoint.getZ() + 0.4)
+        throwingTrack = createThrowingTrack(thrownProp, trapPoint, duration=throwDuration, parent=battle)
+        hprTrack = LerpHprInterval(thrownProp, 0.9, hpr=Point3(0, 90, 0))
+        scaleTrack = LerpScaleInterval(thrownProp, 0.9, scale=MovieUtil.PNT3_ONE)
+        soundTrack = getSoundTrack('TL_dynamite.ogg', delay=0.8, duration=0.7, node=suit)
+        throwTrack.append(Wait(0.2))
+        throwTrack.append(Parallel(throwingTrack, hprTrack, scaleTrack, soundTrack))
+    elif trapName == 'marbles':
+        trapPoint, trapHpr = battle.getActorPosHpr(suit)
+        trapPoint.setY(MovieUtil.SUIT_TRAP_MARBLES_DISTANCE)
+        flingDuration = 0.2
+        rollDuration = 1.0
+        throwDuration = flingDuration + rollDuration
+        landPoint = Point3(0, trapPoint.getY() + 2, trapPoint.getZ())
+        throwPoint = Point3(0, trapPoint.getY(), trapPoint.getZ())
+        moveTrack = Sequence(Func(thrownProp.wrtReparentTo, suit), Func(thrownProp.setHpr, Point3(94, 0, 0)), LerpPosInterval(thrownProp, flingDuration, pos=landPoint, other=suit), LerpPosInterval(thrownProp, rollDuration, pos=throwPoint, other=suit))
+        animTrack = ActorInterval(thrownProp, propName, startTime=throwDelay + 0.9)
+        scaleTrack = LerpScaleInterval(thrownProp, throwDuration, scale=MovieUtil.PNT3_ONE)
+        soundTrack = getSoundTrack('TL_marbles.ogg', delay=0.1, node=toon)
+        throwTrack.append(Wait(0.2))
+        throwTrack.append(Parallel(moveTrack, animTrack, scaleTrack, soundTrack))
+    elif trapName == 'rake':
+        trapPoint, trapHpr = battle.getActorPosHpr(suit)
+        trapPoint.setY(MovieUtil.SUIT_TRAP_RAKE_DISTANCE)
+        throwDuration = 1.1
+        throwingTrack = createThrowingTrack(thrownProp, trapPoint, duration=throwDuration, parent=suit)
+        hprTrack = LerpHprInterval(thrownProp, throwDuration, hpr=VBase3(63.43, -90.0, 63.43))
+        scaleTrack = LerpScaleInterval(thrownProp, 0.9, scale=Point3(0.7, 0.7, 0.7))
+        soundTrack = SoundInterval(globalBattleSoundCache.getSound('TL_rake_throw_only.ogg'), duration=1.1, node=suit)
+        throwTrack.append(Wait(0.2))
+        throwTrack.append(Parallel(throwingTrack, hprTrack, scaleTrack, soundTrack))
     else:
-        if trapName == 'tnt':
-            trapPoint, trapHpr = battle.getActorPosHpr(suit)
-            trapPoint.setY(MovieUtil.SUIT_TRAP_TNT_DISTANCE - 3.9)
-            trapPoint.setZ(trapPoint.getZ() + 0.4)
-            throwingTrack = createThrowingTrack(thrownProp, trapPoint, duration=throwDuration, parent=battle)
-            hprTrack = LerpHprInterval(thrownProp, 0.9, hpr=Point3(0, 90, 0))
-            scaleTrack = LerpScaleInterval(thrownProp, 0.9, scale=MovieUtil.PNT3_ONE)
-            soundTrack = getSoundTrack('TL_dynamite.ogg', delay=0.8, duration=0.7, node=suit)
-            throwTrack.append(Wait(0.2))
-            throwTrack.append(Parallel(throwingTrack, hprTrack, scaleTrack, soundTrack))
-        else:
-            if trapName == 'marbles':
-                trapPoint, trapHpr = battle.getActorPosHpr(suit)
-                trapPoint.setY(MovieUtil.SUIT_TRAP_MARBLES_DISTANCE)
-                flingDuration = 0.2
-                rollDuration = 1.0
-                throwDuration = flingDuration + rollDuration
-                landPoint = Point3(0, trapPoint.getY() + 2, trapPoint.getZ())
-                throwPoint = Point3(0, trapPoint.getY(), trapPoint.getZ())
-                moveTrack = Sequence(Func(thrownProp.wrtReparentTo, suit), Func(thrownProp.setHpr, Point3(94, 0, 0)), LerpPosInterval(thrownProp, flingDuration, pos=landPoint, other=suit), LerpPosInterval(thrownProp, rollDuration, pos=throwPoint, other=suit))
-                animTrack = ActorInterval(thrownProp, propName, startTime=throwDelay + 0.9)
-                scaleTrack = LerpScaleInterval(thrownProp, throwDuration, scale=MovieUtil.PNT3_ONE)
-                soundTrack = getSoundTrack('TL_marbles.ogg', delay=0.1, node=toon)
-                throwTrack.append(Wait(0.2))
-                throwTrack.append(Parallel(moveTrack, animTrack, scaleTrack, soundTrack))
-            else:
-                if trapName == 'rake':
-                    trapPoint, trapHpr = battle.getActorPosHpr(suit)
-                    trapPoint.setY(MovieUtil.SUIT_TRAP_RAKE_DISTANCE)
-                    throwDuration = 1.1
-                    throwingTrack = createThrowingTrack(thrownProp, trapPoint, duration=throwDuration, parent=suit)
-                    hprTrack = LerpHprInterval(thrownProp, throwDuration, hpr=VBase3(63.43, -90.0, 63.43))
-                    scaleTrack = LerpScaleInterval(thrownProp, 0.9, scale=Point3(0.7, 0.7, 0.7))
-                    soundTrack = SoundInterval(globalBattleSoundCache.getSound('TL_rake_throw_only.ogg'), duration=1.1, node=suit)
-                    throwTrack.append(Wait(0.2))
-                    throwTrack.append(Parallel(throwingTrack, hprTrack, scaleTrack, soundTrack))
-                else:
-                    notify.warning('__createThrownTrapMultiTrack() - Incorrect trap:                          %s thrown from toon' % trapName)
+        notify.warning('__createThrownTrapMultiTrack() - Incorrect trap:                          %s thrown from toon' % trapName)
 
     def placeTrap(trapProp, suit, battle=battle, trapName=trapName):
         if not trapProp or trapProp.isEmpty():
@@ -244,22 +243,19 @@ def __createThrownTrapMultiTrack(trap, propList, propName, propPos=None, propHpr
             trapProp.setScale(Point3(0.7, 0.7, 0.7))
             rakeOffset = MovieUtil.getSuitRakeOffset(suit)
             trapProp.setY(trapProp.getY() + rakeOffset)
+        elif trapName == 'banana':
+            trapProp.setHpr(0, 0, 0)
+            trapProp.setPos(0, MovieUtil.SUIT_TRAP_DISTANCE, -0.35)
+            trapProp.pose(trapName, trapProp.getNumFrames(trapName) - 1)
+        elif trapName == 'marbles':
+            trapProp.setHpr(Point3(94, 0, 0))
+            trapProp.setPos(0, MovieUtil.SUIT_TRAP_MARBLES_DISTANCE, 0)
+            trapProp.pose(trapName, trapProp.getNumFrames(trapName) - 1)
+        elif trapName == 'tnt':
+            trapProp.setHpr(0, 90, 0)
+            trapProp.setPos(0, MovieUtil.SUIT_TRAP_TNT_DISTANCE, 0.4)
         else:
-            if trapName == 'banana':
-                trapProp.setHpr(0, 0, 0)
-                trapProp.setPos(0, MovieUtil.SUIT_TRAP_DISTANCE, -0.35)
-                trapProp.pose(trapName, trapProp.getNumFrames(trapName) - 1)
-            else:
-                if trapName == 'marbles':
-                    trapProp.setHpr(Point3(94, 0, 0))
-                    trapProp.setPos(0, MovieUtil.SUIT_TRAP_MARBLES_DISTANCE, 0)
-                    trapProp.pose(trapName, trapProp.getNumFrames(trapName) - 1)
-                else:
-                    if trapName == 'tnt':
-                        trapProp.setHpr(0, 90, 0)
-                        trapProp.setPos(0, MovieUtil.SUIT_TRAP_TNT_DISTANCE, 0.4)
-                    else:
-                        notify.warning('placeTrap() - Incorrect trap: %s placed on a suit' % trapName)
+            notify.warning('placeTrap() - Incorrect trap: %s placed on a suit' % trapName)
 
     dustNode = hidden.attachNewNode('DustNode')
 
@@ -556,15 +552,15 @@ def __createPlacedGroupTrapTrack(trap, prop, propName, centerSuit, propPos=None,
                     suitTrack.append(Func(battle.unlureSuit, unluredSuit))
                     unlureSuits.append(suitTrack)
 
-        trapTrack.append(unlureSuits)
-        for otherSuit in battle.suits:
-            if not otherSuit == suit:
-                if otherSuit.battleTrap != NO_TRAP:
-                    notify.debug('trapSuit() - trap: %d destroyed existing trap: %d' % (level, suit.battleTrap))
-                    battle.removeTrap(otherSuit)
-                otherSuit.battleTrapProp = trapProp
-                otherSuit.battleTrap = level
-                otherSuit.battleTrapIsFresh = 1
+            trapTrack.append(unlureSuits)
+            for otherSuit in battle.suits:
+                if not otherSuit == suit:
+                    if otherSuit.battleTrap != NO_TRAP:
+                        notify.debug('trapSuit() - trap: %d destroyed existing trap: %d' % (level, suit.battleTrap))
+                        battle.removeTrap(otherSuit)
+                    otherSuit.battleTrapProp = trapProp
+                    otherSuit.battleTrap = level
+                    otherSuit.battleTrapIsFresh = 1
 
         trapTracks.append(trapTrack)
     button = globalPropPool.getProp('button')
@@ -579,11 +575,10 @@ def __createPlacedGroupTrapTrack(trap, prop, propName, centerSuit, propPos=None,
     toonTrack.append(Func(toon.setHpr, battle, origHpr))
     if propName == 'quicksand':
         propSound = globalBattleSoundCache.getSound('TL_quicksand.ogg')
+    elif propName == 'traintrack':
+        propSound = globalBattleSoundCache.getSound('TL_train_track_appear.ogg')
     else:
-        if propName == 'traintrack':
-            propSound = globalBattleSoundCache.getSound('TL_train_track_appear.ogg')
-        else:
-            propSound = globalBattleSoundCache.getSound('TL_trap_door.ogg')
+        propSound = globalBattleSoundCache.getSound('TL_trap_door.ogg')
     buttonSound = globalBattleSoundCache.getSound('AA_drop_trigger_box.ogg')
     soundTrack = Sequence(Wait(2.3), Parallel(SoundInterval(buttonSound, duration=0.67, node=toon), SoundInterval(propSound, node=toon)))
     return Parallel(trapTracks, toonTrack, soundTrack)

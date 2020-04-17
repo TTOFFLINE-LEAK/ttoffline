@@ -1224,28 +1224,24 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             if toon == localAvatar:
                 self.d_hitBossInsides()
             self.flashRed()
-        else:
-            if pieCode == ToontownGlobals.PieCodeBossCog:
-                if toon == localAvatar:
-                    self.d_hitBoss(1)
-                if self.dizzy:
-                    self.flashRed()
-                    self.doAnimate('hit', now=1)
-            else:
-                if pieCode == ToontownGlobals.PieCodeDefensePan:
-                    self.flashRed()
-                    self.flashPanBlue()
-                    base.playSfx(self.evidenceHitSfx, node=self.defensePanNodePath, volume=0.25)
-                    if toon == localAvatar:
-                        self.d_hitBoss(self.panDamage)
-                else:
-                    if pieCode == ToontownGlobals.PieCodeProsecutionPan:
-                        self.flashGreen()
-                        if toon == localAvatar:
-                            pass
-                    else:
-                        if pieCode == ToontownGlobals.PieCodeLawyer:
-                            pass
+        elif pieCode == ToontownGlobals.PieCodeBossCog:
+            if toon == localAvatar:
+                self.d_hitBoss(1)
+            if self.dizzy:
+                self.flashRed()
+                self.doAnimate('hit', now=1)
+        elif pieCode == ToontownGlobals.PieCodeDefensePan:
+            self.flashRed()
+            self.flashPanBlue()
+            base.playSfx(self.evidenceHitSfx, node=self.defensePanNodePath, volume=0.25)
+            if toon == localAvatar:
+                self.d_hitBoss(self.panDamage)
+        elif pieCode == ToontownGlobals.PieCodeProsecutionPan:
+            self.flashGreen()
+            if toon == localAvatar:
+                pass
+        elif pieCode == ToontownGlobals.PieCodeLawyer:
+            pass
 
     def __localPieSplat(self, pieCode, entry):
         if pieCode == ToontownGlobals.PieCodeLawyer:
@@ -1755,14 +1751,12 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('after calling self.countToonJurors, numToonJurorsSeated=%d' % self.numToonJurorsSeated)
         if self.numToonJurorsSeated == 0:
             juryResult = TTLocalizer.WitnessToonNoJuror
+        elif self.numToonJurorsSeated == 1:
+            juryResult = TTLocalizer.WitnessToonOneJuror
+        elif self.numToonJurorsSeated == 12:
+            juryResult = TTLocalizer.WitnessToonAllJurors
         else:
-            if self.numToonJurorsSeated == 1:
-                juryResult = TTLocalizer.WitnessToonOneJuror
-            else:
-                if self.numToonJurorsSeated == 12:
-                    juryResult = TTLocalizer.WitnessToonAllJurors
-                else:
-                    juryResult = TTLocalizer.WitnessToonSomeJurors % self.numToonJurorsSeated
+            juryResult = TTLocalizer.WitnessToonSomeJurors % self.numToonJurorsSeated
         juryResult += '\x07'
         trialSpeech = juryResult
         trialSpeech += TTLocalizer.WitnessToonPrepareBattleThree

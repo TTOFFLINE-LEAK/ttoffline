@@ -202,13 +202,12 @@ class CogdoFlyingMemo(CogdoFlyingGatherableBase, CogdoMemo):
         self.floatTimer += dt
         if self.floatTimer < self.floatDuration:
             self.setPos(self.getPos() + Vec3(0, 0, dt * self.floatSpeed))
+        elif self.floatTimer < self.floatDuration * 2.0:
+            self.setPos(self.getPos() - Vec3(0, 0, dt * self.floatSpeed))
         else:
-            if self.floatTimer < self.floatDuration * 2.0:
-                self.setPos(self.getPos() - Vec3(0, 0, dt * self.floatSpeed))
-            else:
-                self.floatTimer = 0.0
-                self.floatSpeed = random.uniform(0.5, 1.0)
-                self.floatDuration = random.uniform(1.9, 2.1)
+            self.floatTimer = 0.0
+            self.floatSpeed = random.uniform(0.5, 1.0)
+            self.floatDuration = random.uniform(1.9, 2.1)
 
 
 class CogdoFlyingPowerup(CogdoFlyingGatherable):
@@ -332,7 +331,8 @@ class CogdoFlyingPropeller(CogdoFlyingGatherable):
     def isPropeller(self):
         if len(self.activePropellers) > 0:
             return True
-        return False
+        else:
+            return False
 
 
 class CogdoFlyingLevelFog:

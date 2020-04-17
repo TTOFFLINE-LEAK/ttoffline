@@ -323,16 +323,18 @@ class OZSafeZoneLoader(SafeZoneLoader):
     def enteringARace(self, status):
         if not status['where'] == 'golfcourse':
             return 0
-        if ZoneUtil.isDynamicZone(status['zoneId']):
-            return status['hoodId'] == self.hood.hoodId
-        return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
+        else:
+            if ZoneUtil.isDynamicZone(status['zoneId']):
+                return status['hoodId'] == self.hood.hoodId
+            return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
 
     def enteringAGolfCourse(self, status):
         if not status['where'] == 'golfcourse':
             return 0
-        if ZoneUtil.isDynamicZone(status['zoneId']):
-            return status['hoodId'] == self.hood.hoodId
-        return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
+        else:
+            if ZoneUtil.isDynamicZone(status['zoneId']):
+                return status['hoodId'] == self.hood.hoodId
+            return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
 
     def enterGolfCourse(self, requestStatus):
         if 'curseId' in requestStatus:

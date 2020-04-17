@@ -139,11 +139,10 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
                 self.ignore('stoppedAsleep')
                 if hasattr(self.dialog, 'doneStatus') and self.dialog.doneStatus == 'ok':
                     self.d_requestEnter(base.cr.isPaid())
+                elif self.cr and not self.isDisabled():
+                    self.cr.playGame.getPlace().setState('walk')
                 else:
-                    if self.cr and not self.isDisabled():
-                        self.cr.playGame.getPlace().setState('walk')
-                    else:
-                        self.notify.warning('Warning! Object has already been disabled.')
+                    self.notify.warning('Warning! Object has already been disabled.')
                 self.dialog.ignoreAll()
                 self.dialog.cleanup()
                 del self.dialog
@@ -190,35 +189,30 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
             self.dialog = TTGlobalDialog(msg, doneEvent, 2)
             self.dialog.accept(doneEvent, handleTicketError)
             self.accept('stoppedAsleep', handleTicketError)
+        elif errCode == KartGlobals.ERROR_CODE.eBoardOver:
+            msg = TTLocalizer.StartingBlock_NoBoard
+            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+            self.dialog.accept(doneEvent, handleTicketError)
+            self.accept('stoppedAsleep', handleTicketError)
+        elif errCode == KartGlobals.ERROR_CODE.eNoKart:
+            msg = TTLocalizer.StartingBlock_NoKart
+            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+            self.dialog.accept(doneEvent, handleTicketError)
+            self.accept('stoppedAsleep', handleTicketError)
+        elif errCode == KartGlobals.ERROR_CODE.eOccupied:
+            msg = TTLocalizer.StartingBlock_Occupied
+            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+            self.dialog.accept(doneEvent, handleTicketError)
+            self.accept('stoppedAsleep', handleTicketError)
+        elif errCode == KartGlobals.ERROR_CODE.eTrackClosed:
+            msg = TTLocalizer.StartingBlock_TrackClosed
+            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+            self.dialog.accept(doneEvent, handleTicketError)
+            self.accept('stoppedAsleep', handleTicketError)
+        elif errCode == KartGlobals.ERROR_CODE.eUnpaid:
+            self.dialog = TeaserPanel(pageName='karting', doneFunc=handleTicketError)
         else:
-            if errCode == KartGlobals.ERROR_CODE.eBoardOver:
-                msg = TTLocalizer.StartingBlock_NoBoard
-                self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-                self.dialog.accept(doneEvent, handleTicketError)
-                self.accept('stoppedAsleep', handleTicketError)
-            else:
-                if errCode == KartGlobals.ERROR_CODE.eNoKart:
-                    msg = TTLocalizer.StartingBlock_NoKart
-                    self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-                    self.dialog.accept(doneEvent, handleTicketError)
-                    self.accept('stoppedAsleep', handleTicketError)
-                else:
-                    if errCode == KartGlobals.ERROR_CODE.eOccupied:
-                        msg = TTLocalizer.StartingBlock_Occupied
-                        self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-                        self.dialog.accept(doneEvent, handleTicketError)
-                        self.accept('stoppedAsleep', handleTicketError)
-                    else:
-                        if errCode == KartGlobals.ERROR_CODE.eTrackClosed:
-                            msg = TTLocalizer.StartingBlock_TrackClosed
-                            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-                            self.dialog.accept(doneEvent, handleTicketError)
-                            self.accept('stoppedAsleep', handleTicketError)
-                        else:
-                            if errCode == KartGlobals.ERROR_CODE.eUnpaid:
-                                self.dialog = TeaserPanel(pageName='karting', doneFunc=handleTicketError)
-                            else:
-                                self.cr.playGame.getPlace().setState('walk')
+            self.cr.playGame.getPlace().setState('walk')
 
     def finishMovie(self):
         if self.movieTrack:
@@ -317,24 +311,23 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
         self.finishMovie()
         if mode == 0:
             pass
-        else:
-            if mode == KartGlobals.ENTER_MOVIE:
-                self.request('EnterMovie')
-            else:
-                if mode == KartGlobals.EXIT_MOVIE:
-                    self.request('ExitMovie')
+        elif mode == KartGlobals.ENTER_MOVIE:
+            self.request('EnterMovie')
+        elif mode == KartGlobals.EXIT_MOVIE:
+            self.request('ExitMovie')
 
     def makeGui(self):
         self.notify.debugStateCall(self)
         if hasattr(self, 'cancelButton'):
             return
-        fishGui = loader.loadModel('phase_4/models/gui/fishingGui')
-        self.cancelButton = DirectGui.DirectButton(relief=None, scale=0.67, parent=base.a2dBottomRight, pos=(-0.173333,
-                                                                                                             0,
-                                                                                                             0.1), text=('', TTLocalizer.FishingExit, TTLocalizer.FishingExit), text_align=TextNode.ACenter, text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0.0,
-                                                                                                                                                                                                                                                                               -0.12), textMayChange=0, text_scale=0.1, image=(fishGui.find('**/exit_buttonUp'), fishGui.find('**/exit_buttonDown'), fishGui.find('**/exit_buttonRollover')), text_font=ToontownGlobals.getInterfaceFont(), command=self.d_requestExit)
-        self.cancelButton.hide()
-        return
+        else:
+            fishGui = loader.loadModel('phase_4/models/gui/fishingGui')
+            self.cancelButton = DirectGui.DirectButton(relief=None, scale=0.67, parent=base.a2dBottomRight, pos=(-0.173333,
+                                                                                                                 0,
+                                                                                                                 0.1), text=('', TTLocalizer.FishingExit, TTLocalizer.FishingExit), text_align=TextNode.ACenter, text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0.0,
+                                                                                                                                                                                                                                                                                   -0.12), textMayChange=0, text_scale=0.1, image=(fishGui.find('**/exit_buttonUp'), fishGui.find('**/exit_buttonDown'), fishGui.find('**/exit_buttonRollover')), text_font=ToontownGlobals.getInterfaceFont(), command=self.d_requestExit)
+            self.cancelButton.hide()
+            return
 
     def showGui(self):
         self.notify.debugStateCall(self)
@@ -620,13 +613,14 @@ class DistributedViewingBlock(DistributedStartingBlock):
         self.notify.debugStateCall(self)
         if self.timer is not None:
             return
-        self.timer = ToontownTimer()
-        self.timer.setScale(0.3)
-        self.timer.setPos(-0.173333, 0, 0.27)
-        self.timer.reparentTo(base.a2dBottomRight)
-        self.timer.hide()
-        DistributedStartingBlock.makeGui(self)
-        return
+        else:
+            self.timer = ToontownTimer()
+            self.timer.setScale(0.3)
+            self.timer.setPos(-0.173333, 0, 0.27)
+            self.timer.reparentTo(base.a2dBottomRight)
+            self.timer.hide()
+            DistributedStartingBlock.makeGui(self)
+            return
 
     def showGui(self):
         self.notify.debugStateCall(self)

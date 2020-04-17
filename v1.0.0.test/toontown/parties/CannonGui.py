@@ -25,46 +25,47 @@ class CannonGui(DirectObject):
     def load(self):
         if self.__loaded:
             return
-        self.__timerPad = PartyUtils.getNewToontownTimer()
-        guiModel = 'phase_4/models/gui/cannon_game_gui'
-        guiNode = loader.loadModel(guiModel)
-        self.__aimPad = DirectFrame(image=guiNode.find('**/CannonFire_PAD'), relief=None, pos=(0.7,
-                                                                                               0,
-                                                                                               -0.553333), scale=0.8)
-        guiNode.removeNode()
-        self.fireButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Fire_Btn_UP'), (guiModel, '**/Fire_Btn_DN'), (guiModel, '**/Fire_Btn_RLVR')), relief=None, pos=(0.0115741,
-                                                                                                                                                                                   0,
-                                                                                                                                                                                   0.00505051), scale=1.0, command=self.__firePressed)
-        self.upButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0115741,
-                                                                                                                                                                                             0,
-                                                                                                                                                                                             0.221717))
-        self.downButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0136112,
-                                                                                                                                                                                               0,
-                                                                                                                                                                                               -0.210101), image_hpr=(0,
-                                                                                                                                                                                                                      0,
-                                                                                                                                                                                                                      180))
-        self.leftButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(-0.199352,
-                                                                                                                                                                                               0,
-                                                                                                                                                                                               -0.000505269), image_hpr=(0,
-                                                                                                                                                                                                                         0,
-                                                                                                                                                                                                                         -90))
-        self.rightButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.219167,
-                                                                                                                                                                                                0,
-                                                                                                                                                                                                -0.00101024), image_hpr=(0,
-                                                                                                                                                                                                                         0,
-                                                                                                                                                                                                                         90))
-        self.__aimPad.setColor(1, 1, 1, 0.9)
+        else:
+            self.__timerPad = PartyUtils.getNewToontownTimer()
+            guiModel = 'phase_4/models/gui/cannon_game_gui'
+            guiNode = loader.loadModel(guiModel)
+            self.__aimPad = DirectFrame(image=guiNode.find('**/CannonFire_PAD'), relief=None, pos=(0.7,
+                                                                                                   0,
+                                                                                                   -0.553333), scale=0.8)
+            guiNode.removeNode()
+            self.fireButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Fire_Btn_UP'), (guiModel, '**/Fire_Btn_DN'), (guiModel, '**/Fire_Btn_RLVR')), relief=None, pos=(0.0115741,
+                                                                                                                                                                                       0,
+                                                                                                                                                                                       0.00505051), scale=1.0, command=self.__firePressed)
+            self.upButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0115741,
+                                                                                                                                                                                                 0,
+                                                                                                                                                                                                 0.221717))
+            self.downButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0136112,
+                                                                                                                                                                                                   0,
+                                                                                                                                                                                                   -0.210101), image_hpr=(0,
+                                                                                                                                                                                                                          0,
+                                                                                                                                                                                                                          180))
+            self.leftButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(-0.199352,
+                                                                                                                                                                                                   0,
+                                                                                                                                                                                                   -0.000505269), image_hpr=(0,
+                                                                                                                                                                                                                             0,
+                                                                                                                                                                                                                             -90))
+            self.rightButton = DirectButton(parent=self.__aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.219167,
+                                                                                                                                                                                                    0,
+                                                                                                                                                                                                    -0.00101024), image_hpr=(0,
+                                                                                                                                                                                                                             0,
+                                                                                                                                                                                                                             90))
+            self.__aimPad.setColor(1, 1, 1, 0.9)
 
-        def bindButton(button, upHandler, downHandler):
-            button.bind(DGG.B1PRESS, lambda x, handler=upHandler: handler())
-            button.bind(DGG.B1RELEASE, lambda x, handler=downHandler: handler())
+            def bindButton(button, upHandler, downHandler):
+                button.bind(DGG.B1PRESS, lambda x, handler=upHandler: handler())
+                button.bind(DGG.B1RELEASE, lambda x, handler=downHandler: handler())
 
-        bindButton(self.upButton, self.__upPressed, self.__upReleased)
-        bindButton(self.downButton, self.__downPressed, self.__downReleased)
-        bindButton(self.leftButton, self.__leftPressed, self.__leftReleased)
-        bindButton(self.rightButton, self.__rightPressed, self.__rightReleased)
-        self.__loaded = True
-        return
+            bindButton(self.upButton, self.__upPressed, self.__upReleased)
+            bindButton(self.downButton, self.__downPressed, self.__downReleased)
+            bindButton(self.leftButton, self.__leftPressed, self.__leftReleased)
+            bindButton(self.rightButton, self.__rightPressed, self.__rightReleased)
+            self.__loaded = True
+            return
 
     def unload(self):
         self.ignoreAll()

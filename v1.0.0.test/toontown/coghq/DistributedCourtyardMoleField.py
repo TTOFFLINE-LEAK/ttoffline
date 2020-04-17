@@ -110,7 +110,8 @@ class DistributedCourtyardMoleField(DistributedObject.DistributedObject, MoleFie
 
         if self.schedule:
             return task.cont
-        return task.done
+        else:
+            return task.done
 
     def handleEnterMole(self, colEntry):
         surfaceNormal = colEntry.getSurfaceNormal(render)
@@ -126,11 +127,10 @@ class DistributedCourtyardMoleField(DistributedObject.DistributedObject, MoleFie
             moleHill.setHillType(MoleFieldBase.HILL_WHACKED)
             self.sendUpdate('whackedBomb', [moleIndex, popupNum, timestamp])
             self.__showToonHitByBomb(localAvatar.doId, moleIndex, timestamp)
-        else:
-            if moleHill.hillType == MoleFieldBase.HILL_BOMB:
-                moleHill.setHillType(MoleFieldBase.HILL_COGWHACKED)
-                self.soundCog.play()
-                self.sendUpdate('whackedMole', [moleIndex, popupNum])
+        elif moleHill.hillType == MoleFieldBase.HILL_BOMB:
+            moleHill.setHillType(MoleFieldBase.HILL_COGWHACKED)
+            self.soundCog.play()
+            self.sendUpdate('whackedMole', [moleIndex, popupNum])
 
     def updateMole(self, moleIndex, status):
         if status == self.WHACKED:
@@ -154,144 +154,145 @@ class DistributedCourtyardMoleField(DistributedObject.DistributedObject, MoleFie
         moleHill = self.moleHills[moleIndex]
         if toon == None:
             return
-        rng = random.Random(timestamp)
-        curPos = toon.getPos(render)
-        oldTrack = self.toonHitTracks.get(avId)
-        if oldTrack:
-            if oldTrack.isPlaying():
-                oldTrack.finish()
-        toon.setPos(curPos)
-        toon.setZ(render.getZ())
-        parentNode = render.attachNewNode('mazeFlyToonParent-' + `avId`)
-        parentNode.setPos(toon.getPos(render))
-        toon.reparentTo(parentNode)
-        toon.setPos(0, 0, 0)
-        startPos = parentNode.getPos()
-        dropShadow = toon.dropShadow.copyTo(parentNode)
-        dropShadow.setScale(toon.dropShadow.getScale(render))
-        trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=1.0)
-        flyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
-        xPos = random.randint(-25, 25) + moleHill.getX()
-        yPos = random.randint(-25, 25) + moleHill.getY()
-        endPos = Point3(xPos, yPos, startPos[2])
-
-        def flyFunc(t, trajectory, startPos=startPos, endPos=endPos, dur=flyDur, moveNode=parentNode, flyNode=toon):
-            u = t / dur
-            moveNode.setX(startPos[0] + u * (endPos[0] - startPos[0]))
-            moveNode.setY(startPos[1] + u * (endPos[1] - startPos[1]))
-            if flyNode and not flyNode.isEmpty():
-                flyNode.setPos(trajectory.getPos(t))
-
-        def safeSetHpr(node, hpr):
-            if node and not node.isEmpty():
-                node.setHpr(hpr)
-
-        flyTrack = Sequence(LerpFunctionInterval(flyFunc, fromData=0.0, toData=flyDur, duration=flyDur, extraArgs=[trajectory]), name=toon.uniqueName('hitBySuit-fly'))
-        if avId != localAvatar.doId:
-            cameraTrack = Sequence()
         else:
-            base.localAvatar.stopUpdateSmartCamera()
-            self.camParentHold = camera.getParent()
-            self.camParent = base.localAvatar.attachNewNode('iCamParent')
-            self.camParent.setPos(self.camParentHold.getPos())
-            self.camParent.setHpr(self.camParentHold.getHpr())
-            camera.reparentTo(self.camParent)
-            self.camParent.reparentTo(parentNode)
-            startCamPos = camera.getPos()
-            destCamPos = camera.getPos()
-            zenith = trajectory.getPos(flyDur / 2.0)[2]
-            destCamPos.setZ(zenith * 1.3)
-            destCamPos.setY(destCamPos[1] * 0.3)
+            rng = random.Random(timestamp)
+            curPos = toon.getPos(render)
+            oldTrack = self.toonHitTracks.get(avId)
+            if oldTrack:
+                if oldTrack.isPlaying():
+                    oldTrack.finish()
+            toon.setPos(curPos)
+            toon.setZ(render.getZ())
+            parentNode = render.attachNewNode('mazeFlyToonParent-' + `avId`)
+            parentNode.setPos(toon.getPos(render))
+            toon.reparentTo(parentNode)
+            toon.setPos(0, 0, 0)
+            startPos = parentNode.getPos()
+            dropShadow = toon.dropShadow.copyTo(parentNode)
+            dropShadow.setScale(toon.dropShadow.getScale(render))
+            trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=1.0)
+            flyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
+            xPos = random.randint(-25, 25) + moleHill.getX()
+            yPos = random.randint(-25, 25) + moleHill.getY()
+            endPos = Point3(xPos, yPos, startPos[2])
 
-            def camTask(task, zenith=zenith, flyNode=toon, startCamPos=startCamPos, camOffset=destCamPos - startCamPos):
-                u = flyNode.getZ() / zenith
-                camera.lookAt(toon)
-                return Task.cont
+            def flyFunc(t, trajectory, startPos=startPos, endPos=endPos, dur=flyDur, moveNode=parentNode, flyNode=toon):
+                u = t / dur
+                moveNode.setX(startPos[0] + u * (endPos[0] - startPos[0]))
+                moveNode.setY(startPos[1] + u * (endPos[1] - startPos[1]))
+                if flyNode and not flyNode.isEmpty():
+                    flyNode.setPos(trajectory.getPos(t))
 
-            camTaskName = 'mazeToonFlyCam-' + `avId`
-            taskMgr.add(camTask, camTaskName, priority=20)
+            def safeSetHpr(node, hpr):
+                if node and not node.isEmpty():
+                    node.setHpr(hpr)
 
-            def cleanupCamTask(self=self, toon=toon, camTaskName=camTaskName, startCamPos=startCamPos):
-                taskMgr.remove(camTaskName)
-                self.camParent.reparentTo(toon)
-                camera.setPos(startCamPos)
-                camera.lookAt(toon)
-                camera.reparentTo(self.camParentHold)
-                base.localAvatar.startUpdateSmartCamera()
-
-            cameraTrack = Sequence(Wait(flyDur), Func(cleanupCamTask), name='hitBySuit-cameraLerp')
-        geomNode = toon.getGeomNode()
-        startHpr = geomNode.getHpr()
-        destHpr = Point3(startHpr)
-        hRot = rng.randrange(1, 8)
-        if rng.choice([0, 1]):
-            hRot = -hRot
-        destHpr.setX(destHpr[0] + hRot * 360)
-        spinHTrack = Sequence(LerpHprInterval(geomNode, flyDur, destHpr, startHpr=startHpr), Func(safeSetHpr, geomNode, startHpr), name=toon.uniqueName('hitBySuit-spinH'))
-        parent = geomNode.getParent()
-        rotNode = parent.attachNewNode('rotNode')
-        geomNode.reparentTo(rotNode)
-        rotNode.setZ(toon.getHeight() / 2.0)
-        oldGeomNodeZ = geomNode.getZ()
-        geomNode.setZ(-toon.getHeight() / 2.0)
-        startHpr = rotNode.getHpr()
-        destHpr = Point3(startHpr)
-        pRot = rng.randrange(1, 3)
-        if rng.choice([0, 1]):
-            pRot = -pRot
-        destHpr.setY(destHpr[1] + pRot * 360)
-        spinPTrack = Sequence(LerpHprInterval(rotNode, flyDur, destHpr, startHpr=startHpr), Func(safeSetHpr, rotNode, startHpr), name=toon.uniqueName('hitBySuit-spinP'))
-        soundTrack = Sequence()
-
-        def preFunc(self=self, avId=avId, toon=toon, dropShadow=dropShadow):
-            forwardSpeed = toon.forwardSpeed
-            rotateSpeed = toon.rotateSpeed
-            if avId == localAvatar.doId:
-                toon.stopSmooth()
-                base.cr.playGame.getPlace().fsm.request('stopped')
+            flyTrack = Sequence(LerpFunctionInterval(flyFunc, fromData=0.0, toData=flyDur, duration=flyDur, extraArgs=[trajectory]), name=toon.uniqueName('hitBySuit-fly'))
+            if avId != localAvatar.doId:
+                cameraTrack = Sequence()
             else:
-                toon.stopSmooth()
-            if forwardSpeed or rotateSpeed:
-                toon.setSpeed(forwardSpeed, rotateSpeed)
-            toon.dropShadow.hide()
+                base.localAvatar.stopUpdateSmartCamera()
+                self.camParentHold = camera.getParent()
+                self.camParent = base.localAvatar.attachNewNode('iCamParent')
+                self.camParent.setPos(self.camParentHold.getPos())
+                self.camParent.setHpr(self.camParentHold.getHpr())
+                camera.reparentTo(self.camParent)
+                self.camParent.reparentTo(parentNode)
+                startCamPos = camera.getPos()
+                destCamPos = camera.getPos()
+                zenith = trajectory.getPos(flyDur / 2.0)[2]
+                destCamPos.setZ(zenith * 1.3)
+                destCamPos.setY(destCamPos[1] * 0.3)
 
-        def postFunc(self=self, avId=avId, oldGeomNodeZ=oldGeomNodeZ, dropShadow=dropShadow, parentNode=parentNode):
-            if avId == localAvatar.doId:
-                base.localAvatar.setPos(endPos)
-                if hasattr(self, 'orthoWalk'):
-                    self.orthoWalk.start()
-            dropShadow.removeNode()
-            del dropShadow
-            if toon and toon.dropShadow:
-                toon.dropShadow.show()
+                def camTask(task, zenith=zenith, flyNode=toon, startCamPos=startCamPos, camOffset=destCamPos - startCamPos):
+                    u = flyNode.getZ() / zenith
+                    camera.lookAt(toon)
+                    return Task.cont
+
+                camTaskName = 'mazeToonFlyCam-' + `avId`
+                taskMgr.add(camTask, camTaskName, priority=20)
+
+                def cleanupCamTask(self=self, toon=toon, camTaskName=camTaskName, startCamPos=startCamPos):
+                    taskMgr.remove(camTaskName)
+                    self.camParent.reparentTo(toon)
+                    camera.setPos(startCamPos)
+                    camera.lookAt(toon)
+                    camera.reparentTo(self.camParentHold)
+                    base.localAvatar.startUpdateSmartCamera()
+
+                cameraTrack = Sequence(Wait(flyDur), Func(cleanupCamTask), name='hitBySuit-cameraLerp')
             geomNode = toon.getGeomNode()
-            rotNode = geomNode.getParent()
-            baseNode = rotNode.getParent()
-            geomNode.reparentTo(baseNode)
-            rotNode.removeNode()
-            del rotNode
-            geomNode.setZ(oldGeomNodeZ)
-            toon.reparentTo(render)
-            toon.setPos(endPos)
-            parentNode.removeNode()
-            del parentNode
-            if avId == localAvatar.doId:
-                toon.startSmooth()
-                place = base.cr.playGame.getPlace()
-                if place and hasattr(place, 'fsm'):
-                    place.fsm.request('walk')
-            else:
-                toon.startSmooth()
+            startHpr = geomNode.getHpr()
+            destHpr = Point3(startHpr)
+            hRot = rng.randrange(1, 8)
+            if rng.choice([0, 1]):
+                hRot = -hRot
+            destHpr.setX(destHpr[0] + hRot * 360)
+            spinHTrack = Sequence(LerpHprInterval(geomNode, flyDur, destHpr, startHpr=startHpr), Func(safeSetHpr, geomNode, startHpr), name=toon.uniqueName('hitBySuit-spinH'))
+            parent = geomNode.getParent()
+            rotNode = parent.attachNewNode('rotNode')
+            geomNode.reparentTo(rotNode)
+            rotNode.setZ(toon.getHeight() / 2.0)
+            oldGeomNodeZ = geomNode.getZ()
+            geomNode.setZ(-toon.getHeight() / 2.0)
+            startHpr = rotNode.getHpr()
+            destHpr = Point3(startHpr)
+            pRot = rng.randrange(1, 3)
+            if rng.choice([0, 1]):
+                pRot = -pRot
+            destHpr.setY(destHpr[1] + pRot * 360)
+            spinPTrack = Sequence(LerpHprInterval(rotNode, flyDur, destHpr, startHpr=startHpr), Func(safeSetHpr, rotNode, startHpr), name=toon.uniqueName('hitBySuit-spinP'))
+            soundTrack = Sequence()
 
-        preFunc()
-        hitTrack = Sequence(Func(toon.setPos, Point3(0.0, 0.0, 0.0)), Wait(0.25), Parallel(flyTrack, cameraTrack, self.soundIUpDown, spinHTrack, spinPTrack, soundTrack), Func(postFunc), name=toon.uniqueName('hitBySuit'))
-        self.toonHitTracks[avId] = hitTrack
-        hitTrack.start()
-        posM = moleHill.getPos(render)
-        posN = Point3(posM[0], posM[1], posM[2] + 4.0)
-        self.soundBomb.play()
-        self.soundBomb2.play()
-        return
+            def preFunc(self=self, avId=avId, toon=toon, dropShadow=dropShadow):
+                forwardSpeed = toon.forwardSpeed
+                rotateSpeed = toon.rotateSpeed
+                if avId == localAvatar.doId:
+                    toon.stopSmooth()
+                    base.cr.playGame.getPlace().fsm.request('stopped')
+                else:
+                    toon.stopSmooth()
+                if forwardSpeed or rotateSpeed:
+                    toon.setSpeed(forwardSpeed, rotateSpeed)
+                toon.dropShadow.hide()
+
+            def postFunc(self=self, avId=avId, oldGeomNodeZ=oldGeomNodeZ, dropShadow=dropShadow, parentNode=parentNode):
+                if avId == localAvatar.doId:
+                    base.localAvatar.setPos(endPos)
+                    if hasattr(self, 'orthoWalk'):
+                        self.orthoWalk.start()
+                dropShadow.removeNode()
+                del dropShadow
+                if toon and toon.dropShadow:
+                    toon.dropShadow.show()
+                geomNode = toon.getGeomNode()
+                rotNode = geomNode.getParent()
+                baseNode = rotNode.getParent()
+                geomNode.reparentTo(baseNode)
+                rotNode.removeNode()
+                del rotNode
+                geomNode.setZ(oldGeomNodeZ)
+                toon.reparentTo(render)
+                toon.setPos(endPos)
+                parentNode.removeNode()
+                del parentNode
+                if avId == localAvatar.doId:
+                    toon.startSmooth()
+                    place = base.cr.playGame.getPlace()
+                    if place and hasattr(place, 'fsm'):
+                        place.fsm.request('walk')
+                else:
+                    toon.startSmooth()
+
+            preFunc()
+            hitTrack = Sequence(Func(toon.setPos, Point3(0.0, 0.0, 0.0)), Wait(0.25), Parallel(flyTrack, cameraTrack, self.soundIUpDown, spinHTrack, spinPTrack, soundTrack), Func(postFunc), name=toon.uniqueName('hitBySuit'))
+            self.toonHitTracks[avId] = hitTrack
+            hitTrack.start()
+            posM = moleHill.getPos(render)
+            posN = Point3(posM[0], posM[1], posM[2] + 4.0)
+            self.soundBomb.play()
+            self.soundBomb2.play()
+            return
 
     def handleEnterHill(self):
         pass

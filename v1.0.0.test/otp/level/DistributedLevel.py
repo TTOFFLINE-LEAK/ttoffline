@@ -138,25 +138,24 @@ class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
             if moveLocalAvatar:
                 epEnt.placeToon(base.localAvatar, self.avIdList.index(base.localAvatar.doId), len(self.avIdList))
             initialZoneEnt = self.getEntity(epEnt.getZoneEntId())
-        else:
-            if self.EmulateEntrancePoint:
-                self.notify.debug('unknown entranceId %s' % self.entranceId)
+        elif self.EmulateEntrancePoint:
+            self.notify.debug('unknown entranceId %s' % self.entranceId)
+            if moveLocalAvatar:
+                base.localAvatar.reparentTo(render)
+                base.localAvatar.setPosHpr(0, 0, 0, 0, 0, 0)
+            self.notify.debug('showing all zones')
+            self.setColorZones(1)
+            zoneEntIds = list(self.entType2ids['zone'])
+            zoneEntIds.remove(LevelConstants.UberZoneEntId)
+            if len(zoneEntIds):
+                zoneEntId = random.choice(zoneEntIds)
+                initialZoneEnt = self.getEntity(zoneEntId)
                 if moveLocalAvatar:
-                    base.localAvatar.reparentTo(render)
-                    base.localAvatar.setPosHpr(0, 0, 0, 0, 0, 0)
-                self.notify.debug('showing all zones')
-                self.setColorZones(1)
-                zoneEntIds = list(self.entType2ids['zone'])
-                zoneEntIds.remove(LevelConstants.UberZoneEntId)
-                if len(zoneEntIds):
-                    zoneEntId = random.choice(zoneEntIds)
-                    initialZoneEnt = self.getEntity(zoneEntId)
-                    if moveLocalAvatar:
-                        base.localAvatar.setPos(render, initialZoneEnt.getZoneNode().getPos(render))
-                else:
-                    initialZoneEnt = self.getEntity(LevelConstants.UberZoneEntId)
-                    if moveLocalAvatar:
-                        base.localAvatar.setPos(render, 0, 0, 0)
+                    base.localAvatar.setPos(render, initialZoneEnt.getZoneNode().getPos(render))
+            else:
+                initialZoneEnt = self.getEntity(LevelConstants.UberZoneEntId)
+                if moveLocalAvatar:
+                    base.localAvatar.setPos(render, 0, 0, 0)
         if initialZoneEnt is not None:
             self.enterZone(initialZoneEnt.entId)
         return
@@ -283,10 +282,11 @@ class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
         zoneNode = self.getZoneNode(zoneNum)
         if zoneNode is None:
             return
-        base.localAvatar.setPos(zoneNode, 0, 0, 0)
-        base.localAvatar.setHpr(zoneNode, 0, 0, 0)
-        self.enterZone(zoneNum)
-        return
+        else:
+            base.localAvatar.setPos(zoneNode, 0, 0, 0)
+            base.localAvatar.setHpr(zoneNode, 0, 0, 0)
+            self.enterZone(zoneNum)
+            return
 
     def showZone(self, zoneNum):
         zone = self.getZoneNode(zoneNum)
@@ -431,9 +431,9 @@ class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
             for az in addedZoneNums:
                 self.showZone(az)
 
-        DistributedLevel.notify.debug('hiding zones %s' % removedZoneNums)
-        for rz in removedZoneNums:
-            self.hideZone(rz)
+            DistributedLevel.notify.debug('hiding zones %s' % removedZoneNums)
+            for rz in removedZoneNums:
+                self.hideZone(rz)
 
         if vizZonesChanged or self.fForceSetZoneThisFrame:
             self.setVisibility(visibleZoneNums.keys())
@@ -488,7 +488,8 @@ class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
             ent = self.entities.get(zoneNum)
             if ent and hasattr(ent, 'description'):
                 return ent.description
-            return
+            else:
+                return
 
         description = getDescription(self.lastCamZone)
         if description and description != '':
@@ -585,10 +586,9 @@ class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
         if anim == 'Squish':
             if base.cr.playGame.getPlace():
                 base.cr.playGame.getPlace().fsm.request('squished')
-        else:
-            if anim == 'Fall':
-                if base.cr.playGame.getPlace():
-                    base.cr.playGame.getPlace().fsm.request('fallDown')
+        elif anim == 'Fall':
+            if base.cr.playGame.getPlace():
+                base.cr.playGame.getPlace().fsm.request('fallDown')
         av = base.localAvatar
         av.stunToon()
         av.playDialogueForString('!')

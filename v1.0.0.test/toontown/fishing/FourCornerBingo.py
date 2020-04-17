@@ -23,15 +23,12 @@ class FourCornerBingo(BingoCardBase.BingoCardBase):
         topLeft, topRight, bottomLeft, bottomRight = (0, 0, 0, 0)
         if id == self.corners[0]:
             topLeft = 1
-        else:
-            if id == self.corners[1]:
-                topRight = 1
-            else:
-                if id == self.corners[2]:
-                    bottomLeft = 1
-                else:
-                    if id == self.corners[3]:
-                        bottomRight = 1
+        elif id == self.corners[1]:
+            topRight = 1
+        elif id == self.corners[2]:
+            bottomLeft = 1
+        elif id == self.corners[3]:
+            bottomRight = 1
         return topLeft or topRight or bottomLeft or bottomRight
 
     def checkForBingo(self):

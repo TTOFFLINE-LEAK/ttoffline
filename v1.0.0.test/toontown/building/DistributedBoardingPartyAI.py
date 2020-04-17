@@ -131,18 +131,16 @@ class DistributedBoardingPartyAI(DistributedObjectAI.DistributedObjectAI, Boardi
             if inviteeOkay:
                 if inviteeOkay == REJECT_MINLAFF:
                     reason = BoardingPartyBase.BOARDCODE_MINLAFF
-                else:
-                    if inviteeOkay == REJECT_PROMOTION:
-                        reason = BoardingPartyBase.BOARDCODE_PROMOTION
+                elif inviteeOkay == REJECT_PROMOTION:
+                    reason = BoardingPartyBase.BOARDCODE_PROMOTION
                 self.sendUpdateToAvatarId(inviterId, 'postInviteNotQualify', [inviteeId, reason, self.elevatorIdList[0]])
                 return
             inviterOkay = self.checkBoard(inviterId, self.elevatorIdList[0])
             if inviterOkay:
                 if inviterOkay == REJECT_MINLAFF:
                     reason = BoardingPartyBase.BOARDCODE_MINLAFF
-                else:
-                    if inviterOkay == REJECT_PROMOTION:
-                        reason = BoardingPartyBase.BOARDCODE_PROMOTION
+                elif inviterOkay == REJECT_PROMOTION:
+                    reason = BoardingPartyBase.BOARDCODE_PROMOTION
                 self.sendUpdateToAvatarId(inviterId, 'postInviteNotQualify', [inviterId, reason, self.elevatorIdList[0]])
                 return
         if inviterId in self.avIdDict:
@@ -266,9 +264,8 @@ class DistributedBoardingPartyAI(DistributedObjectAI.DistributedObjectAI, Boardi
                             if elevator.checkBoard(avatar) != 0:
                                 if elevator.checkBoard(avatar) == REJECT_MINLAFF:
                                     boardOkay = BoardingPartyBase.BOARDCODE_MINLAFF
-                                else:
-                                    if elevator.checkBoard(avatar) == REJECT_PROMOTION:
-                                        boardOkay = BoardingPartyBase.BOARDCODE_PROMOTION
+                                elif elevator.checkBoard(avatar) == REJECT_PROMOTION:
+                                    boardOkay = BoardingPartyBase.BOARDCODE_PROMOTION
                                 avatarsFailingRequirements.append(avId)
                             elif avatar.battleId != 0:
                                 boardOkay = BoardingPartyBase.BOARDCODE_BATTLE
@@ -385,10 +382,9 @@ class DistributedBoardingPartyAI(DistributedObjectAI.DistributedObjectAI, Boardi
         self.notify.debug('handleAvatarZoneChange %s new%s old%s bp%s' % (avId, zoneNew, zoneOld, self.zoneId))
         if zoneNew in self.visibleZones:
             self.toonInZone(avId)
-        else:
-            if avId in self.avIdDict:
-                leaderId = self.avIdDict[avId]
-                self.removeFromGroup(leaderId, avId)
+        elif avId in self.avIdDict:
+            leaderId = self.avIdDict[avId]
+            self.removeFromGroup(leaderId, avId)
 
     def toonInZone(self, avId):
         if avId in self.avIdDict:

@@ -96,10 +96,9 @@ class DistributedMoleFieldAI(DistributedEntityAI.DistributedEntityAI, MoleFieldB
             room = simbase.air.doId2do.get(roomId)
             self.roundsFailed += 1
             self.restartGame()
-        else:
-            if self.roundsFailed >= 4:
-                if not self.challengeDefeated:
-                    self.forceChallengeDefeated(pityWin=True)
+        elif self.roundsFailed >= 4:
+            if not self.challengeDefeated:
+                self.forceChallengeDefeated(pityWin=True)
 
     def damageMe(self):
         roomId = self.getLevelDoId()

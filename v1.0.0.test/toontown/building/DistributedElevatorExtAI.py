@@ -64,16 +64,15 @@ class DistributedElevatorExtAI(DistributedElevatorAI.DistributedElevatorAI):
                 timeToSend = timeToSet
                 self.sendUpdate('emptySlot' + str(seatIndex), [
                  avId, 1, globalClockDelta.getRealNetworkTime(), timeToSend])
+            elif self.anyToonsBailed == 0:
+                bailFlag = 1
+                self.resetCountdown()
+                self.anyToonsBailed = 1
+                self.sendUpdate('emptySlot' + str(seatIndex), [
+                 avId, bailFlag, globalClockDelta.getRealNetworkTime(), timeToSend])
             else:
-                if self.anyToonsBailed == 0:
-                    bailFlag = 1
-                    self.resetCountdown()
-                    self.anyToonsBailed = 1
-                    self.sendUpdate('emptySlot' + str(seatIndex), [
-                     avId, bailFlag, globalClockDelta.getRealNetworkTime(), timeToSend])
-                else:
-                    self.sendUpdate('emptySlot' + str(seatIndex), [
-                     avId, bailFlag, globalClockDelta.getRealNetworkTime(), timeToSend])
+                self.sendUpdate('emptySlot' + str(seatIndex), [
+                 avId, bailFlag, globalClockDelta.getRealNetworkTime(), timeToSend])
             if self.countFullSeats() == 0:
                 self.fsm.request('waitEmpty')
             taskMgr.doMethodLater(TOON_EXIT_ELEVATOR_TIME, self.clearEmptyNow, self.uniqueName('clearEmpty-%s' % seatIndex), extraArgs=(seatIndex,))

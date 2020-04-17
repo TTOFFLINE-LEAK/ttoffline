@@ -27,16 +27,17 @@ class MovingPlatform(DirectObject.DirectObject, NodePath):
         if len(floorList) == 0:
             MovingPlatform.notify.warning('no floors in model')
             return
-        for floor in floorList:
-            floor.setName(self._name)
+        else:
+            for floor in floorList:
+                floor.setName(self._name)
 
-        if parentingNode == None:
-            parentingNode = self
-        base.cr.parentMgr.registerParent(self.parentToken, parentingNode)
-        self.parentingNode = parentingNode
-        self.accept('enter%s' % self._name, self.__handleEnter)
-        self.accept('exit%s' % self._name, self.__handleExit)
-        return
+            if parentingNode == None:
+                parentingNode = self
+            base.cr.parentMgr.registerParent(self.parentToken, parentingNode)
+            self.parentingNode = parentingNode
+            self.accept('enter%s' % self._name, self.__handleEnter)
+            self.accept('exit%s' % self._name, self.__handleExit)
+            return
 
     def destroy(self):
         base.cr.parentMgr.unregisterParent(self.parentToken)

@@ -45,9 +45,8 @@ class DistributedDonaldDockAI(DistributedCCharBaseAI.DistributedCCharBaseAI):
                 self.fsm.request('Chatty')
             else:
                 self.fsm.request('Lonely')
-        else:
-            if doneStatus['state'] == 'chatty' and doneStatus['status'] == 'done':
-                self.fsm.request('Lonely')
+        elif doneStatus['state'] == 'chatty' and doneStatus['status'] == 'done':
+            self.fsm.request('Lonely')
 
     def enterOff(self):
         pass

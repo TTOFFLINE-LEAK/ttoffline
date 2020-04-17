@@ -167,10 +167,10 @@ class DistributedBuilding(DistributedObject.DistributedObject):
                 pass
             else:
                 self.error('localToon is on the victorList %d times' % victorCount)
-        closeDoors(self.leftDoor, self.rightDoor)
-        for light in self.floorIndicator:
-            if light != None:
-                light.setColor(LIGHT_OFF_COLOR)
+            closeDoors(self.leftDoor, self.rightDoor)
+            for light in self.floorIndicator:
+                if light != None:
+                    light.setColor(LIGHT_OFF_COLOR)
 
         return
 
@@ -208,10 +208,10 @@ class DistributedBuilding(DistributedObject.DistributedObject):
                 pass
             else:
                 self.error('localToon is on the victorList %d times' % victorCount)
-        closeDoors(self.leftDoor, self.rightDoor)
-        for light in self.floorIndicator:
-            if light != None:
-                light.setColor(LIGHT_OFF_COLOR)
+            closeDoors(self.leftDoor, self.rightDoor)
+            for light in self.floorIndicator:
+                if light != None:
+                    light.setColor(LIGHT_OFF_COLOR)
 
         return
 
@@ -324,15 +324,12 @@ class DistributedBuilding(DistributedObject.DistributedObject):
             dept = chr(self.track)
             if dept == 'c':
                 corpIcon = cogIcons.find('**/CorpIcon').copyTo(self.cab)
-            else:
-                if dept == 's':
-                    corpIcon = cogIcons.find('**/SalesIcon').copyTo(self.cab)
-                else:
-                    if dept == 'l':
-                        corpIcon = cogIcons.find('**/LegalIcon').copyTo(self.cab)
-                    else:
-                        if dept == 'm':
-                            corpIcon = cogIcons.find('**/MoneyIcon').copyTo(self.cab)
+            elif dept == 's':
+                corpIcon = cogIcons.find('**/SalesIcon').copyTo(self.cab)
+            elif dept == 'l':
+                corpIcon = cogIcons.find('**/LegalIcon').copyTo(self.cab)
+            elif dept == 'm':
+                corpIcon = cogIcons.find('**/MoneyIcon').copyTo(self.cab)
             corpIcon.setPos(0, 6.79, 6.8)
             corpIcon.setScale(3)
             from toontown.suit import Suit
@@ -816,11 +813,10 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         for currBounceScale in xrange(numBounces):
             if currBounceScale == numBounces - 1:
                 currScale = realScale[2]
+            elif currBounceScale % 2:
+                currScale = realScale[2] - currScaleDiff
             else:
-                if currBounceScale % 2:
-                    currScale = realScale[2] - currScaleDiff
-                else:
-                    currScale = realScale[2] + currScaleDiff
+                currScale = realScale[2] + currScaleDiff
             result.append(LerpScaleInterval(nodeObj, currTime, Vec3(realScale[0], realScale[1], currScale), blendType='easeInOut'))
             currScaleDiff *= 0.5
             currTime = bounceTime
@@ -902,29 +898,30 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         self.stopTransition()
         if self.mode == 'toon':
             return
-        self.mode = 'toon'
-        self.suitDoorOrigin = None
-        nodes = self.getNodePaths()
-        for i in nodes:
-            i.clearColorScale()
-            name = i.getName()
-            if name[0] == 's':
-                if name.find('_landmark_') != -1:
-                    i.removeNode()
-                else:
-                    i.stash()
-            elif name[0] == 't':
-                if name.find('_landmark_') != -1:
-                    i.unstash()
-                else:
-                    i.unstash()
-            elif name[0] == 'c':
-                if name.find('_landmark_') != -1:
-                    i.removeNode()
-                else:
-                    i.stash()
+        else:
+            self.mode = 'toon'
+            self.suitDoorOrigin = None
+            nodes = self.getNodePaths()
+            for i in nodes:
+                i.clearColorScale()
+                name = i.getName()
+                if name[0] == 's':
+                    if name.find('_landmark_') != -1:
+                        i.removeNode()
+                    else:
+                        i.stash()
+                elif name[0] == 't':
+                    if name.find('_landmark_') != -1:
+                        i.unstash()
+                    else:
+                        i.unstash()
+                elif name[0] == 'c':
+                    if name.find('_landmark_') != -1:
+                        i.removeNode()
+                    else:
+                        i.stash()
 
-        return
+            return
 
     def normalizeElevator(self):
         self.elevatorNodePath.setScale(render, Vec3(1, 1, 1))

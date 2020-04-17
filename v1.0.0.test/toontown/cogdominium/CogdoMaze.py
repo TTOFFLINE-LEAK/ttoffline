@@ -159,29 +159,25 @@ class CogdoMazeFactory:
                 visited.append(data[ay][ax])
                 data[ay][ax][BARRIER_DATA_TOP] = 0
                 ay += 1
-            else:
-                if ad == dirDown:
-                    if data[(ay - 1)][ax] in visited:
-                        return None
-                    visited.append(data[(ay - 1)][ax])
-                    data[(ay - 1)][ax][BARRIER_DATA_TOP] = 0
-                    ay -= 1
-                else:
-                    if ad == dirLeft:
-                        if data[ay][(ax - 1)] in visited:
-                            return None
-                        visited.append(data[ay][(ax - 1)])
-                        data[ay][(ax - 1)][BARRIER_DATA_RIGHT] = 0
-                        ax -= 1
-                    else:
-                        if ad == dirRight:
-                            if data[ay][ax] in visited:
-                                return None
-                            visited.append(data[ay][ax])
-                            data[ay][ax][BARRIER_DATA_RIGHT] = 0
-                            ax += 1
-            return (
-             ax, ay)
+            elif ad == dirDown:
+                if data[(ay - 1)][ax] in visited:
+                    return None
+                visited.append(data[(ay - 1)][ax])
+                data[(ay - 1)][ax][BARRIER_DATA_TOP] = 0
+                ay -= 1
+            elif ad == dirLeft:
+                if data[ay][(ax - 1)] in visited:
+                    return None
+                visited.append(data[ay][(ax - 1)])
+                data[ay][(ax - 1)][BARRIER_DATA_RIGHT] = 0
+                ax -= 1
+            elif ad == dirRight:
+                if data[ay][ax] in visited:
+                    return None
+                visited.append(data[ay][ax])
+                data[ay][ax][BARRIER_DATA_RIGHT] = 0
+                ax += 1
+            return (ax, ay)
 
         def openBarriers(x, y):
             dirs = getAvailableDirections(x, y)

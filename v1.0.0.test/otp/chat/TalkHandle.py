@@ -27,14 +27,13 @@ class TalkHandle(AvatarHandle):
                 self.accountId = message.getSenderAccountId()
             if not self.accountName and message.getSenderAccountName():
                 self.accountName = message.getSenderAccountName()
-        else:
-            if self.avatarId == message.getReceiverAvatarId():
-                if not self.avatarName and message.getReceiverAvatarName():
-                    self.avatarName = message.getReceiverAvatarName()
-                if not self.accountId and message.getReceiverAccountId():
-                    self.accountId = message.getReceiverAccountId()
-                if not self.accountName and message.getReceiverAccountName():
-                    self.accountName = message.getReceiverAccountName()
+        elif self.avatarId == message.getReceiverAvatarId():
+            if not self.avatarName and message.getReceiverAvatarName():
+                self.avatarName = message.getReceiverAvatarName()
+            if not self.accountId and message.getReceiverAccountId():
+                self.accountId = message.getReceiverAccountId()
+            if not self.accountName and message.getReceiverAccountName():
+                self.accountName = message.getReceiverAccountName()
 
     def setTalkWhisper(self, fromAV, fromAC, avatarName, chat, mods, flags):
         newText, scrubbed = localAvatar.scrubTalk(chat, mods)

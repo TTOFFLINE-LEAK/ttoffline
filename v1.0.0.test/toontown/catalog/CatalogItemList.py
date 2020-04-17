@@ -12,17 +12,15 @@ class CatalogItemList:
         self.__list = None
         if isinstance(source, types.StringType):
             self.__blob = source
-        else:
-            if isinstance(source, types.ListType):
-                self.__list = source[:]
+        elif isinstance(source, types.ListType):
+            self.__list = source[:]
+        elif isinstance(source, CatalogItemList):
+            if source.store == store:
+                if source.__list != None:
+                    self.__list = source.__list[:]
+                self.__blob = source.__blob
             else:
-                if isinstance(source, CatalogItemList):
-                    if source.store == store:
-                        if source.__list != None:
-                            self.__list = source.__list[:]
-                        self.__blob = source.__blob
-                    else:
-                        self.__list = source[:]
+                self.__list = source[:]
         return
 
     def markDirty(self):
@@ -35,31 +33,34 @@ class CatalogItemList:
             if self.__blob == None:
                 self.__encodeList()
             return self.__blob
-        return self.__makeBlob(store)
+        else:
+            return self.__makeBlob(store)
 
     def getNextDeliveryDate(self):
         if len(self) == 0:
             return
-        nextDeliveryDate = None
-        for item in self:
-            if item:
-                if nextDeliveryDate == None or item.deliveryDate < nextDeliveryDate:
-                    nextDeliveryDate = item.deliveryDate
+        else:
+            nextDeliveryDate = None
+            for item in self:
+                if item:
+                    if nextDeliveryDate == None or item.deliveryDate < nextDeliveryDate:
+                        nextDeliveryDate = item.deliveryDate
 
-        return nextDeliveryDate
+            return nextDeliveryDate
 
     def getNextDeliveryItem(self):
         if len(self) == 0:
             return
-        nextDeliveryDate = None
-        nextDeliveryItem = None
-        for item in self:
-            if item:
-                if nextDeliveryDate == None or item.deliveryDate < nextDeliveryDate:
-                    nextDeliveryDate = item.deliveryDate
-                    nextDeliveryItem = item
+        else:
+            nextDeliveryDate = None
+            nextDeliveryItem = None
+            for item in self:
+                if item:
+                    if nextDeliveryDate == None or item.deliveryDate < nextDeliveryDate:
+                        nextDeliveryDate = item.deliveryDate
+                        nextDeliveryItem = item
 
-        return nextDeliveryItem
+            return nextDeliveryItem
 
     def extractDeliveryItems(self, cutoffTime):
         beforeTime = []
@@ -136,8 +137,9 @@ class CatalogItemList:
         self.__blob = None
         if index == None:
             return self.__list.pop()
-        return self.__list.pop(index)
-        return
+        else:
+            return self.__list.pop(index)
+            return
 
     def remove(self, item):
         if self.__list == None:

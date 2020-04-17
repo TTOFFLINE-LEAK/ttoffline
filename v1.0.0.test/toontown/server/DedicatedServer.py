@@ -43,15 +43,14 @@ class DedicatedServer:
         astronConfig = config.GetString('astron-config-path', 'astron/config/astrond.yml')
         if sys.platform == 'win32':
             self.astronProcess = subprocess.Popen(('astron\\astrond.exe --loglevel info {0}').format(astronConfig.replace('/', '\\')), stdin=self.astronLog, stdout=self.astronLog, stderr=self.astronLog)
+        elif sys.platform == 'linux2':
+            env = os.environ.copy()
+            env['LD_LIBRARY_PATH'] = os.path.abspath('./astron/libraries')
+            self.astronProcess = subprocess.Popen([
+             './astron/astrond-linux', '--loglevel', 'info', astronConfig], stdin=self.astronLog, stdout=self.astronLog, stderr=self.astronLog, env=env)
         else:
-            if sys.platform == 'linux2':
-                env = os.environ.copy()
-                env['LD_LIBRARY_PATH'] = os.path.abspath('./astron/libraries')
-                self.astronProcess = subprocess.Popen([
-                 './astron/astrond-linux', '--loglevel', 'info', astronConfig], stdin=self.astronLog, stdout=self.astronLog, stderr=self.astronLog, env=env)
-            else:
-                self.astronProcess = subprocess.Popen([
-                 './astron/astrond', '--loglevel', 'info', astronConfig], stdin=self.astronLog, stdout=self.astronLog, stderr=self.astronLog)
+            self.astronProcess = subprocess.Popen([
+             './astron/astrond', '--loglevel', 'info', astronConfig], stdin=self.astronLog, stdout=self.astronLog, stderr=self.astronLog)
         taskMgr.add(self.startUberDog, 'start-uberdog-task')
 
     def startUberDog(self, task):

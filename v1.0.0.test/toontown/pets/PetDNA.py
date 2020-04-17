@@ -198,20 +198,19 @@ def getSpecies(zoneId):
 def getColors(bodyType):
     if BodyTypes[bodyType] in GenericBodies:
         return GenericPetColors
-    return SpecificPetColors
+    else:
+        return SpecificPetColors
 
 
 def getFootTexture(bodyType):
     if BodyTypes[bodyType] == 'turtle':
         texName = FeetTextures['turtle']
+    elif BodyTypes[bodyType] == 'giraffe':
+        texName = FeetTextures['giraffe']
+    elif BodyTypes[bodyType] == 'leopard':
+        texName = FeetTextures['leopard']
     else:
-        if BodyTypes[bodyType] == 'giraffe':
-            texName = FeetTextures['giraffe']
-        else:
-            if BodyTypes[bodyType] == 'leopard':
-                texName = FeetTextures['leopard']
-            else:
-                texName = FeetTextures['normal']
+        texName = FeetTextures['normal']
     return texName
 
 
@@ -259,5 +258,6 @@ def getGenderString(dna=None, gender=-1):
         gender = getGender(dna)
     if gender:
         return TTLocalizer.GenderShopBoyButtonText
-    return TTLocalizer.GenderShopGirlButtonText
-    return
+    else:
+        return TTLocalizer.GenderShopGirlButtonText
+        return

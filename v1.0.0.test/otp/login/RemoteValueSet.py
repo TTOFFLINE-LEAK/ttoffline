@@ -26,11 +26,11 @@ class RemoteValueSet:
                 self.notify.warning(errMsg)
                 onUnexpectedResponse(errMsg)
                 return
-            else:
-                if len(expectedFields):
-                    if name not in expectedFields:
-                        self.notify.warning("received field '%s' that is not in expected field list" % name)
-                self.dict[name] = value
+
+            if len(expectedFields):
+                if name not in expectedFields:
+                    self.notify.warning("received field '%s' that is not in expected field list" % name)
+            self.dict[name] = value
 
         for name in expectedFields:
             if name not in self.dict:
@@ -62,8 +62,9 @@ class RemoteValueSet:
     def __getValue(self, name, convOp, default):
         if default is None:
             return convOp(self.dict[name])
-        return convOp(self.dict.get(name, default))
-        return
+        else:
+            return convOp(self.dict.get(name, default))
+            return
 
     def __onUnexpectedResponse(self, errStr):
         raise HTTPUtil.UnexpectedResponse(errStr)

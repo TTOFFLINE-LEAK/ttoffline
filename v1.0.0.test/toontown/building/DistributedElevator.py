@@ -138,8 +138,9 @@ class DistributedElevator(DistributedObject.DistributedObject):
         if not self.bldg:
             self.notify.error('setBldgDoId: elevator %d cannot find bldg %d!' % (self.doId, self.bldgDoId))
             return
-        self.setupElevator()
-        return
+        else:
+            self.setupElevator()
+            return
 
     def gotToon(self, index, avId, toonList):
         request = self.toonRequests.get(index)
@@ -187,71 +188,67 @@ class DistributedElevator(DistributedObject.DistributedObject):
             del self.toonRequests[index]
         if avId == 0:
             pass
+        elif avId not in self.cr.doId2do:
+            func = PythonUtil.Functor(self.gotToon, index, avId)
+            self.toonRequests[index] = self.cr.relatedObjectMgr.requestObjects([avId], allCallback=func)
+        elif not self.isSetup:
+            self.deferredSlots.append((index, avId, wantBoardingShow))
         else:
-            if avId not in self.cr.doId2do:
-                func = PythonUtil.Functor(self.gotToon, index, avId)
-                self.toonRequests[index] = self.cr.relatedObjectMgr.requestObjects([avId], allCallback=func)
+            if avId == base.localAvatar.getDoId():
+                place = base.cr.playGame.getPlace()
+                if not place:
+                    return
+                place.detectedElevatorCollision(self)
+                elevator = self.getPlaceElevator()
+                if elevator == None:
+                    if place.fsm.hasStateNamed('elevator'):
+                        place.fsm.request('elevator')
+                    elif place.fsm.hasStateNamed('Elevator'):
+                        place.fsm.request('Elevator')
+                    elevator = self.getPlaceElevator()
+                if not elevator:
+                    return
+                self.localToonOnBoard = 1
+                if hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty:
+                    localAvatar.boardingParty.forceCleanupInviteePanel()
+                    localAvatar.boardingParty.forceCleanupInviterPanels()
+                if hasattr(base.localAvatar, 'elevatorNotifier'):
+                    base.localAvatar.elevatorNotifier.cleanup()
+                cameraTrack = Sequence()
+                cameraTrack.append(Func(elevator.fsm.request, 'boarding', [self.getElevatorModel()]))
+                cameraTrack.append(Func(elevator.fsm.request, 'boarded'))
+            toon = self.cr.doId2do[avId]
+            toon.stopSmooth()
+            if not wantBoardingShow:
+                toon.setZ(self.getElevatorModel(), self.elevatorPoints[index][2])
+                toon.setShadowHeight(0)
+            if toon.isDisguised:
+                animInFunc = Sequence(Func(toon.suit.loop, 'walk'))
+                animFunc = Sequence(Func(toon.setAnimState, 'neutral', 1.0), Func(toon.suit.loop, 'neutral'))
             else:
-                if not self.isSetup:
-                    self.deferredSlots.append((index, avId, wantBoardingShow))
-                else:
-                    if avId == base.localAvatar.getDoId():
-                        place = base.cr.playGame.getPlace()
-                        if not place:
-                            return
-                        place.detectedElevatorCollision(self)
-                        elevator = self.getPlaceElevator()
-                        if elevator == None:
-                            if place.fsm.hasStateNamed('elevator'):
-                                place.fsm.request('elevator')
-                            else:
-                                if place.fsm.hasStateNamed('Elevator'):
-                                    place.fsm.request('Elevator')
-                            elevator = self.getPlaceElevator()
-                        if not elevator:
-                            return
-                        self.localToonOnBoard = 1
-                        if hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty:
-                            localAvatar.boardingParty.forceCleanupInviteePanel()
-                            localAvatar.boardingParty.forceCleanupInviterPanels()
-                        if hasattr(base.localAvatar, 'elevatorNotifier'):
-                            base.localAvatar.elevatorNotifier.cleanup()
-                        cameraTrack = Sequence()
-                        cameraTrack.append(Func(elevator.fsm.request, 'boarding', [self.getElevatorModel()]))
-                        cameraTrack.append(Func(elevator.fsm.request, 'boarded'))
-                    toon = self.cr.doId2do[avId]
-                    toon.stopSmooth()
-                    if not wantBoardingShow:
-                        toon.setZ(self.getElevatorModel(), self.elevatorPoints[index][2])
-                        toon.setShadowHeight(0)
-                    if toon.isDisguised:
-                        animInFunc = Sequence(Func(toon.suit.loop, 'walk'))
-                        animFunc = Sequence(Func(toon.setAnimState, 'neutral', 1.0), Func(toon.suit.loop, 'neutral'))
-                    else:
-                        animInFunc = Sequence(Func(toon.setAnimState, 'run', 1.0))
-                        animFunc = Func(toon.setAnimState, 'neutral', 1.0)
-                    toon.headsUp(self.getElevatorModel(), apply(Point3, self.elevatorPoints[index]))
-                    track = Sequence(animInFunc, LerpPosInterval(toon, TOON_BOARD_ELEVATOR_TIME * 0.75, apply(Point3, self.elevatorPoints[index]), other=self.getElevatorModel()), LerpHprInterval(toon, TOON_BOARD_ELEVATOR_TIME * 0.25, Point3(180, 0, 0), other=self.getElevatorModel()), Func(self.clearToonTrack, avId), animFunc, name=toon.uniqueName('fillElevator'), autoPause=1)
-                    if wantBoardingShow:
-                        boardingTrack, boardingTrackType = self.getBoardingTrack(toon, index, False)
-                        track = Sequence(boardingTrack, track)
-                        if avId == base.localAvatar.getDoId():
-                            cameraWaitTime = 2.5
-                            if boardingTrackType == BoardingGroupShow.TRACK_TYPE_RUN:
-                                cameraWaitTime = 0.5
-                            else:
-                                if boardingTrackType == BoardingGroupShow.TRACK_TYPE_POOF:
-                                    cameraWaitTime = 1
-                            cameraTrack = Sequence(Wait(cameraWaitTime), cameraTrack)
-                    if self.canHideBoardingQuitBtn(avId):
-                        track = Sequence(Func(localAvatar.boardingParty.groupPanel.disableQuitButton), track)
-                    if avId == base.localAvatar.getDoId():
-                        track = Parallel(cameraTrack, track)
-                    track.delayDelete = DelayDelete.DelayDelete(toon, 'Elevator.fillSlot')
-                    self.storeToonTrack(avId, track)
-                    track.start()
-                    self.fillSlotTrack = track
-                    self.boardedAvIds[avId] = None
+                animInFunc = Sequence(Func(toon.setAnimState, 'run', 1.0))
+                animFunc = Func(toon.setAnimState, 'neutral', 1.0)
+            toon.headsUp(self.getElevatorModel(), apply(Point3, self.elevatorPoints[index]))
+            track = Sequence(animInFunc, LerpPosInterval(toon, TOON_BOARD_ELEVATOR_TIME * 0.75, apply(Point3, self.elevatorPoints[index]), other=self.getElevatorModel()), LerpHprInterval(toon, TOON_BOARD_ELEVATOR_TIME * 0.25, Point3(180, 0, 0), other=self.getElevatorModel()), Func(self.clearToonTrack, avId), animFunc, name=toon.uniqueName('fillElevator'), autoPause=1)
+            if wantBoardingShow:
+                boardingTrack, boardingTrackType = self.getBoardingTrack(toon, index, False)
+                track = Sequence(boardingTrack, track)
+                if avId == base.localAvatar.getDoId():
+                    cameraWaitTime = 2.5
+                    if boardingTrackType == BoardingGroupShow.TRACK_TYPE_RUN:
+                        cameraWaitTime = 0.5
+                    elif boardingTrackType == BoardingGroupShow.TRACK_TYPE_POOF:
+                        cameraWaitTime = 1
+                    cameraTrack = Sequence(Wait(cameraWaitTime), cameraTrack)
+            if self.canHideBoardingQuitBtn(avId):
+                track = Sequence(Func(localAvatar.boardingParty.groupPanel.disableQuitButton), track)
+            if avId == base.localAvatar.getDoId():
+                track = Parallel(cameraTrack, track)
+            track.delayDelete = DelayDelete.DelayDelete(toon, 'Elevator.fillSlot')
+            self.storeToonTrack(avId, track)
+            track.start()
+            self.fillSlotTrack = track
+            self.boardedAvIds[avId] = None
         return
 
     def emptySlot0(self, avId, bailFlag, timestamp, time):
@@ -295,45 +292,44 @@ class DistributedElevator(DistributedObject.DistributedObject):
             self.fillSlotTrack = None
         if avId == 0:
             pass
-        else:
-            if not self.isSetup:
-                newSlots = []
-                for slot in self.deferredSlots:
-                    if slot[0] != index:
-                        newSlots.append(slot)
+        elif not self.isSetup:
+            newSlots = []
+            for slot in self.deferredSlots:
+                if slot[0] != index:
+                    newSlots.append(slot)
 
-                self.deferredSlots = newSlots
-            else:
-                timeToSet = self.countdownTime
-                if timeSent > 0:
-                    timeToSet = timeSent
-                if avId in self.cr.doId2do:
-                    if bailFlag == 1 and hasattr(self, 'clockNode'):
-                        if timestamp < timeToSet and timestamp >= 0:
-                            self.countdown(timeToSet - timestamp)
-                        else:
-                            self.countdown(timeToSet)
-                    toon = self.cr.doId2do[avId]
-                    toon.stopSmooth()
-                    if toon.isDisguised:
-                        toon.suit.loop('walk')
-                        animFunc = Func(toon.suit.loop, 'neutral')
+            self.deferredSlots = newSlots
+        else:
+            timeToSet = self.countdownTime
+            if timeSent > 0:
+                timeToSet = timeSent
+            if avId in self.cr.doId2do:
+                if bailFlag == 1 and hasattr(self, 'clockNode'):
+                    if timestamp < timeToSet and timestamp >= 0:
+                        self.countdown(timeToSet - timestamp)
                     else:
-                        toon.setAnimState('run', 1.0)
-                        animFunc = Func(toon.setAnimState, 'neutral', 1.0)
-                    track = Sequence(LerpPosInterval(toon, TOON_EXIT_ELEVATOR_TIME, Point3(*self.JumpOutOffsets[index]), other=self.getElevatorModel()), animFunc, Func(self.notifyToonOffElevator, toon), Func(self.clearToonTrack, avId), name=toon.uniqueName('emptyElevator'), autoPause=1)
-                    if self.canHideBoardingQuitBtn(avId):
-                        track.append(Func(localAvatar.boardingParty.groupPanel.enableQuitButton))
-                        track.append(Func(localAvatar.boardingParty.enableGoButton))
-                    track.delayDelete = DelayDelete.DelayDelete(toon, 'Elevator.emptySlot')
-                    self.storeToonTrack(avId, track)
-                    track.start()
-                    if avId == base.localAvatar.getDoId():
-                        messenger.send('exitElevator')
-                    if avId in self.boardedAvIds:
-                        del self.boardedAvIds[avId]
+                        self.countdown(timeToSet)
+                toon = self.cr.doId2do[avId]
+                toon.stopSmooth()
+                if toon.isDisguised:
+                    toon.suit.loop('walk')
+                    animFunc = Func(toon.suit.loop, 'neutral')
                 else:
-                    self.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the elevator!')
+                    toon.setAnimState('run', 1.0)
+                    animFunc = Func(toon.setAnimState, 'neutral', 1.0)
+                track = Sequence(LerpPosInterval(toon, TOON_EXIT_ELEVATOR_TIME, Point3(*self.JumpOutOffsets[index]), other=self.getElevatorModel()), animFunc, Func(self.notifyToonOffElevator, toon), Func(self.clearToonTrack, avId), name=toon.uniqueName('emptyElevator'), autoPause=1)
+                if self.canHideBoardingQuitBtn(avId):
+                    track.append(Func(localAvatar.boardingParty.groupPanel.enableQuitButton))
+                    track.append(Func(localAvatar.boardingParty.enableGoButton))
+                track.delayDelete = DelayDelete.DelayDelete(toon, 'Elevator.emptySlot')
+                self.storeToonTrack(avId, track)
+                track.start()
+                if avId == base.localAvatar.getDoId():
+                    messenger.send('exitElevator')
+                if avId in self.boardedAvIds:
+                    del self.boardedAvIds[avId]
+            else:
+                self.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the elevator!')
         return
 
     def allowedToEnter(self, zoneId=None):
@@ -390,7 +386,8 @@ class DistributedElevator(DistributedObject.DistributedObject):
             self.clockNode.setText(timeStr)
         if task.time >= task.duration:
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def countdown(self, duration):
         countdownTask = Task(self.timerTask)
@@ -566,7 +563,8 @@ class DistributedElevator(DistributedObject.DistributedObject):
     def canHideBoardingQuitBtn(self, avId):
         if avId == localAvatar.doId and hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty and localAvatar.boardingParty.groupPanel:
             return True
-        return False
+        else:
+            return False
 
     def getBoardingTrack(self, toon, seatIndex, wantToonRotation):
         self.boardingGroupShow = BoardingGroupShow.BoardingGroupShow(toon)

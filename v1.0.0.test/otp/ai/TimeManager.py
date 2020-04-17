@@ -121,29 +121,30 @@ class TimeManager(DistributedObject.DistributedObject):
         if context != self.thisContext:
             self.notify.info('Ignoring TimeManager response for old context %d' % context)
             return
-        elapsed = end - self.start
-        self.attemptCount += 1
-        self.notify.info('Clock sync roundtrip took %0.3f ms' % (elapsed * 1000.0))
-        self.notify.info('AI time delta is %s from server delta' % PythonUtil.formatElapsedSeconds(aiTimeSkew))
-        average = (self.start + end) / 2.0 - self.extraSkew
-        uncertainty = (end - self.start) / 2.0 + abs(self.extraSkew)
-        globalClockDelta.resynchronize(average, timestamp, uncertainty)
-        self.notify.info('Local clock uncertainty +/- %.3f s' % globalClockDelta.getUncertainty())
-        if globalClockDelta.getUncertainty() > self.maxUncertainty:
-            if self.attemptCount < self.maxAttempts:
-                self.notify.info('Uncertainty is too high, trying again.')
-                self.start = globalClock.getRealTime()
-                self.sendUpdate('requestServerTime', [self.thisContext])
-                return
-            self.notify.info('Giving up on uncertainty requirement.')
-        if self.talkResult:
-            base.localAvatar.setChatAbsolute('latency %0.0f ms, sync \xc2\xb1%0.0f ms' % (elapsed * 1000.0, globalClockDelta.getUncertainty() * 1000.0), CFSpeech | CFTimeout)
-        self._gotFirstTimeSync = True
-        messenger.send('gotTimeSync')
-        toontownTimeManager = getattr(self.cr, 'toontownTimeManager', None)
-        if toontownTimeManager:
-            toontownTimeManager.updateLoginTimes(timeOfDay, int(time.time()), globalClock.getRealTime())
-        return
+        else:
+            elapsed = end - self.start
+            self.attemptCount += 1
+            self.notify.info('Clock sync roundtrip took %0.3f ms' % (elapsed * 1000.0))
+            self.notify.info('AI time delta is %s from server delta' % PythonUtil.formatElapsedSeconds(aiTimeSkew))
+            average = (self.start + end) / 2.0 - self.extraSkew
+            uncertainty = (end - self.start) / 2.0 + abs(self.extraSkew)
+            globalClockDelta.resynchronize(average, timestamp, uncertainty)
+            self.notify.info('Local clock uncertainty +/- %.3f s' % globalClockDelta.getUncertainty())
+            if globalClockDelta.getUncertainty() > self.maxUncertainty:
+                if self.attemptCount < self.maxAttempts:
+                    self.notify.info('Uncertainty is too high, trying again.')
+                    self.start = globalClock.getRealTime()
+                    self.sendUpdate('requestServerTime', [self.thisContext])
+                    return
+                self.notify.info('Giving up on uncertainty requirement.')
+            if self.talkResult:
+                base.localAvatar.setChatAbsolute('latency %0.0f ms, sync \xc2\xb1%0.0f ms' % (elapsed * 1000.0, globalClockDelta.getUncertainty() * 1000.0), CFSpeech | CFTimeout)
+            self._gotFirstTimeSync = True
+            messenger.send('gotTimeSync')
+            toontownTimeManager = getattr(self.cr, 'toontownTimeManager', None)
+            if toontownTimeManager:
+                toontownTimeManager.updateLoginTimes(timeOfDay, int(time.time()), globalClock.getRealTime())
+            return
 
     def setDisconnectReason(self, disconnectCode):
         self.notify.info('Client disconnect reason %s.' % disconnectCode)
@@ -307,11 +308,10 @@ class TimeManager(DistributedObject.DistributedObject):
         def setNumAIGarbageLeaks(self, numLeaks):
             if self._numClientGarbage and numLeaks:
                 s = '%s client and %s AI garbage cycles found, see logs' % (self._numClientGarbage, numLeaks)
+            elif numLeaks:
+                s = '0 client and %s AI garbage cycles found, see log' % numLeaks
             else:
-                if numLeaks:
-                    s = '0 client and %s AI garbage cycles found, see log' % numLeaks
-                else:
-                    s = '0 client and 0 AI garbage cycles found'
+                s = '0 client and 0 AI garbage cycles found'
             localAvatar.setChatAbsolute(s, CFSpeech | CFTimeout)
 
     def d_setClientGarbageLeak(self, num, description):

@@ -86,8 +86,9 @@ class CogdoMazePlayer(FSM, CogdoMazeSplattable):
     def filterDone(self, request, args):
         if request == 'Done':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitDone(self):
         pass
@@ -112,24 +113,26 @@ class CogdoMazePlayer(FSM, CogdoMazeSplattable):
     def equipGag(self):
         if self.equippedGag != None:
             return
-        self.toon.setAnimState('Catching')
-        holdingGag = self.gagModel.copyTo(self.toon.leftHand)
-        holdingGag.setScale(Globals.GagPickupScale)
-        color = random.choice(Globals.GagColors)
-        holdingGag.setColorScale(color)
-        holdingGag.setZ(-0.2)
-        holdingGag.setX(self.toon, 0)
-        holdingGag.setHpr(0, 0, 0)
-        self.equippedGag = holdingGag
-        return
+        else:
+            self.toon.setAnimState('Catching')
+            holdingGag = self.gagModel.copyTo(self.toon.leftHand)
+            holdingGag.setScale(Globals.GagPickupScale)
+            color = random.choice(Globals.GagColors)
+            holdingGag.setColorScale(color)
+            holdingGag.setZ(-0.2)
+            holdingGag.setX(self.toon, 0)
+            holdingGag.setHpr(0, 0, 0)
+            self.equippedGag = holdingGag
+            return
 
     def removeGag(self):
         if self.equippedGag is None:
             return
-        self.toon.setAnimState('Happy')
-        self.equippedGag.detachNode()
-        self.equippedGag = None
-        return
+        else:
+            self.toon.setAnimState('Happy')
+            self.equippedGag.detachNode()
+            self.equippedGag = None
+            return
 
     def createThrowGag(self, gag):
         throwGag = gag.copyTo(NodePath('gag'))
@@ -142,18 +145,19 @@ class CogdoMazePlayer(FSM, CogdoMazeSplattable):
         gag = self.equippedGag
         if gag is None:
             return
-        self.removeGag()
-        tossTrack, flyTrack, object = self.getThrowInterval(gag, pos[0], pos[1], pos[2], heading, 0, 0)
+        else:
+            self.removeGag()
+            tossTrack, flyTrack, object = self.getThrowInterval(gag, pos[0], pos[1], pos[2], heading, 0, 0)
 
-        def matchRunningAnim(toon=self.toon):
-            toon.playingAnim = None
-            toon.setSpeed(toon.forwardSpeed, toon.rotateSpeed)
-            return
+            def matchRunningAnim(toon=self.toon):
+                toon.playingAnim = None
+                toon.setSpeed(toon.forwardSpeed, toon.rotateSpeed)
+                return
 
-        newTossTrack = Sequence(tossTrack, Func(matchRunningAnim))
-        throwTrack = Parallel(newTossTrack, flyTrack)
-        throwTrack.start(0)
-        return object
+            newTossTrack = Sequence(tossTrack, Func(matchRunningAnim))
+            throwTrack = Parallel(newTossTrack, flyTrack)
+            throwTrack.start(0)
+            return object
 
     def completeThrow(self):
         self.toon.loop('neutral')

@@ -42,15 +42,16 @@ class DistributedFishingPondAI(DistributedObjectAI):
         avId = self.air.getAvatarIdFromSender()
         if not avId:
             return
-        if self.targets.get(target) is None:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to hit nonexistent fishing target!')
+        else:
+            if self.targets.get(target) is None:
+                self.air.writeServerEvent('suspicious', avId, 'Toon tried to hit nonexistent fishing target!')
+                return
+            spot = self.hasToon(avId)
+            if spot:
+                spot.considerReward(target)
+                return
+            self.air.writeServerEvent('suspicious', avId, 'Toon tried to catch fish while not fishing!')
             return
-        spot = self.hasToon(avId)
-        if spot:
-            spot.considerReward(target)
-            return
-        self.air.writeServerEvent('suspicious', avId, 'Toon tried to catch fish while not fishing!')
-        return
 
     def hasToon(self, avId):
         for spot in self.spots:

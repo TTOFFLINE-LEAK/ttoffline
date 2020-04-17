@@ -136,9 +136,8 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         textTotal = TTLocalizer.InventoryTotalGags % (self.totalProps, self.toon.getMaxCarry())
         if localAvatar.getPinkSlips() > 1:
             textTotal = textTotal + '\n\n' + TTLocalizer.InventroyPinkSlips % localAvatar.getPinkSlips()
-        else:
-            if localAvatar.getPinkSlips() == 1:
-                textTotal = textTotal + '\n\n' + TTLocalizer.InventroyPinkSlip
+        elif localAvatar.getPinkSlips() == 1:
+            textTotal = textTotal + '\n\n' + TTLocalizer.InventroyPinkSlip
         self.totalLabel['text'] = textTotal
 
     def unload(self):
@@ -323,15 +322,13 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 self.updateGUI(track, level)
                 messenger.send('inventory-deletion', [track, level])
                 self.showDetail(track, level)
+        elif self.activateMode == 'purchase' or self.activateMode == 'storePurchase':
+            messenger.send('inventory-selection', [track, level])
+            self.showDetail(track, level)
+        elif self.gagTutMode:
+            pass
         else:
-            if self.activateMode == 'purchase' or self.activateMode == 'storePurchase':
-                messenger.send('inventory-selection', [track, level])
-                self.showDetail(track, level)
-            else:
-                if self.gagTutMode:
-                    pass
-                else:
-                    messenger.send('inventory-selection', [track, level])
+            messenger.send('inventory-selection', [track, level])
 
     def __handleRun(self):
         messenger.send('inventory-run')
@@ -403,15 +400,16 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 credit /= 10.0
         if self.detailCredit == credit:
             return
-        if credit != None:
-            self.detailCreditLabel['text'] = TTLocalizer.InventorySkillCredit % credit
-            if self.detailCredit == None:
-                self.detailCreditLabel['text_fg'] = (0.05, 0.14, 0.4, 1)
         else:
-            self.detailCreditLabel['text'] = TTLocalizer.InventorySkillCreditNone
-            self.detailCreditLabel['text_fg'] = (0.5, 0.0, 0.0, 1.0)
-        self.detailCredit = credit
-        return
+            if credit != None:
+                self.detailCreditLabel['text'] = TTLocalizer.InventorySkillCredit % credit
+                if self.detailCredit == None:
+                    self.detailCreditLabel['text_fg'] = (0.05, 0.14, 0.4, 1)
+            else:
+                self.detailCreditLabel['text'] = TTLocalizer.InventorySkillCreditNone
+                self.detailCreditLabel['text_fg'] = (0.5, 0.0, 0.0, 1.0)
+            self.detailCredit = credit
+            return
 
     def hideDetail(self, event=None):
         self.totalLabel.show()
@@ -450,48 +448,37 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
     def setActivateModeBroke(self):
         if self.activateMode == 'storePurchase':
             self.setActivateMode('storePurchaseBroke')
+        elif self.activateMode == 'purchase':
+            self.setActivateMode('purchaseBroke', gagTutMode=self.gagTutMode)
         else:
-            if self.activateMode == 'purchase':
-                self.setActivateMode('purchaseBroke', gagTutMode=self.gagTutMode)
-            else:
-                self.notify.error('Unexpected mode in setActivateModeBroke(): %s' % self.activateMode)
+            self.notify.error('Unexpected mode in setActivateModeBroke(): %s' % self.activateMode)
         self.enableUberGags()
 
     def deactivateButtons(self):
         if self.previousActivateMode == 'book':
             self.bookDeactivateButtons()
+        elif self.previousActivateMode == 'bookDelete':
+            self.bookDeleteDeactivateButtons()
+        elif self.previousActivateMode == 'purchaseDelete':
+            self.purchaseDeleteDeactivateButtons()
+        elif self.previousActivateMode == 'purchase':
+            self.purchaseDeactivateButtons()
+        elif self.previousActivateMode == 'purchaseBroke':
+            self.purchaseBrokeDeactivateButtons()
+        elif self.previousActivateMode == 'gagTutDisabled':
+            self.gagTutDisabledDeactivateButtons()
+        elif self.previousActivateMode == 'battle':
+            self.battleDeactivateButtons()
+        elif self.previousActivateMode == 'storePurchaseDelete':
+            self.storePurchaseDeleteDeactivateButtons()
+        elif self.previousActivateMode == 'storePurchase':
+            self.storePurchaseDeactivateButtons()
+        elif self.previousActivateMode == 'storePurchaseBroke':
+            self.storePurchaseBrokeDeactivateButtons()
+        elif self.previousActivateMode == 'plantTree':
+            self.plantTreeDeactivateButtons()
         else:
-            if self.previousActivateMode == 'bookDelete':
-                self.bookDeleteDeactivateButtons()
-            else:
-                if self.previousActivateMode == 'purchaseDelete':
-                    self.purchaseDeleteDeactivateButtons()
-                else:
-                    if self.previousActivateMode == 'purchase':
-                        self.purchaseDeactivateButtons()
-                    else:
-                        if self.previousActivateMode == 'purchaseBroke':
-                            self.purchaseBrokeDeactivateButtons()
-                        else:
-                            if self.previousActivateMode == 'gagTutDisabled':
-                                self.gagTutDisabledDeactivateButtons()
-                            else:
-                                if self.previousActivateMode == 'battle':
-                                    self.battleDeactivateButtons()
-                                else:
-                                    if self.previousActivateMode == 'storePurchaseDelete':
-                                        self.storePurchaseDeleteDeactivateButtons()
-                                    else:
-                                        if self.previousActivateMode == 'storePurchase':
-                                            self.storePurchaseDeactivateButtons()
-                                        else:
-                                            if self.previousActivateMode == 'storePurchaseBroke':
-                                                self.storePurchaseBrokeDeactivateButtons()
-                                            else:
-                                                if self.previousActivateMode == 'plantTree':
-                                                    self.plantTreeDeactivateButtons()
-                                                else:
-                                                    self.notify.error('No such mode as %s' % self.previousActivateMode)
+            self.notify.error('No such mode as %s' % self.previousActivateMode)
         return
 
     def __activateButtons(self):
@@ -994,27 +981,27 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 else:
                     self.fireButton['state'] = DGG.DISABLED
                     self.fireButton['image_color'] = Vec4(0.4, 0.4, 0.4, 1)
-        for track in xrange(len(Tracks)):
-            if self.toon.hasTrackAccess(track):
-                self.showTrack(track)
-                for level in xrange(len(Levels[track])):
-                    button = self.buttons[track][level]
-                    if self.itemIsUsable(track, level):
-                        unpaid = not base.cr.isPaid()
-                        button.show()
-                        if self.numItem(track, level) <= 0 or track == HEAL_TRACK and not self.heal or track == TRAP_TRACK and not self.trap or track == LURE_TRACK and not self.lure:
-                            self.makeUnpressable(button, track, level)
-                        elif unpaid and gagIsVelvetRoped(track, level):
-                            self.makeDisabledPressable(button, track, level)
-                        elif self.itemIsCredit(track, level):
-                            self.makePressable(button, track, level)
+            for track in xrange(len(Tracks)):
+                if self.toon.hasTrackAccess(track):
+                    self.showTrack(track)
+                    for level in xrange(len(Levels[track])):
+                        button = self.buttons[track][level]
+                        if self.itemIsUsable(track, level):
+                            unpaid = not base.cr.isPaid()
+                            button.show()
+                            if self.numItem(track, level) <= 0 or track == HEAL_TRACK and not self.heal or track == TRAP_TRACK and not self.trap or track == LURE_TRACK and not self.lure:
+                                self.makeUnpressable(button, track, level)
+                            elif unpaid and gagIsVelvetRoped(track, level):
+                                self.makeDisabledPressable(button, track, level)
+                            elif self.itemIsCredit(track, level):
+                                self.makePressable(button, track, level)
+                            else:
+                                self.makeNoncreditPressable(button, track, level)
                         else:
-                            self.makeNoncreditPressable(button, track, level)
-                    else:
-                        button.hide()
+                            button.hide()
 
-            else:
-                self.hideTrack(track)
+                else:
+                    self.hideTrack(track)
 
         self.propBonusIval.loop()
         return
@@ -1071,10 +1058,11 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         if self.gagTutMode:
             trackAccess = self.toon.getTrackAccess()
             return trackAccess[track] >= level + 1
-        curSkill = self.toon.experience.getExp(track)
-        if curSkill < Levels[track][level]:
-            return 0
-        return 1
+        else:
+            curSkill = self.toon.experience.getExp(track)
+            if curSkill < Levels[track][level]:
+                return 0
+            return 1
 
     def itemIsCredit(self, track, level):
         if self.toon.earnedExperience:
@@ -1082,8 +1070,9 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 return 0
         if self.battleCreditLevel == None:
             return 1
-        return level < self.battleCreditLevel
-        return
+        else:
+            return level < self.battleCreditLevel
+            return
 
     def getMax(self, track, level):
         if self.gagTutMode and (track not in (4, 5) or level > 0):
@@ -1191,13 +1180,12 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         if curExp >= UnpaidMaxSkills[trackIndex] and self.toon.getGameAccess() != OTPGlobals.AccessFull:
             self.trackBars[trackIndex]['range'] = nextExp
             self.trackBars[trackIndex]['text'] = TTLocalizer.InventoryGuestExp
+        elif curExp >= regMaxSkill:
+            self.trackBars[trackIndex]['range'] = UberSkill
+            self.trackBars[trackIndex]['text'] = TTLocalizer.InventoryUberTrackExp % {'nextExp': MaxSkill - curExp}
         else:
-            if curExp >= regMaxSkill:
-                self.trackBars[trackIndex]['range'] = UberSkill
-                self.trackBars[trackIndex]['text'] = TTLocalizer.InventoryUberTrackExp % {'nextExp': MaxSkill - curExp}
-            else:
-                self.trackBars[trackIndex]['range'] = nextExp
-                self.trackBars[trackIndex]['text'] = TTLocalizer.InventoryTrackExp % {'curExp': curExp, 'nextExp': nextExp}
+            self.trackBars[trackIndex]['range'] = nextExp
+            self.trackBars[trackIndex]['text'] = TTLocalizer.InventoryTrackExp % {'curExp': curExp, 'nextExp': nextExp}
 
     def updateInvString(self, invString):
         InventoryBase.InventoryBase.updateInvString(self, invString)
@@ -1237,14 +1225,13 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                     else:
                         self.trackBars[track]['text'] = TTLocalizer.InventoryTrackExp % {'curExp': curExp, 'nextExp': nextExp}
                         self.trackBars[track]['value'] = curExp
-                for level in xrange(0, len(Levels[track])):
-                    self.updateButton(track, level)
+                    for level in xrange(0, len(Levels[track])):
+                        self.updateButton(track, level)
 
+        elif track != None and level != None:
+            self.updateButton(track, level)
         else:
-            if track != None and level != None:
-                self.updateButton(track, level)
-            else:
-                self.notify.error('Invalid use of updateGUI')
+            self.notify.error('Invalid use of updateGUI')
         self.__activateButtons()
         return
 
@@ -1252,16 +1239,20 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         if track == HEAL_TRACK:
             if isGroup(track, level):
                 return TTLocalizer.InventoryAffectsAllToons
-            return TTLocalizer.InventoryAffectsOneToon
+            else:
+                return TTLocalizer.InventoryAffectsOneToon
+
         else:
             if isGroup(track, level):
                 return TTLocalizer.InventoryAffectsAllCogs
-            return TTLocalizer.InventoryAffectsOneCog
+            else:
+                return TTLocalizer.InventoryAffectsOneCog
 
     def getToonupDmgStr(self, track, level):
         if track == HEAL_TRACK:
             return TTLocalizer.InventoryHealString
-        return TTLocalizer.InventoryDamageString
+        else:
+            return TTLocalizer.InventoryDamageString
 
     def deleteItem(self, track, level):
         if self.numItem(track, level) > 0:

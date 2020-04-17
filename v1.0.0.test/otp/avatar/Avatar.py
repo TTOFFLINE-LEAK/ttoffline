@@ -140,47 +140,39 @@ class Avatar(Actor, ShadowCaster):
         if hasattr(base, 'localAvatar') and self == base.localAvatar:
             self.understandable = 1
             self.setPlayerType(NametagGroup.CCFreeChat)
-        else:
-            if self.playerType == NametagGroup.CCSuit:
+        elif self.playerType == NametagGroup.CCSuit:
+            self.understandable = 1
+            self.setPlayerType(NametagGroup.CCSuit)
+        elif self.playerType not in (NametagGroup.CCNormal, NametagGroup.CCFreeChat, NametagGroup.CCSpeedChat):
+            self.understandable = 1
+            self.setPlayerType(NametagGroup.CCNoChat)
+        elif hasattr(base, 'localAvatar') and self.commonChatFlags & base.localAvatar.commonChatFlags & OTPGlobals.CommonChat:
+            self.understandable = 1
+            self.setPlayerType(NametagGroup.CCFreeChat)
+        elif self.commonChatFlags & OTPGlobals.SuperChat:
+            self.understandable = 1
+            self.setPlayerType(NametagGroup.CCFreeChat)
+        elif hasattr(base, 'localAvatar') and base.localAvatar.commonChatFlags & OTPGlobals.SuperChat:
+            self.understandable = 1
+            self.setPlayerType(NametagGroup.CCFreeChat)
+        elif base.cr.getFriendFlags(self.doId) & OTPGlobals.FriendChat:
+            self.understandable = 1
+            self.setPlayerType(NametagGroup.CCFreeChat)
+            if base.classicVisuals == 2:
+                self.setPlayerType(NametagGroup.CCNormal)
+        elif base.cr.playerFriendsManager.findPlayerIdFromAvId(self.doId) is not None:
+            playerInfo = base.cr.playerFriendsManager.findPlayerInfoFromAvId(self.doId)
+            if playerInfo.openChatFriendshipYesNo:
                 self.understandable = 1
-                self.setPlayerType(NametagGroup.CCSuit)
+                self.nametag.setColorCode(NametagGroup.CCFreeChat)
+            elif playerInfo.isUnderstandable():
+                self.understandable = 1
             else:
-                if self.playerType not in (NametagGroup.CCNormal, NametagGroup.CCFreeChat, NametagGroup.CCSpeedChat):
-                    self.understandable = 1
-                    self.setPlayerType(NametagGroup.CCNoChat)
-                else:
-                    if hasattr(base, 'localAvatar') and self.commonChatFlags & base.localAvatar.commonChatFlags & OTPGlobals.CommonChat:
-                        self.understandable = 1
-                        self.setPlayerType(NametagGroup.CCFreeChat)
-                    else:
-                        if self.commonChatFlags & OTPGlobals.SuperChat:
-                            self.understandable = 1
-                            self.setPlayerType(NametagGroup.CCFreeChat)
-                        else:
-                            if hasattr(base, 'localAvatar') and base.localAvatar.commonChatFlags & OTPGlobals.SuperChat:
-                                self.understandable = 1
-                                self.setPlayerType(NametagGroup.CCFreeChat)
-                            else:
-                                if base.cr.getFriendFlags(self.doId) & OTPGlobals.FriendChat:
-                                    self.understandable = 1
-                                    self.setPlayerType(NametagGroup.CCFreeChat)
-                                    if base.classicVisuals == 2:
-                                        self.setPlayerType(NametagGroup.CCNormal)
-                                else:
-                                    if base.cr.playerFriendsManager.findPlayerIdFromAvId(self.doId) is not None:
-                                        playerInfo = base.cr.playerFriendsManager.findPlayerInfoFromAvId(self.doId)
-                                        if playerInfo.openChatFriendshipYesNo:
-                                            self.understandable = 1
-                                            self.nametag.setColorCode(NametagGroup.CCFreeChat)
-                                        elif playerInfo.isUnderstandable():
-                                            self.understandable = 1
-                                        else:
-                                            self.understandable = 0
-                                    else:
-                                        if hasattr(base, 'localAvatar') and self.whitelistChatFlags & base.localAvatar.whitelistChatFlags:
-                                            self.understandable = 1
-                                        else:
-                                            self.understandable = 0
+                self.understandable = 0
+        elif hasattr(base, 'localAvatar') and self.whitelistChatFlags & base.localAvatar.whitelistChatFlags:
+            self.understandable = 1
+        else:
+            self.understandable = 0
         if not hasattr(self, 'nametag'):
             self.notify.warning('no nametag attributed, but would have been used')
         else:
@@ -273,95 +265,85 @@ class Avatar(Actor, ShadowCaster):
         self.__currentDialogue = dialogue
         if dialogue:
             base.playSfx(dialogue, node=self)
-        else:
-            if chatFlags & CFSpeech != 0 and self.nametag.getNumChatPages() > 0:
-                self.playDialogueForString(self.nametag.getChat())
-                if self.soundChatBubble != None:
-                    base.playSfx(self.soundChatBubble, node=self)
+        elif chatFlags & CFSpeech != 0 and self.nametag.getNumChatPages() > 0:
+            self.playDialogueForString(self.nametag.getChat())
+            if self.soundChatBubble != None:
+                base.playSfx(self.soundChatBubble, node=self)
         return
 
     def playDialogueForString(self, chatString):
         searchString = chatString.lower()
         if searchString.find(OTPLocalizer.DialogSpecial) >= 0:
             type = 'special'
+        elif searchString.find(OTPLocalizer.DialogExclamation) >= 0:
+            type = 'exclamation'
+        elif searchString.find(OTPLocalizer.DialogQuestion) >= 0:
+            type = 'question'
+        elif random.randint(0, 1):
+            type = 'statementA'
         else:
-            if searchString.find(OTPLocalizer.DialogExclamation) >= 0:
-                type = 'exclamation'
-            else:
-                if searchString.find(OTPLocalizer.DialogQuestion) >= 0:
-                    type = 'question'
-                else:
-                    if random.randint(0, 1):
-                        type = 'statementA'
-                    else:
-                        type = 'statementB'
+            type = 'statementB'
         stringLength = len(chatString)
         if stringLength <= OTPLocalizer.DialogLength1:
             length = 1
+        elif stringLength <= OTPLocalizer.DialogLength2:
+            length = 2
+        elif stringLength <= OTPLocalizer.DialogLength3:
+            length = 3
         else:
-            if stringLength <= OTPLocalizer.DialogLength2:
-                length = 2
-            else:
-                if stringLength <= OTPLocalizer.DialogLength3:
-                    length = 3
-                else:
-                    length = 4
+            length = 4
         self.playDialogue(type, length)
 
     def playDialogue(self, type, length):
         dialogueArray = self.getDialogueArray()
         if dialogueArray == None:
             return
-        sfxIndex = None
-        if type == 'statementA' or type == 'statementB':
-            if length == 1:
-                sfxIndex = 0
-            elif length == 2:
-                sfxIndex = 1
-            elif length >= 3:
-                sfxIndex = 2
         else:
-            if type == 'question':
+            sfxIndex = None
+            if type == 'statementA' or type == 'statementB':
+                if length == 1:
+                    sfxIndex = 0
+                elif length == 2:
+                    sfxIndex = 1
+                elif length >= 3:
+                    sfxIndex = 2
+            elif type == 'question':
                 sfxIndex = 3
+            elif type == 'exclamation':
+                sfxIndex = 4
+            elif type == 'special':
+                sfxIndex = 5
             else:
-                if type == 'exclamation':
-                    sfxIndex = 4
-                else:
-                    if type == 'special':
-                        sfxIndex = 5
-                    else:
-                        notify.error('unrecognized dialogue type: ', type)
-        if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
-            base.playSfx(dialogueArray[sfxIndex], node=self)
-        return
+                notify.error('unrecognized dialogue type: ', type)
+            if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
+                base.playSfx(dialogueArray[sfxIndex], node=self)
+            return
 
     def getDialogueSfx(self, type, length):
         retval = None
         dialogueArray = self.getDialogueArray()
         if dialogueArray == None:
             return
-        sfxIndex = None
-        if type == 'statementA' or type == 'statementB':
-            if length == 1:
-                sfxIndex = 0
-            elif length == 2:
-                sfxIndex = 1
-            elif length >= 3:
-                sfxIndex = 2
         else:
-            if type == 'question':
+            sfxIndex = None
+            if type == 'statementA' or type == 'statementB':
+                if length == 1:
+                    sfxIndex = 0
+                elif length == 2:
+                    sfxIndex = 1
+                elif length >= 3:
+                    sfxIndex = 2
+            elif type == 'question':
                 sfxIndex = 3
+            elif type == 'exclamation':
+                sfxIndex = 4
+            elif type == 'special':
+                sfxIndex = 5
             else:
-                if type == 'exclamation':
-                    sfxIndex = 4
-                else:
-                    if type == 'special':
-                        sfxIndex = 5
-                    else:
-                        notify.error('unrecognized dialogue type: ', type)
-        if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
-            retval = dialogueArray[sfxIndex]
-        return retval
+                notify.error('unrecognized dialogue type: ', type)
+            if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
+                retval = dialogueArray[sfxIndex]
+            return retval
 
     def setChatAbsolute(self, chatString, chatFlags, dialogue=None, interrupt=1):
         self.nametag.setChat(chatString, chatFlags)
@@ -429,9 +411,8 @@ class Avatar(Actor, ShadowCaster):
     def clickedNametag(self):
         if self.nametag.hasButton():
             self.advancePageNumber()
-        else:
-            if self.nametag.isActive():
-                messenger.send('clickedNametag', [self])
+        elif self.nametag.isActive():
+            messenger.send('clickedNametag', [self])
 
     def setPageChat(self, addressee, paragraph, message, quitButton, extraChatFlags=None, dialogueList=[], pageButton=True):
         self.__chatAddressee = addressee
@@ -451,9 +432,8 @@ class Avatar(Actor, ShadowCaster):
                 self.__chatFlags |= CFPageButton
             if quitButton == None:
                 self.__chatFlags |= CFNoQuitButton
-            else:
-                if quitButton:
-                    self.__chatFlags |= CFQuitButton
+            elif quitButton:
+                self.__chatFlags |= CFQuitButton
             self.b_setPageNumber(self.__chatParagraph, 0)
         return
 
@@ -472,9 +452,8 @@ class Avatar(Actor, ShadowCaster):
         self.__chatFlags |= CFPageButton
         if quitButton == None:
             self.__chatFlags |= CFNoQuitButton
-        else:
-            if quitButton:
-                self.__chatFlags |= CFQuitButton
+        elif quitButton:
+            self.__chatFlags |= CFQuitButton
         if len(dialogueList) > 0:
             dialogue = dialogueList[0]
         else:
@@ -497,11 +476,10 @@ class Avatar(Actor, ShadowCaster):
                 messenger.send(self.uniqueName('nextChatPage'), [pageNumber, elapsed])
             else:
                 messenger.send(self.uniqueName('doneChatPage'), [elapsed])
+        elif pageNumber >= 0:
+            messenger.send('nextChatPage', [pageNumber, elapsed])
         else:
-            if pageNumber >= 0:
-                messenger.send('nextChatPage', [pageNumber, elapsed])
-            else:
-                messenger.send('doneChatPage', [elapsed])
+            messenger.send('doneChatPage', [elapsed])
         return
 
     def advancePageNumber(self):

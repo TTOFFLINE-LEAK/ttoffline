@@ -162,16 +162,17 @@ class DistributedPartyManager(DistributedObject):
         if shardId == 0 or zoneId == 0:
             base.cr.playGame.getPlace().handleBookClose()
             return
-        hoodId = ToontownGlobals.PartyHood
-        if shardId == base.localAvatar.defaultShard:
-            shardId = None
-        base.cr.playGame.getPlace().requestLeave({'loader': 'safeZoneLoader', 'where': 'party', 
-           'how': 'teleportIn', 
-           'hoodId': hoodId, 
-           'zoneId': zoneId, 
-           'shardId': shardId, 
-           'avId': -1})
-        return
+        else:
+            hoodId = ToontownGlobals.PartyHood
+            if shardId == base.localAvatar.defaultShard:
+                shardId = None
+            base.cr.playGame.getPlace().requestLeave({'loader': 'safeZoneLoader', 'where': 'party', 
+               'how': 'teleportIn', 
+               'hoodId': hoodId, 
+               'zoneId': zoneId, 
+               'shardId': shardId, 
+               'avId': -1})
+            return
 
     def setPartyPlannerStyle(self, dna):
         self.partyPlannerStyle = dna
@@ -179,9 +180,10 @@ class DistributedPartyManager(DistributedObject):
     def getPartyPlannerStyle(self):
         if self.partyPlannerStyle:
             return self.partyPlannerStyle
-        dna = ToonDNA.ToonDNA()
-        dna.newToonRandom()
-        return dna
+        else:
+            dna = ToonDNA.ToonDNA()
+            dna.newToonRandom()
+            return dna
 
     def setPartyPlannerName(self, name):
         self.partyPlannerName = name
@@ -189,7 +191,8 @@ class DistributedPartyManager(DistributedObject):
     def getPartyPlannerName(self):
         if self.partyPlannerName:
             return self.partyPlannerName
-        return TTLocalizer.PartyPlannerGenericName
+        else:
+            return TTLocalizer.PartyPlannerGenericName
 
     def toggleShowDoid(self):
         self.showDoid = not self.showDoid

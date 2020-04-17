@@ -141,18 +141,14 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
                 if flags & ToontownGlobals.FriendChat:
                     self.sendWhisperByFriend(friendId, text)
 
-        else:
-            if self.globalState:
-                base.talkAssistant.sendGlobalTalk(text)
-            else:
-                if not self.receiverId:
-                    base.talkAssistant.sendOpenTalk(text)
-                else:
-                    if self.receiverId and not self.toPlayer:
-                        base.talkAssistant.sendWhisperTalk(text, self.receiverId)
-                    else:
-                        if self.receiverId and self.toPlayer:
-                            base.talkAssistant.sendAccountTalk(text, self.receiverId)
+        elif self.globalState:
+            base.talkAssistant.sendGlobalTalk(text)
+        elif not self.receiverId:
+            base.talkAssistant.sendOpenTalk(text)
+        elif self.receiverId and not self.toPlayer:
+            base.talkAssistant.sendWhisperTalk(text, self.receiverId)
+        elif self.receiverId and self.toPlayer:
+            base.talkAssistant.sendAccountTalk(text, self.receiverId)
 
     def sendWhisperByFriend(self, avatarId, text):
         online = 0
@@ -263,10 +259,9 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
         if not globalState:
             self.globalState = 1
             self.globalButton['image'] = gui.find('**/ChtBx_GlbBtn_UP')
-        else:
-            if globalState:
-                self.globalState = 0
-                self.globalButton['image'] = (gui.find('**/ChtBx_GlbBtn_RLVR'),
-                 gui.find('**/ChtBx_GlbBtn_UP'),
-                 gui.find('**/ChtBx_GlbBtn_DN'))
+        elif globalState:
+            self.globalState = 0
+            self.globalButton['image'] = (gui.find('**/ChtBx_GlbBtn_RLVR'),
+             gui.find('**/ChtBx_GlbBtn_UP'),
+             gui.find('**/ChtBx_GlbBtn_DN'))
         gui.removeNode()

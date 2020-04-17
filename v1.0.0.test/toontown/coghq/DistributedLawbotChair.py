@@ -257,26 +257,20 @@ class DistributedLawbotChair(DistributedObject.DistributedObject, FSM.FSM):
         avId = 0
         if state == 'C':
             self.demand('Controlled', avId)
+        elif state == 'F':
+            self.demand('Free')
+        elif state == 'N':
+            self.demand('On')
+        elif state == 'T':
+            self.demand('ToonJuror')
+        elif state == 'S':
+            self.demand('SuitJuror')
+        elif state == 'E':
+            self.demand('EmptyJuror')
+        elif state == 'E':
+            self.demand('StopCogs')
         else:
-            if state == 'F':
-                self.demand('Free')
-            else:
-                if state == 'N':
-                    self.demand('On')
-                else:
-                    if state == 'T':
-                        self.demand('ToonJuror')
-                    else:
-                        if state == 'S':
-                            self.demand('SuitJuror')
-                        else:
-                            if state == 'E':
-                                self.demand('EmptyJuror')
-                            else:
-                                if state == 'E':
-                                    self.demand('StopCogs')
-                                else:
-                                    self.notify.error('Invalid state from AI: %s' % state)
+            self.notify.error('Invalid state from AI: %s' % state)
 
     def __touchedChair(self, entry):
         self.notify.debug('__touchedChair')

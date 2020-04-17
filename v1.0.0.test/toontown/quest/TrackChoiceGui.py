@@ -29,20 +29,16 @@ class TrackPoster(DirectFrame):
         bookModel.removeNode()
         if trackId == ToontownBattleGlobals.HEAL_TRACK:
             help = TTLocalizer.TrackChoiceGuiHEAL
+        elif trackId == ToontownBattleGlobals.TRAP_TRACK:
+            help = TTLocalizer.TrackChoiceGuiTRAP
+        elif trackId == ToontownBattleGlobals.LURE_TRACK:
+            help = TTLocalizer.TrackChoiceGuiLURE
+        elif trackId == ToontownBattleGlobals.SOUND_TRACK:
+            help = TTLocalizer.TrackChoiceGuiSOUND
+        elif trackId == ToontownBattleGlobals.DROP_TRACK:
+            help = TTLocalizer.TrackChoiceGuiDROP
         else:
-            if trackId == ToontownBattleGlobals.TRAP_TRACK:
-                help = TTLocalizer.TrackChoiceGuiTRAP
-            else:
-                if trackId == ToontownBattleGlobals.LURE_TRACK:
-                    help = TTLocalizer.TrackChoiceGuiLURE
-                else:
-                    if trackId == ToontownBattleGlobals.SOUND_TRACK:
-                        help = TTLocalizer.TrackChoiceGuiSOUND
-                    else:
-                        if trackId == ToontownBattleGlobals.DROP_TRACK:
-                            help = TTLocalizer.TrackChoiceGuiDROP
-                        else:
-                            help = ''
+            help = ''
         self.helpText = DirectFrame(parent=self.poster, relief=None, text=help, text_font=ToontownGlobals.getInterfaceFont(), text_fg=self.normalTextColor, text_scale=0.05, text_align=TextNode.ALeft, text_wordwrap=8.0, textMayChange=0, pos=(-0.05,
                                                                                                                                                                                                                                                  0,
                                                                                                                                                                                                                                                  0.14))
@@ -92,9 +88,10 @@ class TrackChoiceGui(DirectFrame):
             self['geom_pos'] = (0, 0, -0.2)
             self.trackChoicePosters[0].setPos(0, 0, 0)
             return
-        self.trackChoicePosters[0].setPos(0, 0, -0.2)
-        self.trackChoicePosters[1].setPos(0, 0, 0.4)
-        return
+        else:
+            self.trackChoicePosters[0].setPos(0, 0, -0.2)
+            self.trackChoicePosters[1].setPos(0, 0, 0.4)
+            return
 
     def chooseTrack(self, trackId):
         self.timer.stop()

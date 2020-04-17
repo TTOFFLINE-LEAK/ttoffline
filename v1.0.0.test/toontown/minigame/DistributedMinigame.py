@@ -96,31 +96,32 @@ class DistributedMinigame(DistributedObject.DistributedObject):
         DistributedObject.DistributedObject.announceGenerate(self)
         if not self.hasLocalToon:
             return
-        self.notify.debug('BASE: handleAnnounceGenerate: send setAvatarJoined')
-        if base.randomMinigameNetworkPlugPull and random.random() < 1.0 / 25:
-            print '*** DOING RANDOM MINIGAME NETWORK-PLUG-PULL BEFORE SENDING setAvatarJoined ***'
-            base.cr.pullNetworkPlug()
-        self.sendUpdate('setAvatarJoined', [])
-        self.normalExit = 1
-        count = self.modelCount
-        loader.beginBulkLoad('minigame', TTLocalizer.HeadingToMinigameTitle % self.getTitle(), count, 1, TTLocalizer.TIP_MINIGAME)
-        self.load()
-        loader.endBulkLoad('minigame')
-        globalClock.syncFrameTime()
-        self.onstage()
+        else:
+            self.notify.debug('BASE: handleAnnounceGenerate: send setAvatarJoined')
+            if base.randomMinigameNetworkPlugPull and random.random() < 1.0 / 25:
+                print '*** DOING RANDOM MINIGAME NETWORK-PLUG-PULL BEFORE SENDING setAvatarJoined ***'
+                base.cr.pullNetworkPlug()
+            self.sendUpdate('setAvatarJoined', [])
+            self.normalExit = 1
+            count = self.modelCount
+            loader.beginBulkLoad('minigame', TTLocalizer.HeadingToMinigameTitle % self.getTitle(), count, 1, TTLocalizer.TIP_MINIGAME)
+            self.load()
+            loader.endBulkLoad('minigame')
+            globalClock.syncFrameTime()
+            self.onstage()
 
-        def cleanup(self=self):
-            self.notify.debug('BASE: cleanup: normalExit=%s' % self.normalExit)
-            self.offstage()
-            base.cr.renderFrame()
-            if self.normalExit:
-                self.sendUpdate('setAvatarExited', [])
+            def cleanup(self=self):
+                self.notify.debug('BASE: cleanup: normalExit=%s' % self.normalExit)
+                self.offstage()
+                base.cr.renderFrame()
+                if self.normalExit:
+                    self.sendUpdate('setAvatarExited', [])
 
-        self.cleanupActions.append(cleanup)
-        self._telemLimiter = self.getTelemetryLimiter()
-        self.frameworkFSM.request('frameworkRules')
-        base.cr.discordManager.setInfo(base.cr.discordManager.getState(), TTLocalizer.DiscordTrolley, ToontownGlobals.Zone2String.get(self.getSafezoneId()), None, None, None, self.getSafezoneId())
-        return
+            self.cleanupActions.append(cleanup)
+            self._telemLimiter = self.getTelemetryLimiter()
+            self.frameworkFSM.request('frameworkRules')
+            base.cr.discordManager.setInfo(base.cr.discordManager.getState(), TTLocalizer.DiscordTrolley, ToontownGlobals.Zone2String.get(self.getSafezoneId()), None, None, None, self.getSafezoneId())
+            return
 
     def disable(self):
         self.notify.debug('BASE: disable')
@@ -294,20 +295,23 @@ class DistributedMinigame(DistributedObject.DistributedObject):
     def getAvatar(self, avId):
         if avId in self.cr.doId2do:
             return self.cr.doId2do[avId]
-        self.notify.warning('BASE: getAvatar: No avatar in doId2do with id: ' + str(avId))
-        return
-        return
+        else:
+            self.notify.warning('BASE: getAvatar: No avatar in doId2do with id: ' + str(avId))
+            return
+            return
 
     def getAvatarName(self, avId):
         avatar = self.getAvatar(avId)
         if avatar:
             return avatar.getName()
-        return 'Unknown'
+        else:
+            return 'Unknown'
 
     def isSinglePlayer(self):
         if self.numPlayers == 1:
             return 1
-        return 0
+        else:
+            return 0
 
     def handleDisabledAvatar(self, avId):
         self.notify.warning('BASE: handleDisabledAvatar: disabled avId: ' + str(avId))
@@ -413,16 +417,18 @@ class DistributedMinigame(DistributedObject.DistributedObject):
     def getDifficulty(self):
         if self.difficultyOverride is not None:
             return self.difficultyOverride
-        if hasattr(base, 'minigameDifficulty'):
-            return float(base.minigameDifficulty)
-        return MinigameGlobals.getDifficulty(self.getSafezoneId())
+        else:
+            if hasattr(base, 'minigameDifficulty'):
+                return float(base.minigameDifficulty)
+            return MinigameGlobals.getDifficulty(self.getSafezoneId())
 
     def getSafezoneId(self):
         if self.trolleyZoneOverride is not None:
             return self.trolleyZoneOverride
-        if hasattr(base, 'minigameSafezoneId'):
-            return MinigameGlobals.getSafezoneId(base.minigameSafezoneId)
-        return MinigameGlobals.getSafezoneId(self.trolleyZone)
+        else:
+            if hasattr(base, 'minigameSafezoneId'):
+                return MinigameGlobals.getSafezoneId(base.minigameSafezoneId)
+            return MinigameGlobals.getSafezoneId(self.trolleyZone)
 
     def setEmotes(self):
         Emote.globalEmote.disableAll(base.localAvatar)

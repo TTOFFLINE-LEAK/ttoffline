@@ -76,16 +76,17 @@ class DistributedAnimDoor(DistributedDoor.DistributedDoor):
         if rightDoor.isEmpty():
             self.notify.warning('enterOpening(): did not find rightDoor')
             return
-        otherNP = self.getDoorNodePath()
-        trackName = 'doorOpen-%d' % self.doId
-        if self.rightSwing:
-            h = 100
         else:
-            h = -100
-        self.finishDoorTrack()
-        self.doorTrack = Parallel(SoundInterval(self.openSfx, node=rightDoor), Sequence(HprInterval(rightDoor, VBase3(0, 0, 0)), Wait(0.4), LerpHprInterval(nodePath=rightDoor, duration=0.6, hpr=VBase3(h, 0, 0), startHpr=VBase3(0, 0, 0), blendType='easeInOut')), name=trackName)
-        self.doorTrack.start(ts)
-        return
+            otherNP = self.getDoorNodePath()
+            trackName = 'doorOpen-%d' % self.doId
+            if self.rightSwing:
+                h = 100
+            else:
+                h = -100
+            self.finishDoorTrack()
+            self.doorTrack = Parallel(SoundInterval(self.openSfx, node=rightDoor), Sequence(HprInterval(rightDoor, VBase3(0, 0, 0)), Wait(0.4), LerpHprInterval(nodePath=rightDoor, duration=0.6, hpr=VBase3(h, 0, 0), startHpr=VBase3(0, 0, 0), blendType='easeInOut')), name=trackName)
+            self.doorTrack.start(ts)
+            return
 
     def enterClosing(self, ts):
         bldgActor = self.getBuildingActor()
@@ -93,19 +94,20 @@ class DistributedAnimDoor(DistributedDoor.DistributedDoor):
         if rightDoor.isEmpty():
             self.notify.warning('enterClosing(): did not find rightDoor')
             return
-        otherNP = self.getDoorNodePath()
-        trackName = 'doorClose-%d' % self.doId
-        if self.rightSwing:
-            h = 100
         else:
-            h = -100
-        self.finishDoorTrack()
-        self.doorTrack = Sequence(LerpHprInterval(nodePath=rightDoor, duration=1.0, hpr=VBase3(0, 0, 0), startHpr=VBase3(h, 0, 0), blendType='easeInOut'), SoundInterval(self.closeSfx, node=rightDoor), name=trackName)
-        self.doorTrack.start(ts)
-        if hasattr(self, 'done'):
-            request = self.getRequestStatus()
-            messenger.send('doorDoneEvent', [request])
-        return
+            otherNP = self.getDoorNodePath()
+            trackName = 'doorClose-%d' % self.doId
+            if self.rightSwing:
+                h = 100
+            else:
+                h = -100
+            self.finishDoorTrack()
+            self.doorTrack = Sequence(LerpHprInterval(nodePath=rightDoor, duration=1.0, hpr=VBase3(0, 0, 0), startHpr=VBase3(h, 0, 0), blendType='easeInOut'), SoundInterval(self.closeSfx, node=rightDoor), name=trackName)
+            self.doorTrack.start(ts)
+            if hasattr(self, 'done'):
+                request = self.getRequestStatus()
+                messenger.send('doorDoneEvent', [request])
+            return
 
     def exitDoorEnterOpening(self, ts):
         bldgActor = self.getBuildingActor()

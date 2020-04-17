@@ -196,11 +196,10 @@ class DistCogdoMazeGameAI(DistCogdoGameAI, DistCogdoMazeGameBase):
                     self._handleGameFinished()
             else:
                 self.logSuspiciousEvent(senderId, 'CogdoMazeGameAI.requestAction: toon already in door')
+        elif action == Globals.GameActions.RevealDoor:
+            self.d_broadcastDoAction(action, senderId)
         else:
-            if action == Globals.GameActions.RevealDoor:
-                self.d_broadcastDoAction(action, senderId)
-            else:
-                self.logSuspiciousEvent(senderId, 'CogdoMazeGameAI.requestAction: invalid action %s' % action)
+            self.logSuspiciousEvent(senderId, 'CogdoMazeGameAI.requestAction: invalid action %s' % action)
 
     def d_broadcastDoAction(self, action, data=0, networkTime=0):
         self.sendUpdate('doAction', [

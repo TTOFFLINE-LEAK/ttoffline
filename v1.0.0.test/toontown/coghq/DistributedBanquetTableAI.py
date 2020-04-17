@@ -83,21 +83,16 @@ class DistributedBanquetTableAI(DistributedObjectAI.DistributedObjectAI, FSM.FSM
         newState = state
         if state == 'On':
             newState = 'N'
-        else:
-            if state == 'Off':
-                newState = 'F'
-            else:
-                if state == 'Inactive':
-                    newState = 'I'
-                else:
-                    if state == 'Free':
-                        newState = 'R'
-                    else:
-                        if state == 'Controlled':
-                            newState = 'C'
-                        else:
-                            if state == 'Flat':
-                                newState = 'L'
+        elif state == 'Off':
+            newState = 'F'
+        elif state == 'Inactive':
+            newState = 'I'
+        elif state == 'Free':
+            newState = 'R'
+        elif state == 'Controlled':
+            newState = 'C'
+        elif state == 'Flat':
+            newState = 'L'
         self.sendUpdate('setState', [newState, avId, extraInfo])
 
     def b_setState(self, state, avId=0, extraInfo=0):

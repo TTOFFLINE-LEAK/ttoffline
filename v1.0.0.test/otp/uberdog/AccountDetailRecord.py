@@ -51,7 +51,8 @@ class AccountDetailRecord:
         subDetails = self.subDetails.get(subId)
         if subDetails:
             return subDetails.subNumAvatars
-        return 0
+        else:
+            return 0
 
     def canOpenChatAndNotGetBooted(self):
         return self.openChatEnabled or self.createFriendsWithChat

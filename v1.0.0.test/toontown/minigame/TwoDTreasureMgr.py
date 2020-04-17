@@ -56,13 +56,10 @@ class TwoDTreasureMgr(DirectObject):
         model = modelList[value]
         if value == 0:
             model.setColor(1, 0.8, 0.8, 1)
-        else:
-            if value == 1:
-                model.setColor(0.8, 1, 0.8, 1)
-            else:
-                if value == 2:
-                    model.setColor(0.9, 0.9, 1, 1)
-                else:
-                    if value == 3:
-                        model.setColor(1, 1, 0.6, 1)
+        elif value == 1:
+            model.setColor(0.8, 1, 0.8, 1)
+        elif value == 2:
+            model.setColor(0.9, 0.9, 1, 1)
+        elif value == 3:
+            model.setColor(1, 1, 0.6, 1)
         return model

@@ -30,11 +30,10 @@ def calcLowFlipModifier(matches, flips):
     retval = 0
     if flips < idealFlips:
         retval = 1
+    elif maxFlipsForBonus < flips:
+        retval = 0
     else:
-        if maxFlipsForBonus < flips:
-            retval = 0
-        else:
-            divisor = maxFlipsForBonus - idealFlips
-            difference = maxFlipsForBonus - flips
-            retval = float(difference) / divisor
+        divisor = maxFlipsForBonus - idealFlips
+        difference = maxFlipsForBonus - flips
+        retval = float(difference) / divisor
     return retval

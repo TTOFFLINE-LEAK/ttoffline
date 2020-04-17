@@ -210,12 +210,13 @@ class ToonHead(Actor.Actor):
             pnt = self.lookAtPositionCallbackArgs[0].getLookAtPosition(self.lookAtPositionCallbackArgs[1], self.lookAtPositionCallbackArgs[2])
             self.startStareAt(self, pnt)
             return
-        if self.randGen.random() < 0.33:
-            lookAtPnt = self.getRandomForwardLookAtPoint()
         else:
-            lookAtPnt = self.__defaultStarePoint
-        self.lerpLookAt(lookAtPnt, blink=1)
-        return
+            if self.randGen.random() < 0.33:
+                lookAtPnt = self.getRandomForwardLookAtPoint()
+            else:
+                lookAtPnt = self.__defaultStarePoint
+            self.lerpLookAt(lookAtPnt, blink=1)
+            return
 
     def generateToonHead(self, copy, style, lods, forGui=0):
         headStyle = style.head
@@ -567,14 +568,12 @@ class ToonHead(Actor.Actor):
                 if animalType == 'gyro':
                     self.__lpupil.adjustAllPriorities(1)
                     self.__rpupil.adjustAllPriorities(1)
-                else:
-                    if self.__lod500Eyes:
-                        self.__lod500lPupil.adjustAllPriorities(1)
-                        self.__lod500rPupil.adjustAllPriorities(1)
-                    else:
-                        if self.__lod250Eyes:
-                            self.__lod250lPupil.adjustAllPriorities(1)
-                            self.__lod250rPupil.adjustAllPriorities(1)
+                elif self.__lod500Eyes:
+                    self.__lod500lPupil.adjustAllPriorities(1)
+                    self.__lod500rPupil.adjustAllPriorities(1)
+                elif self.__lod250Eyes:
+                    self.__lod250lPupil.adjustAllPriorities(1)
+                    self.__lod250rPupil.adjustAllPriorities(1)
                 animalType = style.getAnimal()
                 if animalType != 'dog':
                     self.__lpupil.flattenStrong()
@@ -880,8 +879,9 @@ class ToonHead(Actor.Actor):
         self.__lookPupilsAt(self.__stareAtNode, self.__stareAtPoint)
         if reachedTarget and self.__stareAtNode == None:
             return Task.done
-        return Task.cont
-        return
+        else:
+            return Task.cont
+            return
 
     def doLookAroundToStareAt(self, node, point):
         self.startStareAt(node, point)
@@ -928,20 +928,21 @@ class ToonHead(Actor.Actor):
         self.__rpupil.setPos(startRpupil)
         if startHpr.almostEqual(endHpr, 10):
             return 0
-        if blink:
-            self.blinkEyes()
-        lookToTgt_TimeFraction = 0.2
-        lookToTgtTime = time * lookToTgt_TimeFraction
-        returnToEyeCenterTime = time - lookToTgtTime - 0.5
-        origin = Point3(0, 0, 0)
-        blendType = 'easeOut'
-        self.lookAtTrack = Parallel(Sequence(LerpPosInterval(self.__lpupil, lookToTgtTime, endLpupil, blendType=blendType), Wait(0.5), LerpPosInterval(self.__lpupil, returnToEyeCenterTime, origin, blendType=blendType)), Sequence(LerpPosInterval(self.__rpupil, lookToTgtTime, endRpupil, blendType=blendType), Wait(0.5), LerpPosInterval(self.__rpupil, returnToEyeCenterTime, origin, blendType=blendType)), name=self.__stareAtName)
-        for lodName in self.getLODNames():
-            head = self.getPart('head', lodName)
-            self.lookAtTrack.append(LerpHprInterval(head, time, endHpr, blendType='easeInOut'))
+        else:
+            if blink:
+                self.blinkEyes()
+            lookToTgt_TimeFraction = 0.2
+            lookToTgtTime = time * lookToTgt_TimeFraction
+            returnToEyeCenterTime = time - lookToTgtTime - 0.5
+            origin = Point3(0, 0, 0)
+            blendType = 'easeOut'
+            self.lookAtTrack = Parallel(Sequence(LerpPosInterval(self.__lpupil, lookToTgtTime, endLpupil, blendType=blendType), Wait(0.5), LerpPosInterval(self.__lpupil, returnToEyeCenterTime, origin, blendType=blendType)), Sequence(LerpPosInterval(self.__rpupil, lookToTgtTime, endRpupil, blendType=blendType), Wait(0.5), LerpPosInterval(self.__rpupil, returnToEyeCenterTime, origin, blendType=blendType)), name=self.__stareAtName)
+            for lodName in self.getLODNames():
+                head = self.getPart('head', lodName)
+                self.lookAtTrack.append(LerpHprInterval(head, time, endHpr, blendType='easeInOut'))
 
-        self.lookAtTrack.start()
-        return 1
+            self.lookAtTrack.start()
+            return 1
 
     def stopStareAt(self):
         self.lerpLookAt(Vec3.forward())
@@ -1091,9 +1092,8 @@ class ToonHead(Actor.Actor):
                                 muzzles.reparentTo(self.find('**/' + lodName + '/**/__Actor_head/def_head'))
                             else:
                                 muzzles.reparentTo(self.find('**/' + lodName + '/**/joint_toHead'))
-                        else:
-                            if self.find('**/' + lodName + '/**/joint_toHead'):
-                                muzzles.reparentTo(self.find('**/' + lodName + '/**/joint_toHead'))
+                        elif self.find('**/' + lodName + '/**/joint_toHead'):
+                            muzzles.reparentTo(self.find('**/' + lodName + '/**/joint_toHead'))
                         if base.classicVisuals in (0, 2):
                             if style.head == 'dls' or style.head == 'dss':
                                 self.find('**/' + lodName + '/**/nose').setColor(0.53725, 0.53725, 0.53725)

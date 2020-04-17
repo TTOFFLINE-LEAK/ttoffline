@@ -130,12 +130,11 @@ class CogHQExterior(BattlePlace.BattlePlace):
         shardId = requestStatus['shardId']
         if hoodId == self.loader.hood.hoodId and zoneId == self.loader.hood.hoodId and shardId == None:
             self.fsm.request('teleportIn', [requestStatus])
+        elif hoodId == ToontownGlobals.MyEstate:
+            self.getEstateZoneAndGoHome(requestStatus)
         else:
-            if hoodId == ToontownGlobals.MyEstate:
-                self.getEstateZoneAndGoHome(requestStatus)
-            else:
-                self.doneStatus = requestStatus
-                messenger.send(self.doneEvent)
+            self.doneStatus = requestStatus
+            messenger.send(self.doneEvent)
         return
 
     def exitTeleportOut(self):

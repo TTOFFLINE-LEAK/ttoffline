@@ -91,7 +91,8 @@ class SuitPlannerInteriorAI:
     def __genNormalSuitType(self, lvl):
         if self.dbg_defaultSuitType != None:
             return self.dbg_defaultSuitType
-        return SuitDNA.getRandomSuitType(lvl)
+        else:
+            return SuitDNA.getRandomSuitType(lvl)
 
     def __genLevelList(self, bldgLevel, currFloor, numFloors):
         bldgInfo = SuitBuildingGlobals.SuitBuildingInfo[bldgLevel]

@@ -14,15 +14,16 @@ class AmbientSound(BasicEntities.NodePathEntity):
     def initSound(self):
         if not self.enabled:
             return
-        if self.soundPath == '':
+        else:
+            if self.soundPath == '':
+                return
+            self.sound = base.loader.loadSfx(self.soundPath)
+            if self.sound is None:
+                return
+            self.soundIval = SoundInterval(self.sound, node=self, volume=self.volume)
+            self.soundIval.loop()
+            self.soundIval.setT(random.random() * self.sound.length())
             return
-        self.sound = base.loader.loadSfx(self.soundPath)
-        if self.sound is None:
-            return
-        self.soundIval = SoundInterval(self.sound, node=self, volume=self.volume)
-        self.soundIval.loop()
-        self.soundIval.setT(random.random() * self.sound.length())
-        return
 
     def destroySound(self):
         if hasattr(self, 'soundIval'):

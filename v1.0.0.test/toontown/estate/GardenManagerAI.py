@@ -185,65 +185,65 @@ class GardenAI():
     def plantTree(self, treeIndex, value, plot=None, waterLevel=-1, lastCheck=0, growthLevel=0, lastHarvested=0, ownerIndex=-1, plotId=-1, pos=None, generate=True):
         if not self.air:
             return
-        if plot:
-            if plot not in self.objects:
-                return
-            plot.requestDelete()
-            self.objects.remove(plot)
-        tree = DistributedGagTreeAI(self)
-        tree.setTypeIndex(value)
-        tree.setWaterLevel(waterLevel)
-        tree.setGrowthLevel(growthLevel)
-        if ownerIndex != -1:
-            tree.setOwnerIndex(ownerIndex)
-        if plotId != -1:
-            tree.setPlot(plotId)
-        if pos is not None:
-            pos, h = pos
-            tree.setPos(pos)
-            tree.setH(h)
-        tree.setTreeIndex(treeIndex)
-        tree.calculate(lastHarvested, lastCheck)
-        self.trees.add(tree)
-        if generate:
-            tree.generateWithRequired(self.estate.zoneId)
-        return tree
+        else:
+            if plot:
+                if plot not in self.objects:
+                    return
+                plot.requestDelete()
+                self.objects.remove(plot)
+            tree = DistributedGagTreeAI(self)
+            tree.setTypeIndex(value)
+            tree.setWaterLevel(waterLevel)
+            tree.setGrowthLevel(growthLevel)
+            if ownerIndex != -1:
+                tree.setOwnerIndex(ownerIndex)
+            if plotId != -1:
+                tree.setPlot(plotId)
+            if pos is not None:
+                pos, h = pos
+                tree.setPos(pos)
+                tree.setH(h)
+            tree.setTreeIndex(treeIndex)
+            tree.calculate(lastHarvested, lastCheck)
+            self.trees.add(tree)
+            if generate:
+                tree.generateWithRequired(self.estate.zoneId)
+            return tree
 
     def placeStatuary(self, data, plot=None, plotId=-1, ownerIndex=-1, pos=None, generate=True):
         if not self.air:
             return
-        if plot:
-            if plot not in self.objects:
-                return
-            plot.requestDelete()
-            self.objects.remove(plot)
-        data, lastCheck, index, growthLevel = self.S_unpack(data)
-        dclass = DistributedStatuaryAI
-        if index in GardenGlobals.ToonStatuaryTypeIndices:
-            dclass = DistributedToonStatuaryAI
         else:
-            if index in GardenGlobals.ChangingStatuaryTypeIndices:
+            if plot:
+                if plot not in self.objects:
+                    return
+                plot.requestDelete()
+                self.objects.remove(plot)
+            data, lastCheck, index, growthLevel = self.S_unpack(data)
+            dclass = DistributedStatuaryAI
+            if index in GardenGlobals.ToonStatuaryTypeIndices:
+                dclass = DistributedToonStatuaryAI
+            elif index in GardenGlobals.ChangingStatuaryTypeIndices:
                 dclass = DistributedChangingStatuaryAI
-            else:
-                if index in GardenGlobals.AnimatedStatuaryTypeIndices:
-                    dclass = DistributedAnimatedStatuaryAI
-        obj = dclass(self)
-        obj.setGrowthLevel(growthLevel)
-        obj.setTypeIndex(index)
-        obj.setOptional(data)
-        if ownerIndex != -1:
-            obj.setOwnerIndex(ownerIndex)
-        if plotId != -1:
-            obj.setPlot(plotId)
-        if pos is not None:
-            pos, h = pos
-            obj.setPos(pos)
-            obj.setH(h)
-        obj.calculate(lastCheck)
-        self.objects.add(obj)
-        if generate:
-            obj.announceGenerate()
-        return obj
+            elif index in GardenGlobals.AnimatedStatuaryTypeIndices:
+                dclass = DistributedAnimatedStatuaryAI
+            obj = dclass(self)
+            obj.setGrowthLevel(growthLevel)
+            obj.setTypeIndex(index)
+            obj.setOptional(data)
+            if ownerIndex != -1:
+                obj.setOwnerIndex(ownerIndex)
+            if plotId != -1:
+                obj.setPlot(plotId)
+            if pos is not None:
+                pos, h = pos
+                obj.setPos(pos)
+                obj.setH(h)
+            obj.calculate(lastCheck)
+            self.objects.add(obj)
+            if generate:
+                obj.announceGenerate()
+            return obj
 
     def plantFlower(self, flowerIndex, species, variety, plot=None, waterLevel=-1, lastCheck=0, growthLevel=0, ownerIndex=-1, plotId=-1, generate=True):
         if not self.air:

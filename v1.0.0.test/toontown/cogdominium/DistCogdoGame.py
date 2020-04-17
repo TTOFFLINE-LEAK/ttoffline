@@ -68,14 +68,16 @@ class DistCogdoGame(DistCogdoGameBase, DistributedObject):
         interior = self.getInterior()
         if interior is not None:
             return interior.getToonIds()
-        return []
-        return
+        else:
+            return []
+            return
 
     def getToon(self, toonId):
         if toonId in self.cr.doId2do:
             return self.cr.doId2do[toonId]
-        return
-        return
+        else:
+            return
+            return
 
     def getNumPlayers(self):
         return len(self.getToonIds())
@@ -83,7 +85,8 @@ class DistCogdoGame(DistCogdoGameBase, DistributedObject):
     def isSinglePlayer(self):
         if self.getNumPlayers() == 1:
             return 1
-        return 0
+        else:
+            return 0
 
     def announceGenerate(self):
         DistributedObject.announceGenerate(self)
@@ -135,16 +138,18 @@ class DistCogdoGame(DistCogdoGameBase, DistributedObject):
     def getDifficulty(self):
         if self.difficultyOverride is not None:
             return self.difficultyOverride
-        if hasattr(base, 'cogdoGameDifficulty'):
-            return float(base.cogdoGameDifficulty)
-        return CogdoGameConsts.getDifficulty(self.getSafezoneId())
+        else:
+            if hasattr(base, 'cogdoGameDifficulty'):
+                return float(base.cogdoGameDifficulty)
+            return CogdoGameConsts.getDifficulty(self.getSafezoneId())
 
     def getSafezoneId(self):
         if self.exteriorZoneOverride is not None:
             return self.exteriorZoneOverride
-        if hasattr(base, 'cogdoGameSafezoneId'):
-            return CogdoGameConsts.getSafezoneId(base.cogdoGameSafezoneId)
-        return CogdoGameConsts.getSafezoneId(self.exteriorZone)
+        else:
+            if hasattr(base, 'cogdoGameSafezoneId'):
+                return CogdoGameConsts.getSafezoneId(base.cogdoGameSafezoneId)
+            return CogdoGameConsts.getSafezoneId(self.exteriorZone)
 
     def enterNotLoaded(self):
         pass

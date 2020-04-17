@@ -70,11 +70,10 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
                 c.stash()
                 if key2 == 'r':
                     self.replaceRandomInModel(newNP)
-            else:
-                if key1 == 't':
-                    texture = self.randomDNAItem(category, self.dnaStore.findTexture)
-                    np.setTexture(texture, 100)
-                    newNP = np
+            elif key1 == 't':
+                texture = self.randomDNAItem(category, self.dnaStore.findTexture)
+                np.setTexture(texture, 100)
+                newNP = np
             if key2 == 'c':
                 if category == 'TI_wallpaper' or category == 'TI_wallpaper_border':
                     self.randomGenerator.seed(self.zoneId)

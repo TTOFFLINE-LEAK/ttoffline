@@ -173,7 +173,9 @@ class PartyLoader(SafeZoneLoader.SafeZoneLoader):
         if self.partyOwnerId != None:
             if self.partyOwnerId == base.localAvatar.getDoId():
                 return 1
-            return 0
+            else:
+                return 0
+
         else:
             self.notify.warning("We aren't in an party")
         return

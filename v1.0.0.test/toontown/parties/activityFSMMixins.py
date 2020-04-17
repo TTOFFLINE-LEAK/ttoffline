@@ -13,8 +13,9 @@ class IdleMixin:
         BaseActivityFSM.notify.debug("filterIdle( '%s', '%s' )" % (request, args))
         if request == 'Idle':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitIdle(self):
         BaseActivityFSM.notify.debug("exitIdle: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -34,8 +35,9 @@ class ActiveMixin:
         BaseActivityFSM.notify.debug("filterActive( '%s', '%s' )" % (request, args))
         if request == 'Active':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitActive(self):
         BaseActivityFSM.notify.debug("exitActive: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -55,8 +57,9 @@ class DisabledMixin:
         BaseActivityFSM.notify.debug("filterDisabled( '%s', '%s' )" % (request, args))
         if request == 'Disabled':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitDisabled(self):
         BaseActivityFSM.notify.debug("exitDisabled: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -76,8 +79,9 @@ class RulesMixin:
         BaseActivityFSM.notify.debug("filterRules( '%s', '%s' )" % (request, args))
         if request == 'Rules':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitRules(self):
         BaseActivityFSM.notify.debug("exitRules: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -97,8 +101,9 @@ class WaitForEnoughMixin:
         BaseActivityFSM.notify.debug("filterWaitForEnough( '%s', '%s' )" % (request, args))
         if request == 'WaitForEnough':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitWaitForEnough(self):
         BaseActivityFSM.notify.debug("exitWaitForEnough: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -118,8 +123,9 @@ class WaitToStartMixin:
         BaseActivityFSM.notify.debug("filterWaitToStart( '%s', '%s' )" % (request, args))
         if request == 'WaitToStart':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitWaitToStart(self):
         BaseActivityFSM.notify.debug("exitWaitToStart: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -139,8 +145,9 @@ class WaitClientsReadyMixin:
         BaseActivityFSM.notify.debug("filterWaitClientsReady( '%s', '%s' )" % (request, args))
         if request == 'WaitClientsReady':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitWaitClientsReady(self):
         BaseActivityFSM.notify.debug("exitWaitClientsReady: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -160,8 +167,9 @@ class WaitForServerMixin:
         BaseActivityFSM.notify.debug("filterWaitForServer( '%s', '%s' )" % (request, args))
         if request == 'WaitForServer':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitWaitForServer(self):
         BaseActivityFSM.notify.debug("exitWaitForServer: '%s' -> '%s'" % (self.oldState, self.newState))
@@ -181,8 +189,9 @@ class ConclusionMixin:
         BaseActivityFSM.notify.debug("filterConclusion( '%s', '%s' )" % (request, args))
         if request == 'Conclusion':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitConclusion(self):
         BaseActivityFSM.notify.debug("exitConclusion: '%s' -> '%s'" % (self.oldState, self.newState))

@@ -361,14 +361,15 @@ class PartyCogActivity(DirectObject):
         if player is None:
             self.notify.warning('handleToonSwitchedTeams: toonId %s not found' % toonId)
             return
-        team = self.activity.getTeam(toonId)
-        spot = self.activity.getIndex(toonId, team)
-        pos = self.getPlayerStartPos(team, spot)
-        self.finishToonIval(toonId)
-        player.setTeam(team)
-        player.setToonStartPosition(pos)
-        player.updateToonPosition()
-        return
+        else:
+            team = self.activity.getTeam(toonId)
+            spot = self.activity.getIndex(toonId, team)
+            pos = self.getPlayerStartPos(team, spot)
+            self.finishToonIval(toonId)
+            player.setTeam(team)
+            player.setToonStartPosition(pos)
+            player.updateToonPosition()
+            return
 
     def handleToonShifted(self, toon):
         toonId = toon.doId
@@ -468,39 +469,40 @@ class PartyCogActivity(DirectObject):
         toon = self.activity.getAvatar(avId)
         if toon is None:
             return
-        tossTrack, pieTrack, flyPie = self.getTossPieInterval(toon, pos[0], pos[1], pos[2], heading, 0, 0, power)
-        if avId == base.localAvatar.doId:
-            flyPie.setTag('throwerId', str(avId))
-            collSphere = CollisionSphere(0, 0, 0, 0.5)
-            collSphere.setTangible(0)
-            name = 'PieSphere-%d' % avId
-            collSphereName = self.activity.uniqueName(name)
-            collNode = CollisionNode(collSphereName)
-            collNode.setFromCollideMask(ToontownGlobals.PieBitmask)
-            collNode.addSolid(collSphere)
-            collNP = flyPie.attachNewNode(collNode)
-            base.cTrav.addCollider(collNP, self.pieHandler)
-            self.toonPieEventNames[collNP] = 'pieHit-' + collSphereName
-            self.accept(self.toonPieEventNames[collNP], self.handlePieCollision)
         else:
-            player = self.players.get(avId)
-            if player is not None:
-                player.faceForward()
+            tossTrack, pieTrack, flyPie = self.getTossPieInterval(toon, pos[0], pos[1], pos[2], heading, 0, 0, power)
+            if avId == base.localAvatar.doId:
+                flyPie.setTag('throwerId', str(avId))
+                collSphere = CollisionSphere(0, 0, 0, 0.5)
+                collSphere.setTangible(0)
+                name = 'PieSphere-%d' % avId
+                collSphereName = self.activity.uniqueName(name)
+                collNode = CollisionNode(collSphereName)
+                collNode.setFromCollideMask(ToontownGlobals.PieBitmask)
+                collNode.addSolid(collSphere)
+                collNP = flyPie.attachNewNode(collNode)
+                base.cTrav.addCollider(collNP, self.pieHandler)
+                self.toonPieEventNames[collNP] = 'pieHit-' + collSphereName
+                self.accept(self.toonPieEventNames[collNP], self.handlePieCollision)
+            else:
+                player = self.players.get(avId)
+                if player is not None:
+                    player.faceForward()
 
-        def matchRunningAnim(toon=toon):
-            toon.playingAnim = None
-            toon.setSpeed(toon.forwardSpeed, toon.rotateSpeed)
+            def matchRunningAnim(toon=toon):
+                toon.playingAnim = None
+                toon.setSpeed(toon.forwardSpeed, toon.rotateSpeed)
+                return
+
+            newTossTrack = Sequence(tossTrack, Func(matchRunningAnim))
+            pieTrack = Parallel(newTossTrack, pieTrack, name='PartyCogActivity.pieTrack-%d-%s' % (avId, timestamp))
+            elapsedTime = globalClockDelta.localElapsedTime(timestamp)
+            if elapsedTime < 16.0 / 24.0:
+                elapsedTime = 16.0 / 24.0
+            pieTrack.start(elapsedTime)
+            self.pieIvals.append(pieTrack)
+            self.toonPieTracks[avId] = pieTrack
             return
-
-        newTossTrack = Sequence(tossTrack, Func(matchRunningAnim))
-        pieTrack = Parallel(newTossTrack, pieTrack, name='PartyCogActivity.pieTrack-%d-%s' % (avId, timestamp))
-        elapsedTime = globalClockDelta.localElapsedTime(timestamp)
-        if elapsedTime < 16.0 / 24.0:
-            elapsedTime = 16.0 / 24.0
-        pieTrack.start(elapsedTime)
-        self.pieIvals.append(pieTrack)
-        self.toonPieTracks[avId] = pieTrack
-        return
 
     def getTossPieInterval(self, toon, x, y, z, h, p, r, power, beginFlyIval=Sequence()):
         from toontown.toonbase import ToontownBattleGlobals
@@ -563,15 +565,14 @@ class PartyCogActivity(DirectObject):
             if hitPoints > 0:
                 cog.showHitScore(hitPoints)
             handled = True
-        else:
-            if 'distAvatarCollNode' in intoName:
-                parts = intoName.split('-')
-                hitToonId = int(parts[1])
-                toon = base.cr.doId2do.get(hitToonId)
-                if toon is not None and self.activity.getTeam(hitToonId) != self.player.team:
-                    point = colEntry.getSurfacePoint(toon)
-                    self.activity.b_pieHitsToon(hitToonId, timestamp, point)
-                    handled = True
+        elif 'distAvatarCollNode' in intoName:
+            parts = intoName.split('-')
+            hitToonId = int(parts[1])
+            toon = base.cr.doId2do.get(hitToonId)
+            if toon is not None and self.activity.getTeam(hitToonId) != self.player.team:
+                point = colEntry.getSurfacePoint(toon)
+                self.activity.b_pieHitsToon(hitToonId, timestamp, point)
+                handled = True
         if handled:
             eventName = self.toonPieEventNames.get(colEntry.getFromNodePath())
             if eventName is not None:

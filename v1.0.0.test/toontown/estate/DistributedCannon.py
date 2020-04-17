@@ -241,38 +241,35 @@ class DistributedCannon(DistributedObject.DistributedObject):
         if mode == CannonGlobals.CANNON_MOVIE_CLEAR:
             self.listenForCode()
             self.setLanded()
-        else:
-            if mode == CannonGlobals.CANNON_MOVIE_LANDED:
-                self.setLanded()
+        elif mode == CannonGlobals.CANNON_MOVIE_LANDED:
+            self.setLanded()
+        elif mode == CannonGlobals.CANNON_MOVIE_FORCE_EXIT:
+            self.exitCannon(self.avId)
+            self.setLanded()
+        elif mode == CannonGlobals.CANNON_MOVIE_LOAD:
+            self.ignoreCode()
+            if self.avId == base.localAvatar.doId:
+                base.localAvatar.pose('lose', 110)
+                base.localAvatar.pose('slip-forward', 25)
+                base.cr.playGame.getPlace().setState('fishing')
+                base.localAvatar.setTeleportAvailable(0)
+                base.localAvatar.collisionsOff()
+                base.setCellsAvailable([base.bottomCells[3], base.bottomCells[4]], 0)
+                base.setCellsAvailable([base.rightCells[1]], 0)
+                self.localToonShooting = 1
+                self.__makeGui()
+                camera.reparentTo(self.barrel)
+                camera.setPos(0.5, -2, 2.5)
+                self.curPinballScore = 0
+                self.curPinballMultiplier = 1
+                self.incrementPinballInfo(0, 0)
+            if self.avId in self.cr.doId2do:
+                self.av = self.cr.doId2do[self.avId]
+                self.acceptOnce(self.av.uniqueName('disable'), self.__avatarGone)
+                self.av.stopSmooth()
+                self.__createToonModels()
             else:
-                if mode == CannonGlobals.CANNON_MOVIE_FORCE_EXIT:
-                    self.exitCannon(self.avId)
-                    self.setLanded()
-                else:
-                    if mode == CannonGlobals.CANNON_MOVIE_LOAD:
-                        self.ignoreCode()
-                        if self.avId == base.localAvatar.doId:
-                            base.localAvatar.pose('lose', 110)
-                            base.localAvatar.pose('slip-forward', 25)
-                            base.cr.playGame.getPlace().setState('fishing')
-                            base.localAvatar.setTeleportAvailable(0)
-                            base.localAvatar.collisionsOff()
-                            base.setCellsAvailable([base.bottomCells[3], base.bottomCells[4]], 0)
-                            base.setCellsAvailable([base.rightCells[1]], 0)
-                            self.localToonShooting = 1
-                            self.__makeGui()
-                            camera.reparentTo(self.barrel)
-                            camera.setPos(0.5, -2, 2.5)
-                            self.curPinballScore = 0
-                            self.curPinballMultiplier = 1
-                            self.incrementPinballInfo(0, 0)
-                        if self.avId in self.cr.doId2do:
-                            self.av = self.cr.doId2do[self.avId]
-                            self.acceptOnce(self.av.uniqueName('disable'), self.__avatarGone)
-                            self.av.stopSmooth()
-                            self.__createToonModels()
-                        else:
-                            self.notify.warning('Unknown avatar %d in cannon %d' % (self.avId, self.doId))
+                self.notify.warning('Unknown avatar %d in cannon %d' % (self.avId, self.doId))
         if wasLocalToon and not self.localToonShooting:
             base.setCellsAvailable([base.bottomCells[3], base.bottomCells[4]], 1)
             base.setCellsAvailable([base.rightCells[1]], 1)
@@ -335,46 +332,47 @@ class DistributedCannon(DistributedObject.DistributedObject):
     def __makeGui(self):
         if self.madeGui:
             return
-        guiModel = 'phase_4/models/gui/cannon_game_gui'
-        cannonGui = loader.loadModel(guiModel)
-        self.aimPad = DirectFrame(image=cannonGui.find('**/CannonFire_PAD'), relief=None, pos=(0.7,
-                                                                                               0,
-                                                                                               -0.553333), scale=0.8)
-        cannonGui.removeNode()
-        self.fireButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Fire_Btn_UP'), (guiModel, '**/Fire_Btn_DN'), (guiModel, '**/Fire_Btn_RLVR')), relief=None, pos=(0.0115741,
-                                                                                                                                                                                 0,
-                                                                                                                                                                                 0.00505051), scale=1.0, command=self.__firePressed)
-        self.upButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0115741,
-                                                                                                                                                                                           0,
-                                                                                                                                                                                           0.221717))
-        self.downButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0136112,
-                                                                                                                                                                                             0,
-                                                                                                                                                                                             -0.210101), image_hpr=(0,
-                                                                                                                                                                                                                    0,
-                                                                                                                                                                                                                    180))
-        self.leftButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(-0.199352,
-                                                                                                                                                                                             0,
-                                                                                                                                                                                             -0.000505269), image_hpr=(0,
-                                                                                                                                                                                                                       0,
-                                                                                                                                                                                                                       -90))
-        self.rightButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.219167,
-                                                                                                                                                                                              0,
-                                                                                                                                                                                              -0.00101024), image_hpr=(0,
-                                                                                                                                                                                                                       0,
-                                                                                                                                                                                                                       90))
-        self.aimPad.setColor(1, 1, 1, 0.9)
+        else:
+            guiModel = 'phase_4/models/gui/cannon_game_gui'
+            cannonGui = loader.loadModel(guiModel)
+            self.aimPad = DirectFrame(image=cannonGui.find('**/CannonFire_PAD'), relief=None, pos=(0.7,
+                                                                                                   0,
+                                                                                                   -0.553333), scale=0.8)
+            cannonGui.removeNode()
+            self.fireButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Fire_Btn_UP'), (guiModel, '**/Fire_Btn_DN'), (guiModel, '**/Fire_Btn_RLVR')), relief=None, pos=(0.0115741,
+                                                                                                                                                                                     0,
+                                                                                                                                                                                     0.00505051), scale=1.0, command=self.__firePressed)
+            self.upButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0115741,
+                                                                                                                                                                                               0,
+                                                                                                                                                                                               0.221717))
+            self.downButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0136112,
+                                                                                                                                                                                                 0,
+                                                                                                                                                                                                 -0.210101), image_hpr=(0,
+                                                                                                                                                                                                                        0,
+                                                                                                                                                                                                                        180))
+            self.leftButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(-0.199352,
+                                                                                                                                                                                                 0,
+                                                                                                                                                                                                 -0.000505269), image_hpr=(0,
+                                                                                                                                                                                                                           0,
+                                                                                                                                                                                                                           -90))
+            self.rightButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.219167,
+                                                                                                                                                                                                  0,
+                                                                                                                                                                                                  -0.00101024), image_hpr=(0,
+                                                                                                                                                                                                                           0,
+                                                                                                                                                                                                                           90))
+            self.aimPad.setColor(1, 1, 1, 0.9)
 
-        def bindButton(button, upHandler, downHandler):
-            button.bind(DGG.B1PRESS, lambda x, handler=upHandler: handler())
-            button.bind(DGG.B1RELEASE, lambda x, handler=downHandler: handler())
+            def bindButton(button, upHandler, downHandler):
+                button.bind(DGG.B1PRESS, lambda x, handler=upHandler: handler())
+                button.bind(DGG.B1RELEASE, lambda x, handler=downHandler: handler())
 
-        bindButton(self.upButton, self.__upPressed, self.__upReleased)
-        bindButton(self.downButton, self.__downPressed, self.__downReleased)
-        bindButton(self.leftButton, self.__leftPressed, self.__leftReleased)
-        bindButton(self.rightButton, self.__rightPressed, self.__rightReleased)
-        self.__enableAimInterface()
-        self.madeGui = 1
-        return
+            bindButton(self.upButton, self.__upPressed, self.__upReleased)
+            bindButton(self.downButton, self.__downPressed, self.__downReleased)
+            bindButton(self.leftButton, self.__leftPressed, self.__leftReleased)
+            bindButton(self.rightButton, self.__rightPressed, self.__rightReleased)
+            self.__enableAimInterface()
+            self.madeGui = 1
+            return
 
     def __unmakeGui(self):
         self.notify.debug('__unmakeGui')
@@ -715,9 +713,8 @@ class DistributedCannon(DistributedObject.DistributedObject):
         pos[0] += rotVel * globalClock.getDt()
         if pos[0] < CANNON_ROTATION_MIN:
             pos[0] = CANNON_ROTATION_MIN
-        else:
-            if pos[0] > CANNON_ROTATION_MAX:
-                pos[0] = CANNON_ROTATION_MAX
+        elif pos[0] > CANNON_ROTATION_MAX:
+            pos[0] = CANNON_ROTATION_MAX
         angVel = 0
         if self.upPressed:
             angVel += CANNON_ANGLE_VEL
@@ -726,9 +723,8 @@ class DistributedCannon(DistributedObject.DistributedObject):
         pos[1] += angVel * globalClock.getDt()
         if pos[1] < CANNON_ANGLE_MIN:
             pos[1] = CANNON_ANGLE_MIN
-        else:
-            if pos[1] > CANNON_ANGLE_MAX:
-                pos[1] = CANNON_ANGLE_MAX
+        elif pos[1] > CANNON_ANGLE_MAX:
+            pos[1] = CANNON_ANGLE_MAX
         if oldRot != pos[0] or oldAng != pos[1]:
             if self.cannonMoving == 0:
                 self.cannonMoving = 1
@@ -737,12 +733,11 @@ class DistributedCannon(DistributedObject.DistributedObject):
             if task.time - task.lastPositionBroadcastTime > CANNON_MOVE_UPDATE_FREQ:
                 task.lastPositionBroadcastTime = task.time
                 self.__broadcastLocalCannonPosition()
-        else:
-            if self.cannonMoving:
-                self.cannonMoving = 0
-                self.sndCannonMove.stop()
-                self.__broadcastLocalCannonPosition()
-                print 'Cannon Rot:%s Angle:%s' % (pos[0], pos[1])
+        elif self.cannonMoving:
+            self.cannonMoving = 0
+            self.sndCannonMove.stop()
+            self.__broadcastLocalCannonPosition()
+            print 'Cannon Rot:%s Angle:%s' % (pos[0], pos[1])
         return Task.cont
 
     def __broadcastLocalCannonPosition(self):
@@ -823,11 +818,10 @@ class DistributedCannon(DistributedObject.DistributedObject):
         self.notify.debug('location of impact: ' + str(trajectory.getPos(timeOfImpact)))
         if hitWhat == self.HIT_WATER:
             self.notify.debug('toon will land in the water')
+        elif hitWhat == self.HIT_TOWER:
+            self.notify.debug('toon will hit the tower')
         else:
-            if hitWhat == self.HIT_TOWER:
-                self.notify.debug('toon will hit the tower')
-            else:
-                self.notify.debug('toon will hit the ground')
+            self.notify.debug('toon will hit the ground')
         head = self.toonHead
         head.stopBlink()
         head.stopLookAroundNow()
@@ -978,100 +972,89 @@ class DistributedCannon(DistributedObject.DistributedObject):
         if hitNode.find('cSphere') == 0 or hitNode.find('treasureSphere') == 0 or hitNode.find('prop') == 0 or hitNode.find('distAvatarCollNode') == 0 or hitNode.find('CannonSphere') == 0 or hitNode.find('plotSphere') == 0 or hitNode.find('flySphere') == 0 or hitNode.find('mailboxSphere') == 0 or hitNode.find('FishingSpotSphere') == 0 or hitNode == 'gagtree_collision' or hitNode == 'sign_collision' or hitNode == 'FlowerSellBox' or hitPylonBelowWater:
             self.notify.debug('--------------hit and ignoring %s' % hitNode)
             return
-        if vel.dot(hitNormal) > 0 and not hitNode == 'collision_roof' and not hitNode == 'collision_fence':
-            self.notify.debug('--------------hit and ignoring backfacing %s, dot=%s' % (hitNode, vel.dot(hitNormal)))
-            return
-        intoNode = collisionEntry.getIntoNodePath()
-        bumperNodes = ['collision_house',
-         'collision_fence',
-         'targetSphere',
-         'collision_roof',
-         'collision_cannon_bumper',
-         'statuaryCol']
-        cloudBumpers = ['cloudSphere-0']
-        bumperNodes += cloudBumpers
-        if hitNode not in bumperNodes:
-            self.__stopCollisionHandler(self.av)
-            self.__stopFlyTask(self.avId)
-            self.notify.debug('stopping flying since we hit %s' % hitNode)
-            if self.hitTarget == 0:
-                messenger.send('missedTarget')
         else:
-            if hitNode == 'collision_house':
-                self.__hitHouse(self.av, collisionEntry)
+            if vel.dot(hitNormal) > 0 and not hitNode == 'collision_roof' and not hitNode == 'collision_fence':
+                self.notify.debug('--------------hit and ignoring backfacing %s, dot=%s' % (hitNode, vel.dot(hitNormal)))
+                return
+            intoNode = collisionEntry.getIntoNodePath()
+            bumperNodes = ['collision_house',
+             'collision_fence',
+             'targetSphere',
+             'collision_roof',
+             'collision_cannon_bumper',
+             'statuaryCol']
+            cloudBumpers = ['cloudSphere-0']
+            bumperNodes += cloudBumpers
+            if hitNode not in bumperNodes:
+                self.__stopCollisionHandler(self.av)
+                self.__stopFlyTask(self.avId)
+                self.notify.debug('stopping flying since we hit %s' % hitNode)
+                if self.hitTarget == 0:
+                    messenger.send('missedTarget')
             else:
-                if hitNode == 'collision_fence':
+                if hitNode == 'collision_house':
+                    self.__hitHouse(self.av, collisionEntry)
+                elif hitNode == 'collision_fence':
                     self.__hitFence(self.av, collisionEntry)
+                elif hitNode == 'collision_roof':
+                    self.__hitRoof(self.av, collisionEntry)
+                elif hitNode == 'targetSphere':
+                    self.__hitTarget(self.av, collisionEntry, [vel])
+                elif hitNode in cloudBumpers:
+                    self.__hitCloudPlatform(self.av, collisionEntry)
+                elif hitNode == 'collision_cannon_bumper':
+                    self.__hitCannonBumper(self.av, collisionEntry)
+                elif hitNode == 'statuaryCol':
+                    self.__hitStatuary(self.av, collisionEntry)
                 else:
-                    if hitNode == 'collision_roof':
-                        self.__hitRoof(self.av, collisionEntry)
-                    else:
-                        if hitNode == 'targetSphere':
-                            self.__hitTarget(self.av, collisionEntry, [vel])
-                        else:
-                            if hitNode in cloudBumpers:
-                                self.__hitCloudPlatform(self.av, collisionEntry)
-                            else:
-                                if hitNode == 'collision_cannon_bumper':
-                                    self.__hitCannonBumper(self.av, collisionEntry)
-                                else:
-                                    if hitNode == 'statuaryCol':
-                                        self.__hitStatuary(self.av, collisionEntry)
-                                    else:
-                                        self.notify.debug('*************** hit something else ************')
-            return
-        if self.localToonShooting:
-            camera.wrtReparentTo(render)
-        if self.dropShadow:
-            self.dropShadow.reparentTo(hidden)
-        pos = collisionEntry.getSurfacePoint(render)
-        hpr = self.av.getHpr()
-        hitPos = collisionEntry.getSurfacePoint(render)
-        pos = hitPos
-        self.landingPos = pos
-        self.notify.debug('hitNode,Normal = %s,%s' % (hitNode, intoNormal))
-        track = Sequence()
-        track.append(Func(self.av.wrtReparentTo, render))
-        if self.localToonShooting:
-            track.append(Func(self.av.collisionsOff))
-        if hitPylonAboveWater or hitNode in ('matCollisions', 'collision1', 'floor',
-                                             'sand_collision', 'dirt_collision',
-                                             'soil1', 'collision2', 'floor_collision'):
-            track.append(Func(self.__hitGround, self.av, pos))
-            track.append(Wait(1.0))
-            track.append(Func(self.__setToonUpright, self.av, self.landingPos))
-        else:
-            if hitNode == 'collision_house':
+                    self.notify.debug('*************** hit something else ************')
+                return
+            if self.localToonShooting:
+                camera.wrtReparentTo(render)
+            if self.dropShadow:
+                self.dropShadow.reparentTo(hidden)
+            pos = collisionEntry.getSurfacePoint(render)
+            hpr = self.av.getHpr()
+            hitPos = collisionEntry.getSurfacePoint(render)
+            pos = hitPos
+            self.landingPos = pos
+            self.notify.debug('hitNode,Normal = %s,%s' % (hitNode, intoNormal))
+            track = Sequence()
+            track.append(Func(self.av.wrtReparentTo, render))
+            if self.localToonShooting:
+                track.append(Func(self.av.collisionsOff))
+            if hitPylonAboveWater or hitNode in ('matCollisions', 'collision1', 'floor',
+                                                 'sand_collision', 'dirt_collision',
+                                                 'soil1', 'collision2', 'floor_collision'):
+                track.append(Func(self.__hitGround, self.av, pos))
+                track.append(Wait(1.0))
+                track.append(Func(self.__setToonUpright, self.av, self.landingPos))
+            elif hitNode == 'collision_house':
                 track.append(Func(self.__hitHouse, self.av, collisionEntry))
+            elif hitNode == 'collision_fence' or hitNode == 'collision4':
+                track.append(Func(self.__hitFence, self.av, collisionEntry))
+            elif hitNode == 'targetSphere':
+                track.append(Func(self.__hitHouse, self.av, collisionEntry))
+            elif hitNode == 'collision3':
+                track.append(Func(self.__hitWater, self.av, pos, collisionEntry))
+                track.append(Wait(2.0))
+                track.append(Func(self.__setToonUpright, self.av, self.landingPos))
+            elif hitNode == 'roofOutside' or hitNode == 'collision_roof' or hitNode == 'roofclision':
+                track.append(Func(self.__hitRoof, self.av, collisionEntry))
+                track.append(Wait(2.0))
+                track.append(Func(self.__setToonUpright, self.av, self.landingPos))
+            elif hitNode.find('MovingPlatform') == 0 or hitNode.find('cloudSphere') == 0:
+                track.append(Func(self.__hitCloudPlatform, self.av, collisionEntry))
             else:
-                if hitNode == 'collision_fence' or hitNode == 'collision4':
-                    track.append(Func(self.__hitFence, self.av, collisionEntry))
-                else:
-                    if hitNode == 'targetSphere':
-                        track.append(Func(self.__hitHouse, self.av, collisionEntry))
-                    else:
-                        if hitNode == 'collision3':
-                            track.append(Func(self.__hitWater, self.av, pos, collisionEntry))
-                            track.append(Wait(2.0))
-                            track.append(Func(self.__setToonUpright, self.av, self.landingPos))
-                        else:
-                            if hitNode == 'roofOutside' or hitNode == 'collision_roof' or hitNode == 'roofclision':
-                                track.append(Func(self.__hitRoof, self.av, collisionEntry))
-                                track.append(Wait(2.0))
-                                track.append(Func(self.__setToonUpright, self.av, self.landingPos))
-                            else:
-                                if hitNode.find('MovingPlatform') == 0 or hitNode.find('cloudSphere') == 0:
-                                    track.append(Func(self.__hitCloudPlatform, self.av, collisionEntry))
-                                else:
-                                    self.notify.warning('************* unhandled hitNode=%s parent =%s' % (hitNode, collisionEntry.getIntoNodePath().getParent()))
-        track.append(Func(self.b_setLanded))
-        if self.localToonShooting:
-            track.append(Func(self.av.collisionsOn))
-        if self.hitTrack:
-            self.hitTrack.finish()
-        self.hitTrack = track
-        self.hitTrack.start()
-        return
+                self.notify.warning('************* unhandled hitNode=%s parent =%s' % (hitNode, collisionEntry.getIntoNodePath().getParent()))
+            track.append(Func(self.b_setLanded))
+            if self.localToonShooting:
+                track.append(Func(self.av.collisionsOn))
+            if self.hitTrack:
+                self.hitTrack.finish()
+            self.hitTrack = track
+            self.hitTrack.start()
+            return
 
     def __hitGround(self, avatar, pos, extraArgs=[]):
         hitP = avatar.getPos(render)
@@ -1134,30 +1117,31 @@ class DistributedCannon(DistributedObject.DistributedObject):
             pinballScore = ToontownGlobals.PinballScoring[ToontownGlobals.PinballRoof]
             self.incrementPinballInfo(pinballScore[0], pinballScore[1])
             return
-        np = collisionEntry.getIntoNodePath()
-        roof = np.getParent()
-        normal = collisionEntry.getSurfaceNormal(np)
-        normal.normalize()
-        vel = self.trajectory.getVel(self.t)
-        vel.normalize()
-        dot = normal.dot(vel)
-        self.notify.debug('--------------dot product = %s---------------' % dot)
-        temp = render.attachNewNode('temp')
-        temp.setPosHpr(0, 0, 0, 0, 0, 0)
-        temp.lookAt(Point3(normal))
-        temp.reparentTo(roof)
-        self.notify.debug('avatar pos = %s, landingPos = %s' % (avatar.getPos(), self.landingPos))
-        temp.setPos(render, self.landingPos)
-        avatar.reparentTo(temp)
-        avatar.setPosHpr(0, 0.25, 0.5, 0, 270, 180)
-        avatar.pose('slip-forward', 25)
-        base.playSfx(self.sndHitHouse)
-        avatar.setPlayRate(1.0, 'jump')
-        h = self.barrel.getH(render)
-        t = Sequence(LerpPosInterval(avatar, 0.5, Point3(0, 0, -0.5), blendType='easeInOut'), Func(avatar.clearColorScale), Func(avatar.wrtReparentTo, render), Wait(0.3), Parallel(Func(avatar.setP, 0), Func(avatar.play, 'jump', None, 19, 39), LerpHprInterval(avatar, 0.3, Vec3(h, 0, 0), blendType='easeOut')), Func(avatar.play, 'neutral'))
-        t.start()
-        hitP = avatar.getPos(render)
-        return
+        else:
+            np = collisionEntry.getIntoNodePath()
+            roof = np.getParent()
+            normal = collisionEntry.getSurfaceNormal(np)
+            normal.normalize()
+            vel = self.trajectory.getVel(self.t)
+            vel.normalize()
+            dot = normal.dot(vel)
+            self.notify.debug('--------------dot product = %s---------------' % dot)
+            temp = render.attachNewNode('temp')
+            temp.setPosHpr(0, 0, 0, 0, 0, 0)
+            temp.lookAt(Point3(normal))
+            temp.reparentTo(roof)
+            self.notify.debug('avatar pos = %s, landingPos = %s' % (avatar.getPos(), self.landingPos))
+            temp.setPos(render, self.landingPos)
+            avatar.reparentTo(temp)
+            avatar.setPosHpr(0, 0.25, 0.5, 0, 270, 180)
+            avatar.pose('slip-forward', 25)
+            base.playSfx(self.sndHitHouse)
+            avatar.setPlayRate(1.0, 'jump')
+            h = self.barrel.getH(render)
+            t = Sequence(LerpPosInterval(avatar, 0.5, Point3(0, 0, -0.5), blendType='easeInOut'), Func(avatar.clearColorScale), Func(avatar.wrtReparentTo, render), Wait(0.3), Parallel(Func(avatar.setP, 0), Func(avatar.play, 'jump', None, 19, 39), LerpHprInterval(avatar, 0.3, Vec3(h, 0, 0), blendType='easeOut')), Func(avatar.play, 'neutral'))
+            t.start()
+            hitP = avatar.getPos(render)
+            return
 
     def __hitBridge(self, avatar, collisionEntry, extraArgs=[]):
         self.notify.debug('hit bridge')
@@ -1243,9 +1227,10 @@ class DistributedCannon(DistributedObject.DistributedObject):
         t_groundImpact = trajectory.checkCollisionWithGround(GROUND_PLANE_MIN)
         if t_groundImpact >= trajectory.getStartTime():
             return (t_groundImpact, self.HIT_GROUND)
-        self.notify.error('__calcToonImpact: toon never impacts ground?')
-        return (
-         0.0, self.HIT_GROUND)
+        else:
+            self.notify.error('__calcToonImpact: toon never impacts ground?')
+            return (
+             0.0, self.HIT_GROUND)
 
     def __calcHitTreasures(self, trajectory):
         estate = self.cr.doId2do.get(self.estateId)
@@ -1321,18 +1306,16 @@ class DistributedCannon(DistributedObject.DistributedObject):
             if view == 0:
                 camera.wrtReparentTo(render)
                 camera.lookAt(lookAt)
-            else:
-                if view == 1:
-                    camera.reparentTo(render)
-                    camera.setPos(render, 100, 100, 35.25)
-                    camera.lookAt(render, lookAt)
-                else:
-                    if view == 2:
-                        if hpr[1] > -90:
-                            camera.setPos(0, 0, -30)
-                            if camera.getZ() < lookAt[2]:
-                                camera.setZ(render, lookAt[2] + 10)
-                            camera.lookAt(Point3(0, 0, 0))
+            elif view == 1:
+                camera.reparentTo(render)
+                camera.setPos(render, 100, 100, 35.25)
+                camera.lookAt(render, lookAt)
+            elif view == 2:
+                if hpr[1] > -90:
+                    camera.setPos(0, 0, -30)
+                    if camera.getZ() < lookAt[2]:
+                        camera.setZ(render, lookAt[2] + 10)
+                    camera.lookAt(Point3(0, 0, 0))
             self.__pickupTreasures(t)
         return Task.cont
 
@@ -1376,9 +1359,8 @@ class DistributedCannon(DistributedObject.DistributedObject):
         self.notify.debug('got setActiveState(%s)' % active)
         if active and not self.cannonsActive:
             self.activateCannons()
-        else:
-            if not active and self.cannonsActive:
-                self.deActivateCannons()
+        elif not active and self.cannonsActive:
+            self.deActivateCannons()
 
     def enterInit(self):
         self.nextKey = 'up'

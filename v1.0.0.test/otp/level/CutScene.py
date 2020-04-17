@@ -79,11 +79,10 @@ class CutScene(BasicEntities.NodePathEntity, DirectObject.DirectObject):
             track = Sequence(Wait(0.4), track)
             track.start(0.0)
             self.track = track
-        else:
-            if self.track:
-                self.track.pause()
-                self.track = None
-                base.localAvatar.startUpdateSmartCamera()
+        elif self.track:
+            self.track.pause()
+            self.track = None
+            base.localAvatar.startUpdateSmartCamera()
         return
 
     def setStartStop(self, event):

@@ -5,10 +5,8 @@ def calcPropType(node):
     fullString = str(node)
     if 'hydrant' in fullString:
         propType = ToontownGlobals.AnimPropTypes.Hydrant
-    else:
-        if 'trashcan' in fullString:
-            propType = ToontownGlobals.AnimPropTypes.Trashcan
-        else:
-            if 'mailbox' in fullString:
-                propType = ToontownGlobals.AnimPropTypes.Mailbox
+    elif 'trashcan' in fullString:
+        propType = ToontownGlobals.AnimPropTypes.Trashcan
+    elif 'mailbox' in fullString:
+        propType = ToontownGlobals.AnimPropTypes.Mailbox
     return propType

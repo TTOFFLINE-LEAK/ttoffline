@@ -51,7 +51,8 @@ class DistCogdoCraneMoneyBag(DistCogdoCraneObject):
     def getMinImpact(self):
         if self.craneGame.heldObject:
             return ToontownGlobals.CashbotBossSafeKnockImpact
-        return ToontownGlobals.CashbotBossSafeNewImpact
+        else:
+            return ToontownGlobals.CashbotBossSafeNewImpact
 
     def resetToInitialPosition(self):
         posHpr = GameConsts.MoneyBagPosHprs[self.index]

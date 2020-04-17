@@ -17,9 +17,8 @@ class BattlePlace(Place.Place):
         if battleEvent:
             if not self.fsm.request(state, [battleEvent]):
                 self.notify.warning("fsm.request('%s') returned 0 (zone id %s, avatar pos %s)." % (state, self.zoneId, base.localAvatar.getPos(render)))
-        else:
-            if not self.fsm.request(state):
-                self.notify.warning("fsm.request('%s') returned 0 (zone id %s, avatar pos %s)." % (state, self.zoneId, base.localAvatar.getPos(render)))
+        elif not self.fsm.request(state):
+            self.notify.warning("fsm.request('%s') returned 0 (zone id %s, avatar pos %s)." % (state, self.zoneId, base.localAvatar.getPos(render)))
 
     def enterWalk(self, flag=0):
         Place.Place.enterWalk(self, flag)

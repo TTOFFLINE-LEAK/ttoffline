@@ -19,15 +19,16 @@ class DistributedNPCMagicCat(DistributedNPCToon):
         if av is None:
             self.notify.warning('Avatar %d not found in doId' % avId)
             return
-        if isLocalToon:
-            self.getLockLocalToon().start()
-            self.setupCamera(NPCToons.QUEST_MOVIE_INCOMPLETE)
-        self.setupAvatars(av)
-        fullString = TTLocalizer.MagicCatTalk
-        self.acceptOnce(self.uniqueName('doneChatPage'), self.finishMovie, extraArgs=[av, isLocalToon])
-        self.clearChat()
-        self.setPageChat(avId, 0, fullString, 1)
-        return
+        else:
+            if isLocalToon:
+                self.getLockLocalToon().start()
+                self.setupCamera(NPCToons.QUEST_MOVIE_INCOMPLETE)
+            self.setupAvatars(av)
+            fullString = TTLocalizer.MagicCatTalk
+            self.acceptOnce(self.uniqueName('doneChatPage'), self.finishMovie, extraArgs=[av, isLocalToon])
+            self.clearChat()
+            self.setPageChat(avId, 0, fullString, 1)
+            return
 
     def finishMovie(self, av, isLocalToon, elapsedTime):
         DistributedNPCToon.finishMovie(self, av, isLocalToon, elapsedTime)

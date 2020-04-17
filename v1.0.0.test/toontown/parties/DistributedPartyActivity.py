@@ -160,8 +160,9 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
     def getParentNodePath(self):
         if hasattr(base.cr.playGame, 'hood') and base.cr.playGame.hood and hasattr(base.cr.playGame.hood, 'loader') and base.cr.playGame.hood.loader and hasattr(base.cr.playGame.hood.loader, 'geom') and base.cr.playGame.hood.loader.geom:
             return base.cr.playGame.hood.loader.geom
-        self.notify.warning('Hood or loader not created, defaulting to render')
-        return render
+        else:
+            self.notify.warning('Hood or loader not created, defaulting to render')
+            return render
 
     def __createRandomNumGen(self):
         self.notify.debug('BASE: self.doId=0x%08X' % self.doId)
@@ -234,9 +235,8 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
         actNameForSign = self.activityName
         if self.activityId == PartyGlobals.ActivityIds.PartyJukebox40:
             actNameForSign = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyJukebox)
-        else:
-            if self.activityId == PartyGlobals.ActivityIds.PartyDance20:
-                actNameForSign = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyDance)
+        elif self.activityId == PartyGlobals.ActivityIds.PartyDance20:
+            actNameForSign = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyDance)
         self.sign = self.root.attachNewNode('%sSign' % self.activityName)
         self.signModel = self.party.defaultSignModel.copyTo(self.sign)
         self.signFlat = self.signModel.find('**/sign_flat')
@@ -291,22 +291,23 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
         if host is None:
             self.notify.debug('%s loadLever : Host has left the game before lever could be created.' % self.activityName)
             return
-        scale = host.getGeomNode().getChild(0).getSz(render)
-        self.leverModel.setScale(scale)
-        self.controlColumn.setPos(0, 0, 0)
-        host.setPosHpr(self.lever, 0, 0, 0, 0, 0, 0)
-        host.pose('leverNeutral', 0)
-        host.update()
-        pos = host.rightHand.getPos(self.controlColumn)
-        self.controlColumn.setPos(pos[0], pos[1], pos[2] - 1)
-        self.bottom.setZ(host, 0.0)
-        self.bottom.setPos(self.bottomPos[0], self.bottomPos[1], self.bottom.getZ())
-        lookAtPoint = Point3(0.3, 0, 0.1)
-        lookAtUp = Vec3(0, -1, 0)
-        self.stickHinge.lookAt(host.rightHand, lookAtPoint, lookAtUp)
-        host.play('walk')
-        host.update()
-        return
+        else:
+            scale = host.getGeomNode().getChild(0).getSz(render)
+            self.leverModel.setScale(scale)
+            self.controlColumn.setPos(0, 0, 0)
+            host.setPosHpr(self.lever, 0, 0, 0, 0, 0, 0)
+            host.pose('leverNeutral', 0)
+            host.update()
+            pos = host.rightHand.getPos(self.controlColumn)
+            self.controlColumn.setPos(pos[0], pos[1], pos[2] - 1)
+            self.bottom.setZ(host, 0.0)
+            self.bottom.setPos(self.bottomPos[0], self.bottomPos[1], self.bottom.getZ())
+            lookAtPoint = Point3(0.3, 0, 0.1)
+            lookAtUp = Vec3(0, -1, 0)
+            self.stickHinge.lookAt(host.rightHand, lookAtPoint, lookAtUp)
+            host.play('walk')
+            host.update()
+            return
 
     def unloadLever(self):
         self.lever.removeNode()
@@ -466,15 +467,17 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
     def getAvatar(self, toonId):
         if toonId in self.cr.doId2do:
             return self.cr.doId2do[toonId]
-        self.notify.warning('BASE: getAvatar: No avatar in doId2do with id: ' + str(toonId))
-        return
-        return
+        else:
+            self.notify.warning('BASE: getAvatar: No avatar in doId2do with id: ' + str(toonId))
+            return
+            return
 
     def getAvatarName(self, toonId):
         avatar = self.getAvatar(toonId)
         if avatar:
             return avatar.getName()
-        return 'Unknown'
+        else:
+            return 'Unknown'
 
     def isLocalToonInActivity(self):
         result = False

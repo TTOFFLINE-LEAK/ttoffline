@@ -43,8 +43,9 @@ class FlowerBasket:
     def removeFishAtIndex(self, index):
         if index >= len(self.flowerList):
             return 0
-        del self.flowerList[i]
-        return 1
+        else:
+            del self.flowerList[i]
+            return 1
 
     def generateRandomBasket(self):
         import random

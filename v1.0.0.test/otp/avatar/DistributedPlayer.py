@@ -97,14 +97,16 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
     def isGeneratedOnDistrict(self, districtId=None):
         if districtId is None:
             return self._districtWeAreGeneratedOn is not None
-        return self._districtWeAreGeneratedOn == districtId
-        return
+        else:
+            return self._districtWeAreGeneratedOn == districtId
+            return
 
     def getArrivedOnDistrictEvent(self, districtId=None):
         if districtId is None:
             return 'arrivedOnDistrict'
-        return 'arrivedOnDistrict-%s' % districtId
-        return
+        else:
+            return 'arrivedOnDistrict-%s' % districtId
+            return
 
     def arrivedOnDistrict(self, districtId):
         curFrameTime = globalClock.getFrameTime()
@@ -144,17 +146,18 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         handle = base.cr.identifyAvatar(fromId)
         if handle == None:
             return
-        if base.cr.avatarFriendsManager.checkIgnored(fromId):
-            self.d_setWhisperIgnored(fromId)
+        else:
+            if base.cr.avatarFriendsManager.checkIgnored(fromId):
+                self.d_setWhisperIgnored(fromId)
+                return
+            if fromId in self.ignoreList:
+                self.d_setWhisperIgnored(fromId)
+                return
+            chatString = SCDecoders.decodeSCStaticTextMsg(msgIndex)
+            if chatString:
+                self.displayWhisper(fromId, chatString, WhisperPopup.WTQuickTalker)
+                base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_NORMAL, msgIndex, fromId)
             return
-        if fromId in self.ignoreList:
-            self.d_setWhisperIgnored(fromId)
-            return
-        chatString = SCDecoders.decodeSCStaticTextMsg(msgIndex)
-        if chatString:
-            self.displayWhisper(fromId, chatString, WhisperPopup.WTQuickTalker)
-            base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_NORMAL, msgIndex, fromId)
-        return
 
     def whisperSCCustomTo(self, msgIndex, sendToId, toPlayer):
         if toPlayer:
@@ -170,20 +173,21 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         handle = base.cr.identifyAvatar(fromId)
         if handle == None:
             return
-        if not self._isValidWhisperSource(handle):
-            self.notify.warning('displayWhisper from non-toon %s' % fromId)
+        else:
+            if not self._isValidWhisperSource(handle):
+                self.notify.warning('displayWhisper from non-toon %s' % fromId)
+                return
+            if base.cr.avatarFriendsManager.checkIgnored(fromId):
+                self.d_setWhisperIgnored(fromId)
+                return
+            if fromId in self.ignoreList:
+                self.d_setWhisperIgnored(fromId)
+                return
+            chatString = SCDecoders.decodeSCCustomMsg(msgIndex)
+            if chatString:
+                self.displayWhisper(fromId, chatString, WhisperPopup.WTQuickTalker)
+                base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_CUSTOM, msgIndex, fromId)
             return
-        if base.cr.avatarFriendsManager.checkIgnored(fromId):
-            self.d_setWhisperIgnored(fromId)
-            return
-        if fromId in self.ignoreList:
-            self.d_setWhisperIgnored(fromId)
-            return
-        chatString = SCDecoders.decodeSCCustomMsg(msgIndex)
-        if chatString:
-            self.displayWhisper(fromId, chatString, WhisperPopup.WTQuickTalker)
-            base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_CUSTOM, msgIndex, fromId)
-        return
 
     def whisperSCEmoteTo(self, emoteId, sendToId, toPlayer):
         print 'whisperSCEmoteTo %s %s %s' % (emoteId, sendToId, toPlayer)
@@ -197,14 +201,15 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         handle = base.cr.identifyAvatar(fromId)
         if handle == None:
             return
-        if base.cr.avatarFriendsManager.checkIgnored(fromId):
-            self.d_setWhisperIgnored(fromId)
+        else:
+            if base.cr.avatarFriendsManager.checkIgnored(fromId):
+                self.d_setWhisperIgnored(fromId)
+                return
+            chatString = SCDecoders.decodeSCEmoteWhisperMsg(emoteId, handle.getName())
+            if chatString:
+                self.displayWhisper(fromId, chatString, WhisperPopup.WTEmote)
+                base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_EMOTE, emoteId, fromId)
             return
-        chatString = SCDecoders.decodeSCEmoteWhisperMsg(emoteId, handle.getName())
-        if chatString:
-            self.displayWhisper(fromId, chatString, WhisperPopup.WTEmote)
-            base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_EMOTE, emoteId, fromId)
-        return
 
     def d_setWhisperIgnored(self, sendToId):
         pass
@@ -244,12 +249,11 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         if base.talkAssistant.isThought(newText):
             newText = base.talkAssistant.removeThoughtPrefix(newText)
             base.talkAssistant.receiveThought(fromAV, avatarName, fromAC, None, newText, scrubbed)
+        elif base.talkAssistant.isExclaim(newText):
+            newText = base.talkAssistant.removeExclaimPrefix(newText)
+            base.talkAssistant.recieveExclaim(fromAV, avatarName, fromAC, None, newText, scrubbed)
         else:
-            if base.talkAssistant.isExclaim(newText):
-                newText = base.talkAssistant.removeExclaimPrefix(newText)
-                base.talkAssistant.recieveExclaim(fromAV, avatarName, fromAC, None, newText, scrubbed)
-            else:
-                base.talkAssistant.receiveOpenTalk(fromAV, avatarName, fromAC, None, newText, scrubbed)
+            base.talkAssistant.receiveOpenTalk(fromAV, avatarName, fromAC, None, newText, scrubbed)
         return
 
     def setTalkWhisper(self, fromAV, fromAC, avatarName, chat, mods, flags, raw):
@@ -274,11 +278,10 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         chatFlags &= ~(CFQuicktalker | CFPageButton | CFQuitButton)
         if chatFlags & CFThought:
             chatFlags &= ~(CFSpeech | CFTimeout)
+        elif chatFlags & CFExclaim:
+            chatFlags &= ~CFSpeech
         else:
-            if chatFlags & CFExclaim:
-                chatFlags &= ~CFSpeech
-            else:
-                chatFlags |= CFSpeech | CFTimeout
+            chatFlags |= CFSpeech | CFTimeout
         self.setChatAbsolute(chatString, chatFlags)
 
     def b_setSC(self, msgIndex, displayType=0):
@@ -427,9 +430,10 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         if not self._isValidWhisperSource(avatar):
             self.notify.warning('teleportGiveup from non-toon %s' % requesterId)
             return
-        if avatar != None:
-            self.setSystemMessage(requesterId, OTPLocalizer.WhisperGiveupVisit % avatar.getName())
-        return
+        else:
+            if avatar != None:
+                self.setSystemMessage(requesterId, OTPLocalizer.WhisperGiveupVisit % avatar.getName())
+            return
 
     def b_teleportGreeting(self, avId):
         self.d_teleportGreeting(avId)
@@ -442,9 +446,8 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         avatar = base.cr.getDo(avId)
         if isinstance(avatar, Avatar.Avatar):
             self.setChatAbsolute(OTPLocalizer.TeleportGreeting % avatar.getName(), CFSpeech | CFTimeout)
-        else:
-            if avatar is not None:
-                self.notify.warning('got teleportGreeting from %s referencing non-toon %s' % (self.doId, avId))
+        elif avatar is not None:
+            self.notify.warning('got teleportGreeting from %s referencing non-toon %s' % (self.doId, avId))
         return
 
     def setTeleportAvailable(self, available):

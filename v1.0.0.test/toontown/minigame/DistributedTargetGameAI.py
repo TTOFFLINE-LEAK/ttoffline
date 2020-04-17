@@ -103,26 +103,27 @@ class DistributedTargetGameAI(DistributedMinigameAI):
         if avId not in self.avIdList:
             self.air.writeServerEvent('suspicious', avId, 'RingGameAI.setScore: invalid avId')
             return
-        topValue = 0
-        hitTarget = None
-        for target in self.targetsPlaced:
-            radius = self.targetSize[target[2]]
-            value = self.targetValue[target[2]]
-            posX = target[0]
-            posY = target[1]
-            dx = posX - scoreX
-            dy = posY - scoreY
-            distance = math.sqrt(dx * dx + dy * dy)
-            if distance < radius and topValue < value:
-                topValue = value
-                hitTarget = target
-                hitX = posX
-                hitY = posY
+        else:
+            topValue = 0
+            hitTarget = None
+            for target in self.targetsPlaced:
+                radius = self.targetSize[target[2]]
+                value = self.targetValue[target[2]]
+                posX = target[0]
+                posY = target[1]
+                dx = posX - scoreX
+                dy = posY - scoreY
+                distance = math.sqrt(dx * dx + dy * dy)
+                if distance < radius and topValue < value:
+                    topValue = value
+                    hitTarget = target
+                    hitX = posX
+                    hitY = posY
 
-        if self.scoreDict[avId] < topValue:
-            self.scoreDict[avId] = topValue
-            self.sendUpdate('setSingleScore', [topValue, avId])
-        return
+            if self.scoreDict[avId] < topValue:
+                self.scoreDict[avId] = topValue
+                self.sendUpdate('setSingleScore', [topValue, avId])
+            return
 
     def setGameAbort(self, normalExit=0):
         self.notify.debug('setGameAbort')

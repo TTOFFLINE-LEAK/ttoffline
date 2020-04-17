@@ -15608,8 +15608,9 @@ def getShow(holidayId, index):
     showList = shows.get(holidayId, [])
     if index < len(showList):
         return showList[index]
-    return
-    return
+    else:
+        return
+        return
 
 
 def getShowDuration(eventId, index):

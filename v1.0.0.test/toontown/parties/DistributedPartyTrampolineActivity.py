@@ -498,9 +498,10 @@ class DistributedPartyTrampolineActivity(DistributedPartyActivity):
     def getTitle(self):
         if self.doJellyBeans:
             return TTLocalizer.PartyTrampolineJellyBeanTitle
-        if self.doTricks:
-            return TTLocalizer.PartyTrampolineTricksTitle
-        return DistributedPartyActivity.getTitle(self)
+        else:
+            if self.doTricks:
+                return TTLocalizer.PartyTrampolineTricksTitle
+            return DistributedPartyActivity.getTitle(self)
 
     def getInstructions(self):
         return TTLocalizer.PartyTrampolineActivityInstructions
@@ -556,13 +557,12 @@ class DistributedPartyTrampolineActivity(DistributedPartyActivity):
         if lastVelocity > 0.0 and self.toonVelocity <= 0.0:
             topOfJump = True
             bottomOfJump = False
+        elif lastVelocity < 0.0 and self.toonVelocity >= 0.0:
+            topOfJump = False
+            bottomOfJump = True
         else:
-            if lastVelocity < 0.0 and self.toonVelocity >= 0.0:
-                topOfJump = False
-                bottomOfJump = True
-            else:
-                topOfJump = False
-                bottomOfJump = False
+            topOfJump = False
+            bottomOfJump = False
         newZ = z + self.toonVelocity * self.stepDT
         if newZ > self.topHeight:
             self.topHeight = newZ
@@ -611,24 +611,26 @@ class DistributedPartyTrampolineActivity(DistributedPartyActivity):
         if bean == None:
             self.notify.warning('poofBean, returning immediately as bean is None')
             return
-        if bean.isEmpty():
-            self.notify.warning('poofBean, returning immediately as bean is empty')
+        else:
+            if bean.isEmpty():
+                self.notify.warning('poofBean, returning immediately as bean is empty')
+                return
+            currentAlpha = bean.getColorScale()[3]
+            currentScale = bean.getScale()
+            poofAnim = Sequence(Parallel(LerpFunc(bean.setAlphaScale, fromData=currentAlpha, toData=0.0, duration=0.25), LerpFunc(bean.setScale, fromData=currentScale, toData=currentScale * 5.0, duration=0.25)), Func(bean.stash), Func(beanAnim.finish), Func(bean.setAlphaScale, currentAlpha), Func(bean.setScale, currentScale))
+            poofAnim.start()
             return
-        currentAlpha = bean.getColorScale()[3]
-        currentScale = bean.getScale()
-        poofAnim = Sequence(Parallel(LerpFunc(bean.setAlphaScale, fromData=currentAlpha, toData=0.0, duration=0.25), LerpFunc(bean.setScale, fromData=currentScale, toData=currentScale * 5.0, duration=0.25)), Func(bean.stash), Func(beanAnim.finish), Func(bean.setAlphaScale, currentAlpha), Func(bean.setScale, currentScale))
-        poofAnim.start()
-        return
 
     def _showFlashMessage(self, message):
         if self.isDisabled():
             return
-        if self.flashTextInterval is not None and self.flashTextInterval.isPlaying():
-            self.flashTextInterval.finish()
-        self.flashText.setText(message)
-        self.flashText.setAlphaScale(1.0)
-        self.flashText.unstash()
-        return
+        else:
+            if self.flashTextInterval is not None and self.flashTextInterval.isPlaying():
+                self.flashTextInterval.finish()
+            self.flashText.setText(message)
+            self.flashText.setAlphaScale(1.0)
+            self.flashText.unstash()
+            return
 
     def _hideFlashMessage(self, duration=0.0):
         if self.isDisabled():
@@ -650,8 +652,9 @@ class TrampolineAnimFSM(FSM):
     def defaultFilter(self, request, args):
         if request == self.state:
             return
-        return FSM.defaultFilter(self, request, args)
-        return
+        else:
+            return FSM.defaultFilter(self, request, args)
+            return
 
     def enterNeutral(self):
         self.activity.toon.play('neutral')

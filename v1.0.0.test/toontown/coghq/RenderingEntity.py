@@ -50,15 +50,14 @@ class RenderingEntity(BasicEntities.NodePathEntity):
         if blending == 'Additive':
             self.setAttrib(ColorBlendAttrib.make(ColorBlendAttrib.MAdd))
             self.setDepthWrite(False)
+        elif blending == 'Alpha':
+            self.setAttrib(ColorBlendAttrib.make(ColorBlendAttrib.MNone))
+            self.setDepthWrite(True)
+            self.setTransparency(1)
         else:
-            if blending == 'Alpha':
-                self.setAttrib(ColorBlendAttrib.make(ColorBlendAttrib.MNone))
-                self.setDepthWrite(True)
-                self.setTransparency(1)
-            else:
-                self.setAttrib(ColorBlendAttrib.make(ColorBlendAttrib.MNone))
-                self.setDepthWrite(True)
-                self.setTransparency(0)
+            self.setAttrib(ColorBlendAttrib.make(ColorBlendAttrib.MNone))
+            self.setDepthWrite(True)
+            self.setTransparency(0)
         self.chooseBin()
 
     def setFogOn(self, fog):

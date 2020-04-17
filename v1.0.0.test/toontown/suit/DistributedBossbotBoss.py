@@ -410,9 +410,8 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         doRequest = False
         if avId not in self.toonFoodStatus:
             doRequest = True
-        else:
-            if not self.toonFoodStatus[avId]:
-                doRequest = True
+        elif not self.toonFoodStatus[avId]:
+            doRequest = True
         if doRequest:
             self.sendUpdate('requestGetFood', [beltIndex, foodIndex, foodNum])
 
@@ -868,69 +867,58 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     def setAttackCode(self, attackCode, avId=0):
         if self.state != 'BattleFour':
             return
-        self.numAttacks += 1
-        self.notify.debug('numAttacks=%d' % self.numAttacks)
-        self.attackCode = attackCode
-        self.attackAvId = avId
-        if attackCode == ToontownGlobals.BossCogMoveAttack:
-            self.interruptMove()
-            self.doMoveAttack(avId)
         else:
-            if attackCode == ToontownGlobals.BossCogGolfAttack:
+            self.numAttacks += 1
+            self.notify.debug('numAttacks=%d' % self.numAttacks)
+            self.attackCode = attackCode
+            self.attackAvId = avId
+            if attackCode == ToontownGlobals.BossCogMoveAttack:
+                self.interruptMove()
+                self.doMoveAttack(avId)
+            elif attackCode == ToontownGlobals.BossCogGolfAttack:
                 self.interruptMove()
                 self.cleanupAttacks()
                 self.doGolfAttack(avId, attackCode)
-            else:
-                if attackCode == ToontownGlobals.BossCogDizzy:
-                    self.setDizzy(1)
-                    self.cleanupAttacks()
-                    self.doAnimate(None, raised=0, happy=1)
-                else:
-                    if attackCode == ToontownGlobals.BossCogDizzyNow:
-                        self.setDizzy(1)
-                        self.cleanupAttacks()
-                        self.doAnimate('hit', happy=1, now=1)
-                    else:
-                        if attackCode == ToontownGlobals.BossCogSwatLeft:
-                            self.setDizzy(0)
-                            self.doAnimate('ltSwing', now=1)
-                        else:
-                            if attackCode == ToontownGlobals.BossCogSwatRight:
-                                self.setDizzy(0)
-                                self.doAnimate('rtSwing', now=1)
-                            else:
-                                if attackCode == ToontownGlobals.BossCogAreaAttack:
-                                    self.setDizzy(0)
-                                    self.doAnimate('areaAttack', now=1)
-                                else:
-                                    if attackCode == ToontownGlobals.BossCogFrontAttack:
-                                        self.setDizzy(0)
-                                        self.doAnimate('frontAttack', now=1)
-                                    else:
-                                        if attackCode == ToontownGlobals.BossCogRecoverDizzyAttack:
-                                            self.setDizzy(0)
-                                            self.doAnimate('frontAttack', now=1)
-                                        else:
-                                            if attackCode == ToontownGlobals.BossCogDirectedAttack or attackCode == ToontownGlobals.BossCogSlowDirectedAttack or attackCode == ToontownGlobals.BossCogGearDirectedAttack:
-                                                self.interruptMove()
-                                                self.setDizzy(0)
-                                                self.doDirectedAttack(avId, attackCode)
-                                            else:
-                                                if attackCode == ToontownGlobals.BossCogGolfAreaAttack:
-                                                    self.interruptMove()
-                                                    self.setDizzy(0)
-                                                    self.doGolfAreaAttack()
-                                                else:
-                                                    if attackCode == ToontownGlobals.BossCogNoAttack:
-                                                        self.setDizzy(0)
-                                                        self.doAnimate(None, raised=1)
-                                                    else:
-                                                        if attackCode == ToontownGlobals.BossCogOvertimeAttack:
-                                                            self.interruptMove()
-                                                            self.setDizzy(0)
-                                                            self.cleanupAttacks()
-                                                            self.doOvertimeAttack(avId)
-        return
+            elif attackCode == ToontownGlobals.BossCogDizzy:
+                self.setDizzy(1)
+                self.cleanupAttacks()
+                self.doAnimate(None, raised=0, happy=1)
+            elif attackCode == ToontownGlobals.BossCogDizzyNow:
+                self.setDizzy(1)
+                self.cleanupAttacks()
+                self.doAnimate('hit', happy=1, now=1)
+            elif attackCode == ToontownGlobals.BossCogSwatLeft:
+                self.setDizzy(0)
+                self.doAnimate('ltSwing', now=1)
+            elif attackCode == ToontownGlobals.BossCogSwatRight:
+                self.setDizzy(0)
+                self.doAnimate('rtSwing', now=1)
+            elif attackCode == ToontownGlobals.BossCogAreaAttack:
+                self.setDizzy(0)
+                self.doAnimate('areaAttack', now=1)
+            elif attackCode == ToontownGlobals.BossCogFrontAttack:
+                self.setDizzy(0)
+                self.doAnimate('frontAttack', now=1)
+            elif attackCode == ToontownGlobals.BossCogRecoverDizzyAttack:
+                self.setDizzy(0)
+                self.doAnimate('frontAttack', now=1)
+            elif attackCode == ToontownGlobals.BossCogDirectedAttack or attackCode == ToontownGlobals.BossCogSlowDirectedAttack or attackCode == ToontownGlobals.BossCogGearDirectedAttack:
+                self.interruptMove()
+                self.setDizzy(0)
+                self.doDirectedAttack(avId, attackCode)
+            elif attackCode == ToontownGlobals.BossCogGolfAreaAttack:
+                self.interruptMove()
+                self.setDizzy(0)
+                self.doGolfAreaAttack()
+            elif attackCode == ToontownGlobals.BossCogNoAttack:
+                self.setDizzy(0)
+                self.doAnimate(None, raised=1)
+            elif attackCode == ToontownGlobals.BossCogOvertimeAttack:
+                self.interruptMove()
+                self.setDizzy(0)
+                self.cleanupAttacks()
+                self.doOvertimeAttack(avId)
+            return
 
     def signalAtTable(self):
         self.sendUpdate('reachedTable', [self.tableIndex])
@@ -1046,9 +1034,10 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.setPos(self.toPos)
             self.signalAtTable()
             return Task.done
-        newPos = self.getPos() + self.dirVector * dt * self.getCurRollSpeed()
-        self.setPos(newPos)
-        return Task.cont
+        else:
+            newPos = self.getPos() + self.dirVector * dt * self.getCurRollSpeed()
+            self.setPos(newPos)
+            return Task.cont
 
     def doZapToon(self, toon, pos=None, hpr=None, ts=0, fling=1, shake=1):
         zapName = toon.uniqueName('zap')
@@ -1103,47 +1092,48 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             return
         if globalClock.getFrameTime() < self.lastZapLocalTime + 1.0:
             return
-        self.lastZapLocalTime = globalClock.getFrameTime()
-        self.notify.debug('zapLocalToon frameTime=%s' % globalClock.getFrameTime())
-        messenger.send('interrupt-pie')
-        place = self.cr.playGame.getPlace()
-        currentState = None
-        if place:
-            currentState = place.fsm.getCurrentState().getName()
-        if currentState != 'walk' and currentState != 'finalBattle' and currentState != 'crane':
+        else:
+            self.lastZapLocalTime = globalClock.getFrameTime()
+            self.notify.debug('zapLocalToon frameTime=%s' % globalClock.getFrameTime())
+            messenger.send('interrupt-pie')
+            place = self.cr.playGame.getPlace()
+            currentState = None
+            if place:
+                currentState = place.fsm.getCurrentState().getName()
+            if currentState != 'walk' and currentState != 'finalBattle' and currentState != 'crane':
+                return
+            self.notify.debug('continuing zap')
+            toon = localAvatar
+            fling = 1
+            shake = 0
+            if attackCode == ToontownGlobals.BossCogAreaAttack:
+                fling = 0
+                shake = 1
+            if fling:
+                if origin == None:
+                    origin = self
+                if self.isToonRoaming(toon.doId):
+                    camera.wrtReparentTo(render)
+                    toon.headsUp(origin)
+                    camera.wrtReparentTo(toon)
+            bossRelativePos = toon.getPos(self.getGeomNode())
+            bp2d = Vec2(bossRelativePos[0], bossRelativePos[1])
+            bp2d.normalize()
+            pos = toon.getPos()
+            hpr = toon.getHpr()
+            timestamp = globalClockDelta.getFrameNetworkTime()
+            self.sendUpdate('zapToon', [pos[0],
+             pos[1],
+             pos[2],
+             hpr[0],
+             hpr[1],
+             hpr[2],
+             bp2d[0],
+             bp2d[1],
+             attackCode,
+             timestamp])
+            self.doZapToon(toon, fling=fling, shake=shake)
             return
-        self.notify.debug('continuing zap')
-        toon = localAvatar
-        fling = 1
-        shake = 0
-        if attackCode == ToontownGlobals.BossCogAreaAttack:
-            fling = 0
-            shake = 1
-        if fling:
-            if origin == None:
-                origin = self
-            if self.isToonRoaming(toon.doId):
-                camera.wrtReparentTo(render)
-                toon.headsUp(origin)
-                camera.wrtReparentTo(toon)
-        bossRelativePos = toon.getPos(self.getGeomNode())
-        bp2d = Vec2(bossRelativePos[0], bossRelativePos[1])
-        bp2d.normalize()
-        pos = toon.getPos()
-        hpr = toon.getHpr()
-        timestamp = globalClockDelta.getFrameNetworkTime()
-        self.sendUpdate('zapToon', [pos[0],
-         pos[1],
-         pos[2],
-         hpr[0],
-         hpr[1],
-         hpr[2],
-         bp2d[0],
-         bp2d[1],
-         attackCode,
-         timestamp])
-        self.doZapToon(toon, fling=fling, shake=shake)
-        return
 
     def getToonTableIndex(self, toonId):
         tableIndex = -1

@@ -356,131 +356,126 @@ class PhysicsWorldBase:
             self.placerNode.setHpr(vHpr)
             box.setQuaternion(self.placerNode.getQuat())
             self.commonObjectDict[commonId] = (commonId, type, box)
-        else:
-            if type == 1:
-                model, cross = self.createCross(self.world, self.space, 1.0, 3.0, 12.0, 2.0, 2)
-                motor = OdeHingeJoint(self.world)
-                cross.setPosition(vPos)
-                cross.setQuaternion(self.placerNode.getQuat())
-                ourAxis = render.getRelativeVector(self.placerNode, Vec3(0, 0, 1))
-                motor.setParamVel(1.5)
-                motor.setParamFMax(500000000.0)
-                boxsize = Vec3(1.0, 1.0, 1.0)
-                motor.attachBody(cross, 0)
-                motor.setAnchor(vPos)
-                motor.setAxis(ourAxis)
-                self.cross = cross
-                cross.enable()
-                self.commonObjectDict[commonId] = (commonId, type, cross)
+        elif type == 1:
+            model, cross = self.createCross(self.world, self.space, 1.0, 3.0, 12.0, 2.0, 2)
+            motor = OdeHingeJoint(self.world)
+            cross.setPosition(vPos)
+            cross.setQuaternion(self.placerNode.getQuat())
+            ourAxis = render.getRelativeVector(self.placerNode, Vec3(0, 0, 1))
+            motor.setParamVel(1.5)
+            motor.setParamFMax(500000000.0)
+            boxsize = Vec3(1.0, 1.0, 1.0)
+            motor.attachBody(cross, 0)
+            motor.setAnchor(vPos)
+            motor.setAxis(ourAxis)
+            self.cross = cross
+            cross.enable()
+            self.commonObjectDict[commonId] = (commonId, type, cross)
+        elif type == 2:
+            ourAxis = render.getRelativeVector(self.placerNode, Vec3(0, 0, 1))
+            model, box = self.createBox(self.world, self.space, 10.0, 5.0, 5.0, 5.0, 2)
+            box.setPosition(vPos)
+            box.setQuaternion(self.placerNode.getQuat())
+            motor = OdeSliderJoint(self.world)
+            motor.attachBody(box, 0)
+            motor.setAxis(ourAxis)
+            motor.setParamVel(3.0)
+            motor.setParamFMax(5000000.0)
+            motor.setParamHiStop(10.0)
+            motor.setParamLoStop(-10.0)
+            timeData = (0.0, 5.0)
+            forceData = (3.0, -3.0)
+            eventData = (1, 2)
+            self.commonObjectDict[commonId] = (commonId,
+             type,
+             box,
+             motor,
+             timeData,
+             forceData,
+             eventData,
+             model)
+        elif type == 3:
+            vPos = Point3(float(pos[0]), float(pos[1]), float(pos[2]))
+            vHpr = Vec3(float(hpr[0]), float(hpr[1]), float(hpr[2]))
+            self.placerNode.setHpr(vHpr)
+            self.placerNode.setPos(vPos)
+            self.subPlacerNode.setPos(0, 0, 0)
+            if self.canRender:
+                myModel = loader.loadModel('phase_6/models/golf/golf_windmill_b')
             else:
-                if type == 2:
-                    ourAxis = render.getRelativeVector(self.placerNode, Vec3(0, 0, 1))
-                    model, box = self.createBox(self.world, self.space, 10.0, 5.0, 5.0, 5.0, 2)
-                    box.setPosition(vPos)
-                    box.setQuaternion(self.placerNode.getQuat())
-                    motor = OdeSliderJoint(self.world)
-                    motor.attachBody(box, 0)
-                    motor.setAxis(ourAxis)
-                    motor.setParamVel(3.0)
-                    motor.setParamFMax(5000000.0)
-                    motor.setParamHiStop(10.0)
-                    motor.setParamLoStop(-10.0)
-                    timeData = (0.0, 5.0)
-                    forceData = (3.0, -3.0)
-                    eventData = (1, 2)
-                    self.commonObjectDict[commonId] = (commonId,
-                     type,
-                     box,
-                     motor,
-                     timeData,
-                     forceData,
-                     eventData,
-                     model)
-                else:
-                    if type == 3:
-                        vPos = Point3(float(pos[0]), float(pos[1]), float(pos[2]))
-                        vHpr = Vec3(float(hpr[0]), float(hpr[1]), float(hpr[2]))
-                        self.placerNode.setHpr(vHpr)
-                        self.placerNode.setPos(vPos)
-                        self.subPlacerNode.setPos(0, 0, 0)
-                        if self.canRender:
-                            myModel = loader.loadModel('phase_6/models/golf/golf_windmill_b')
-                        else:
-                            myModel = loader.loadModel('phase_6/models/golf/golf_windmill_b.bam')
-                        myModel.reparentTo(self.root)
-                        myModel.setPos(vPos)
-                        myModel.setHpr(vHpr)
-                        millFan = myModel.find('**/windmillFan0')
-                        millBase = myModel.find('**/arm')
-                        rod = myModel.find('**/rod')
-                        rod.wrtReparentTo(millBase)
-                        self.windmillFanNodePath = millFan
-                        self.windmillBaseNodePath = millBase
-                        millData = OdeTriMeshData(millBase)
-                        millGeom = OdeTriMeshGeom(self.space, millData)
-                        self.meshDataList.append(millData)
-                        millGeom.setPosition(self.subPlacerNode.getPos(self.root))
-                        millGeom.setQuaternion(self.subPlacerNode.getQuat())
-                        millGeom.setCollideBits(BitMask32(251658240))
-                        millGeom.setCategoryBits(BitMask32(8388608))
-                        self.space.setCollideId(millGeom, 8)
-                        vPos = Point3(float(pos[0]), float(pos[1]), float(pos[2]) + 5)
-                        vHpr = Vec3(float(hpr[0]), float(hpr[1] + 90), float(hpr[2]) - 90)
-                        self.placerNode.setHpr(vHpr)
-                        self.placerNode.setPos(vPos)
-                        self.subPlacerNode.setPos(-1, 0, 0.0)
-                        model, cross = self.createPinWheel(self.world, self.space, 10.0, 1.6, 4.0, 0.6, 5, 3.7, 1.2, 1, millFan, (0,
-                                                                                                                                  0,
-                                                                                                                                  90), (-4.6,
-                                                                                                                                        -0.5,
-                                                                                                                                        -0.25), 20)
-                        self.placerNode.setHpr(vHpr)
-                        self.placerNode.setPos(vPos)
-                        self.subPlacerNode.setPos(-1, 0, 0.0)
-                        motor = OdeHingeJoint(self.world)
-                        cross.setPosition(self.subPlacerNode.getPos(self.root))
-                        cross.setQuaternion(self.placerNode.getQuat())
-                        ourAxis = self.root.getRelativeVector(self.subPlacerNode, Vec3(0, 0, 1))
-                        motor.setParamVel(1.0)
-                        motor.setParamFMax(50000.0)
-                        boxsize = Vec3(1.0, 1.0, 1.0)
-                        motor.attachBody(cross, 0)
-                        motor.setAnchor(self.subPlacerNode.getPos(self.root))
-                        motor.setAxis(ourAxis)
-                        self.cross = cross
-                        cross.enable()
-                        self.commonObjectDict[commonId] = (commonId, type, cross)
-                    else:
-                        if type == 4:
-                            ourAxis = self.root.getRelativeVector(self.placerNode, Vec3(0, 1, 0))
-                            model, box = self.createBox(self.world, self.space, 50.0, sizeX, sizeY, 1.0, 2)
-                            box.setPosition(vPos)
-                            box.setQuaternion(self.placerNode.getQuat())
-                            motor = OdeSliderJoint(self.world)
-                            motor.attachBody(box, 0)
-                            motor.setAxis(ourAxis)
-                            motor.setParamVel(moveDistance / 4.0)
-                            motor.setParamFMax(25000.0)
-                            motor.setParamHiStop(moveDistance)
-                            motor.setParamLoStop(0)
-                            timeData = (0.0, 1.0, 5.0, 6.0)
-                            forceData = (-moveDistance / 4.0,
-                             moveDistance / 4.0,
-                             moveDistance / 4.0,
-                             -moveDistance / 4.0)
-                            eventData = (-1, 1, -2, 2)
-                            radius = moveDistance + sizeY * 0.5
-                            self.commonObjectDict[commonId] = (commonId,
-                             type,
-                             box,
-                             motor,
-                             timeData,
-                             forceData,
-                             eventData,
-                             model,
-                             radius)
-        return [
-         type,
+                myModel = loader.loadModel('phase_6/models/golf/golf_windmill_b.bam')
+            myModel.reparentTo(self.root)
+            myModel.setPos(vPos)
+            myModel.setHpr(vHpr)
+            millFan = myModel.find('**/windmillFan0')
+            millBase = myModel.find('**/arm')
+            rod = myModel.find('**/rod')
+            rod.wrtReparentTo(millBase)
+            self.windmillFanNodePath = millFan
+            self.windmillBaseNodePath = millBase
+            millData = OdeTriMeshData(millBase)
+            millGeom = OdeTriMeshGeom(self.space, millData)
+            self.meshDataList.append(millData)
+            millGeom.setPosition(self.subPlacerNode.getPos(self.root))
+            millGeom.setQuaternion(self.subPlacerNode.getQuat())
+            millGeom.setCollideBits(BitMask32(251658240))
+            millGeom.setCategoryBits(BitMask32(8388608))
+            self.space.setCollideId(millGeom, 8)
+            vPos = Point3(float(pos[0]), float(pos[1]), float(pos[2]) + 5)
+            vHpr = Vec3(float(hpr[0]), float(hpr[1] + 90), float(hpr[2]) - 90)
+            self.placerNode.setHpr(vHpr)
+            self.placerNode.setPos(vPos)
+            self.subPlacerNode.setPos(-1, 0, 0.0)
+            model, cross = self.createPinWheel(self.world, self.space, 10.0, 1.6, 4.0, 0.6, 5, 3.7, 1.2, 1, millFan, (0,
+                                                                                                                      0,
+                                                                                                                      90), (-4.6,
+                                                                                                                            -0.5,
+                                                                                                                            -0.25), 20)
+            self.placerNode.setHpr(vHpr)
+            self.placerNode.setPos(vPos)
+            self.subPlacerNode.setPos(-1, 0, 0.0)
+            motor = OdeHingeJoint(self.world)
+            cross.setPosition(self.subPlacerNode.getPos(self.root))
+            cross.setQuaternion(self.placerNode.getQuat())
+            ourAxis = self.root.getRelativeVector(self.subPlacerNode, Vec3(0, 0, 1))
+            motor.setParamVel(1.0)
+            motor.setParamFMax(50000.0)
+            boxsize = Vec3(1.0, 1.0, 1.0)
+            motor.attachBody(cross, 0)
+            motor.setAnchor(self.subPlacerNode.getPos(self.root))
+            motor.setAxis(ourAxis)
+            self.cross = cross
+            cross.enable()
+            self.commonObjectDict[commonId] = (commonId, type, cross)
+        elif type == 4:
+            ourAxis = self.root.getRelativeVector(self.placerNode, Vec3(0, 1, 0))
+            model, box = self.createBox(self.world, self.space, 50.0, sizeX, sizeY, 1.0, 2)
+            box.setPosition(vPos)
+            box.setQuaternion(self.placerNode.getQuat())
+            motor = OdeSliderJoint(self.world)
+            motor.attachBody(box, 0)
+            motor.setAxis(ourAxis)
+            motor.setParamVel(moveDistance / 4.0)
+            motor.setParamFMax(25000.0)
+            motor.setParamHiStop(moveDistance)
+            motor.setParamLoStop(0)
+            timeData = (0.0, 1.0, 5.0, 6.0)
+            forceData = (-moveDistance / 4.0,
+             moveDistance / 4.0,
+             moveDistance / 4.0,
+             -moveDistance / 4.0)
+            eventData = (-1, 1, -2, 2)
+            radius = moveDistance + sizeY * 0.5
+            self.commonObjectDict[commonId] = (commonId,
+             type,
+             box,
+             motor,
+             timeData,
+             forceData,
+             eventData,
+             model,
+             radius)
+        return [type,
          commonId,
          (
           pos[0], pos[1], pos[2]),
@@ -506,24 +501,21 @@ class PhysicsWorldBase:
             self.notify.debug('1')
             geom.setCollideBits(BitMask32(16777215))
             geom.setCategoryBits(BitMask32(4278190080L))
+        elif ballIndex == 2:
+            self.notify.debug('2')
+            geom.setCollideBits(BitMask32(16777215))
+            geom.setCategoryBits(BitMask32(4278190080L))
+        elif ballIndex == 3:
+            self.notify.debug('3')
+            geom.setCollideBits(BitMask32(16777215))
+            geom.setCategoryBits(BitMask32(4278190080L))
+        elif ballIndex == 4:
+            self.notify.debug('4')
+            geom.setCollideBits(BitMask32(16777215))
+            geom.setCategoryBits(BitMask32(4278190080L))
         else:
-            if ballIndex == 2:
-                self.notify.debug('2')
-                geom.setCollideBits(BitMask32(16777215))
-                geom.setCategoryBits(BitMask32(4278190080L))
-            else:
-                if ballIndex == 3:
-                    self.notify.debug('3')
-                    geom.setCollideBits(BitMask32(16777215))
-                    geom.setCategoryBits(BitMask32(4278190080L))
-                else:
-                    if ballIndex == 4:
-                        self.notify.debug('4')
-                        geom.setCollideBits(BitMask32(16777215))
-                        geom.setCategoryBits(BitMask32(4278190080L))
-                    else:
-                        geom.setCollideBits(BitMask32(4294967295L))
-                        geom.setCategoryBits(BitMask32(4294967295L))
+            geom.setCollideBits(BitMask32(4294967295L))
+            geom.setCategoryBits(BitMask32(4294967295L))
         geom.setBody(body)
         if self.notify.getDebug():
             self.notify.debug('golf ball geom id')
@@ -557,10 +549,9 @@ class PhysicsWorldBase:
         if colOnlyBall:
             geom.setCollideBits(BitMask32(251658240))
             geom.setCategoryBits(BitMask32(0))
-        else:
-            if colOnlyBall == 2:
-                geom.setCollideBits(BitMask32(0))
-                geom.setCategoryBits(BitMask32(0))
+        elif colOnlyBall == 2:
+            geom.setCollideBits(BitMask32(0))
+            geom.setCategoryBits(BitMask32(0))
         if self.canRender:
             color = random.choice([Vec4(1.0, 0.0, 0.5, 1.0), Vec4(0.5, 0.5, 1.0, 1.0), Vec4(0.5, 1.0, 0.5, 1.0)])
             boxsize = Vec3(lx, ly, lz)
@@ -597,12 +588,11 @@ class PhysicsWorldBase:
             geom.setCategoryBits(BitMask32(0))
             geom2.setCollideBits(BitMask32(251658240))
             geom2.setCategoryBits(BitMask32(0))
-        else:
-            if colOnlyBall == 2:
-                geom.setCollideBits(BitMask32(0))
-                geom.setCategoryBits(BitMask32(0))
-                geom2.setCollideBits(BitMask32(0))
-                geom2.setCategoryBits(BitMask32(0))
+        elif colOnlyBall == 2:
+            geom.setCollideBits(BitMask32(0))
+            geom.setCategoryBits(BitMask32(0))
+            geom2.setCollideBits(BitMask32(0))
+            geom2.setCategoryBits(BitMask32(0))
         if self.canRender:
             boxNodePathGeom, t1, t2 = BuildGeometry.addBoxGeom(self.worldAttach, lx, ly, lz, Vec4(1.0, 1.0, 1.0, 1.0), 1)
             boxNodePathGeom.setPos(0, 0, -100)
@@ -660,16 +650,15 @@ class PhysicsWorldBase:
             geom3.setCategoryBits(BitMask32(0))
             geom4.setCollideBits(BitMask32(251658240))
             geom4.setCategoryBits(BitMask32(0))
-        else:
-            if colOnlyBall == 2:
-                geom.setCollideBits(BitMask32(0))
-                geom.setCategoryBits(BitMask32(0))
-                geom2.setCollideBits(BitMask32(0))
-                geom2.setCategoryBits(BitMask32(0))
-                geom3.setCollideBits(BitMask32(0))
-                geom3.setCategoryBits(BitMask32(0))
-                geom4.setCollideBits(BitMask32(0))
-                geom4.setCategoryBits(BitMask32(0))
+        elif colOnlyBall == 2:
+            geom.setCollideBits(BitMask32(0))
+            geom.setCategoryBits(BitMask32(0))
+            geom2.setCollideBits(BitMask32(0))
+            geom2.setCategoryBits(BitMask32(0))
+            geom3.setCollideBits(BitMask32(0))
+            geom3.setCategoryBits(BitMask32(0))
+            geom4.setCollideBits(BitMask32(0))
+            geom4.setCategoryBits(BitMask32(0))
         if self.canRender:
             someNodePathGeom = render.attachNewNode('pinwheel')
             if attachedGeo:
@@ -720,10 +709,9 @@ class PhysicsWorldBase:
             if colOnlyBall == 1:
                 geom.setCollideBits(BitMask32(251658240))
                 geom.setCategoryBits(BitMask32(0))
-            else:
-                if colOnlyBall == 2:
-                    geom.setCollideBits(BitMask32(0))
-                    geom.setCategoryBits(BitMask32(0))
+            elif colOnlyBall == 2:
+                geom.setCollideBits(BitMask32(0))
+                geom.setCategoryBits(BitMask32(0))
             if not attachedGeo:
                 boxNodePathGeom, t1, t2 = BuildGeometry.addBoxGeom(someNodePathGeom, lx, ly * 0.5, lz, Vec4(1.0, 1.0, 1.0, 1.0), 1)
                 boxNodePathGeom.setPos(self.subPlacerNode.getPos(self.root))

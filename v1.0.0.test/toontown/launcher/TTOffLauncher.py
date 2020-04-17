@@ -118,7 +118,8 @@ class TTOffLauncher(TTOffLauncherBase):
     def getPercentPatchComplete(self, bytesWritten):
         if self.totalPatchDownload:
             return TTOffLauncherBase.getPercentPatchComplete(self, bytesWritten)
-        return 0
+        else:
+            return 0
 
     def hashIsValid(self, serverHash, hashStr):
         return serverHash.setFromDec(hashStr) or serverHash.setFromHex(hashStr)

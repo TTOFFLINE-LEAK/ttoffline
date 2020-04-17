@@ -40,9 +40,10 @@ class CatalogRentalItem(CatalogItem.CatalogItem):
              TTLocalizer.RentalHours,
              TTLocalizer.RentalOf,
              TTLocalizer.RentalCannon)
-        if self.typeIndex == ToontownGlobals.RentalGameTable:
-            return '%s %s %s' % (hours, TTLocalizer.RentalHours, TTLocalizer.RentalGameTable)
-        return TTLocalizer.RentalTypeName
+        else:
+            if self.typeIndex == ToontownGlobals.RentalGameTable:
+                return '%s %s %s' % (hours, TTLocalizer.RentalHours, TTLocalizer.RentalGameTable)
+            return TTLocalizer.RentalTypeName
 
     def recordPurchase(self, avatar, optional):
         self.notify.debug('rental -- record purchase')
@@ -67,9 +68,8 @@ class CatalogRentalItem(CatalogItem.CatalogItem):
             model = loader.loadModel('phase_4/models/minigames/toon_cannon')
             scale = 0.5
             heading = 45
-        else:
-            if self.typeIndex == ToontownGlobals.RentalGameTable:
-                model = loader.loadModel('phase_6/models/golf/game_table')
+        elif self.typeIndex == ToontownGlobals.RentalGameTable:
+            model = loader.loadModel('phase_6/models/golf/game_table')
         self.hasPicture = True
         return self.makeFrameModel(model, spin)
 
@@ -85,9 +85,10 @@ class CatalogRentalItem(CatalogItem.CatalogItem):
     def getBasePrice(self):
         if self.typeIndex == ToontownGlobals.RentalCannon:
             return self.cost
-        if self.typeIndex == ToontownGlobals.RentalGameTable:
-            return self.cost
-        return 50
+        else:
+            if self.typeIndex == ToontownGlobals.RentalGameTable:
+                return self.cost
+            return 50
 
     def decodeDatagram(self, di, versionNumber, store):
         CatalogItem.CatalogItem.decodeDatagram(self, di, versionNumber, store)

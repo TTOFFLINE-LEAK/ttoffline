@@ -188,14 +188,15 @@ class DistributedSuitInteriorAI(DistributedObjectAI.DistributedObjectAI):
             self.air.writeServerEvent('suspicious', avId, 'DistributedSuitInteriorAI.setAvatarJoined from toon not in %s.' % self.toons)
             self.notify.warning('setAvatarJoined() - av: %d not in list' % avId)
             return
-        avatar = self.air.doId2do.get(avId)
-        if avatar != None:
-            self.savedByMap[avId] = (
-             avatar.getName(), avatar.dna.makeNetString(), avatar.isGM())
-        self.responses[avId] += 1
-        if self.__allToonsResponded():
-            self.fsm.request('Elevator')
-        return
+        else:
+            avatar = self.air.doId2do.get(avId)
+            if avatar != None:
+                self.savedByMap[avId] = (
+                 avatar.getName(), avatar.dna.makeNetString(), avatar.isGM())
+            self.responses[avId] += 1
+            if self.__allToonsResponded():
+                self.fsm.request('Elevator')
+            return
 
     def elevatorDone(self):
         toonId = self.air.getAvatarIdFromSender()
@@ -335,11 +336,10 @@ class DistributedSuitInteriorAI(DistributedObjectAI.DistributedObjectAI):
         if len(toonIds) == 0:
             taskName = self.taskName('deleteInterior')
             taskMgr.doMethodLater(10, self.__doDeleteInterior, taskName)
+        elif self.currentFloor == self.topFloor:
+            self.setState('Reward')
         else:
-            if self.currentFloor == self.topFloor:
-                self.setState('Reward')
-            else:
-                self.b_setState('Resting')
+            self.b_setState('Resting')
 
     def __doDeleteInterior(self, task):
         self.bldg.deleteSuitInterior()
@@ -385,11 +385,10 @@ class DistributedSuitInteriorAI(DistributedObjectAI.DistributedObjectAI):
         self.d_setToons()
         if len(self.toons) == 0:
             self.bldg.deleteSuitInterior()
+        elif self.currentFloor == self.topFloor:
+            self.battle.resume(self.currentFloor, topFloor=1)
         else:
-            if self.currentFloor == self.topFloor:
-                self.battle.resume(self.currentFloor, topFloor=1)
-            else:
-                self.battle.resume(self.currentFloor, topFloor=0)
+            self.battle.resume(self.currentFloor, topFloor=0)
         return
 
     def exitBattleDone(self):
@@ -407,28 +406,29 @@ class DistributedSuitInteriorAI(DistributedObjectAI.DistributedObjectAI):
     def handleAllAboard(self, seats):
         if not hasattr(self, 'fsm'):
             return
-        numOfEmptySeats = seats.count(None)
-        if numOfEmptySeats == 4:
-            self.bldg.deleteSuitInterior()
-            return
-        if numOfEmptySeats >= 0 and numOfEmptySeats <= 3:
-            pass
         else:
-            self.error('Bad number of empty seats: %s' % numOfEmptySeats)
-        for toon in self.toons:
-            if seats.count(toon) == 0:
-                self.__removeToon(toon)
+            numOfEmptySeats = seats.count(None)
+            if numOfEmptySeats == 4:
+                self.bldg.deleteSuitInterior()
+                return
+            if numOfEmptySeats >= 0 and numOfEmptySeats <= 3:
+                pass
+            else:
+                self.error('Bad number of empty seats: %s' % numOfEmptySeats)
+            for toon in self.toons:
+                if seats.count(toon) == 0:
+                    self.__removeToon(toon)
 
-        self.toonIds = copy.copy(seats)
-        self.toons = []
-        for toonId in self.toonIds:
-            if toonId != None:
-                self.toons.append(toonId)
+            self.toonIds = copy.copy(seats)
+            self.toons = []
+            for toonId in self.toonIds:
+                if toonId != None:
+                    self.toons.append(toonId)
 
-        self.d_setToons()
-        self.currentFloor += 1
-        self.fsm.request('Elevator')
-        return
+            self.d_setToons()
+            self.currentFloor += 1
+            self.fsm.request('Elevator')
+            return
 
     def exitResting(self):
         self.intElevator.requestDelete()

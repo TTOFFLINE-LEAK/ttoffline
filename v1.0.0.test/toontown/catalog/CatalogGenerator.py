@@ -1891,67 +1891,69 @@ class CatalogGenerator():
         itemLists = self.__releasedItemLists.get(dayNumber)
         if itemLists != None:
             return itemLists
-        self.__releasedItemLists.clear()
-        testDaysAhead = simbase.config.GetInt('test-server-holiday-days-ahead', 0)
-        nowtuple = time.localtime(weekStart * 60 + testDaysAhead * 24 * 60 * 60)
-        year = nowtuple[0]
-        month = nowtuple[1]
-        day = nowtuple[2]
-        itemLists = []
-        for monthlyItems in MonthlySchedule:
-            startMM = monthlyItems[0]
-            startDD = monthlyItems[1]
-            endMM = monthlyItems[2]
-            endDD = monthlyItems[3]
-            if len(monthlyItems) == 7:
-                startYYYY = monthlyItems[4]
-                endYYYY = monthlyItems[5]
-                list = monthlyItems[6]
-            else:
-                startYYYY = 1969
-                endYYYY = year
-                list = monthlyItems[4]
-            pastStart = year > startYYYY or year == startYYYY and (month > startMM or month == startMM and day >= startDD)
-            if pastStart:
-                itemLists.append(list)
+        else:
+            self.__releasedItemLists.clear()
+            testDaysAhead = simbase.config.GetInt('test-server-holiday-days-ahead', 0)
+            nowtuple = time.localtime(weekStart * 60 + testDaysAhead * 24 * 60 * 60)
+            year = nowtuple[0]
+            month = nowtuple[1]
+            day = nowtuple[2]
+            itemLists = []
+            for monthlyItems in MonthlySchedule:
+                startMM = monthlyItems[0]
+                startDD = monthlyItems[1]
+                endMM = monthlyItems[2]
+                endDD = monthlyItems[3]
+                if len(monthlyItems) == 7:
+                    startYYYY = monthlyItems[4]
+                    endYYYY = monthlyItems[5]
+                    list = monthlyItems[6]
+                else:
+                    startYYYY = 1969
+                    endYYYY = year
+                    list = monthlyItems[4]
+                pastStart = year > startYYYY or year == startYYYY and (month > startMM or month == startMM and day >= startDD)
+                if pastStart:
+                    itemLists.append(list)
 
-        self.__releasedItemLists[dayNumber] = itemLists
-        return itemLists
+            self.__releasedItemLists[dayNumber] = itemLists
+            return itemLists
 
     def __getMonthlyItemLists(self, dayNumber, weekStart):
         itemLists = self.__itemLists.get(dayNumber)
         if itemLists != None:
             return itemLists
-        testDaysAhead = simbase.config.GetInt('test-server-holiday-days-ahead', 0)
-        nowtuple = time.localtime(weekStart * 60 + testDaysAhead * 24 * 60 * 60)
-        year = nowtuple[0]
-        month = nowtuple[1]
-        day = nowtuple[2]
-        self.notify.debug('Generating seasonal itemLists for %s/%s.' % (month, day))
-        itemLists = []
-        for monthlyItems in MonthlySchedule:
-            startMM = monthlyItems[0]
-            startDD = monthlyItems[1]
-            endMM = monthlyItems[2]
-            endDD = monthlyItems[3]
-            if len(monthlyItems) == 7:
-                startYYYY = monthlyItems[4]
-                endYYYY = monthlyItems[5]
-                list = monthlyItems[6]
-            else:
-                startYYYY = 1969
-                endYYYY = year
-                list = monthlyItems[4]
-            pastStart = year >= startYYYY and (month > startMM or month == startMM and day >= startDD)
-            beforeEnd = year <= endYYYY and (month < endMM or month == endMM and day <= endDD)
-            if endMM < startMM:
-                if pastStart or beforeEnd:
+        else:
+            testDaysAhead = simbase.config.GetInt('test-server-holiday-days-ahead', 0)
+            nowtuple = time.localtime(weekStart * 60 + testDaysAhead * 24 * 60 * 60)
+            year = nowtuple[0]
+            month = nowtuple[1]
+            day = nowtuple[2]
+            self.notify.debug('Generating seasonal itemLists for %s/%s.' % (month, day))
+            itemLists = []
+            for monthlyItems in MonthlySchedule:
+                startMM = monthlyItems[0]
+                startDD = monthlyItems[1]
+                endMM = monthlyItems[2]
+                endDD = monthlyItems[3]
+                if len(monthlyItems) == 7:
+                    startYYYY = monthlyItems[4]
+                    endYYYY = monthlyItems[5]
+                    list = monthlyItems[6]
+                else:
+                    startYYYY = 1969
+                    endYYYY = year
+                    list = monthlyItems[4]
+                pastStart = year >= startYYYY and (month > startMM or month == startMM and day >= startDD)
+                beforeEnd = year <= endYYYY and (month < endMM or month == endMM and day <= endDD)
+                if endMM < startMM:
+                    if pastStart or beforeEnd:
+                        itemLists.append(list)
+                elif pastStart and beforeEnd:
                     itemLists.append(list)
-            elif pastStart and beforeEnd:
-                itemLists.append(list)
 
-        self.__itemLists[dayNumber] = itemLists
-        return itemLists
+            self.__itemLists[dayNumber] = itemLists
+            return itemLists
 
     def __selectItem(self, avatar, item, duplicateItems, saleItem=0):
         chooseCount = 1
@@ -1969,16 +1971,15 @@ class CatalogGenerator():
             if not item.notOfferedTo(avatar):
                 item.saleItem = saleItem
                 selection.append(item)
-        else:
-            if item != None:
-                list = item[:]
-                for i in xrange(chooseCount):
-                    if len(list) == 0:
-                        return selection
-                    item = self.__chooseFromList(avatar, list, duplicateItems)
-                    if item != None:
-                        item.saleItem = saleItem
-                        selection.append(item)
+        elif item != None:
+            list = item[:]
+            for i in xrange(chooseCount):
+                if len(list) == 0:
+                    return selection
+                item = self.__chooseFromList(avatar, list, duplicateItems)
+                if item != None:
+                    item.saleItem = saleItem
+                    selection.append(item)
 
         return selection
 
@@ -2027,8 +2028,9 @@ class CatalogGenerator():
     def __formatColor(self, color):
         if color == None:
             return ''
-        return '(%0.2f, %0.2f, %0.2f)' % (color[0], color[1], color[2])
-        return
+        else:
+            return '(%0.2f, %0.2f, %0.2f)' % (color[0], color[1], color[2])
+            return
 
     def __determineSeries(self, seriesDict, weeklist):
         for week in weeklist:
@@ -2087,9 +2089,8 @@ class CatalogGenerator():
                 else:
                     self.notify.warning("Don't know how to interpret function " % repr(name))
                     item = None
-            else:
-                if isinstance(item, types.TupleType):
-                    item = item[1]
+            elif isinstance(item, types.TupleType):
+                item = item[1]
             if isinstance(item, types.IntType):
                 item = MetaItems[item]
             if isinstance(item, CatalogItem.CatalogItem):

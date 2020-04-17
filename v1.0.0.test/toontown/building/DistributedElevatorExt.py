@@ -68,12 +68,13 @@ class DistributedElevatorExt(DistributedElevator.DistributedElevator):
         if not self.bldg:
             self.notify.error('setBldgDoId: elevator %d cannot find bldg %d!' % (self.doId, self.bldgDoId))
             return
-        if self.getBldgDoorOrigin():
-            self.bossLevel = self.bldg.getBossLevel()
-            self.setupElevator()
         else:
-            self.notify.warning('setBldgDoId: elevator %d cannot find suitDoorOrigin for bldg %d!' % (self.doId, bldgDoId))
-        return
+            if self.getBldgDoorOrigin():
+                self.bossLevel = self.bldg.getBossLevel()
+                self.setupElevator()
+            else:
+                self.notify.warning('setBldgDoId: elevator %d cannot find suitDoorOrigin for bldg %d!' % (self.doId, bldgDoId))
+            return
 
     def setFloor(self, floorNumber):
         if self.currentFloor >= 0:
@@ -88,28 +89,25 @@ class DistributedElevatorExt(DistributedElevator.DistributedElevator):
         self.notify.debug('Entering Elevator Sphere....')
         if hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty and localAvatar.boardingParty.getGroupLeader(localAvatar.doId) and localAvatar.boardingParty.getGroupLeader(localAvatar.doId) != localAvatar.doId:
             base.localAvatar.elevatorNotifier.showMe(TTLocalizer.ElevatorGroupMember)
+        elif self.allowedToEnter(self.zoneId):
+            self.cr.playGame.getPlace().detectedElevatorCollision(self)
         else:
-            if self.allowedToEnter(self.zoneId):
-                self.cr.playGame.getPlace().detectedElevatorCollision(self)
-            else:
-                place = base.cr.playGame.getPlace()
-                if place:
-                    place.fsm.request('stopped')
-                self.dialog = TeaserPanel.TeaserPanel(pageName='cogHQ', doneFunc=self.handleOkTeaser)
+            place = base.cr.playGame.getPlace()
+            if place:
+                place.fsm.request('stopped')
+            self.dialog = TeaserPanel.TeaserPanel(pageName='cogHQ', doneFunc=self.handleOkTeaser)
 
     def handleEnterElevator(self):
         if hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty and localAvatar.boardingParty.getGroupLeader(localAvatar.doId):
             if localAvatar.boardingParty.getGroupLeader(localAvatar.doId) == localAvatar.doId:
                 localAvatar.boardingParty.handleEnterElevator(self)
+        elif self.elevatorTripId and localAvatar.lastElevatorLeft == self.elevatorTripId:
+            self.rejectBoard(base.localAvatar.doId, REJECT_SHUFFLE)
+        elif base.localAvatar.hp > 0:
+            toon = base.localAvatar
+            self.sendUpdate('requestBoard', [])
         else:
-            if self.elevatorTripId and localAvatar.lastElevatorLeft == self.elevatorTripId:
-                self.rejectBoard(base.localAvatar.doId, REJECT_SHUFFLE)
-            else:
-                if base.localAvatar.hp > 0:
-                    toon = base.localAvatar
-                    self.sendUpdate('requestBoard', [])
-                else:
-                    self.notify.warning('Tried to board elevator with hp: %d' % base.localAvatar.hp)
+            self.notify.warning('Tried to board elevator with hp: %d' % base.localAvatar.hp)
 
     def enterWaitEmpty(self, ts):
         self.elevatorSphereNodePath.unstash()

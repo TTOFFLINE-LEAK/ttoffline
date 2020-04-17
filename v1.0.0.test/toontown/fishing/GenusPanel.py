@@ -56,29 +56,30 @@ class GenusPanel(DirectFrame):
     def setGenus(self, genus):
         if self.genus == genus:
             return
-        self.genus = genus
-        if self.genus != None:
-            if self.fishPanel:
-                self.fishPanel.destroy()
-            f = FishBase.FishBase(self.genus, 0, 0)
-            self.fishPanel = FishPhoto.FishPhoto(fish=f, parent=self)
-            self.fishPanel.setPos(-0.23, 1, -0.01)
-            self.fishPanel.setSwimBounds(-0.2461, 0.2367, -0.207, 0.2664)
-            self.fishPanel.setSwimColor(0.47, 1.0, 0.99, 1.0)
-            speciesList = FishGlobals.getSpecies(self.genus)
-            self.speciesLabels = []
-            offset = 0.075
-            startPos = len(speciesList) / 2 * offset
-            if not len(speciesList) % 2:
-                startPos -= offset / 2
-            for species in xrange(len(speciesList)):
-                label = DirectLabel(parent=self, relief=None, state=DGG.NORMAL, pos=(0.06, 0, startPos - species * offset), text=TTLocalizer.UnknownFish, text_fg=(0.2,
-                                                                                                                                                                   0.1,
-                                                                                                                                                                   0.0,
-                                                                                                                                                                   1), text_scale=TTLocalizer.GPgenus, text_align=TextNode.ALeft, text_font=ToontownGlobals.getInterfaceFont())
-                self.speciesLabels.append(label)
+        else:
+            self.genus = genus
+            if self.genus != None:
+                if self.fishPanel:
+                    self.fishPanel.destroy()
+                f = FishBase.FishBase(self.genus, 0, 0)
+                self.fishPanel = FishPhoto.FishPhoto(fish=f, parent=self)
+                self.fishPanel.setPos(-0.23, 1, -0.01)
+                self.fishPanel.setSwimBounds(-0.2461, 0.2367, -0.207, 0.2664)
+                self.fishPanel.setSwimColor(0.47, 1.0, 0.99, 1.0)
+                speciesList = FishGlobals.getSpecies(self.genus)
+                self.speciesLabels = []
+                offset = 0.075
+                startPos = len(speciesList) / 2 * offset
+                if not len(speciesList) % 2:
+                    startPos -= offset / 2
+                for species in xrange(len(speciesList)):
+                    label = DirectLabel(parent=self, relief=None, state=DGG.NORMAL, pos=(0.06, 0, startPos - species * offset), text=TTLocalizer.UnknownFish, text_fg=(0.2,
+                                                                                                                                                                       0.1,
+                                                                                                                                                                       0.0,
+                                                                                                                                                                       1), text_scale=TTLocalizer.GPgenus, text_align=TextNode.ALeft, text_font=ToontownGlobals.getInterfaceFont())
+                    self.speciesLabels.append(label)
 
-        return
+            return
 
     def show(self):
         self.update()

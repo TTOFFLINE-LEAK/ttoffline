@@ -191,12 +191,13 @@ class EstateLoader(SafeZoneLoader.SafeZoneLoader):
             self.doneStatus = doneStatus
             messenger.send(self.doneEvent)
             return
-        if how in ('tunnelIn', 'teleportIn', 'doorIn', 'elevatorIn', 'skipTunnelIn'):
-            self.notify.debug('staying in estateloader')
-            self.fsm.request('quietZone', [doneStatus])
         else:
-            self.notify.error('Exited hood with unexpected mode %s' % how)
-        return
+            if how in ('tunnelIn', 'teleportIn', 'doorIn', 'elevatorIn', 'skipTunnelIn'):
+                self.notify.debug('staying in estateloader')
+                self.fsm.request('quietZone', [doneStatus])
+            else:
+                self.notify.error('Exited hood with unexpected mode %s' % how)
+            return
 
     def enterHouse(self, requestStatus):
         ownerId = requestStatus.get('ownerId')
@@ -225,12 +226,13 @@ class EstateLoader(SafeZoneLoader.SafeZoneLoader):
             self.doneStatus = doneStatus
             messenger.send(self.doneEvent)
             return
-        how = doneStatus['how']
-        if how in ('tunnelIn', 'teleportIn', 'doorIn', 'elevatorIn', 'skipTunnelIn'):
-            self.fsm.request('quietZone', [doneStatus])
         else:
-            self.notify.error('Exited hood with unexpected mode %s' % how)
-        return
+            how = doneStatus['how']
+            if how in ('tunnelIn', 'teleportIn', 'doorIn', 'elevatorIn', 'skipTunnelIn'):
+                self.fsm.request('quietZone', [doneStatus])
+            else:
+                self.notify.error('Exited hood with unexpected mode %s' % how)
+            return
 
     def handleQuietZoneDone(self):
         status = self.quietZoneStateData.getRequestStatus()
@@ -240,7 +242,9 @@ class EstateLoader(SafeZoneLoader.SafeZoneLoader):
         if self.estateOwnerId != None:
             if self.estateOwnerId == base.localAvatar.getDoId():
                 return 1
-            return 0
+            else:
+                return 0
+
         else:
             self.notify.warning("We aren't in an estate")
         return

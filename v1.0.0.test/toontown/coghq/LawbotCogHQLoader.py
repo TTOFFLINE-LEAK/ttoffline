@@ -52,21 +52,19 @@ class LawbotCogHQLoader(CogHQLoader.CogHQLoader):
             ug.setBin('ground', -10)
             brLinkTunnel = self.geom.find('**/TunnelEntrance1')
             brLinkTunnel.setName('linktunnel_br_3326_DNARoot')
+        elif zoneId == ToontownGlobals.LawbotOfficeExt:
+            self.geom = loader.loadModel(self.factoryExteriorModelPath)
+            ug = self.geom.find('**/underground')
+            ug.setBin('ground', -10)
+        elif zoneId == ToontownGlobals.LawbotLobby:
+            if base.config.GetBool('want-qa-regression', 0):
+                self.notify.info('QA-REGRESSION: COGHQ: Visit LawbotLobby')
+            self.notify.debug('cogHQLobbyModelPath = %s' % self.cogHQLobbyModelPath)
+            self.geom = loader.loadModel(self.cogHQLobbyModelPath)
+            ug = self.geom.find('**/underground')
+            ug.setBin('ground', -10)
         else:
-            if zoneId == ToontownGlobals.LawbotOfficeExt:
-                self.geom = loader.loadModel(self.factoryExteriorModelPath)
-                ug = self.geom.find('**/underground')
-                ug.setBin('ground', -10)
-            else:
-                if zoneId == ToontownGlobals.LawbotLobby:
-                    if base.config.GetBool('want-qa-regression', 0):
-                        self.notify.info('QA-REGRESSION: COGHQ: Visit LawbotLobby')
-                    self.notify.debug('cogHQLobbyModelPath = %s' % self.cogHQLobbyModelPath)
-                    self.geom = loader.loadModel(self.cogHQLobbyModelPath)
-                    ug = self.geom.find('**/underground')
-                    ug.setBin('ground', -10)
-                else:
-                    self.notify.warning('loadPlaceGeom: unclassified zone %s' % zoneId)
+            self.notify.warning('loadPlaceGeom: unclassified zone %s' % zoneId)
         CogHQLoader.CogHQLoader.loadPlaceGeom(self, zoneId)
 
     def unload(self):

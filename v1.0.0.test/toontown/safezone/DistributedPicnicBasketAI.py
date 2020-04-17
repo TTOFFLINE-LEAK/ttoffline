@@ -83,12 +83,13 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debug('acceptBoarder %d' % avId)
         if self.findAvatar(avId) != None:
             return
-        self.seats[seatIndex] = avId
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
-        self.timeOfBoarding = globalClock.getRealTime()
-        self.sendUpdate('fillSlot' + str(seatIndex), [avId])
-        self.waitCountdown()
-        return
+        else:
+            self.seats[seatIndex] = avId
+            self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
+            self.timeOfBoarding = globalClock.getRealTime()
+            self.sendUpdate('fillSlot' + str(seatIndex), [avId])
+            self.waitCountdown()
+            return
 
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('Avatar: ' + str(avId) + ' has exited unexpectedly')
@@ -150,19 +151,20 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
         if self.findAvatar(avId) != None:
             self.notify.warning('Ignoring multiple requests from %s to board.' % avId)
             return
-        if si not in self.seats:
-            return
-        av = self.air.doId2do.get(avId)
-        if av:
-            if av.hp > 0 and self.accepting and self.seats[si] == None:
-                self.notify.debug('accepting boarder %d' % avId)
-                self.acceptingBoardersHandler(avId, si)
-            else:
-                self.notify.debug('rejecting boarder %d' % avId)
-                self.rejectingBoardersHandler(avId, si)
         else:
-            self.notify.warning('avid: %s does not exist, but tried to board a trolley' % avId)
-        return
+            if si not in self.seats:
+                return
+            av = self.air.doId2do.get(avId)
+            if av:
+                if av.hp > 0 and self.accepting and self.seats[si] == None:
+                    self.notify.debug('accepting boarder %d' % avId)
+                    self.acceptingBoardersHandler(avId, si)
+                else:
+                    self.notify.debug('rejecting boarder %d' % avId)
+                    self.rejectingBoardersHandler(avId, si)
+            else:
+                self.notify.warning('avid: %s does not exist, but tried to board a trolley' % avId)
+            return
 
     def requestExit(self, *args):
         self.notify.debug('requestExit')

@@ -35,6 +35,7 @@ class TTSCPromotionalMenu(SCMenu):
         if holidayId != self.curHolidayId:
             TTSCPromotionalMenu.notify.warning('unexpected holidayId: %s' % holidayId)
             return
-        self.curHolidayId = None
-        self.clearMenu()
-        return
+        else:
+            self.curHolidayId = None
+            self.clearMenu()
+            return

@@ -143,14 +143,12 @@ class SuitInterior(Place.Place):
                 pass
             else:
                 self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where == 'suitInterior':
+            pass
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where == 'suitInterior':
-                    pass
-                else:
-                    self.notify.error('Unknown mode: ' + +' in handleElevatorDone')
+            self.notify.error('Unknown mode: ' + +' in handleElevatorDone')
 
     def enterBattle(self, event):
         mult = ToontownBattleGlobals.getCreditMultiplier(self.currentFloor)

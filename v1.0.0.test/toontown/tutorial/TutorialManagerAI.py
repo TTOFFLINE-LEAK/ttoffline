@@ -167,26 +167,27 @@ class TutorialManagerAI(DistributedObjectAI):
         av = self.air.doId2do.get(avId)
         if not av:
             return
-        if av.getTutorialAck():
-            fsm = self.avId2fsm.get(avId, None)
-            if fsm:
-                fsm.demand('Cleanup')
-            self.air.writeServerEvent('suspicious', avId, 'Attempted to request tutorial when it would be impossible to do so')
+        else:
+            if av.getTutorialAck():
+                fsm = self.avId2fsm.get(avId, None)
+                if fsm:
+                    fsm.demand('Cleanup')
+                self.air.writeServerEvent('suspicious', avId, 'Attempted to request tutorial when it would be impossible to do so')
+                return
+            av.b_setQuests([])
+            av.b_setQuestHistory([])
+            av.b_setRewardHistory(0, [])
+            av.b_setHp(15)
+            av.b_setMaxHp(15)
+            av.inventory.zeroInv()
+            if av.inventory.numItem(ToontownBattleGlobals.THROW_TRACK, 0) == 0:
+                av.inventory.addItem(ToontownBattleGlobals.THROW_TRACK, 0)
+            if av.inventory.numItem(ToontownBattleGlobals.SQUIRT_TRACK, 0) == 0:
+                av.inventory.addItem(ToontownBattleGlobals.SQUIRT_TRACK, 0)
+            av.d_setInventory(av.inventory.makeNetString())
+            av.experience.zeroOutExp()
+            av.d_setExperience(av.experience.makeNetString())
             return
-        av.b_setQuests([])
-        av.b_setQuestHistory([])
-        av.b_setRewardHistory(0, [])
-        av.b_setHp(15)
-        av.b_setMaxHp(15)
-        av.inventory.zeroInv()
-        if av.inventory.numItem(ToontownBattleGlobals.THROW_TRACK, 0) == 0:
-            av.inventory.addItem(ToontownBattleGlobals.THROW_TRACK, 0)
-        if av.inventory.numItem(ToontownBattleGlobals.SQUIRT_TRACK, 0) == 0:
-            av.inventory.addItem(ToontownBattleGlobals.SQUIRT_TRACK, 0)
-        av.d_setInventory(av.inventory.makeNetString())
-        av.experience.zeroOutExp()
-        av.d_setExperience(av.experience.makeNetString())
-        return
 
     def allDone(self):
         avId = self.air.getAvatarIdFromSender()

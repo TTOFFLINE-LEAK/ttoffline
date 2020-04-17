@@ -152,7 +152,8 @@ class DistributedRacePad(DistributedKartPad, FSM):
             self.clockNode.setText(timeStr)
         if task.time >= task.duration:
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def startCountdown(self):
         if not self.timerTask and self.startingBlocks:
@@ -171,11 +172,12 @@ class DistributedRacePad(DistributedKartPad, FSM):
         self.notify.debugStateCall(self)
         if self.clockNodepath is not None:
             return
-        self.clockNode, self.clockNodepath = self.getSignTextNodes('racePadClock')
-        self.clockNodepath.setPos(0, 0.125, -3.0)
-        self.clockNodepath.setScale(2.5)
-        self.clockNodepath.flattenLight()
-        return
+        else:
+            self.clockNode, self.clockNodepath = self.getSignTextNodes('racePadClock')
+            self.clockNodepath.setPos(0, 0.125, -3.0)
+            self.clockNodepath.setScale(2.5)
+            self.clockNodepath.flattenLight()
+            return
 
     def getTunnelSign(self):
         cPadId = RaceGlobals.RaceInfo2RacePadId(self.trackId, self.trackType)

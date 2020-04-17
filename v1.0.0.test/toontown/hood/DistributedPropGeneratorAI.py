@@ -146,13 +146,12 @@ class DistributedPropGeneratorAI(DistributedObjectAI.DistributedObjectAI):
         if not state:
             self.deleteProps()
             self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_DELETED_ZONE])
-        else:
-            if state:
-                for propGeneratorId in self.air.propGenerators.keys():
-                    propGenerator = self.air.propGenerators[propGeneratorId]
-                    propGenerator.deleteProps()
+        elif state:
+            for propGeneratorId in self.air.propGenerators.keys():
+                propGenerator = self.air.propGenerators[propGeneratorId]
+                propGenerator.deleteProps()
 
-                self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_DELETED])
+            self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_DELETED])
 
     def deleteProps(self):
         self.propInfo = OrderedDict()
@@ -163,15 +162,14 @@ class DistributedPropGeneratorAI(DistributedObjectAI.DistributedObjectAI):
         avId = self.air.getAvatarIdFromSender()
         if not state:
             self.lockProps(state, avId)
-        else:
-            if state:
-                if not self.air.propGeneratorsLocked:
-                    self.air.propGeneratorsLocked = True
-                    self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_LOCKED])
-                else:
-                    if self.air.propGeneratorsLocked:
-                        self.air.propGeneratorsLocked = False
-                        self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_UNLOCKED])
+        elif state:
+            if not self.air.propGeneratorsLocked:
+                self.air.propGeneratorsLocked = True
+                self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_LOCKED])
+            else:
+                if self.air.propGeneratorsLocked:
+                    self.air.propGeneratorsLocked = False
+                    self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_UNLOCKED])
                 for propGeneratorId in self.air.propGenerators.keys():
                     propGenerator = self.air.propGenerators[propGeneratorId]
                     propGenerator.lockProps(state)
@@ -183,10 +181,9 @@ class DistributedPropGeneratorAI(DistributedObjectAI.DistributedObjectAI):
         if not self.locked:
             self.locked = True
             self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_LOCKED_ZONE])
-        else:
-            if self.locked:
-                self.locked = False
-                self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_UNLOCKED_ZONE])
+        elif self.locked:
+            self.locked = False
+            self.sendUpdateToAvatarId(avId, 'propMessage', [PROPS_UNLOCKED_ZONE])
 
     def propCooldown(self, task):
         for avId in self.recentAvatars.keys():

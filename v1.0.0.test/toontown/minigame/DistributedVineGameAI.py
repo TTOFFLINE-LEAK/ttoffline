@@ -35,9 +35,10 @@ class DistributedVineGameAI(DistributedMinigameAI):
     def _playing(self):
         if not hasattr(self, 'gameFSM'):
             return False
-        if self.gameFSM.getCurrentState() == None:
-            return False
-        return self.gameFSM.getCurrentState().getName() == 'play'
+        else:
+            if self.gameFSM.getCurrentState() == None:
+                return False
+            return self.gameFSM.getCurrentState().getName() == 'play'
 
     def setGameReady(self):
         self.notify.debug('setGameReady')

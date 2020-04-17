@@ -91,28 +91,28 @@ class DistributedSuitPlanner(DistributedObject.DistributedObject, SuitPlannerBas
                 color = (0, 0, 1, 1)
             else:
                 color = (0, 1, 0, 1)
-        self.__makePathVizText(text, pos[0], pos[1], pos[2], color)
-        adjacent = self.dnaStore.getAdjacentPoints(p)
-        numPoints = adjacent.getNumPoints()
-        for i in xrange(numPoints):
-            qi = adjacent.getPointIndex(i)
-            q = self.dnaStore.getSuitPointWithIndex(qi)
-            pp = p.getPos()
-            qp = q.getPos()
-            v = Vec3(qp - pp)
-            v.normalize()
-            c = v.cross(Vec3.up())
-            p1a = pp + v * 2 + c * 0.5
-            p1b = pp + v * 3
-            p1c = pp + v * 2 - c * 0.5
-            lines.reset()
-            lines.moveTo(pp)
-            lines.drawTo(qp)
-            lines.moveTo(p1a)
-            lines.drawTo(p1b)
-            lines.drawTo(p1c)
-            lines.create(vizNode, 0)
-            self.__doShowPoints(vizNode, lines, q, points)
+            self.__makePathVizText(text, pos[0], pos[1], pos[2], color)
+            adjacent = self.dnaStore.getAdjacentPoints(p)
+            numPoints = adjacent.getNumPoints()
+            for i in xrange(numPoints):
+                qi = adjacent.getPointIndex(i)
+                q = self.dnaStore.getSuitPointWithIndex(qi)
+                pp = p.getPos()
+                qp = q.getPos()
+                v = Vec3(qp - pp)
+                v.normalize()
+                c = v.cross(Vec3.up())
+                p1a = pp + v * 2 + c * 0.5
+                p1b = pp + v * 3
+                p1c = pp + v * 2 - c * 0.5
+                lines.reset()
+                lines.moveTo(pp)
+                lines.drawTo(qp)
+                lines.moveTo(p1a)
+                lines.drawTo(p1b)
+                lines.drawTo(p1c)
+                lines.create(vizNode, 0)
+                self.__doShowPoints(vizNode, lines, q, points)
 
         return
 

@@ -121,10 +121,11 @@ class DistributedGolfGreenGameAI(BattleBlockerAI.BattleBlockerAI, NodePath, Basi
     def getTimeLeft(self):
         if self.startTime == None:
             return self.totalTime
-        timePassed = globalClockDelta.localElapsedTime(self.startTime)
-        timeLeft = self.totalTime - timePassed
-        return timeLeft
-        return
+        else:
+            timePassed = globalClockDelta.localElapsedTime(self.startTime)
+            timeLeft = self.totalTime - timePassed
+            return timeLeft
+            return
 
     def choosePattern(self):
         dataSize = len(self.boardData)
@@ -150,9 +151,8 @@ class DistributedGolfGreenGameAI(BattleBlockerAI.BattleBlockerAI, NodePath, Basi
             board = self.boardList[index]
             if board[0] == 'closed':
                 pass
-            else:
-                if avId in board[0]:
-                    return index
+            elif avId in board[0]:
+                return index
 
         return
 
@@ -171,16 +171,17 @@ class DistributedGolfGreenGameAI(BattleBlockerAI.BattleBlockerAI, NodePath, Basi
         if self.allBoardsClear:
             self.sendUpdate('acceptJoin', [0.0, 0.0, [0]])
             return
-        senderId = self.air.getAvatarIdFromSender()
-        if senderId not in self.joinedToons:
-            if self.startTime == None:
-                self.startTimer()
-            self.joinedToons.append(senderId)
-            if senderId not in self.everJoinedToons:
-                self.everJoinedToons.append(senderId)
-            self.sendUpdate('acceptJoin', [self.totalTime, self.startTime, self.joinedToons])
-            self.sendScoreData()
-        return
+        else:
+            senderId = self.air.getAvatarIdFromSender()
+            if senderId not in self.joinedToons:
+                if self.startTime == None:
+                    self.startTimer()
+                self.joinedToons.append(senderId)
+                if senderId not in self.everJoinedToons:
+                    self.everJoinedToons.append(senderId)
+                self.sendUpdate('acceptJoin', [self.totalTime, self.startTime, self.joinedToons])
+                self.sendScoreData()
+            return
 
     def requestBoard(self, boardVerify):
         senderId = self.air.getAvatarIdFromSender()

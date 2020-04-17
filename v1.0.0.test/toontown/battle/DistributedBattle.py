@@ -67,9 +67,8 @@ class DistributedBattle(DistributedBattleBase.DistributedBattleBase):
         if len(self.toons) == 4 and len(oldtoons) < 4:
             self.notify.debug('setMembers() - battle is now full of toons')
             self.closeBattleCollision()
-        else:
-            if len(self.toons) < 4 and len(oldtoons) == 4:
-                self.openBattleCollision()
+        elif len(self.toons) < 4 and len(oldtoons) == 4:
+            self.openBattleCollision()
 
     def __faceOff(self, ts, name, callback):
         if len(self.suits) == 0:

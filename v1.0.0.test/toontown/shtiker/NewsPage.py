@@ -78,4 +78,5 @@ class NewsPage(ShtikerPage.ShtikerPage):
     def doSnapshot(self):
         if HaveNewsFrame:
             return self.newsFrame.doSnapshot()
-        return 'No News Frame'
+        else:
+            return 'No News Frame'

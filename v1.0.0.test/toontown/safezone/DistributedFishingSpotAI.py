@@ -51,23 +51,24 @@ class DistributedFishingSpotAI(DistributedObjectAI):
         avId = self.air.getAvatarIdFromSender()
         if not avId:
             return
-        if self.avId is not None:
-            if self.avId == avId:
-                self.air.writeServerEvent('suspicious', avId, 'Toon requested to enter a fishing spot twice!')
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [])
+        else:
+            if self.avId is not None:
+                if self.avId == avId:
+                    self.air.writeServerEvent('suspicious', avId, 'Toon requested to enter a fishing spot twice!')
+                self.sendUpdateToAvatarId(avId, 'rejectEnter', [])
+                return
+            event = self.air.getAvatarExitEvent(avId)
+            self.acceptOnce(event, self.__handleUnexpectedExit)
+            self.b_setOccupied(avId)
+            self.d_setMovie(FishGlobals.EnterMovie, 0, 0, 0, 0, 0, 0)
+            taskMgr.remove('cancel-animation-%d' % self.doId)
+            taskMgr.doMethodLater(2, self.d_setMovie, 'cancel-animation-%d' % self.doId, [
+             FishGlobals.NoMovie, 0, 0, 0, 0, 0, 0])
+            taskMgr.remove('time-out-%d' % self.doId)
+            taskMgr.doMethodLater(FishGlobals.CastTimeout + 2.5, self.removeFromFishingSpotWithAnim, 'time-out-%d' % self.doId)
+            self.lastFish = [None, None, None]
+            self.cast = False
             return
-        event = self.air.getAvatarExitEvent(avId)
-        self.acceptOnce(event, self.__handleUnexpectedExit)
-        self.b_setOccupied(avId)
-        self.d_setMovie(FishGlobals.EnterMovie, 0, 0, 0, 0, 0, 0)
-        taskMgr.remove('cancel-animation-%d' % self.doId)
-        taskMgr.doMethodLater(2, self.d_setMovie, 'cancel-animation-%d' % self.doId, [
-         FishGlobals.NoMovie, 0, 0, 0, 0, 0, 0])
-        taskMgr.remove('time-out-%d' % self.doId)
-        taskMgr.doMethodLater(FishGlobals.CastTimeout + 2.5, self.removeFromFishingSpotWithAnim, 'time-out-%d' % self.doId)
-        self.lastFish = [None, None, None]
-        self.cast = False
-        return
 
     def requestExit(self):
         avId = self.air.getAvatarIdFromSender()
@@ -131,7 +132,8 @@ class DistributedFishingSpotAI(DistributedObjectAI):
         self.avId = None
         if task:
             return task.done
-        return
+        else:
+            return
 
     def d_setMovie(self, mode, code, genus, species, weight, p, h):
         self.sendUpdate('setMovie', [mode, code, genus, species, weight, p, h])

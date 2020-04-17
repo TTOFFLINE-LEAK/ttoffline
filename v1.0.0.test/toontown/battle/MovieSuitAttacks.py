@@ -34,11 +34,10 @@ def __showProp(prop, parent, pos, hpr=None, scale=None):
 def __animProp(prop, propName, propType='actor'):
     if 'actor' == propType:
         prop.play(propName)
+    elif 'model' == propType:
+        pass
     else:
-        if 'model' == propType:
-            pass
-        else:
-            self.notify.error('No such propType as: %s' % propType)
+        self.notify.error('No such propType as: %s' % propType)
 
 
 def __suitFacePoint(suit, zOffset=0):
@@ -120,230 +119,167 @@ def doSuitAttack(attack):
     else:
         if name == BITE:
             suitTrack = doBite(attack)
+        elif name == BOUNCE_CHECK:
+            suitTrack = doBounceCheck(attack)
+        elif name == BRAIN_STORM:
+            suitTrack = doBrainStorm(attack)
+        elif name == BUZZ_WORD:
+            suitTrack = doBuzzWord(attack)
+        elif name == CALCULATE:
+            suitTrack = doCalculate(attack)
+        elif name == CANNED:
+            suitTrack = doCanned(attack)
+        elif name == CHOMP:
+            suitTrack = doChomp(attack)
+        elif name == CIGAR_SMOKE:
+            suitTrack = doDefault(attack)
+        elif name == CLIPON_TIE:
+            suitTrack = doClipOnTie(attack)
+        elif name == CRUNCH:
+            suitTrack = doCrunch(attack)
+        elif name == DEMOTION:
+            suitTrack = doDemotion(attack)
+        elif name == DOUBLE_TALK:
+            suitTrack = doDoubleTalk(attack)
+        elif name == DOWNSIZE:
+            suitTrack = doDownsize(attack)
+        elif name == EVICTION_NOTICE:
+            suitTrack = doEvictionNotice(attack)
+        elif name == EVIL_EYE:
+            suitTrack = doEvilEye(attack)
+        elif name == FILIBUSTER:
+            suitTrack = doFilibuster(attack)
+        elif name == FILL_WITH_LEAD:
+            suitTrack = doFillWithLead(attack)
+        elif name == FINGER_WAG:
+            suitTrack = doFingerWag(attack)
+        elif name == FIRED:
+            suitTrack = doFired(attack)
+        elif name == FIVE_O_CLOCK_SHADOW:
+            suitTrack = doDefault(attack)
+        elif name == FLOOD_THE_MARKET:
+            suitTrack = doDefault(attack)
+        elif name == FOUNTAIN_PEN:
+            suitTrack = doFountainPen(attack)
+        elif name == FREEZE_ASSETS:
+            suitTrack = doFreezeAssets(attack)
+        elif name == GAVEL:
+            suitTrack = doDefault(attack)
+        elif name == GLOWER_POWER:
+            suitTrack = doGlowerPower(attack)
+        elif name == GUILT_TRIP:
+            suitTrack = doGuiltTrip(attack)
+        elif name == HALF_WINDSOR:
+            suitTrack = doHalfWindsor(attack)
+        elif name == HANG_UP:
+            suitTrack = doHangUp(attack)
+        elif name == HEAD_SHRINK:
+            suitTrack = doHeadShrink(attack)
+        elif name == HOT_AIR:
+            suitTrack = doHotAir(attack)
+        elif name == JARGON:
+            suitTrack = doJargon(attack)
+        elif name == LEGALESE:
+            suitTrack = doLegalese(attack)
+        elif name == LIQUIDATE:
+            suitTrack = doLiquidate(attack)
+        elif name == MARKET_CRASH:
+            suitTrack = doMarketCrash(attack)
+        elif name == MUMBO_JUMBO:
+            suitTrack = doMumboJumbo(attack)
+        elif name == PARADIGM_SHIFT:
+            suitTrack = doParadigmShift(attack)
+        elif name == PECKING_ORDER:
+            suitTrack = doPeckingOrder(attack)
+        elif name == PICK_POCKET:
+            suitTrack = doPickPocket(attack)
+        elif name == PINK_SLIP:
+            suitTrack = doPinkSlip(attack)
+        elif name == PLAY_HARDBALL:
+            suitTrack = doPlayHardball(attack)
+        elif name == POUND_KEY:
+            suitTrack = doPoundKey(attack)
+        elif name == POWER_TIE:
+            suitTrack = doPowerTie(attack)
+        elif name == POWER_TRIP:
+            suitTrack = doPowerTrip(attack)
+        elif name == QUAKE:
+            suitTrack = doQuake(attack)
+        elif name == RAZZLE_DAZZLE:
+            suitTrack = doRazzleDazzle(attack)
+        elif name == RED_TAPE:
+            suitTrack = doRedTape(attack)
+        elif name == RE_ORG:
+            suitTrack = doReOrg(attack)
+        elif name == RESTRAINING_ORDER:
+            suitTrack = doRestrainingOrder(attack)
+        elif name == ROLODEX:
+            suitTrack = doRolodex(attack)
+        elif name == RUBBER_STAMP:
+            suitTrack = doRubberStamp(attack)
+        elif name == RUB_OUT:
+            suitTrack = doRubOut(attack)
+        elif name == SACKED:
+            suitTrack = doSacked(attack)
+        elif name == SANDTRAP:
+            suitTrack = doDefault(attack)
+        elif name == SCHMOOZE:
+            suitTrack = doSchmooze(attack)
+        elif name == SHAKE:
+            suitTrack = doShake(attack)
+        elif name == SHRED:
+            suitTrack = doShred(attack)
+        elif name == SONG_AND_DANCE:
+            suitTrack = doDefault(attack)
+        elif name == SPIN:
+            suitTrack = doSpin(attack)
+        elif name == SYNERGY:
+            suitTrack = doSynergy(attack)
+        elif name == TABULATE:
+            suitTrack = doTabulate(attack)
+        elif name == TEE_OFF:
+            suitTrack = doTeeOff(attack)
+        elif name == THROW_BOOK:
+            suitTrack = doDefault(attack)
+        elif name == TREMOR:
+            suitTrack = doTremor(attack)
+        elif name == WATERCOOLER:
+            suitTrack = doWatercooler(attack)
+        elif name == WITHDRAWAL:
+            suitTrack = doWithdrawal(attack)
+        elif name == WRITE_OFF:
+            suitTrack = doWriteOff(attack)
         else:
-            if name == BOUNCE_CHECK:
-                suitTrack = doBounceCheck(attack)
-            else:
-                if name == BRAIN_STORM:
-                    suitTrack = doBrainStorm(attack)
-                else:
-                    if name == BUZZ_WORD:
-                        suitTrack = doBuzzWord(attack)
-                    else:
-                        if name == CALCULATE:
-                            suitTrack = doCalculate(attack)
-                        else:
-                            if name == CANNED:
-                                suitTrack = doCanned(attack)
-                            else:
-                                if name == CHOMP:
-                                    suitTrack = doChomp(attack)
-                                else:
-                                    if name == CIGAR_SMOKE:
-                                        suitTrack = doDefault(attack)
-                                    else:
-                                        if name == CLIPON_TIE:
-                                            suitTrack = doClipOnTie(attack)
-                                        else:
-                                            if name == CRUNCH:
-                                                suitTrack = doCrunch(attack)
-                                            else:
-                                                if name == DEMOTION:
-                                                    suitTrack = doDemotion(attack)
-                                                else:
-                                                    if name == DOUBLE_TALK:
-                                                        suitTrack = doDoubleTalk(attack)
-                                                    else:
-                                                        if name == DOWNSIZE:
-                                                            suitTrack = doDownsize(attack)
-                                                        else:
-                                                            if name == EVICTION_NOTICE:
-                                                                suitTrack = doEvictionNotice(attack)
-                                                            else:
-                                                                if name == EVIL_EYE:
-                                                                    suitTrack = doEvilEye(attack)
-                                                                else:
-                                                                    if name == FILIBUSTER:
-                                                                        suitTrack = doFilibuster(attack)
-                                                                    else:
-                                                                        if name == FILL_WITH_LEAD:
-                                                                            suitTrack = doFillWithLead(attack)
-                                                                        else:
-                                                                            if name == FINGER_WAG:
-                                                                                suitTrack = doFingerWag(attack)
-                                                                            else:
-                                                                                if name == FIRED:
-                                                                                    suitTrack = doFired(attack)
-                                                                                else:
-                                                                                    if name == FIVE_O_CLOCK_SHADOW:
-                                                                                        suitTrack = doDefault(attack)
-                                                                                    else:
-                                                                                        if name == FLOOD_THE_MARKET:
-                                                                                            suitTrack = doDefault(attack)
-                                                                                        else:
-                                                                                            if name == FOUNTAIN_PEN:
-                                                                                                suitTrack = doFountainPen(attack)
-                                                                                            else:
-                                                                                                if name == FREEZE_ASSETS:
-                                                                                                    suitTrack = doFreezeAssets(attack)
-                                                                                                else:
-                                                                                                    if name == GAVEL:
-                                                                                                        suitTrack = doDefault(attack)
-                                                                                                    else:
-                                                                                                        if name == GLOWER_POWER:
-                                                                                                            suitTrack = doGlowerPower(attack)
-                                                                                                        else:
-                                                                                                            if name == GUILT_TRIP:
-                                                                                                                suitTrack = doGuiltTrip(attack)
-                                                                                                            else:
-                                                                                                                if name == HALF_WINDSOR:
-                                                                                                                    suitTrack = doHalfWindsor(attack)
-                                                                                                                else:
-                                                                                                                    if name == HANG_UP:
-                                                                                                                        suitTrack = doHangUp(attack)
-                                                                                                                    else:
-                                                                                                                        if name == HEAD_SHRINK:
-                                                                                                                            suitTrack = doHeadShrink(attack)
-                                                                                                                        else:
-                                                                                                                            if name == HOT_AIR:
-                                                                                                                                suitTrack = doHotAir(attack)
-                                                                                                                            else:
-                                                                                                                                if name == JARGON:
-                                                                                                                                    suitTrack = doJargon(attack)
-                                                                                                                                else:
-                                                                                                                                    if name == LEGALESE:
-                                                                                                                                        suitTrack = doLegalese(attack)
-                                                                                                                                    else:
-                                                                                                                                        if name == LIQUIDATE:
-                                                                                                                                            suitTrack = doLiquidate(attack)
-                                                                                                                                        else:
-                                                                                                                                            if name == MARKET_CRASH:
-                                                                                                                                                suitTrack = doMarketCrash(attack)
-                                                                                                                                            else:
-                                                                                                                                                if name == MUMBO_JUMBO:
-                                                                                                                                                    suitTrack = doMumboJumbo(attack)
-                                                                                                                                                else:
-                                                                                                                                                    if name == PARADIGM_SHIFT:
-                                                                                                                                                        suitTrack = doParadigmShift(attack)
-                                                                                                                                                    else:
-                                                                                                                                                        if name == PECKING_ORDER:
-                                                                                                                                                            suitTrack = doPeckingOrder(attack)
-                                                                                                                                                        else:
-                                                                                                                                                            if name == PICK_POCKET:
-                                                                                                                                                                suitTrack = doPickPocket(attack)
-                                                                                                                                                            else:
-                                                                                                                                                                if name == PINK_SLIP:
-                                                                                                                                                                    suitTrack = doPinkSlip(attack)
-                                                                                                                                                                else:
-                                                                                                                                                                    if name == PLAY_HARDBALL:
-                                                                                                                                                                        suitTrack = doPlayHardball(attack)
-                                                                                                                                                                    else:
-                                                                                                                                                                        if name == POUND_KEY:
-                                                                                                                                                                            suitTrack = doPoundKey(attack)
-                                                                                                                                                                        else:
-                                                                                                                                                                            if name == POWER_TIE:
-                                                                                                                                                                                suitTrack = doPowerTie(attack)
-                                                                                                                                                                            else:
-                                                                                                                                                                                if name == POWER_TRIP:
-                                                                                                                                                                                    suitTrack = doPowerTrip(attack)
-                                                                                                                                                                                else:
-                                                                                                                                                                                    if name == QUAKE:
-                                                                                                                                                                                        suitTrack = doQuake(attack)
-                                                                                                                                                                                    else:
-                                                                                                                                                                                        if name == RAZZLE_DAZZLE:
-                                                                                                                                                                                            suitTrack = doRazzleDazzle(attack)
-                                                                                                                                                                                        else:
-                                                                                                                                                                                            if name == RED_TAPE:
-                                                                                                                                                                                                suitTrack = doRedTape(attack)
-                                                                                                                                                                                            else:
-                                                                                                                                                                                                if name == RE_ORG:
-                                                                                                                                                                                                    suitTrack = doReOrg(attack)
-                                                                                                                                                                                                else:
-                                                                                                                                                                                                    if name == RESTRAINING_ORDER:
-                                                                                                                                                                                                        suitTrack = doRestrainingOrder(attack)
-                                                                                                                                                                                                    else:
-                                                                                                                                                                                                        if name == ROLODEX:
-                                                                                                                                                                                                            suitTrack = doRolodex(attack)
-                                                                                                                                                                                                        else:
-                                                                                                                                                                                                            if name == RUBBER_STAMP:
-                                                                                                                                                                                                                suitTrack = doRubberStamp(attack)
-                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                if name == RUB_OUT:
-                                                                                                                                                                                                                    suitTrack = doRubOut(attack)
-                                                                                                                                                                                                                else:
-                                                                                                                                                                                                                    if name == SACKED:
-                                                                                                                                                                                                                        suitTrack = doSacked(attack)
-                                                                                                                                                                                                                    else:
-                                                                                                                                                                                                                        if name == SANDTRAP:
-                                                                                                                                                                                                                            suitTrack = doDefault(attack)
-                                                                                                                                                                                                                        else:
-                                                                                                                                                                                                                            if name == SCHMOOZE:
-                                                                                                                                                                                                                                suitTrack = doSchmooze(attack)
-                                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                                if name == SHAKE:
-                                                                                                                                                                                                                                    suitTrack = doShake(attack)
-                                                                                                                                                                                                                                else:
-                                                                                                                                                                                                                                    if name == SHRED:
-                                                                                                                                                                                                                                        suitTrack = doShred(attack)
-                                                                                                                                                                                                                                    else:
-                                                                                                                                                                                                                                        if name == SONG_AND_DANCE:
-                                                                                                                                                                                                                                            suitTrack = doDefault(attack)
-                                                                                                                                                                                                                                        else:
-                                                                                                                                                                                                                                            if name == SPIN:
-                                                                                                                                                                                                                                                suitTrack = doSpin(attack)
-                                                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                                                if name == SYNERGY:
-                                                                                                                                                                                                                                                    suitTrack = doSynergy(attack)
-                                                                                                                                                                                                                                                else:
-                                                                                                                                                                                                                                                    if name == TABULATE:
-                                                                                                                                                                                                                                                        suitTrack = doTabulate(attack)
-                                                                                                                                                                                                                                                    else:
-                                                                                                                                                                                                                                                        if name == TEE_OFF:
-                                                                                                                                                                                                                                                            suitTrack = doTeeOff(attack)
-                                                                                                                                                                                                                                                        else:
-                                                                                                                                                                                                                                                            if name == THROW_BOOK:
-                                                                                                                                                                                                                                                                suitTrack = doDefault(attack)
-                                                                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                                                                if name == TREMOR:
-                                                                                                                                                                                                                                                                    suitTrack = doTremor(attack)
-                                                                                                                                                                                                                                                                else:
-                                                                                                                                                                                                                                                                    if name == WATERCOOLER:
-                                                                                                                                                                                                                                                                        suitTrack = doWatercooler(attack)
-                                                                                                                                                                                                                                                                    else:
-                                                                                                                                                                                                                                                                        if name == WITHDRAWAL:
-                                                                                                                                                                                                                                                                            suitTrack = doWithdrawal(attack)
-                                                                                                                                                                                                                                                                        else:
-                                                                                                                                                                                                                                                                            if name == WRITE_OFF:
-                                                                                                                                                                                                                                                                                suitTrack = doWriteOff(attack)
-                                                                                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                                                                                notify.warning('unknown attack: %d substituting Finger Wag' % name)
-                                                                                                                                                                                                                                                                                suitTrack = doDefault(attack)
-    camTrack = MovieCamera.chooseSuitShot(attack, suitTrack.getDuration())
-    battle = attack['battle']
-    target = attack['target']
-    groupStatus = attack['group']
-    if groupStatus == ATK_TGT_SINGLE:
-        toon = target['toon']
-        toonHprTrack = Sequence(Func(toon.headsUp, battle, MovieUtil.PNT3_ZERO), Func(toon.loop, 'neutral'))
-    else:
-        toonHprTrack = Parallel()
-        for t in target:
-            toon = t['toon']
-            toonHprTrack.append(Sequence(Func(toon.headsUp, battle, MovieUtil.PNT3_ZERO), Func(toon.loop, 'neutral')))
+            notify.warning('unknown attack: %d substituting Finger Wag' % name)
+            suitTrack = doDefault(attack)
+        camTrack = MovieCamera.chooseSuitShot(attack, suitTrack.getDuration())
+        battle = attack['battle']
+        target = attack['target']
+        groupStatus = attack['group']
+        if groupStatus == ATK_TGT_SINGLE:
+            toon = target['toon']
+            toonHprTrack = Sequence(Func(toon.headsUp, battle, MovieUtil.PNT3_ZERO), Func(toon.loop, 'neutral'))
+        else:
+            toonHprTrack = Parallel()
+            for t in target:
+                toon = t['toon']
+                toonHprTrack.append(Sequence(Func(toon.headsUp, battle, MovieUtil.PNT3_ZERO), Func(toon.loop, 'neutral')))
 
-        suit = attack['suit']
-        neutralIval = Func(suit.loop, 'neutral')
-        suitTrack = Sequence(suitTrack, neutralIval, toonHprTrack)
-        suitPos = suit.getPos(battle)
-        resetPos, resetHpr = battle.getActorPosHpr(suit)
-        if battle.isSuitLured(suit):
-            resetTrack = getResetTrack(suit, battle)
-            resetSuitTrack = Sequence(resetTrack, suitTrack)
-            waitTrack = Sequence(Wait(resetTrack.getDuration()), Func(battle.unlureSuit, suit))
-            resetCamTrack = Sequence(waitTrack, camTrack)
-            return (
-             resetSuitTrack, resetCamTrack)
-    return (suitTrack, camTrack)
+    suit = attack['suit']
+    neutralIval = Func(suit.loop, 'neutral')
+    suitTrack = Sequence(suitTrack, neutralIval, toonHprTrack)
+    suitPos = suit.getPos(battle)
+    resetPos, resetHpr = battle.getActorPosHpr(suit)
+    if battle.isSuitLured(suit):
+        resetTrack = getResetTrack(suit, battle)
+        resetSuitTrack = Sequence(resetTrack, suitTrack)
+        waitTrack = Sequence(Wait(resetTrack.getDuration()), Func(battle.unlureSuit, suit))
+        resetCamTrack = Sequence(waitTrack, camTrack)
+        return (
+         resetSuitTrack, resetCamTrack)
+    else:
+        return (
+         suitTrack, camTrack)
 
 
 def getResetTrack(suit, battle):
@@ -379,168 +315,169 @@ def doDefault(attack):
         attack['name'] = 'PoundKey'
         attack['animName'] = 'phone'
         return doPoundKey(attack)
-    if suitName == 'p':
-        attack['id'] = FOUNTAIN_PEN
-        attack['name'] = 'FountainPen'
-        attack['animName'] = 'pen-squirt'
-        return doFountainPen(attack)
-    if suitName == 'ym':
-        attack['id'] = RUBBER_STAMP
-        attack['name'] = 'RubberStamp'
-        attack['animName'] = 'rubber-stamp'
-        return doRubberStamp(attack)
-    if suitName == 'mm':
-        attack['id'] = FINGER_WAG
-        attack['name'] = 'FingerWag'
-        attack['animName'] = 'finger-wag'
-        return doFingerWag(attack)
-    if suitName == 'ds':
-        attack['id'] = DEMOTION
-        attack['name'] = 'Demotion'
-        attack['animName'] = 'magic1'
-        return doDemotion(attack)
-    if suitName == 'hh':
-        attack['id'] = GLOWER_POWER
-        attack['name'] = 'GlowerPower'
-        attack['animName'] = 'glower'
-        return doGlowerPower(attack)
-    if suitName == 'cr':
-        attack['id'] = PICK_POCKET
-        attack['name'] = 'PickPocket'
-        attack['animName'] = 'pickpocket'
-        return doPickPocket(attack)
-    if suitName == 'tbc':
-        attack['id'] = GLOWER_POWER
-        attack['name'] = 'GlowerPower'
-        attack['animName'] = 'glower'
-        return doGlowerPower(attack)
-    if suitName == 'cc':
-        attack['id'] = POUND_KEY
-        attack['name'] = 'PoundKey'
-        attack['animName'] = 'phone'
-        return doPoundKey(attack)
-    if suitName == 'tm':
-        attack['id'] = CLIPON_TIE
-        attack['name'] = 'ClipOnTie'
-        attack['animName'] = 'throw-paper'
-        return doClipOnTie(attack)
-    if suitName == 'nd':
-        attack['id'] = PICK_POCKET
-        attack['name'] = 'PickPocket'
-        attack['animName'] = 'pickpocket'
-        return doPickPocket(attack)
-    if suitName == 'gh':
-        attack['id'] = FOUNTAIN_PEN
-        attack['name'] = 'FountainPen'
-        attack['animName'] = 'pen-squirt'
-        return doFountainPen(attack)
-    if suitName == 'ms':
-        attack['id'] = BRAIN_STORM
-        attack['name'] = 'BrainStorm'
-        attack['animName'] = 'effort'
-        return doBrainStorm(attack)
-    if suitName == 'tf':
-        attack['id'] = RED_TAPE
-        attack['name'] = 'RedTape'
-        attack['animName'] = 'throw-object'
-        return doRedTape(attack)
-    if suitName == 'm':
-        attack['id'] = BUZZ_WORD
-        attack['name'] = 'BuzzWord'
-        attack['animName'] = 'speak'
-        return doBuzzWord(attack)
-    if suitName == 'mh':
-        attack['id'] = RAZZLE_DAZZLE
-        attack['name'] = 'RazzleDazzle'
-        attack['animName'] = 'smile'
-        return doRazzleDazzle(attack)
-    if suitName == 'sc':
-        attack['id'] = WATERCOOLER
-        attack['name'] = 'Watercooler'
-        attack['animName'] = 'water-cooler'
-        return doWatercooler(attack)
-    if suitName == 'pp':
-        attack['id'] = BOUNCE_CHECK
-        attack['name'] = 'BounceCheck'
-        attack['animName'] = 'throw-paper'
-        return doBounceCheck(attack)
-    if suitName == 'tw':
-        attack['id'] = GLOWER_POWER
-        attack['name'] = 'GlowerPower'
-        attack['animName'] = 'glower'
-        return doGlowerPower(attack)
-    if suitName == 'bc':
-        attack['id'] = AUDIT
-        attack['name'] = 'Audit'
-        attack['animName'] = 'phone'
-        return doAudit(attack)
-    if suitName == 'nc':
-        attack['id'] = RED_TAPE
-        attack['name'] = 'RedTape'
-        attack['animName'] = 'throw-object'
-        return doRedTape(attack)
-    if suitName == 'mb':
-        attack['id'] = LIQUIDATE
-        attack['name'] = 'Liquidate'
-        attack['animName'] = 'magic1'
-        return doLiquidate(attack)
-    if suitName == 'ls':
-        attack['id'] = WRITE_OFF
-        attack['name'] = 'WriteOff'
-        attack['animName'] = 'hold-pencil'
-        return doWriteOff(attack)
-    if suitName == 'rb':
-        attack['id'] = TEE_OFF
-        attack['name'] = 'TeeOff'
-        attack['animName'] = 'golf-club-swing'
-        return doTeeOff(attack)
-    if suitName == 'bf':
-        attack['id'] = RUBBER_STAMP
-        attack['name'] = 'RubberStamp'
-        attack['animName'] = 'rubber-stamp'
-        return doRubberStamp(attack)
-    if suitName == 'b':
-        attack['id'] = EVICTION_NOTICE
-        attack['name'] = 'EvictionNotice'
-        attack['animName'] = 'throw-paper'
-        return doEvictionNotice(attack)
-    if suitName == 'dt':
-        attack['id'] = RUBBER_STAMP
-        attack['name'] = 'RubberStamp'
-        attack['animName'] = 'rubber-stamp'
-        return doRubberStamp(attack)
-    if suitName == 'ac':
-        attack['id'] = RED_TAPE
-        attack['name'] = 'RedTape'
-        attack['animName'] = 'throw-object'
-        return doRedTape(attack)
-    if suitName == 'bs':
-        attack['id'] = FINGER_WAG
-        attack['name'] = 'FingerWag'
-        attack['animName'] = 'finger-wag'
-        return doFingerWag(attack)
-    if suitName == 'sd':
-        attack['id'] = WRITE_OFF
-        attack['name'] = 'WriteOff'
-        attack['animName'] = 'hold-pencil'
-        return doWriteOff(attack)
-    if suitName == 'le':
-        attack['id'] = JARGON
-        attack['name'] = 'Jargon'
-        attack['animName'] = 'speak'
-        return doJargon(attack)
-    if suitName == 'bw':
-        attack['id'] = FINGER_WAG
-        attack['name'] = 'FingerWag'
-        attack['animName'] = 'finger-wag'
-        return doFingerWag(attack)
-    if suitName == 'sf':
-        attack['id'] = BUZZ_WORD
-        attack['name'] = 'BuzzWord'
-        attack['animName'] = 'speak'
-        return doBuzzWord(attack)
-    self.notify.error('doDefault() - unsupported suit type: %s' % suitName)
-    return
+    else:
+        if suitName == 'p':
+            attack['id'] = FOUNTAIN_PEN
+            attack['name'] = 'FountainPen'
+            attack['animName'] = 'pen-squirt'
+            return doFountainPen(attack)
+        if suitName == 'ym':
+            attack['id'] = RUBBER_STAMP
+            attack['name'] = 'RubberStamp'
+            attack['animName'] = 'rubber-stamp'
+            return doRubberStamp(attack)
+        if suitName == 'mm':
+            attack['id'] = FINGER_WAG
+            attack['name'] = 'FingerWag'
+            attack['animName'] = 'finger-wag'
+            return doFingerWag(attack)
+        if suitName == 'ds':
+            attack['id'] = DEMOTION
+            attack['name'] = 'Demotion'
+            attack['animName'] = 'magic1'
+            return doDemotion(attack)
+        if suitName == 'hh':
+            attack['id'] = GLOWER_POWER
+            attack['name'] = 'GlowerPower'
+            attack['animName'] = 'glower'
+            return doGlowerPower(attack)
+        if suitName == 'cr':
+            attack['id'] = PICK_POCKET
+            attack['name'] = 'PickPocket'
+            attack['animName'] = 'pickpocket'
+            return doPickPocket(attack)
+        if suitName == 'tbc':
+            attack['id'] = GLOWER_POWER
+            attack['name'] = 'GlowerPower'
+            attack['animName'] = 'glower'
+            return doGlowerPower(attack)
+        if suitName == 'cc':
+            attack['id'] = POUND_KEY
+            attack['name'] = 'PoundKey'
+            attack['animName'] = 'phone'
+            return doPoundKey(attack)
+        if suitName == 'tm':
+            attack['id'] = CLIPON_TIE
+            attack['name'] = 'ClipOnTie'
+            attack['animName'] = 'throw-paper'
+            return doClipOnTie(attack)
+        if suitName == 'nd':
+            attack['id'] = PICK_POCKET
+            attack['name'] = 'PickPocket'
+            attack['animName'] = 'pickpocket'
+            return doPickPocket(attack)
+        if suitName == 'gh':
+            attack['id'] = FOUNTAIN_PEN
+            attack['name'] = 'FountainPen'
+            attack['animName'] = 'pen-squirt'
+            return doFountainPen(attack)
+        if suitName == 'ms':
+            attack['id'] = BRAIN_STORM
+            attack['name'] = 'BrainStorm'
+            attack['animName'] = 'effort'
+            return doBrainStorm(attack)
+        if suitName == 'tf':
+            attack['id'] = RED_TAPE
+            attack['name'] = 'RedTape'
+            attack['animName'] = 'throw-object'
+            return doRedTape(attack)
+        if suitName == 'm':
+            attack['id'] = BUZZ_WORD
+            attack['name'] = 'BuzzWord'
+            attack['animName'] = 'speak'
+            return doBuzzWord(attack)
+        if suitName == 'mh':
+            attack['id'] = RAZZLE_DAZZLE
+            attack['name'] = 'RazzleDazzle'
+            attack['animName'] = 'smile'
+            return doRazzleDazzle(attack)
+        if suitName == 'sc':
+            attack['id'] = WATERCOOLER
+            attack['name'] = 'Watercooler'
+            attack['animName'] = 'water-cooler'
+            return doWatercooler(attack)
+        if suitName == 'pp':
+            attack['id'] = BOUNCE_CHECK
+            attack['name'] = 'BounceCheck'
+            attack['animName'] = 'throw-paper'
+            return doBounceCheck(attack)
+        if suitName == 'tw':
+            attack['id'] = GLOWER_POWER
+            attack['name'] = 'GlowerPower'
+            attack['animName'] = 'glower'
+            return doGlowerPower(attack)
+        if suitName == 'bc':
+            attack['id'] = AUDIT
+            attack['name'] = 'Audit'
+            attack['animName'] = 'phone'
+            return doAudit(attack)
+        if suitName == 'nc':
+            attack['id'] = RED_TAPE
+            attack['name'] = 'RedTape'
+            attack['animName'] = 'throw-object'
+            return doRedTape(attack)
+        if suitName == 'mb':
+            attack['id'] = LIQUIDATE
+            attack['name'] = 'Liquidate'
+            attack['animName'] = 'magic1'
+            return doLiquidate(attack)
+        if suitName == 'ls':
+            attack['id'] = WRITE_OFF
+            attack['name'] = 'WriteOff'
+            attack['animName'] = 'hold-pencil'
+            return doWriteOff(attack)
+        if suitName == 'rb':
+            attack['id'] = TEE_OFF
+            attack['name'] = 'TeeOff'
+            attack['animName'] = 'golf-club-swing'
+            return doTeeOff(attack)
+        if suitName == 'bf':
+            attack['id'] = RUBBER_STAMP
+            attack['name'] = 'RubberStamp'
+            attack['animName'] = 'rubber-stamp'
+            return doRubberStamp(attack)
+        if suitName == 'b':
+            attack['id'] = EVICTION_NOTICE
+            attack['name'] = 'EvictionNotice'
+            attack['animName'] = 'throw-paper'
+            return doEvictionNotice(attack)
+        if suitName == 'dt':
+            attack['id'] = RUBBER_STAMP
+            attack['name'] = 'RubberStamp'
+            attack['animName'] = 'rubber-stamp'
+            return doRubberStamp(attack)
+        if suitName == 'ac':
+            attack['id'] = RED_TAPE
+            attack['name'] = 'RedTape'
+            attack['animName'] = 'throw-object'
+            return doRedTape(attack)
+        if suitName == 'bs':
+            attack['id'] = FINGER_WAG
+            attack['name'] = 'FingerWag'
+            attack['animName'] = 'finger-wag'
+            return doFingerWag(attack)
+        if suitName == 'sd':
+            attack['id'] = WRITE_OFF
+            attack['name'] = 'WriteOff'
+            attack['animName'] = 'hold-pencil'
+            return doWriteOff(attack)
+        if suitName == 'le':
+            attack['id'] = JARGON
+            attack['name'] = 'Jargon'
+            attack['animName'] = 'speak'
+            return doJargon(attack)
+        if suitName == 'bw':
+            attack['id'] = FINGER_WAG
+            attack['name'] = 'FingerWag'
+            attack['animName'] = 'finger-wag'
+            return doFingerWag(attack)
+        if suitName == 'sf':
+            attack['id'] = BUZZ_WORD
+            attack['name'] = 'BuzzWord'
+            attack['animName'] = 'speak'
+            return doBuzzWord(attack)
+        self.notify.error('doDefault() - unsupported suit type: %s' % suitName)
+        return
 
 
 def getSuitTrack(attack, delay=1e-06, splicedAnims=None):
@@ -616,9 +553,10 @@ def getToonTrack(attack, damageDelay=1e-06, damageAnimNames=None, dodgeDelay=0.0
     if dmg > 0:
         animTrack.append(getToonTakeDamageTrack(toon, target['died'], dmg, damageDelay, damageAnimNames, splicedDamageAnims, showDamageExtraTime))
         return animTrack
-    animTrack.append(getToonDodgeTrack(target, dodgeDelay, dodgeAnimNames, splicedDodgeAnims, showMissedExtraTime))
-    indicatorTrack = Sequence(Wait(dodgeDelay + showMissedExtraTime), Func(MovieUtil.indicateMissed, toon))
-    return Parallel(animTrack, indicatorTrack)
+    else:
+        animTrack.append(getToonDodgeTrack(target, dodgeDelay, dodgeAnimNames, splicedDodgeAnims, showMissedExtraTime))
+        indicatorTrack = Sequence(Wait(dodgeDelay + showMissedExtraTime), Func(MovieUtil.indicateMissed, toon))
+        return Parallel(animTrack, indicatorTrack)
 
 
 def getToonTracks(attack, damageDelay=1e-06, damageAnimNames=None, dodgeDelay=1e-06, dodgeAnimNames=None, splicedDamageAnims=None, splicedDodgeAnims=None, showDamageExtraTime=0.01, showMissedExtraTime=0.5):
@@ -844,7 +782,8 @@ def getSoundTrack(fileName, delay=0.01, duration=None, node=None):
     soundEffect = globalBattleSoundCache.getSound(fileName)
     if duration:
         return Sequence(Wait(delay), SoundInterval(soundEffect, duration=duration, node=node))
-    return Sequence(Wait(delay), SoundInterval(soundEffect, node=node))
+    else:
+        return Sequence(Wait(delay), SoundInterval(soundEffect, node=node))
 
 
 def doClipOnTie(attack):
@@ -859,16 +798,14 @@ def doClipOnTie(attack):
         throwDelay = 2.17
         damageDelay = 3.3
         dodgeDelay = 3.1
-    else:
-        if suitType == 'b':
-            throwDelay = 2.17
-            damageDelay = 3.3
-            dodgeDelay = 3.1
-        else:
-            if suitType == 'c':
-                throwDelay = 1.45
-                damageDelay = 2.61
-                dodgeDelay = 2.34
+    elif suitType == 'b':
+        throwDelay = 2.17
+        damageDelay = 3.3
+        dodgeDelay = 3.1
+    elif suitType == 'c':
+        throwDelay = 1.45
+        damageDelay = 2.61
+        dodgeDelay = 2.34
     suitTrack = getSuitTrack(attack)
     posPoints = [Point3(0.66, 0.51, 0.28), VBase3(-69.652, -17.199, 67.96)]
     tiePropTrack = Sequence(getPropAppearTrack(tie, suit.getRightHand(), posPoints, 0.5, MovieUtil.PNT3_ONE, scaleUpTime=0.5, poseExtraArgs=['clip-on-tie', 0]))
@@ -1008,7 +945,8 @@ def doFillWithLead(attack):
         colorTrack.append(resetParts(legsParts))
         colorTrack.append(Func(battle.movie.clearRestoreColor))
         return Parallel(suitTrack, pencilPropTrack, sharpenerPropTrack, sprayTrack, headTrack, torsoTrack, legsTrack, colorTrack, toonTrack)
-    return Parallel(suitTrack, pencilPropTrack, sharpenerPropTrack, sprayTrack, toonTrack)
+    else:
+        return Parallel(suitTrack, pencilPropTrack, sharpenerPropTrack, sprayTrack, toonTrack)
 
 
 def doFountainPen(attack):
@@ -1139,7 +1077,8 @@ def doRubOut(attack):
         hideTrack.append(showParts(legsParts))
         hideTrack.append(Func(battle.movie.clearRestoreColor))
         return Parallel(suitTrack, toonTrack, padPropTrack, pencilPropTrack, soundTrack, hideTrack, headTrack, torsoTrack, legsTrack)
-    return Parallel(suitTrack, toonTrack, padPropTrack, pencilPropTrack, soundTrack)
+    else:
+        return Parallel(suitTrack, toonTrack, padPropTrack, pencilPropTrack, soundTrack)
 
 
 def doFingerWag(attack):
@@ -1153,35 +1092,29 @@ def doFingerWag(attack):
         partDelay = 1.3
         damageDelay = 2.7
         dodgeDelay = 1.7
-    else:
-        if suitType == 'b':
-            partDelay = 1.3
-            damageDelay = 2.7
-            dodgeDelay = 1.8
-        else:
-            if suitType == 'c':
-                partDelay = 1.3
-                damageDelay = 2.7
-                dodgeDelay = 2.0
+    elif suitType == 'b':
+        partDelay = 1.3
+        damageDelay = 2.7
+        dodgeDelay = 1.8
+    elif suitType == 'c':
+        partDelay = 1.3
+        damageDelay = 2.7
+        dodgeDelay = 2.0
     suitTrack = getSuitTrack(attack)
     partTrack = getPartTrack(particleEffect, partDelay, 2, [particleEffect, suit, 0])
     suitName = attack['suitName']
     if suitName == 'mm':
         particleEffect.setPos(0.167, 1.5, 2.731)
-    else:
-        if suitName == 'tw':
-            particleEffect.setPos(0.167, 1.8, 5)
-            particleEffect.setHpr(-90.0, -60.0, 180.0)
-        else:
-            if suitName == 'pp':
-                particleEffect.setPos(0.167, 1, 4.1)
-            else:
-                if suitName == 'bs':
-                    particleEffect.setPos(0.167, 1, 5.1)
-                else:
-                    if suitName == 'bw':
-                        particleEffect.setPos(0.167, 1.9, suit.getHeight() - 1.8)
-                        particleEffect.setP(-110)
+    elif suitName == 'tw':
+        particleEffect.setPos(0.167, 1.8, 5)
+        particleEffect.setHpr(-90.0, -60.0, 180.0)
+    elif suitName == 'pp':
+        particleEffect.setPos(0.167, 1, 4.1)
+    elif suitName == 'bs':
+        particleEffect.setPos(0.167, 1, 5.1)
+    elif suitName == 'bw':
+        particleEffect.setPos(0.167, 1.9, suit.getHeight() - 1.8)
+        particleEffect.setP(-110)
     toonTrack = getToonTrack(attack, damageDelay, ['slip-backward'], dodgeDelay, ['sidestep'])
     soundTrack = getSoundTrack('SA_finger_wag.ogg', delay=1.3, node=suit)
     return Parallel(suitTrack, toonTrack, partTrack, soundTrack)
@@ -1230,15 +1163,14 @@ def doRubberStamp(attack):
         padPosPoints = [
          Point3(-0.65, 0.83, -0.04), VBase3(5.625, 4.456, -165.125)]
         stampPosPoints = [Point3(-0.64, -0.17, -0.03), MovieUtil.PNT3_ZERO]
+    elif suitType == 'c':
+        padPosPoints = [
+         Point3(0.19, -0.55, -0.21), VBase3(-166.76, -4.001, -1.658)]
+        stampPosPoints = [Point3(-0.64, -0.08, 0.11), MovieUtil.PNT3_ZERO]
     else:
-        if suitType == 'c':
-            padPosPoints = [
-             Point3(0.19, -0.55, -0.21), VBase3(-166.76, -4.001, -1.658)]
-            stampPosPoints = [Point3(-0.64, -0.08, 0.11), MovieUtil.PNT3_ZERO]
-        else:
-            padPosPoints = [
-             Point3(-0.65, 0.83, -0.04), VBase3(5.625, 4.456, -165.125)]
-            stampPosPoints = [Point3(-0.64, -0.17, -0.03), MovieUtil.PNT3_ZERO]
+        padPosPoints = [
+         Point3(-0.65, 0.83, -0.04), VBase3(5.625, 4.456, -165.125)]
+        stampPosPoints = [Point3(-0.64, -0.17, -0.03), MovieUtil.PNT3_ZERO]
     padPropTrack = getPropTrack(pad, suit.getLeftHand(), padPosPoints, 1e-06, 3.2)
     missPoint = lambda cancelled=cancelled, toon=toon: __toonMissPoint(cancelled, toon)
     propTrack = Sequence(Func(__showProp, stamp, suit.getRightHand(), stampPosPoints[0], stampPosPoints[1]), LerpScaleInterval(stamp, 0.5, MovieUtil.PNT3_ONE), Wait(2.6), Func(battle.movie.needRestoreRenderProp, cancelled), Func(cancelled.reparentTo, render), Func(cancelled.setScale, 0.6), Func(cancelled.setPosHpr, stamp, 0.81, -1.11, -0.16, 0, 0, 90), Func(cancelled.setP, 0), Func(cancelled.setR, 0))
@@ -1304,7 +1236,8 @@ def doSynergy(attack):
     if hitAtleastOneToon > 0:
         fallingSoundTrack = Sequence(Wait(damageDelay + 0.5), SoundInterval(globalBattleSoundCache.getSound('Toon_bodyfall_synergy.ogg'), node=suit))
         return Parallel(suitTrack, partTrack, waterfallTrack, synergySoundTrack, fallingSoundTrack, toonTracks)
-    return Parallel(suitTrack, partTrack, waterfallTrack, synergySoundTrack, toonTracks)
+    else:
+        return Parallel(suitTrack, partTrack, waterfallTrack, synergySoundTrack, toonTracks)
 
 
 def doTeeOff(attack):
@@ -1321,21 +1254,18 @@ def doTeeOff(attack):
     if suitName == 'ym':
         ballPosPoints = [
          Point3(2.1, 0, 0.1)]
+    elif suitName == 'tbc':
+        ballPosPoints = [
+         Point3(4.1, 0, 0.1)]
+    elif suitName == 'm':
+        ballPosPoints = [
+         Point3(3.2, 0, 0.1)]
+    elif suitName == 'rb':
+        ballPosPoints = [
+         Point3(4.2, 0, 0.1)]
     else:
-        if suitName == 'tbc':
-            ballPosPoints = [
-             Point3(4.1, 0, 0.1)]
-        else:
-            if suitName == 'm':
-                ballPosPoints = [
-                 Point3(3.2, 0, 0.1)]
-            else:
-                if suitName == 'rb':
-                    ballPosPoints = [
-                     Point3(4.2, 0, 0.1)]
-                else:
-                    ballPosPoints = [
-                     Point3(2.1, 0, 0.1)]
+        ballPosPoints = [
+         Point3(2.1, 0, 0.1)]
     ballPropTrack = Sequence(getPropAppearTrack(ball, suit, ballPosPoints, 1.7, Point3(1.5, 1.5, 1.5)), Func(battle.movie.needRestoreRenderProp, ball), Func(ball.wrtReparentTo, render), Wait(2.15))
     missPoint = lambda ball=ball, toon=toon: __toonMissPoint(ball, toon)
     ballPropTrack.append(getPropThrowTrack(attack, ball, [__toonFacePoint(toon)], [missPoint]))
@@ -1365,16 +1295,14 @@ def doBrainStorm(attack):
         partDelay = 1.2
         damageDelay = 4.5
         dodgeDelay = 3.3
-    else:
-        if suitType == 'b':
-            partDelay = 1.2
-            damageDelay = 4.5
-            dodgeDelay = 3.3
-        else:
-            if suitType == 'c':
-                partDelay = 1.2
-                damageDelay = 4.5
-                dodgeDelay = 3.3
+    elif suitType == 'b':
+        partDelay = 1.2
+        damageDelay = 4.5
+        dodgeDelay = 3.3
+    elif suitType == 'c':
+        partDelay = 1.2
+        damageDelay = 4.5
+        dodgeDelay = 3.3
     suitTrack = getSuitTrack(attack, delay=0.9)
     initialCloudHeight = suit.height + 3
     cloudPosPoints = [Point3(0, 3, initialCloudHeight), VBase3(180, 0, 0)]
@@ -1429,18 +1357,16 @@ def doBuzzWord(attack):
         partDuration = 2.2
         damageDelay = 4.5
         dodgeDelay = 3.8
-    else:
-        if suitType == 'b':
-            partDelay = 1.3
-            partDuration = 2
-            damageDelay = 2.5
-            dodgeDelay = 1.8
-        else:
-            if suitType == 'c':
-                partDelay = 4.0
-                partDuration = 2.2
-                damageDelay = 4.5
-                dodgeDelay = 3.8
+    elif suitType == 'b':
+        partDelay = 1.3
+        partDuration = 2
+        damageDelay = 2.5
+        dodgeDelay = 1.8
+    elif suitType == 'c':
+        partDelay = 4.0
+        partDuration = 2.2
+        damageDelay = 4.5
+        dodgeDelay = 3.8
     suitName = suit.getStyleName()
     if suitName == 'm':
         for effect in particleEffects:
@@ -1452,10 +1378,10 @@ def doBuzzWord(attack):
             for effect in particleEffects:
                 effect.setPos(0, 2.1, suit.getHeight() - 0.8)
 
-    suitTrack = getSuitTrack(attack)
-    particleTracks = []
-    for effect in particleEffects:
-        particleTracks.append(getPartTrack(effect, partDelay, partDuration, [effect, suit, 0]))
+        suitTrack = getSuitTrack(attack)
+        particleTracks = []
+        for effect in particleEffects:
+            particleTracks.append(getPartTrack(effect, partDelay, partDuration, [effect, suit, 0]))
 
     toonTrack = getToonTrack(attack, damageDelay=damageDelay, damageAnimNames=['cringe'], splicedDodgeAnims=[['duck', dodgeDelay, 1.4]], showMissedExtraTime=dodgeDelay + 0.5)
     soundTrack = getSoundTrack('SA_buzz_word.ogg', delay=3.9, node=suit)
@@ -1496,7 +1422,8 @@ def doDemotion(attack):
     soundTrack = getSoundTrack('SA_demotion.ogg', delay=1.2, node=suit)
     if dmg > 0:
         return Parallel(suitTrack, toonTrack, soundTrack, partTrack, partTrack2, partTrack3)
-    return Parallel(suitTrack, toonTrack, soundTrack, partTrack)
+    else:
+        return Parallel(suitTrack, toonTrack, soundTrack, partTrack)
 
 
 def doCanned(attack):
@@ -1521,12 +1448,10 @@ def doCanned(attack):
     torso = torso[0]
     if torso == 's':
         scaleUpPoint = Point3(scale * 2.63, scale * 2.63, scale * 1.9975)
-    else:
-        if torso == 'm':
-            scaleUpPoint = Point3(scale * 2.63, scale * 2.63, scale * 1.7975)
-        else:
-            if torso == 'l':
-                scaleUpPoint = Point3(scale * 2.63, scale * 2.63, scale * 2.31)
+    elif torso == 'm':
+        scaleUpPoint = Point3(scale * 2.63, scale * 2.63, scale * 1.7975)
+    elif torso == 'l':
+        scaleUpPoint = Point3(scale * 2.63, scale * 2.63, scale * 2.31)
     canHpr = VBase3(-173.47, -0.42, 162.09)
     suitTrack = getSuitTrack(attack)
     posPoints = [Point3(-0.14, 0.15, 0.08), VBase3(-10.584, 11.945, -161.684)]
@@ -1626,7 +1551,8 @@ def doDownsize(attack):
     toonTrack = getToonTrack(attack, damageDelay=damageDelay, splicedDamageAnims=damageAnims, dodgeDelay=0.6, dodgeAnimNames=['sidestep'])
     if dmg > 0:
         return Parallel(suitTrack, sprayTrack, cloudTrack, shrinkTrack, toonTrack)
-    return Parallel(suitTrack, sprayTrack, toonTrack)
+    else:
+        return Parallel(suitTrack, sprayTrack, toonTrack)
 
 
 def doPinkSlip(attack):
@@ -1821,24 +1747,26 @@ def doGlowerPower(attack):
             leftPosPoints = [
              Point3(0.4, 3.8, 3.7), MovieUtil.PNT3_ZERO]
             rightPosPoints = [Point3(-0.4, 3.8, 3.7), MovieUtil.PNT3_ZERO]
-    leftKnifeTracks = Parallel()
-    rightKnifeTracks = Parallel()
-    for i in xrange(0, 3):
-        knifeDelay = 0.11
-        leftTrack = Sequence()
-        leftTrack.append(Wait(1.1))
-        leftTrack.append(Wait(i * knifeDelay))
-        leftTrack.append(getPropAppearTrack(leftKnives[i], suit, leftPosPoints, 1e-06, Point3(0.4, 0.4, 0.4), scaleUpTime=0.1))
-        leftTrack.append(getPropThrowTrack(attack, leftKnives[i], hitPointNames=['face'], missPointNames=['miss'], hitDuration=0.3, missDuration=0.3))
-        leftKnifeTracks.append(leftTrack)
-        rightTrack = Sequence()
-        rightTrack.append(Wait(1.1))
-        rightTrack.append(Wait(i * knifeDelay))
-        rightTrack.append(getPropAppearTrack(rightKnives[i], suit, rightPosPoints, 1e-06, Point3(0.4, 0.4, 0.4), scaleUpTime=0.1))
-        rightTrack.append(getPropThrowTrack(attack, rightKnives[i], hitPointNames=['face'], missPointNames=['miss'], hitDuration=0.3, missDuration=0.3))
-        rightKnifeTracks.append(rightTrack)
+        leftKnifeTracks = Parallel()
+        rightKnifeTracks = Parallel()
+        for i in xrange(0, 3):
+            knifeDelay = 0.11
+            leftTrack = Sequence()
+            leftTrack.append(Wait(1.1))
+            leftTrack.append(Wait(i * knifeDelay))
+            leftTrack.append(getPropAppearTrack(leftKnives[i], suit, leftPosPoints, 1e-06, Point3(0.4, 0.4, 0.4), scaleUpTime=0.1))
+            leftTrack.append(getPropThrowTrack(attack, leftKnives[i], hitPointNames=['face'], missPointNames=['miss'], hitDuration=0.3, missDuration=0.3))
+            leftKnifeTracks.append(leftTrack)
+            rightTrack = Sequence()
+            rightTrack.append(Wait(1.1))
+            rightTrack.append(Wait(i * knifeDelay))
+            rightTrack.append(getPropAppearTrack(rightKnives[i], suit, rightPosPoints, 1e-06, Point3(0.4, 0.4, 0.4), scaleUpTime=0.1))
+            rightTrack.append(getPropThrowTrack(attack, rightKnives[i], hitPointNames=['face'], missPointNames=['miss'], hitDuration=0.3, missDuration=0.3))
+            rightKnifeTracks.append(rightTrack)
 
-    damageAnims = [['slip-backward', 0.01, 0.35]]
+    damageAnims = [
+     [
+      'slip-backward', 0.01, 0.35]]
     toonTrack = getToonTrack(attack, damageDelay=1.6, splicedDamageAnims=damageAnims, dodgeDelay=0.7, dodgeAnimNames=['sidestep'])
     soundTrack = getSoundTrack('SA_glower_power.ogg', delay=1.1, node=suit)
     return Parallel(suitTrack, toonTrack, soundTrack, leftKnifeTracks, rightKnifeTracks)
@@ -1972,7 +1900,8 @@ def doHeadShrink(attack):
         growSound = globalBattleSoundCache.getSound('SA_head_grow_back_only.ogg')
         soundTrack = Sequence(Wait(2.1), SoundInterval(shrinkSound, duration=2.1, node=suit), Wait(1.6), SoundInterval(growSound, node=suit))
         return Parallel(suitTrack, sprayTrack, cloudTrack, dropTrack, toonTrack, shrinkTrack, soundTrack)
-    return Parallel(suitTrack, sprayTrack, cloudTrack, dropTrack, toonTrack)
+    else:
+        return Parallel(suitTrack, sprayTrack, cloudTrack, dropTrack, toonTrack)
 
 
 def doRolodex(attack):
@@ -1996,32 +1925,30 @@ def doRolodex(attack):
         part3Duration = 1
         damageDelay = 3.8
         dodgeDelay = 2.5
-    else:
-        if suitType == 'b':
-            propPosPoints = [
-             Point3(0.12, 0.24, 0.01), VBase3(99.032, 5.973, -179.839)]
-            propScale = Point3(0.91, 0.91, 0.91)
-            partDelay = 2.9
-            part2Delay = 3.1
-            part3Delay = 3.5
-            partDuration = 1.6
-            part2Duration = 1.9
-            part3Duration = 1
-            damageDelay = 4
-            dodgeDelay = 2.5
-        else:
-            if suitType == 'c':
-                propPosPoints = [
-                 Point3(-0.51, -0.03, -0.1), VBase3(89.673, 2.166, 177.786)]
-                propScale = Point3(1.2, 1.2, 1.2)
-                partDelay = 2.3
-                part2Delay = 2.8
-                part3Delay = 3.2
-                partDuration = 1.9
-                part2Duration = 1.9
-                part3Duration = 1
-                damageDelay = 3.5
-                dodgeDelay = 2.5
+    elif suitType == 'b':
+        propPosPoints = [
+         Point3(0.12, 0.24, 0.01), VBase3(99.032, 5.973, -179.839)]
+        propScale = Point3(0.91, 0.91, 0.91)
+        partDelay = 2.9
+        part2Delay = 3.1
+        part3Delay = 3.5
+        partDuration = 1.6
+        part2Duration = 1.9
+        part3Duration = 1
+        damageDelay = 4
+        dodgeDelay = 2.5
+    elif suitType == 'c':
+        propPosPoints = [
+         Point3(-0.51, -0.03, -0.1), VBase3(89.673, 2.166, 177.786)]
+        propScale = Point3(1.2, 1.2, 1.2)
+        partDelay = 2.3
+        part2Delay = 2.8
+        part3Delay = 3.2
+        partDuration = 1.9
+        part2Duration = 1.9
+        part3Duration = 1
+        damageDelay = 3.5
+        dodgeDelay = 2.5
     hitPoint = lambda toon=toon: __toonFacePoint(toon)
     partTrack2 = getPartTrack(particleEffect2, part2Delay, part2Duration, [particleEffect2, suit, 0])
     partTrack3 = getPartTrack(particleEffect3, part3Delay, part3Duration, [particleEffect3, suit, 0])
@@ -2045,17 +1972,15 @@ def doEvilEye(attack):
     if suitName == 'cr':
         posPoints = [
          Point3(-0.46, 4.85, 5.28), VBase3(-155.0, -20.0, 0.0)]
+    elif suitName == 'tf':
+        posPoints = [
+         Point3(-0.4, 3.65, 5.01), VBase3(-155.0, -20.0, 0.0)]
+    elif suitName == 'le':
+        posPoints = [
+         Point3(-0.64, 4.45, 5.91), VBase3(-155.0, -20.0, 0.0)]
     else:
-        if suitName == 'tf':
-            posPoints = [
-             Point3(-0.4, 3.65, 5.01), VBase3(-155.0, -20.0, 0.0)]
-        else:
-            if suitName == 'le':
-                posPoints = [
-                 Point3(-0.64, 4.45, 5.91), VBase3(-155.0, -20.0, 0.0)]
-            else:
-                posPoints = [
-                 Point3(-0.4, 3.65, 5.01), VBase3(-155.0, -20.0, 0.0)]
+        posPoints = [
+         Point3(-0.4, 3.65, 5.01), VBase3(-155.0, -20.0, 0.0)]
     appearDelay = 0.8
     suitHoldStart = 1.06
     suitHoldStop = 1.69
@@ -2101,16 +2026,14 @@ def doPlayHardball(attack):
         suitDelay = 1.09
         damageDelay = 2.76
         dodgeDelay = 1.86
-    else:
-        if suitType == 'b':
-            suitDelay = 1.79
-            damageDelay = 3.46
-            dodgeDelay = 2.56
-        else:
-            if suitType == 'c':
-                suitDelay = 1.09
-                damageDelay = 2.76
-                dodgeDelay = 1.86
+    elif suitType == 'b':
+        suitDelay = 1.79
+        damageDelay = 3.46
+        dodgeDelay = 2.56
+    elif suitType == 'c':
+        suitDelay = 1.09
+        damageDelay = 2.76
+        dodgeDelay = 1.86
     suitTrack = getSuitTrack(attack)
     ballPosPoints = [Point3(0.04, 0.03, -0.31), VBase3(-1.152, 86.581, -76.784)]
     propTrack = Sequence(getPropAppearTrack(ball, suit.getRightHand(), ballPosPoints, 0.8, Point3(5, 5, 5), scaleUpTime=0.5))
@@ -2167,28 +2090,27 @@ def doPowerTie(attack):
         throwDelay = 2.17
         damageDelay = 3.3
         dodgeDelay = 3.1
+    elif suitType == 'b':
+        throwDelay = 2.17
+        damageDelay = 3.3
+        dodgeDelay = 3.1
+    elif suitType == 'c':
+        throwDelay = 1.45
+        damageDelay = 2.61
+        dodgeDelay = 2.34
+    suitTrack = getSuitTrack(attack)
+    posPoints = [Point3(1.16, 0.24, 0.63), VBase3(171.561, 1.745, -163.443)]
+    tiePropTrack = Sequence(getPropAppearTrack(tie, suit.getRightHand(), posPoints, 0.5, Point3(3.5, 3.5, 3.5), scaleUpTime=0.5))
+    tiePropTrack.append(Wait(throwDelay))
+    tiePropTrack.append(Func(tie.setBillboardPointEye))
+    tiePropTrack.append(getPropThrowTrack(attack, tie, [__toonFacePoint(toon)], [__toonGroundPoint(attack, toon, 0.1)], hitDuration=0.4, missDuration=0.8))
+    toonTrack = getToonTrack(attack, damageDelay, ['conked'], dodgeDelay, ['sidestep'])
+    throwSound = getSoundTrack('SA_powertie_throw.ogg', delay=2.3, node=suit)
+    if dmg > 0:
+        hitSound = getSoundTrack('SA_powertie_impact.ogg', delay=2.9, node=suit)
+        return Parallel(suitTrack, toonTrack, tiePropTrack, throwSound, hitSound)
     else:
-        if suitType == 'b':
-            throwDelay = 2.17
-            damageDelay = 3.3
-            dodgeDelay = 3.1
-        else:
-            if suitType == 'c':
-                throwDelay = 1.45
-                damageDelay = 2.61
-                dodgeDelay = 2.34
-        suitTrack = getSuitTrack(attack)
-        posPoints = [Point3(1.16, 0.24, 0.63), VBase3(171.561, 1.745, -163.443)]
-        tiePropTrack = Sequence(getPropAppearTrack(tie, suit.getRightHand(), posPoints, 0.5, Point3(3.5, 3.5, 3.5), scaleUpTime=0.5))
-        tiePropTrack.append(Wait(throwDelay))
-        tiePropTrack.append(Func(tie.setBillboardPointEye))
-        tiePropTrack.append(getPropThrowTrack(attack, tie, [__toonFacePoint(toon)], [__toonGroundPoint(attack, toon, 0.1)], hitDuration=0.4, missDuration=0.8))
-        toonTrack = getToonTrack(attack, damageDelay, ['conked'], dodgeDelay, ['sidestep'])
-        throwSound = getSoundTrack('SA_powertie_throw.ogg', delay=2.3, node=suit)
-        if dmg > 0:
-            hitSound = getSoundTrack('SA_powertie_impact.ogg', delay=2.9, node=suit)
-            return Parallel(suitTrack, toonTrack, tiePropTrack, throwSound, hitSound)
-    return Parallel(suitTrack, toonTrack, tiePropTrack, throwSound)
+        return Parallel(suitTrack, toonTrack, tiePropTrack, throwSound)
 
 
 def doDoubleTalk(attack):
@@ -2204,16 +2126,14 @@ def doDoubleTalk(attack):
         partDelay = 3.3
         damageDelay = 3.5
         dodgeDelay = 3.3
-    else:
-        if suitType == 'b':
-            partDelay = 3.3
-            damageDelay = 3.5
-            dodgeDelay = 3.3
-        else:
-            if suitType == 'c':
-                partDelay = 3.3
-                damageDelay = 3.5
-                dodgeDelay = 3.3
+    elif suitType == 'b':
+        partDelay = 3.3
+        damageDelay = 3.5
+        dodgeDelay = 3.3
+    elif suitType == 'c':
+        partDelay = 3.3
+        damageDelay = 3.5
+        dodgeDelay = 3.3
     suitTrack = getSuitTrack(attack)
     partTrack = getPartTrack(particleEffect, partDelay, 1.8, [particleEffect, suit, 0])
     partTrack2 = getPartTrack(particleEffect2, partDelay, 1.8, [particleEffect2, suit, 0])
@@ -2241,16 +2161,14 @@ def doFreezeAssets(attack):
         partDelay = 0.2
         damageDelay = 3.5
         dodgeDelay = 2.3
-    else:
-        if suitType == 'b':
-            partDelay = 0.2
-            damageDelay = 3.5
-            dodgeDelay = 2.3
-        else:
-            if suitType == 'c':
-                partDelay = 0.2
-                damageDelay = 3.5
-                dodgeDelay = 2.3
+    elif suitType == 'b':
+        partDelay = 0.2
+        damageDelay = 3.5
+        dodgeDelay = 2.3
+    elif suitType == 'c':
+        partDelay = 0.2
+        damageDelay = 3.5
+        dodgeDelay = 2.3
     suitTrack = getSuitTrack(attack, delay=0.9)
     initialCloudHeight = suit.height + 3
     cloudPosPoints = [Point3(0, 3, initialCloudHeight), MovieUtil.PNT3_ZERO]
@@ -2351,7 +2269,8 @@ def doHotAir(attack):
     soundTrack = getSoundTrack('SA_hot_air.ogg', delay=1.6, node=suit)
     if dmg > 0:
         return Parallel(suitTrack, toonTrack, sprayTrack, soundTrack, baseFlameTrack, flameTrack, flecksTrack, colorTrack)
-    return Parallel(suitTrack, toonTrack, sprayTrack, soundTrack)
+    else:
+        return Parallel(suitTrack, toonTrack, sprayTrack, soundTrack)
 
 
 def doPickPocket(attack):
@@ -2407,7 +2326,8 @@ def doFilibuster(attack):
     soundTrack = getSoundTrack('SA_filibuster.ogg', delay=1.1, node=suit)
     if dmg > 0:
         return Parallel(suitTrack, toonTrack, soundTrack, sprayTrack, sprayTrack2, sprayTrack3, sprayTrack4)
-    return Parallel(suitTrack, toonTrack, soundTrack, sprayTrack, sprayTrack2, sprayTrack3)
+    else:
+        return Parallel(suitTrack, toonTrack, soundTrack, sprayTrack, sprayTrack2, sprayTrack3)
 
 
 def doSchmooze(attack):
@@ -2443,19 +2363,19 @@ def doSchmooze(attack):
                 partDelay = 1.3
                 damageDelay = partDelay + 1.4
                 dodgeDelay = 0.9
-    suitTrack = getSuitTrack(attack)
-    upperPartTracks = Parallel()
-    lowerPartTracks = Parallel()
-    for i in xrange(0, 4):
-        upperPartTracks.append(getPartTrack(upperEffects[i], partDelay + i * 0.65, 0.8, [upperEffects[i], suit, 0]))
-        lowerPartTracks.append(getPartTrack(lowerEffects[i], partDelay + i * 0.65 + 0.7, 1.0, [lowerEffects[i], suit, 0]))
+            suitTrack = getSuitTrack(attack)
+            upperPartTracks = Parallel()
+            lowerPartTracks = Parallel()
+            for i in xrange(0, 4):
+                upperPartTracks.append(getPartTrack(upperEffects[i], partDelay + i * 0.65, 0.8, [upperEffects[i], suit, 0]))
+                lowerPartTracks.append(getPartTrack(lowerEffects[i], partDelay + i * 0.65 + 0.7, 1.0, [lowerEffects[i], suit, 0]))
 
-    damageAnims = []
-    for i in xrange(0, 3):
-        damageAnims.append(['conked',
-         0.01,
-         0.3,
-         0.71])
+        damageAnims = []
+        for i in xrange(0, 3):
+            damageAnims.append(['conked',
+             0.01,
+             0.3,
+             0.71])
 
     damageAnims.append(['conked', 0.01, 0.3])
     dodgeAnims = []
@@ -2568,9 +2488,8 @@ def doRedTape(attack):
     else:
         if torso == 'm':
             scaleUpPoint = Point3(scale * 2.03, scale * 2.03, scale * 0.7975)
-        else:
-            if torso == 'l':
-                scaleUpPoint = Point3(scale * 2.03, scale * 2.03, scale * 1.11)
+        elif torso == 'l':
+            scaleUpPoint = Point3(scale * 2.03, scale * 2.03, scale * 1.11)
         if animal == 'h' or animal == 'd':
             tubeHeight = -0.87
             scaleUpPoint = Point3(scale * 1.69, scale * 1.69, scale * 0.67)
@@ -2582,12 +2501,13 @@ def doRedTape(attack):
             nextPart = hips.getPath(partNum)
             tubeTracks.append(getPropTrack(tubes[partNum], nextPart, tubePosPoints, 3.25, 3.17, scaleUpPoint=scaleUpPoint))
 
-        tubeTracks.append(Func(battle.movie.clearRestoreHips))
-        toonTrack = getToonTrack(attack, 3.4, ['struggle'], 2.8, ['jump'])
-        soundTrack = getSoundTrack('SA_red_tape.ogg', delay=2.9, node=suit)
-        if dmg > 0:
-            return Parallel(suitTrack, toonTrack, propTrack, soundTrack, tubeTracks)
-    return Parallel(suitTrack, toonTrack, propTrack, soundTrack)
+    tubeTracks.append(Func(battle.movie.clearRestoreHips))
+    toonTrack = getToonTrack(attack, 3.4, ['struggle'], 2.8, ['jump'])
+    soundTrack = getSoundTrack('SA_red_tape.ogg', delay=2.9, node=suit)
+    if dmg > 0:
+        return Parallel(suitTrack, toonTrack, propTrack, soundTrack, tubeTracks)
+    else:
+        return Parallel(suitTrack, toonTrack, propTrack, soundTrack)
 
 
 def doParadigmShift(attack):
@@ -2610,54 +2530,54 @@ def doParadigmShift(attack):
             sprayEffect.setPos(Point3(-5.2, 4.6, 2.7))
         else:
             sprayEffect.setPos(Point3(0.1, 4.6, 2.7))
-    suitTrack = getSuitAnimTrack(attack)
-    sprayTrack = getPartTrack(sprayEffect, 1.0, 1.9, [sprayEffect, suit, 0])
-    liftTracks = Parallel()
-    toonRiseTracks = Parallel()
-    for t in targets:
-        toon = t['toon']
-        dmg = t['hp']
-        if dmg > 0:
-            liftEffect = BattleParticles.createParticleEffect('ShiftLift')
-            liftEffect.setPos(toon.getPos(battle))
-            liftEffect.setZ(liftEffect.getZ() - 1.3)
-            liftTracks.append(getPartTrack(liftEffect, 1.1, 4.1, [liftEffect, battle, 0]))
-            shadow = toon.dropShadow
-            fakeShadow = MovieUtil.copyProp(shadow)
-            x = toon.getX()
-            y = toon.getY()
-            z = toon.getZ()
-            height = 3
-            groundPoint = Point3(x, y, z)
-            risePoint = Point3(x, y, z + height)
-            shakeRight = Point3(x, y + 0.7, z + height)
-            shakeLeft = Point3(x, y - 0.7, z + height)
-            shakeTrack = Sequence()
-            shakeTrack.append(Wait(damageDelay + 0.25))
-            shakeTrack.append(Func(shadow.hide))
-            shakeTrack.append(LerpPosInterval(toon, 1.1, risePoint))
-            for i in xrange(0, 17):
-                shakeTrack.append(LerpPosInterval(toon, 0.03, shakeLeft))
-                shakeTrack.append(LerpPosInterval(toon, 0.03, shakeRight))
+        suitTrack = getSuitAnimTrack(attack)
+        sprayTrack = getPartTrack(sprayEffect, 1.0, 1.9, [sprayEffect, suit, 0])
+        liftTracks = Parallel()
+        toonRiseTracks = Parallel()
+        for t in targets:
+            toon = t['toon']
+            dmg = t['hp']
+            if dmg > 0:
+                liftEffect = BattleParticles.createParticleEffect('ShiftLift')
+                liftEffect.setPos(toon.getPos(battle))
+                liftEffect.setZ(liftEffect.getZ() - 1.3)
+                liftTracks.append(getPartTrack(liftEffect, 1.1, 4.1, [liftEffect, battle, 0]))
+                shadow = toon.dropShadow
+                fakeShadow = MovieUtil.copyProp(shadow)
+                x = toon.getX()
+                y = toon.getY()
+                z = toon.getZ()
+                height = 3
+                groundPoint = Point3(x, y, z)
+                risePoint = Point3(x, y, z + height)
+                shakeRight = Point3(x, y + 0.7, z + height)
+                shakeLeft = Point3(x, y - 0.7, z + height)
+                shakeTrack = Sequence()
+                shakeTrack.append(Wait(damageDelay + 0.25))
+                shakeTrack.append(Func(shadow.hide))
+                shakeTrack.append(LerpPosInterval(toon, 1.1, risePoint))
+                for i in xrange(0, 17):
+                    shakeTrack.append(LerpPosInterval(toon, 0.03, shakeLeft))
+                    shakeTrack.append(LerpPosInterval(toon, 0.03, shakeRight))
 
-            shakeTrack.append(LerpPosInterval(toon, 0.1, risePoint))
-            shakeTrack.append(LerpPosInterval(toon, 0.1, groundPoint))
-            shakeTrack.append(Func(shadow.show))
-            shadowTrack = Sequence()
-            shadowTrack.append(Func(battle.movie.needRestoreRenderProp, fakeShadow))
-            shadowTrack.append(Wait(damageDelay + 0.25))
-            shadowTrack.append(Func(fakeShadow.hide))
-            shadowTrack.append(Func(fakeShadow.setScale, 0.27))
-            shadowTrack.append(Func(fakeShadow.reparentTo, toon))
-            shadowTrack.append(Func(fakeShadow.setPos, MovieUtil.PNT3_ZERO))
-            shadowTrack.append(Func(fakeShadow.wrtReparentTo, battle))
-            shadowTrack.append(Func(fakeShadow.show))
-            shadowTrack.append(LerpScaleInterval(fakeShadow, 0.4, Point3(0.17, 0.17, 0.17)))
-            shadowTrack.append(Wait(1.81))
-            shadowTrack.append(LerpScaleInterval(fakeShadow, 0.1, Point3(0.27, 0.27, 0.27)))
-            shadowTrack.append(Func(MovieUtil.removeProp, fakeShadow))
-            shadowTrack.append(Func(battle.movie.clearRenderProp, fakeShadow))
-            toonRiseTracks.append(Parallel(shakeTrack, shadowTrack))
+                shakeTrack.append(LerpPosInterval(toon, 0.1, risePoint))
+                shakeTrack.append(LerpPosInterval(toon, 0.1, groundPoint))
+                shakeTrack.append(Func(shadow.show))
+                shadowTrack = Sequence()
+                shadowTrack.append(Func(battle.movie.needRestoreRenderProp, fakeShadow))
+                shadowTrack.append(Wait(damageDelay + 0.25))
+                shadowTrack.append(Func(fakeShadow.hide))
+                shadowTrack.append(Func(fakeShadow.setScale, 0.27))
+                shadowTrack.append(Func(fakeShadow.reparentTo, toon))
+                shadowTrack.append(Func(fakeShadow.setPos, MovieUtil.PNT3_ZERO))
+                shadowTrack.append(Func(fakeShadow.wrtReparentTo, battle))
+                shadowTrack.append(Func(fakeShadow.show))
+                shadowTrack.append(LerpScaleInterval(fakeShadow, 0.4, Point3(0.17, 0.17, 0.17)))
+                shadowTrack.append(Wait(1.81))
+                shadowTrack.append(LerpScaleInterval(fakeShadow, 0.1, Point3(0.27, 0.27, 0.27)))
+                shadowTrack.append(Func(MovieUtil.removeProp, fakeShadow))
+                shadowTrack.append(Func(battle.movie.clearRenderProp, fakeShadow))
+                toonRiseTracks.append(Parallel(shakeTrack, shadowTrack))
 
     damageAnims = []
     damageAnims.extend(getSplicedLerpAnims('think', 0.66, 1.9, startTime=2.06))
@@ -2673,7 +2593,8 @@ def doParadigmShift(attack):
     if hitAtleastOneToon == 1:
         soundTrack = getSoundTrack('SA_paradigm_shift.ogg', delay=2.1, node=suit)
         return Parallel(suitTrack, sprayTrack, soundTrack, liftTracks, toonTracks, toonRiseTracks)
-    return Parallel(suitTrack, sprayTrack, liftTracks, toonTracks, toonRiseTracks)
+    else:
+        return Parallel(suitTrack, sprayTrack, liftTracks, toonTracks, toonRiseTracks)
 
 
 def doPowerTrip(attack):
@@ -2718,18 +2639,14 @@ def getThrowEndPoint(suit, toon, battle, whichBounce):
     pnt = toon.getPos(toon)
     if whichBounce == 'one':
         pnt.setY(pnt[1] + 8)
-    else:
-        if whichBounce == 'two':
-            pnt.setY(pnt[1] + 5)
-        else:
-            if whichBounce == 'threeHit':
-                pnt.setZ(pnt[2] + toon.shoulderHeight + 0.3)
-            else:
-                if whichBounce == 'threeMiss':
-                    pass
-                else:
-                    if whichBounce == 'four':
-                        pnt.setY(pnt[1] - 5)
+    elif whichBounce == 'two':
+        pnt.setY(pnt[1] + 5)
+    elif whichBounce == 'threeHit':
+        pnt.setZ(pnt[2] + toon.shoulderHeight + 0.3)
+    elif whichBounce == 'threeMiss':
+        pass
+    elif whichBounce == 'four':
+        pnt.setY(pnt[1] - 5)
     return Point3(pnt)
 
 
@@ -2753,16 +2670,14 @@ def doBounceCheck(attack):
         throwDelay = 2.5
         dodgeDelay = 4.3
         damageDelay = 5.1
-    else:
-        if suitType == 'b':
-            throwDelay = 1.8
-            dodgeDelay = 3.6
-            damageDelay = 4.4
-        else:
-            if suitType == 'c':
-                throwDelay = 1.8
-                dodgeDelay = 3.6
-                damageDelay = 4.4
+    elif suitType == 'b':
+        throwDelay = 1.8
+        dodgeDelay = 3.6
+        damageDelay = 4.4
+    elif suitType == 'c':
+        throwDelay = 1.8
+        dodgeDelay = 3.6
+        damageDelay = 4.4
     suitTrack = getSuitTrack(attack)
     checkPropTrack = Sequence(getPropAppearTrack(check, suit.getRightHand(), checkPosPoints, 1e-05, Point3(8.5, 8.5, 8.5), startScale=MovieUtil.PNT3_ONE))
     checkPropTrack.append(Wait(throwDelay))
@@ -2900,7 +2815,8 @@ def doFired(attack):
     soundTrack = getSoundTrack('SA_hot_air.ogg', delay=1.0, node=suit)
     if dmg > 0:
         return Parallel(suitTrack, baseFlameTrack, flameTrack, flecksTrack, toonTrack, colorTrack, soundTrack)
-    return Parallel(suitTrack, baseFlameSmallTrack, flameSmallTrack, flecksSmallTrack, toonTrack, soundTrack)
+    else:
+        return Parallel(suitTrack, baseFlameSmallTrack, flameSmallTrack, flecksSmallTrack, toonTrack, soundTrack)
 
 
 def doAudit(attack):
@@ -3100,45 +3016,44 @@ def doLiquidate(attack):
         partDelay = 0.2
         damageDelay = 3.5
         dodgeDelay = 2.45
+    elif suitType == 'b':
+        partDelay = 0.2
+        damageDelay = 3.5
+        dodgeDelay = 2.45
+    elif suitType == 'c':
+        partDelay = 0.2
+        damageDelay = 3.5
+        dodgeDelay = 2.45
+    suitTrack = getSuitTrack(attack, delay=0.9)
+    initialCloudHeight = suit.height + 3
+    cloudPosPoints = [Point3(0, 3, initialCloudHeight), VBase3(180, 0, 0)]
+    cloudPropTrack = Sequence()
+    cloudPropTrack.append(Func(cloud.pose, 'stormcloud', 0))
+    cloudPropTrack.append(getPropAppearTrack(cloud, suit, cloudPosPoints, 1e-06, Point3(3, 3, 3), scaleUpTime=0.7))
+    cloudPropTrack.append(Func(battle.movie.needRestoreRenderProp, cloud))
+    cloudPropTrack.append(Func(cloud.wrtReparentTo, render))
+    targetPoint = __toonFacePoint(toon)
+    targetPoint.setZ(targetPoint[2] + 3)
+    cloudPropTrack.append(Wait(1.1))
+    cloudPropTrack.append(LerpPosInterval(cloud, 1, pos=targetPoint))
+    cloudPropTrack.append(Wait(partDelay))
+    cloudPropTrack.append(Parallel(Sequence(ParticleInterval(rainEffect, cloud, worldRelative=0, duration=2.1, cleanup=True)), Sequence(Wait(0.1), ParticleInterval(rainEffect2, cloud, worldRelative=0, duration=2.0, cleanup=True)), Sequence(Wait(0.1), ParticleInterval(rainEffect3, cloud, worldRelative=0, duration=2.0, cleanup=True)), Sequence(ActorInterval(cloud, 'stormcloud', startTime=3, duration=0.1), ActorInterval(cloud, 'stormcloud', startTime=1, duration=2.3))))
+    cloudPropTrack.append(Wait(0.4))
+    cloudPropTrack.append(LerpScaleInterval(cloud, 0.5, MovieUtil.PNT3_NEARZERO))
+    cloudPropTrack.append(Func(MovieUtil.removeProp, cloud))
+    cloudPropTrack.append(Func(battle.movie.clearRenderProp, cloud))
+    damageAnims = [['melt'], ['jump', 1.5, 0.4]]
+    toonTrack = getToonTrack(attack, damageDelay=damageDelay, splicedDamageAnims=damageAnims, dodgeDelay=dodgeDelay, dodgeAnimNames=['sidestep'])
+    soundTrack = getSoundTrack('SA_liquidate.ogg', delay=2.0, node=suit)
+    if dmg > 0:
+        puddle = globalPropPool.getProp('quicksand')
+        puddle.setColor(Vec4(0.0, 0.0, 1.0, 1))
+        puddle.setHpr(Point3(120, 0, 0))
+        puddle.setScale(0.01)
+        puddleTrack = Sequence(Func(battle.movie.needRestoreRenderProp, puddle), Wait(damageDelay - 0.7), Func(puddle.reparentTo, battle), Func(puddle.setPos, toon.getPos(battle)), LerpScaleInterval(puddle, 1.7, Point3(1.7, 1.7, 1.7), startScale=MovieUtil.PNT3_NEARZERO), Wait(3.2), LerpFunctionInterval(puddle.setAlphaScale, fromData=1, toData=0, duration=0.8), Func(MovieUtil.removeProp, puddle), Func(battle.movie.clearRenderProp, puddle))
+        return Parallel(suitTrack, toonTrack, cloudPropTrack, soundTrack, puddleTrack)
     else:
-        if suitType == 'b':
-            partDelay = 0.2
-            damageDelay = 3.5
-            dodgeDelay = 2.45
-        else:
-            if suitType == 'c':
-                partDelay = 0.2
-                damageDelay = 3.5
-                dodgeDelay = 2.45
-        suitTrack = getSuitTrack(attack, delay=0.9)
-        initialCloudHeight = suit.height + 3
-        cloudPosPoints = [Point3(0, 3, initialCloudHeight), VBase3(180, 0, 0)]
-        cloudPropTrack = Sequence()
-        cloudPropTrack.append(Func(cloud.pose, 'stormcloud', 0))
-        cloudPropTrack.append(getPropAppearTrack(cloud, suit, cloudPosPoints, 1e-06, Point3(3, 3, 3), scaleUpTime=0.7))
-        cloudPropTrack.append(Func(battle.movie.needRestoreRenderProp, cloud))
-        cloudPropTrack.append(Func(cloud.wrtReparentTo, render))
-        targetPoint = __toonFacePoint(toon)
-        targetPoint.setZ(targetPoint[2] + 3)
-        cloudPropTrack.append(Wait(1.1))
-        cloudPropTrack.append(LerpPosInterval(cloud, 1, pos=targetPoint))
-        cloudPropTrack.append(Wait(partDelay))
-        cloudPropTrack.append(Parallel(Sequence(ParticleInterval(rainEffect, cloud, worldRelative=0, duration=2.1, cleanup=True)), Sequence(Wait(0.1), ParticleInterval(rainEffect2, cloud, worldRelative=0, duration=2.0, cleanup=True)), Sequence(Wait(0.1), ParticleInterval(rainEffect3, cloud, worldRelative=0, duration=2.0, cleanup=True)), Sequence(ActorInterval(cloud, 'stormcloud', startTime=3, duration=0.1), ActorInterval(cloud, 'stormcloud', startTime=1, duration=2.3))))
-        cloudPropTrack.append(Wait(0.4))
-        cloudPropTrack.append(LerpScaleInterval(cloud, 0.5, MovieUtil.PNT3_NEARZERO))
-        cloudPropTrack.append(Func(MovieUtil.removeProp, cloud))
-        cloudPropTrack.append(Func(battle.movie.clearRenderProp, cloud))
-        damageAnims = [['melt'], ['jump', 1.5, 0.4]]
-        toonTrack = getToonTrack(attack, damageDelay=damageDelay, splicedDamageAnims=damageAnims, dodgeDelay=dodgeDelay, dodgeAnimNames=['sidestep'])
-        soundTrack = getSoundTrack('SA_liquidate.ogg', delay=2.0, node=suit)
-        if dmg > 0:
-            puddle = globalPropPool.getProp('quicksand')
-            puddle.setColor(Vec4(0.0, 0.0, 1.0, 1))
-            puddle.setHpr(Point3(120, 0, 0))
-            puddle.setScale(0.01)
-            puddleTrack = Sequence(Func(battle.movie.needRestoreRenderProp, puddle), Wait(damageDelay - 0.7), Func(puddle.reparentTo, battle), Func(puddle.setPos, toon.getPos(battle)), LerpScaleInterval(puddle, 1.7, Point3(1.7, 1.7, 1.7), startScale=MovieUtil.PNT3_NEARZERO), Wait(3.2), LerpFunctionInterval(puddle.setAlphaScale, fromData=1, toData=0, duration=0.8), Func(MovieUtil.removeProp, puddle), Func(battle.movie.clearRenderProp, puddle))
-            return Parallel(suitTrack, toonTrack, cloudPropTrack, soundTrack, puddleTrack)
-    return Parallel(suitTrack, toonTrack, cloudPropTrack, soundTrack)
+        return Parallel(suitTrack, toonTrack, cloudPropTrack, soundTrack)
 
 
 def doMarketCrash(attack):
@@ -3412,7 +3327,8 @@ def doWithdrawal(attack):
         colorTrack.append(resetColor(legsParts))
         colorTrack.append(Func(battle.movie.clearRestoreColor))
         return Parallel(suitTrack, partTrack, toonTrack, soundTrack, colorTrack)
-    return Parallel(suitTrack, partTrack, toonTrack, soundTrack)
+    else:
+        return Parallel(suitTrack, partTrack, toonTrack, soundTrack)
 
 
 def doJargon(attack):
@@ -3511,7 +3427,8 @@ def doMumboJumbo(attack):
     soundTrack = getSoundTrack('SA_mumbo_jumbo.ogg', delay=2.5, node=suit)
     if dmg > 0:
         return Parallel(suitTrack, toonTrack, soundTrack, partTrack, partTrack2, partTrack3, partTrack4, partTrack5)
-    return Parallel(suitTrack, toonTrack, soundTrack, partTrack, partTrack2)
+    else:
+        return Parallel(suitTrack, toonTrack, soundTrack, partTrack, partTrack2)
 
 
 def doGuiltTrip(attack):
@@ -3579,7 +3496,8 @@ def doRestrainingOrder(attack):
         restraintCloud.setPos(hitPoint.getX(), hitPoint.getY() + 0.5, hitPoint.getZ())
         cloudTrack = getPartTrack(restraintCloud, 3.5, 0.2, [restraintCloud, battle, 0])
         return Parallel(suitTrack, cloudTrack, toonTrack, propTrack)
-    return Parallel(suitTrack, toonTrack, propTrack)
+    else:
+        return Parallel(suitTrack, toonTrack, propTrack)
 
 
 def doSpin(attack):
@@ -3627,7 +3545,8 @@ def doSpin(attack):
     if dmg > 0:
         toonSpinTrack = Sequence(Wait(damageDelay + 0.9), LerpHprInterval(toon, 0.7, Point3(-10, 0, 0)), LerpHprInterval(toon, 0.5, Point3(-30, 0, 0)), LerpHprInterval(toon, 0.2, Point3(-60, 0, 0)), LerpHprInterval(toon, 0.7, Point3(-700, 0, 0)), LerpHprInterval(toon, 1.0, Point3(-1310, 0, 0)), LerpHprInterval(toon, 0.4, toon.getHpr()), Wait(0.5))
         return Parallel(suitTrack, sprayTrack, toonTrack, toonSpinTrack, spinTrack1, spinTrack2, spinTrack3)
-    return Parallel(suitTrack, sprayTrack, toonTrack)
+    else:
+        return Parallel(suitTrack, sprayTrack, toonTrack)
 
 
 def doLegalese(attack):

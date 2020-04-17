@@ -126,9 +126,8 @@ class PartyEditorGridElement(DirectButton):
             if self.id != PartyGlobals.ActivityIds.PartyClock and newPos[0] > PartyGlobals.PartyEditorTrashBounds[0][0] and newPos[0] < PartyGlobals.PartyEditorTrashBounds[1][0] and newPos[2] < PartyGlobals.PartyEditorTrashBounds[0][1] and newPos[2] > PartyGlobals.PartyEditorTrashBounds[1][1]:
                 if not self.mouseOverTrash:
                     self.setOverTrash(True)
-            else:
-                if self.mouseOverTrash:
-                    self.setOverTrash(False)
+            elif self.mouseOverTrash:
+                self.setOverTrash(False)
             self.setPos(render2d, newPos)
             if self.overValidSquare:
                 self.setOverValidSquare(False)
@@ -164,16 +163,18 @@ class PartyEditorGridElement(DirectButton):
             self.setPosHprToDefault()
             self.setPos(render2d, newPos)
             return
-        if not self.partyEditor.partyEditorGrid.checkGridSquareForAvailability(gridSquare, self.getGridSize()):
-            self.setPos(render2d, newPos)
-            return
-        self.setPosHprBasedOnGridSquare(gridSquare)
-        return gridSquare
+        else:
+            if not self.partyEditor.partyEditorGrid.checkGridSquareForAvailability(gridSquare, self.getGridSize()):
+                self.setPos(render2d, newPos)
+                return
+            self.setPosHprBasedOnGridSquare(gridSquare)
+            return gridSquare
 
     def getGridSize(self):
         if self.isDecoration:
             return PartyGlobals.DecorationInformationDict[self.id]['gridsize']
-        return PartyGlobals.ActivityInformationDict[self.id]['gridsize']
+        else:
+            return PartyGlobals.ActivityInformationDict[self.id]['gridsize']
 
     def setPosHprToDefault(self):
         self.setR(0.0)
@@ -219,21 +220,20 @@ class PartyEditorGridElement(DirectButton):
             self.partyEditor.partyEditorGrid.registerNewElement(self, self.centerGridSquare, self.getGridSize())
             self.partyEditor.updateCostsAndBank()
             self.partyEditor.handleMutuallyExclusiveActivities()
-        else:
-            if self.lastValidPosition is not None:
-                if self.mouseOverTrash:
-                    self.partyEditor.trashCanButton['state'] = DirectGuiGlobals.NORMAL
-                    self.lastValidPosition = None
-                    self.partyEditor.updateCostsAndBank()
-                    self.stash()
-                else:
-                    self.setPos(render2d, self.lastValidPosition)
-                    self.setOverValidSquare(True)
-                    self.partyEditor.partyEditorGrid.registerNewElement(self, self.centerGridSquare, self.getGridSize())
-                    self.partyEditor.updateCostsAndBank()
-                    self.partyEditor.handleMutuallyExclusiveActivities()
-            else:
+        elif self.lastValidPosition is not None:
+            if self.mouseOverTrash:
+                self.partyEditor.trashCanButton['state'] = DirectGuiGlobals.NORMAL
+                self.lastValidPosition = None
+                self.partyEditor.updateCostsAndBank()
                 self.stash()
+            else:
+                self.setPos(render2d, self.lastValidPosition)
+                self.setOverValidSquare(True)
+                self.partyEditor.partyEditorGrid.registerNewElement(self, self.centerGridSquare, self.getGridSize())
+                self.partyEditor.updateCostsAndBank()
+                self.partyEditor.handleMutuallyExclusiveActivities()
+        else:
+            self.stash()
         self.checkSoldOutAndPaidStatusAndAffordability()
         return
 
@@ -248,8 +248,9 @@ class PartyEditorGridElement(DirectButton):
             self.partyEditor.partyPlanner.instructionLabel['text'] = TTLocalizer.PartyPlannerEditorInstructionsPartyGrounds
             self.checkSoldOutAndPaidStatusAndAffordability()
             return True
-        return False
-        return
+        else:
+            return False
+            return
 
     def clicked(self, mouseEvent):
         PartyEditorGridElement.notify.debug('clicked grid element %s' % self.name)

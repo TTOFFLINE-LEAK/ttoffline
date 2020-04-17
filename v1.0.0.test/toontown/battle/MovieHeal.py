@@ -21,35 +21,37 @@ runHealTime = 1.0
 def doHeals(heals, hasInteractivePropHealBonus):
     if len(heals) == 0:
         return (None, None)
-    track = Sequence()
-    for h in heals:
-        ival = __doHealLevel(h, hasInteractivePropHealBonus)
-        if ival:
-            track.append(ival)
+    else:
+        track = Sequence()
+        for h in heals:
+            ival = __doHealLevel(h, hasInteractivePropHealBonus)
+            if ival:
+                track.append(ival)
 
-    camDuration = track.getDuration()
-    camTrack = MovieCamera.chooseHealShot(heals, camDuration)
-    return (
-     track, camTrack)
+        camDuration = track.getDuration()
+        camTrack = MovieCamera.chooseHealShot(heals, camDuration)
+        return (
+         track, camTrack)
 
 
 def __doHealLevel(heal, hasInteractivePropHealBonus):
     level = heal['level']
     if level == 0:
         return __healTickle(heal, hasInteractivePropHealBonus)
-    if level == 1:
-        return __healJoke(heal, hasInteractivePropHealBonus)
-    if level == 2:
-        return __healSmooch(heal, hasInteractivePropHealBonus)
-    if level == 3:
-        return __healDance(heal, hasInteractivePropHealBonus)
-    if level == 4:
-        return __healSprinkle(heal, hasInteractivePropHealBonus)
-    if level == 5:
-        return __healJuggle(heal, hasInteractivePropHealBonus)
-    if level == 6:
-        return __healDive(heal, hasInteractivePropHealBonus)
-    return
+    else:
+        if level == 1:
+            return __healJoke(heal, hasInteractivePropHealBonus)
+        if level == 2:
+            return __healSmooch(heal, hasInteractivePropHealBonus)
+        if level == 3:
+            return __healDance(heal, hasInteractivePropHealBonus)
+        if level == 4:
+            return __healSprinkle(heal, hasInteractivePropHealBonus)
+        if level == 5:
+            return __healJuggle(heal, hasInteractivePropHealBonus)
+        if level == 6:
+            return __healDive(heal, hasInteractivePropHealBonus)
+        return
 
 
 def __runToHealSpot(heal):

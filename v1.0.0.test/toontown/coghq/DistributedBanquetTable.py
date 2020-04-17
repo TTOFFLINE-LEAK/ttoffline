@@ -138,23 +138,18 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
         self.gotHitByBoss = extraInfo
         if state == 'F':
             self.demand('Off')
+        elif state == 'N':
+            self.demand('On')
+        elif state == 'I':
+            self.demand('Inactive')
+        elif state == 'R':
+            self.demand('Free')
+        elif state == 'C':
+            self.demand('Controlled', avId)
+        elif state == 'L':
+            self.demand('Flat', avId)
         else:
-            if state == 'N':
-                self.demand('On')
-            else:
-                if state == 'I':
-                    self.demand('Inactive')
-                else:
-                    if state == 'R':
-                        self.demand('Free')
-                    else:
-                        if state == 'C':
-                            self.demand('Controlled', avId)
-                        else:
-                            if state == 'L':
-                                self.demand('Flat', avId)
-                            else:
-                                self.notify.error('Invalid state from AI: %s' % state)
+            self.notify.error('Invalid state from AI: %s' % state)
 
     def setNumDiners(self, numDiners):
         self.numDiners = numDiners
@@ -733,52 +728,46 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
             if self.power:
                 self.aimStart = 1
                 self.__endFireWater()
-        else:
-            if self.state == 'Controlled':
-                self.__beginFireWater()
+        elif self.state == 'Controlled':
+            self.__beginFireWater()
 
     def __controlReleased(self):
         if self.TugOfWarControls:
             pass
-        else:
-            if self.state == 'Controlled':
-                self.__endFireWater()
+        elif self.state == 'Controlled':
+            self.__endFireWater()
 
     def __upArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupPitcherAdvice()
         if pressed:
             self.arrowVert = 1
-        else:
-            if self.arrowVert > 0:
-                self.arrowVert = 0
+        elif self.arrowVert > 0:
+            self.arrowVert = 0
 
     def __downArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupPitcherAdvice()
         if pressed:
             self.arrowVert = -1
-        else:
-            if self.arrowVert < 0:
-                self.arrowVert = 0
+        elif self.arrowVert < 0:
+            self.arrowVert = 0
 
     def __rightArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupPitcherAdvice()
         if pressed:
             self.arrowHorz = 1
-        else:
-            if self.arrowHorz > 0:
-                self.arrowHorz = 0
+        elif self.arrowHorz > 0:
+            self.arrowHorz = 0
 
     def __leftArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupPitcherAdvice()
         if pressed:
             self.arrowHorz = -1
-        else:
-            if self.arrowHorz < 0:
-                self.arrowHorz = 0
+        elif self.arrowHorz < 0:
+            self.arrowHorz = 0
 
     def __incrementChangeSeq(self):
         self.changeSeq = self.changeSeq + 1 & 255
@@ -921,21 +910,19 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
                 damage = 1
                 if self.lastPowerFired < self.YELLOW_POWER_THRESHOLD:
                     damage = 1
+                elif self.lastPowerFired < self.RED_POWER_THRESHOLD:
+                    damage = 2
                 else:
-                    if self.lastPowerFired < self.RED_POWER_THRESHOLD:
-                        damage = 2
-                    else:
-                        damage = 3
+                    damage = 3
                 self.boss.d_hitBoss(damage)
             else:
                 damage = 1
                 if self.lastPowerFired < self.YELLOW_POWER_THRESHOLD:
                     damage = 1
+                elif self.lastPowerFired < self.RED_POWER_THRESHOLD:
+                    damage = 2
                 else:
-                    if self.lastPowerFired < self.RED_POWER_THRESHOLD:
-                        damage = 2
-                    else:
-                        damage = 3
+                    damage = 3
                 self.boss.d_hitBoss(damage)
 
     def waterHitBoss(self, tableIndex):
@@ -971,59 +958,61 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
     def __beginFireWater(self):
         if self.fireTrack and self.fireTrack.isPlaying():
             return
-        if self.aimStart != None:
+        else:
+            if self.aimStart != None:
+                return
+            if not self.state == 'Controlled':
+                return
+            if not self.avId == localAvatar.doId:
+                return
+            time = globalClock.getFrameTime()
+            self.aimStart = time
+            messenger.send('wakeup')
+            taskMgr.add(self.__updateWaterPower, self.waterPowerTaskName)
             return
-        if not self.state == 'Controlled':
-            return
-        if not self.avId == localAvatar.doId:
-            return
-        time = globalClock.getFrameTime()
-        self.aimStart = time
-        messenger.send('wakeup')
-        taskMgr.add(self.__updateWaterPower, self.waterPowerTaskName)
-        return
 
     def __endFireWater(self):
         if self.aimStart == None:
             return
-        if not self.state == 'Controlled':
+        else:
+            if not self.state == 'Controlled':
+                return
+            if not self.avId == localAvatar.doId:
+                return
+            taskMgr.remove(self.waterPowerTaskName)
+            messenger.send('wakeup')
+            self.aimStart = None
+            origin = self.nozzle.getPos(render)
+            target = self.boss.getPos(render)
+            angle = deg2Rad(self.waterPitcherNode.getH() + 90)
+            x = math.cos(angle)
+            y = math.sin(angle)
+            fireVector = Point3(x, y, 0)
+            if self.power < 0.001:
+                self.power = 0.001
+            self.lastPowerFired = self.power
+            fireVector *= self.fireLength * self.power
+            target = origin + fireVector
+            segment = CollisionSegment(origin[0], origin[1], origin[2], target[0], target[1], target[2])
+            fromObject = render.attachNewNode(CollisionNode('pitcherColNode'))
+            fromObject.node().addSolid(segment)
+            fromObject.node().setFromCollideMask(ToontownGlobals.PieBitmask | ToontownGlobals.CameraBitmask | ToontownGlobals.FloorBitmask)
+            fromObject.node().setIntoCollideMask(BitMask32.allOff())
+            queue = CollisionHandlerQueue()
+            base.cTrav.addCollider(fromObject, queue)
+            base.cTrav.traverse(render)
+            queue.sortEntries()
+            self.hitObject = None
+            if queue.getNumEntries():
+                entry = queue.getEntry(0)
+                target = entry.getSurfacePoint(render)
+                self.hitObject = entry.getIntoNodePath()
+            base.cTrav.removeCollider(fromObject)
+            fromObject.removeNode()
+            self.d_firingWater(origin, target)
+            self.fireWater(origin, target)
+            self.resetPowerBar()
             return
-        if not self.avId == localAvatar.doId:
-            return
-        taskMgr.remove(self.waterPowerTaskName)
-        messenger.send('wakeup')
-        self.aimStart = None
-        origin = self.nozzle.getPos(render)
-        target = self.boss.getPos(render)
-        angle = deg2Rad(self.waterPitcherNode.getH() + 90)
-        x = math.cos(angle)
-        y = math.sin(angle)
-        fireVector = Point3(x, y, 0)
-        if self.power < 0.001:
-            self.power = 0.001
-        self.lastPowerFired = self.power
-        fireVector *= self.fireLength * self.power
-        target = origin + fireVector
-        segment = CollisionSegment(origin[0], origin[1], origin[2], target[0], target[1], target[2])
-        fromObject = render.attachNewNode(CollisionNode('pitcherColNode'))
-        fromObject.node().addSolid(segment)
-        fromObject.node().setFromCollideMask(ToontownGlobals.PieBitmask | ToontownGlobals.CameraBitmask | ToontownGlobals.FloorBitmask)
-        fromObject.node().setIntoCollideMask(BitMask32.allOff())
-        queue = CollisionHandlerQueue()
-        base.cTrav.addCollider(fromObject, queue)
-        base.cTrav.traverse(render)
-        queue.sortEntries()
-        self.hitObject = None
-        if queue.getNumEntries():
-            entry = queue.getEntry(0)
-            target = entry.getSurfacePoint(render)
-            self.hitObject = entry.getIntoNodePath()
-        base.cTrav.removeCollider(fromObject)
-        fromObject.removeNode()
-        self.d_firingWater(origin, target)
-        self.fireWater(origin, target)
-        self.resetPowerBar()
-        return
 
     def __updateWaterPower(self, task):
         if not self.powerBar:
@@ -1034,11 +1023,10 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
         self.powerBar['value'] = newPower
         if self.power < self.YELLOW_POWER_THRESHOLD:
             self.powerBar['barColor'] = VBase4(0.75, 0.75, 1.0, 0.8)
+        elif self.power < self.RED_POWER_THRESHOLD:
+            self.powerBar['barColor'] = VBase4(1.0, 1.0, 0.0, 0.8)
         else:
-            if self.power < self.RED_POWER_THRESHOLD:
-                self.powerBar['barColor'] = VBase4(1.0, 1.0, 0.0, 0.8)
-            else:
-                self.powerBar['barColor'] = VBase4(1.0, 0.0, 0.0, 0.8)
+            self.powerBar['barColor'] = VBase4(1.0, 0.0, 0.0, 0.8)
         return task.cont
 
     def __getWaterPower(self, time):
@@ -1163,19 +1151,17 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
         newPower = self.power + diffPower
         if newPower > 1:
             newPower = 1
-        else:
-            if newPower < 0:
-                newPower = 0
+        elif newPower < 0:
+            newPower = 0
         self.notify.debug('diffPower=%.2f keyRate = %d, newPower=%.2f' % (diffPower, self.keyRate, newPower))
         self.power = newPower
         self.powerBar['value'] = newPower
         if self.power < self.YELLOW_POWER_THRESHOLD:
             self.powerBar['barColor'] = VBase4(0.75, 0.75, 1.0, 0.8)
+        elif self.power < self.RED_POWER_THRESHOLD:
+            self.powerBar['barColor'] = VBase4(1.0, 1.0, 0.0, 0.8)
         else:
-            if self.power < self.RED_POWER_THRESHOLD:
-                self.powerBar['barColor'] = VBase4(1.0, 1.0, 0.0, 0.8)
-            else:
-                self.powerBar['barColor'] = VBase4(1.0, 0.0, 0.0, 0.8)
+            self.powerBar['barColor'] = VBase4(1.0, 0.0, 0.0, 0.8)
         self.__spawnUpdateKeyPressRateTask()
         return Task.done
 

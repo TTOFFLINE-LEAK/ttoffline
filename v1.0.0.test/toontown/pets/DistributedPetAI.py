@@ -400,7 +400,8 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
     def __handleMoodGet(self, component):
         if self.isGenerated():
             return self.mood.getComponent(component)
-        return 0.0
+        else:
+            return 0.0
 
     def __generateDistMoodFuncs(self):
         for compName in PetMood.PetMood.Components:
@@ -501,32 +502,33 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         self.mood = PetMood.PetMood(self)
         if not self.active:
             return
-        self.activated = 1
-        self.announceZoneChange(self.zoneId, ToontownGlobals.QuietZone)
-        self.b_setParent(ToontownGlobals.SPRender)
-        self.setPos(randFloat(-20, 20), randFloat(-20, 20), 0)
-        self.setH(randFloat(360))
-        if self.initialDNA:
-            self.setDNA(self.initialDNA)
-        for mood, value in self.requiredMoodComponents.items():
-            self.mood.setComponent(mood, value, announce=0)
+        else:
+            self.activated = 1
+            self.announceZoneChange(self.zoneId, ToontownGlobals.QuietZone)
+            self.b_setParent(ToontownGlobals.SPRender)
+            self.setPos(randFloat(-20, 20), randFloat(-20, 20), 0)
+            self.setH(randFloat(360))
+            if self.initialDNA:
+                self.setDNA(self.initialDNA)
+            for mood, value in self.requiredMoodComponents.items():
+                self.mood.setComponent(mood, value, announce=0)
 
-        self.requiredMoodComponents = {}
-        self.brain = PetBrain.PetBrain(self)
-        self.mover = Mover.Mover(self)
-        self.lockMover = Mover.Mover(self)
-        self.createImpulses()
-        self.enterPetLook()
-        self.actionFSM = PetActionFSM.PetActionFSM(self)
-        self.teleportIn()
-        self.handleMoodChange(distribute=0)
-        taskMgr.doMethodLater(simbase.petMovePeriod * random.random(), self.move, self.getMoveTaskName())
-        self.startPosHprBroadcast()
-        self.accept(PetObserve.getEventName(self.zoneId), self.brain.observe)
-        self.accept(self.mood.getMoodChangeEvent(), self.handleMoodChange)
-        self.mood.start()
-        self.brain.start()
-        return
+            self.requiredMoodComponents = {}
+            self.brain = PetBrain.PetBrain(self)
+            self.mover = Mover.Mover(self)
+            self.lockMover = Mover.Mover(self)
+            self.createImpulses()
+            self.enterPetLook()
+            self.actionFSM = PetActionFSM.PetActionFSM(self)
+            self.teleportIn()
+            self.handleMoodChange(distribute=0)
+            taskMgr.doMethodLater(simbase.petMovePeriod * random.random(), self.move, self.getMoveTaskName())
+            self.startPosHprBroadcast()
+            self.accept(PetObserve.getEventName(self.zoneId), self.brain.observe)
+            self.accept(self.mood.getMoodChangeEvent(), self.handleMoodChange)
+            self.mood.start()
+            self.brain.start()
+            return
 
     def _isPet(self):
         return 1
@@ -754,11 +756,10 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
 
         if self.isExcited():
             self.gaitFSM.request('happy')
+        elif self.isSad():
+            self.gaitFSM.request('sad')
         else:
-            if self.isSad():
-                self.gaitFSM.request('sad')
-            else:
-                self.gaitFSM.request('neutral')
+            self.gaitFSM.request('neutral')
 
     def isContented(self):
         return self.mood.getDominantMood() in PetMood.PetMood.ContentedMoods
@@ -895,25 +896,29 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         nearbyToonDict = self._getFullNearbyToonDict()
         if not len(nearbyToonDict):
             return None
-        return nearbyToonDict[random.choice(nearbyToonDict.keys())]
+        else:
+            return nearbyToonDict[random.choice(nearbyToonDict.keys())]
 
     def _getNearbyToonNonOwner(self):
         nearbyToonDict = self._getNearbyToonDict()
         if not len(nearbyToonDict):
             return None
-        return nearbyToonDict[random.choice(nearbyToonDict.keys())]
+        else:
+            return nearbyToonDict[random.choice(nearbyToonDict.keys())]
 
     def _getNearbyPet(self):
         nearbyPetDict = self._getNearbyPetDict()
         if not len(nearbyPetDict):
             return None
-        return nearbyPetDict[random.choice(nearbyPetDict.keys())]
+        else:
+            return nearbyPetDict[random.choice(nearbyPetDict.keys())]
 
     def _getNearbyAvatar(self):
         nearbyAvDict = self._getNearbyAvatarDict()
         if not len(nearbyAvDict):
             return None
-        return nearbyAvDict[random.choice(nearbyAvDict.keys())]
+        else:
+            return nearbyAvDict[random.choice(nearbyAvDict.keys())]
 
     def isBusy(self):
         return self.busy > 0
@@ -926,15 +931,16 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         if av is None:
             self.notify.warning('Avatar: %s not found' % avId)
             return 0
-        if self.isBusy():
-            self.notify.debug('freeing avatar!')
-            self.freeAvatar(avId)
-            return 0
-        self.busy = avId
-        self.notify.debug('sending update')
-        self.sendUpdateToAvatarId(avId, 'avatarInteract', [avId])
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
-        return 1
+        else:
+            if self.isBusy():
+                self.notify.debug('freeing avatar!')
+                self.freeAvatar(avId)
+                return 0
+            self.busy = avId
+            self.notify.debug('sending update')
+            self.sendUpdateToAvatarId(avId, 'avatarInteract', [avId])
+            self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
+            return 1
 
     def rejectAvatar(self, avId):
         self.notify.error('rejectAvatar: should not be called by a pet!')

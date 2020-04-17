@@ -72,14 +72,12 @@ class GZPlayground(Playground.Playground):
         if reason == RaceGlobals.Exit_Barrier:
             requestStatus['nextState'] = 'popup'
             self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RaceTimeout, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
-        else:
-            if reason == RaceGlobals.Exit_Slow:
-                requestStatus['nextState'] = 'popup'
-                self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RacerTooSlow, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
-            else:
-                if reason == RaceGlobals.Exit_BarrierNoRefund:
-                    requestStatus['nextState'] = 'popup'
-                    self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RaceTimeoutNoRefund, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
+        elif reason == RaceGlobals.Exit_Slow:
+            requestStatus['nextState'] = 'popup'
+            self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RacerTooSlow, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
+        elif reason == RaceGlobals.Exit_BarrierNoRefund:
+            requestStatus['nextState'] = 'popup'
+            self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RaceTimeoutNoRefund, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
         Playground.Playground.enterTeleportIn(self, requestStatus)
 
     def __cleanupDialog(self, value):
@@ -114,32 +112,28 @@ class GZPlayground(Playground.Playground):
         where = doneStatus['where']
         if where == 'reject':
             self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where == 'racetrack':
+            print 'Entering Racetrack'
+            self.doneStatus = doneStatus
+            messenger.send(self.doneEvent)
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where == 'racetrack':
-                    print 'Entering Racetrack'
-                    self.doneStatus = doneStatus
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + where + ' in handleStartingBlockDone')
+            self.notify.error('Unknown mode: ' + where + ' in handleStartingBlockDone')
 
     def handleGolfKartDone(self, doneStatus):
         self.notify.debug('handling golf kart  done event')
         mode = doneStatus['mode']
         if mode == 'reject':
             self.fsm.request('walk')
+        elif mode == 'exit':
+            self.fsm.request('walk')
+        elif mode == 'golfcourse':
+            self.doneStatus = {'loader': 'golfcourse', 'where': 'golfcourse', 'hoodId': self.loader.hood.id, 
+               'zoneId': doneStatus['zoneId'], 
+               'shardId': None, 
+               'courseId': doneStatus['courseId']}
+            messenger.send(self.doneEvent)
         else:
-            if mode == 'exit':
-                self.fsm.request('walk')
-            else:
-                if mode == 'golfcourse':
-                    self.doneStatus = {'loader': 'golfcourse', 'where': 'golfcourse', 'hoodId': self.loader.hood.id, 
-                       'zoneId': doneStatus['zoneId'], 
-                       'shardId': None, 
-                       'courseId': doneStatus['courseId']}
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + mode + ' in handleGolfKartDone')
+            self.notify.error('Unknown mode: ' + mode + ' in handleGolfKartDone')
         return

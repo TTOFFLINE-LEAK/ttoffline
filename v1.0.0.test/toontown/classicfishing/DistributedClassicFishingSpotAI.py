@@ -87,20 +87,20 @@ class DistributedClassicFishingSpotAI(DistributedObjectAI):
         taskMgr.doMethodLater(45, DistributedClassicFishingSpotAI.removeFromPierWithAnim, 'timeOut%d' % self.doId, [self])
         if self.nibbleFinished:
             return
-        if self.currentFish == None:
-            self.uncast()
-            self.d_setMovie(FishingCodes.PullInMovie, FishingCodes.TooSoon, 0, 0)
         else:
-            if self.crankedBefore == False:
+            if self.currentFish == None:
+                self.uncast()
+                self.d_setMovie(FishingCodes.PullInMovie, FishingCodes.TooSoon, 0, 0)
+            elif self.crankedBefore == False:
                 self.crankedBefore = True
                 self.d_setMovie(FishingCodes.BeginReelMovie, 0, 0, speed)
                 taskMgr.remove('nibbleDone%d' % self.doId)
                 taskMgr.doMethodLater(FishingCodes.PostNibbleWait, self.nibbleDone, 'nibbleDone%d' % self.doId)
             else:
                 self.d_setMovie(FishingCodes.ContinueReelMovie, 0, 0, speed)
-        self.totalTime += netTime
-        self.totalDistance += netDistance
-        return
+            self.totalTime += netTime
+            self.totalDistance += netDistance
+            return
 
     def fishReleaseQuery(self, fish):
         pass
@@ -120,16 +120,17 @@ class DistributedClassicFishingSpotAI(DistributedObjectAI):
                 self.air.writeServerEvent('suspicious', avId=avId, issue='Toon requested to enter a pier twice!')
             self.sendUpdateToAvatarId(avId, 'rejectEnter', [])
             return
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.removeFromPier)
-        self.b_setOccupied(avId)
-        self.d_setMovie(FishingCodes.EnterMovie, 0, 0, 0)
-        taskMgr.remove('cancelAnimation%d' % self.doId)
-        taskMgr.doMethodLater(2, DistributedClassicFishingSpotAI.cancelAnimation, 'cancelAnimation%d' % self.doId, [self])
-        taskMgr.remove('timeOut%d' % self.doId)
-        taskMgr.doMethodLater(45, DistributedClassicFishingSpotAI.removeFromPierWithAnim, 'timeOut%d' % self.doId, [self])
-        self.lastFish = [None, None, None]
-        self.cast = False
-        return
+        else:
+            self.acceptOnce(self.air.getAvatarExitEvent(avId), self.removeFromPier)
+            self.b_setOccupied(avId)
+            self.d_setMovie(FishingCodes.EnterMovie, 0, 0, 0)
+            taskMgr.remove('cancelAnimation%d' % self.doId)
+            taskMgr.doMethodLater(2, DistributedClassicFishingSpotAI.cancelAnimation, 'cancelAnimation%d' % self.doId, [self])
+            taskMgr.remove('timeOut%d' % self.doId)
+            taskMgr.doMethodLater(45, DistributedClassicFishingSpotAI.removeFromPierWithAnim, 'timeOut%d' % self.doId, [self])
+            self.lastFish = [None, None, None]
+            self.cast = False
+            return
 
     def requestExit(self):
         avId = self.air.getAvatarIdFromSender()
@@ -159,12 +160,12 @@ class DistributedClassicFishingSpotAI(DistributedObjectAI):
         if avgSpeed == 0:
             self.d_setMovie(FishingCodes.PullInMovie, FishingCodes.TooLate, 0, 0)
             return Task.done
-        pctDiff = 100.0 * (avgSpeed - self.targetSpeed) / self.targetSpeed
-        self.notify.debug(('pctDiff: {0}, avgSpeed: {1}').format(pctDiff, avgSpeed))
-        if pctDiff >= FishingCodes.ManualReelMatch:
-            self.d_setMovie(FishingCodes.PullInMovie, FishingCodes.TooFast, 0, 0)
         else:
-            if pctDiff <= -FishingCodes.ManualReelMatch:
+            pctDiff = 100.0 * (avgSpeed - self.targetSpeed) / self.targetSpeed
+            self.notify.debug(('pctDiff: {0}, avgSpeed: {1}').format(pctDiff, avgSpeed))
+            if pctDiff >= FishingCodes.ManualReelMatch:
+                self.d_setMovie(FishingCodes.PullInMovie, FishingCodes.TooFast, 0, 0)
+            elif pctDiff <= -FishingCodes.ManualReelMatch:
                 self.d_setMovie(FishingCodes.PullInMovie, FishingCodes.TooSlow, 0, 0)
             else:
                 av = self.air.doId2do.get(self.avId)
@@ -177,8 +178,8 @@ class DistributedClassicFishingSpotAI(DistributedObjectAI):
                 else:
                     self.d_setMovie(FishingCodes.PullInMovie, FishingCodes.FishItem, self.currentFish, 0)
                     av.addMoney(int(FishingCodes.FishValues[self.currentFish] * self.targetSpeed))
-        self.nibbleFinished = True
-        return Task.done
+            self.nibbleFinished = True
+            return Task.done
 
     def d_setMovie(self, mode, code, item, speed):
         self.sendUpdate('setMovie', [mode, code, item, speed])

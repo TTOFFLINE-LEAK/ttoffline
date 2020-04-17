@@ -13,12 +13,13 @@ class PooledEffect(DirectObject, NodePath):
             cls.pool = Pool.Pool()
         if cls.pool.hasFree():
             return cls.pool.checkout()
-        free, used = cls.pool.getNumItems()
-        if free + used < cls.poolLimit:
-            cls.pool.add(cls())
-            return cls.pool.checkout()
-        return
-        return
+        else:
+            free, used = cls.pool.getNumItems()
+            if free + used < cls.poolLimit:
+                cls.pool.add(cls())
+                return cls.pool.checkout()
+            return
+            return
 
     @classmethod
     def cleanup(cls):

@@ -71,15 +71,14 @@ class DistributedNPCScientist(DistributedNPCToonBase.DistributedNPCToonBase):
                 placeholder.setScale(render, 1.0)
                 placeholder.setPos(0, 0, 0.1)
 
-        else:
-            if self.style.getTorsoSize() == 'long' and self.style.getAnimal() == 'monkey' or self.style.getTorsoSize() == 'medium' and self.style.getAnimal() == 'horse':
-                clipBoard = loader.loadModel('phase_4/models/props/tt_m_prp_acs_clipboard')
-                for rHand in self.getRightHands():
-                    placeholder = rHand.attachNewNode('ClipBoard')
-                    clipBoard.instanceTo(placeholder)
-                    placeholder.setH(180)
-                    placeholder.setScale(render, 1.0)
-                    placeholder.setPos(0, 0, 0.1)
+        elif self.style.getTorsoSize() == 'long' and self.style.getAnimal() == 'monkey' or self.style.getTorsoSize() == 'medium' and self.style.getAnimal() == 'horse':
+            clipBoard = loader.loadModel('phase_4/models/props/tt_m_prp_acs_clipboard')
+            for rHand in self.getRightHands():
+                placeholder = rHand.attachNewNode('ClipBoard')
+                clipBoard.instanceTo(placeholder)
+                placeholder.setH(180)
+                placeholder.setScale(render, 1.0)
+                placeholder.setPos(0, 0, 0.1)
 
     def startLookAround(self):
         pass
@@ -92,13 +91,12 @@ class DistributedNPCScientist(DistributedNPCToonBase.DistributedNPCToonBase):
                     sillyReader.stash()
                 sillyReader = None
 
-        else:
-            if self.style.getTorsoSize() == 'long' and self.style.getAnimal() == 'monkey':
-                clipBoards = self.findAllMatches('**/ClipBoard')
-                for clipBoard in clipBoards:
-                    if not clipBoard.isEmpty():
-                        clipBoard.stash()
-                    clipBoard = None
+        elif self.style.getTorsoSize() == 'long' and self.style.getAnimal() == 'monkey':
+            clipBoards = self.findAllMatches('**/ClipBoard')
+            for clipBoard in clipBoards:
+                if not clipBoard.isEmpty():
+                    clipBoard.stash()
+                clipBoard = None
 
         return
 
@@ -110,12 +108,11 @@ class DistributedNPCScientist(DistributedNPCToonBase.DistributedNPCToonBase):
                     sillyReader.unstash()
                 sillyReader = None
 
-        else:
-            if self.style.getTorsoSize() == 'long' and self.style.getAnimal() == 'monkey':
-                clipBoards = self.findAllMatches('**/ClipBoard;+s')
-                for clipBoard in clipBoards:
-                    if not clipBoard.isEmpty():
-                        clipBoard.unstash()
-                    clipBoard = None
+        elif self.style.getTorsoSize() == 'long' and self.style.getAnimal() == 'monkey':
+            clipBoards = self.findAllMatches('**/ClipBoard;+s')
+            for clipBoard in clipBoards:
+                if not clipBoard.isEmpty():
+                    clipBoard.unstash()
+                clipBoard = None
 
         return

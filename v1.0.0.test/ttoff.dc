@@ -128,6 +128,7 @@ from toontown.building import DistributedToonHallInterior/AI
 from toontown.building import DistributedKongToonInterior/AI
 from toontown.building import DistributedPizzeriaInterior/AI
 from toontown.building import DistributedToonyLabInterior/AI
+from toontown.building import DistributedPrivateServerCafeInterior/AI
 from toontown.building import DistributedGyrosLabInterior/AI
 from toontown.building import DistributedSuitInterior/AI
 from toontown.building import DistributedHQInterior/AI
@@ -1188,6 +1189,7 @@ dclass DistributedToon : DistributedPlayer {
   setLocked(bool) required broadcast ram;
   setMuted(bool, uint16) broadcast;
   execChatUse() airecv ownsend;
+  setUnlocks(int8[] = [0]) required ownrecv db;
 };
 
 dclass DistributedCCharBase : DistributedObject {
@@ -1339,7 +1341,7 @@ dclass DistributedBossCog : DistributedNode {
   avatarNearEnter() airecv clsend;
   avatarNearExit() airecv clsend;
   toonDied(uint32) broadcast;
-  setBattleExperience(int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], uint8[], int16[], uint32[]) required broadcast ram;
+  setBattleExperience(int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], uint16[], int16[], uint32[]) required broadcast ram;
   zapToon(int16/10, int16/10, int16/10, int16/10, int16/10, int16/10, int8/100, int8/100, uint8, int16) airecv clsend;
   showZapToon(uint32, int16/10, int16/10, int16/10, int16/10, int16/10, int16/10, uint8, int16) broadcast;
   setAttackCode(uint8, uint32) broadcast;
@@ -2066,6 +2068,7 @@ dclass NewsManager : DistributedObject {
   setRelativelyCalendarHolidays(relativelyCalendarHoliday []) required broadcast ram;
   setMultipleStartHolidays(multipleStartHoliday []) required broadcast ram;
   sendSystemMessage(string, uint8) broadcast ram;
+  setExpMultiplier(float64) broadcast ram;
 };
 
 dclass PurchaseManager : DistributedObject {
@@ -2226,6 +2229,9 @@ dclass DistributedPizzeriaInterior : DistributedToonInterior {
 };
 
 dclass DistributedToonyLabInterior : DistributedToonInterior {
+};
+
+dclass DistributedPrivateServerCafeInterior : DistributedToonInterior {
 };
 
 dclass DistributedGyrosLabInterior : DistributedToonInterior {
@@ -3958,6 +3964,8 @@ dclass ModdingManager : DistributedObjectGlobal {
   setCards(blob) required broadcast ram;
   setColorsAiToUd(blob);
   setCardsAiToUd(blob);
+  setDefaultMaxToon(bool) broadcast ram;
+  setDefaultZone(string) broadcast ram;
 };
 
 dclass DiscordManager : DistributedObjectGlobal {
@@ -3999,12 +4007,14 @@ struct Prop {
 
 dclass DistributedPropGenerator : DistributedObject {
   requestProps() clsend airecv;
-  loadProps(Prop []);
+  loadProp(Prop);
+  loadProps();
   spawnProp(Prop) broadcast;
   confirmUpdateProp(Prop) clsend airecv;
   updateProp(Prop) broadcast;
   openNewPropWindow();
   d_spawnProp(string propName, int32/100000 x, int32/100000 y, int32/100000 z, int32/100000 h, int32/100000 p, int32/100000 r, int32/100000 sX, int32/100000 sY, int32/100000 sZ) clsend airecv;
+  d_dupeProp(uint32 propId) clsend airecv;
   confirmDeleteProp(uint32 propId) clsend airecv;
   deleteProp(uint32 propId) broadcast;
   propMessage(uint8 index);
@@ -4043,3 +4053,4 @@ dclass DistributedSafezoneJukebox : DistributedObject {
   exitRequestDenied(uint8);
   setToonsPlaying(uint32 []) broadcast ram;
 };
+

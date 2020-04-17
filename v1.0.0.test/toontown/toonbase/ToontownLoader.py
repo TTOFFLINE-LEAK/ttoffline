@@ -26,27 +26,29 @@ class ToontownLoader(Loader.Loader):
         if self.inBulkBlock:
             Loader.Loader.notify.warning("Tried to start a block ('%s'), but am already in a block ('%s')" % (name, self.blockName))
             return
-        self.inBulkBlock = 1
-        self._lastTickT = globalClock.getRealTime()
-        self.blockName = name
-        self.loadingScreen.begin(range, label, gui, tipCategory)
-        return
+        else:
+            self.inBulkBlock = 1
+            self._lastTickT = globalClock.getRealTime()
+            self.blockName = name
+            self.loadingScreen.begin(range, label, gui, tipCategory)
+            return
 
     def endBulkLoad(self, name):
         if not self.inBulkBlock:
             Loader.Loader.notify.warning("Tried to end a block ('%s'), but not in one" % name)
             return
-        if name != self.blockName:
-            Loader.Loader.notify.warning("Tried to end a block ('%s'), other then the current one ('%s')" % (name, self.blockName))
+        else:
+            if name != self.blockName:
+                Loader.Loader.notify.warning("Tried to end a block ('%s'), other then the current one ('%s')" % (name, self.blockName))
+                return
+            self.inBulkBlock = None
+            expectedCount, loadedCount = self.loadingScreen.end()
+            now = globalClock.getRealTime()
+            Loader.Loader.notify.info("At end of block '%s', expected %s, loaded %s, duration=%s" % (self.blockName,
+             expectedCount,
+             loadedCount,
+             now - self._loadStartT))
             return
-        self.inBulkBlock = None
-        expectedCount, loadedCount = self.loadingScreen.end()
-        now = globalClock.getRealTime()
-        Loader.Loader.notify.info("At end of block '%s', expected %s, loaded %s, duration=%s" % (self.blockName,
-         expectedCount,
-         loadedCount,
-         now - self._loadStartT))
-        return
 
     def abortBulkLoad(self):
         if self.inBulkBlock:

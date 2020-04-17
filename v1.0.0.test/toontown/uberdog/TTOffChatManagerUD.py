@@ -59,11 +59,10 @@ class TTOffChatManagerUD(DistributedObjectGlobalUD):
             senderFriendsList = fields['setFriendsList'][0]
             if (receiverAvId, 1) in senderFriendsList:
                 filteredMessage, modifications = message, []
+            elif self.wantWhiteList:
+                filteredMessage, modifications = self.filterWhiteList(message)
             else:
-                if self.wantWhiteList:
-                    filteredMessage, modifications = self.filterWhiteList(message)
-                else:
-                    filteredMessage, modifications = message, []
+                filteredMessage, modifications = message, []
             do = self.air.dclassesByName['DistributedAvatarUD']
             datagram = do.aiFormatUpdate('setTalkWhisper', receiverAvId, receiverAvId, self.air.ourChannel, [
              avId, accId, senderName, filteredMessage, modifications, 0, message])
@@ -80,12 +79,10 @@ class TTOffChatManagerUD(DistributedObjectGlobalUD):
         for word in words:
             if word == '.' and len(words) == 1:
                 pass
-            else:
-                if (word.startswith('.') or word.startswith('!')) and len(word) > 1 and i == 0:
-                    modifications.append((offset + 1, offset + len(word) - 1))
-                else:
-                    if word and not self.whiteList.isWord(word):
-                        modifications.append((offset, offset + len(word) - 1))
+            elif (word.startswith('.') or word.startswith('!')) and len(word) > 1 and i == 0:
+                modifications.append((offset + 1, offset + len(word) - 1))
+            elif word and not self.whiteList.isWord(word):
+                modifications.append((offset, offset + len(word) - 1))
             offset += len(word) + 1
             i += 1
 

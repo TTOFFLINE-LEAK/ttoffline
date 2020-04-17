@@ -122,9 +122,8 @@ class ShadowCaster:
                 if self.activeShadow == 1:
                     self.storedActiveState = 1
                     self.setActiveShadow(0)
-            else:
-                if self.activeShadow == 0:
-                    self.setActiveShadow(1)
+            elif self.activeShadow == 0:
+                self.setActiveShadow(1)
             self.showShadow()
         return
 

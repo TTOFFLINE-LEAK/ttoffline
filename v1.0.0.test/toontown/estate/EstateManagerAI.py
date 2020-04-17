@@ -25,15 +25,16 @@ class LoadHouseOperation(FSM):
         if self.avatar is None:
             taskMgr.doMethodLater(0.0, self.demand, 'makeBlankHouse-%s' % id(self), extraArgs=['MakeBlankHouse'])
             return
-        style = ToonDNA.ToonDNA()
-        style.makeFromNetString(self.avatar.get('setDNAString')[0])
-        self.houseId = self.avatar.get('setHouseId', [0])[0]
-        self.gender = style.gender
-        if self.houseId == 0:
-            self.demand('CreateHouse')
         else:
-            self.demand('LoadHouse')
-        return
+            style = ToonDNA.ToonDNA()
+            style.makeFromNetString(self.avatar.get('setDNAString')[0])
+            self.houseId = self.avatar.get('setHouseId', [0])[0]
+            self.gender = style.gender
+            if self.houseId == 0:
+                self.demand('CreateHouse')
+            else:
+                self.demand('LoadHouse')
+            return
 
     def enterMakeBlankHouse(self):
         self.house = DistributedHouseAI(self.mgr.air)
@@ -278,76 +279,77 @@ class EstateManagerAI(DistributedObjectAI):
         if not senderAv:
             self.air.writeServerEvent('suspicious', senderId, 'Sent getEstateZone() but not on district!')
             return
-        if avId and avId != senderId:
-            av = self.air.doId2do.get(avId)
-            if av and av.dclass == self.air.dclassesByName['DistributedToonAI']:
-                estate = self.toon2estate.get(av)
-                if estate:
-                    avId = estate.owner.doId
-                    zoneId = estate.zoneId
-                    self._mapToEstate(senderAv, estate)
-                    self._unloadEstate(senderAv)
-                    if senderAv and senderAv.getPetId() != 0:
-                        pet = self.air.doId2do.get(senderAv.getPetId())
-                        if pet:
-                            self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadPet, extraArgs=[
-                             estate, senderAv])
-                            pet.requestDelete()
-                        else:
-                            self.__handleLoadPet(estate, senderAv)
+        else:
+            if avId and avId != senderId:
+                av = self.air.doId2do.get(avId)
+                if av and av.dclass == self.air.dclassesByName['DistributedToonAI']:
+                    estate = self.toon2estate.get(av)
+                    if estate:
+                        avId = estate.owner.doId
+                        zoneId = estate.zoneId
+                        self._mapToEstate(senderAv, estate)
+                        self._unloadEstate(senderAv)
+                        if senderAv and senderAv.getPetId() != 0:
+                            pet = self.air.doId2do.get(senderAv.getPetId())
+                            if pet:
+                                self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadPet, extraArgs=[
+                                 estate, senderAv])
+                                pet.requestDelete()
+                            else:
+                                self.__handleLoadPet(estate, senderAv)
+                        if hasattr(senderAv, 'enterEstate'):
+                            senderAv.enterEstate(avId, zoneId)
+                        self.sendUpdateToAvatarId(senderId, 'setEstateZone', [avId, zoneId])
+                self.sendUpdateToAvatarId(senderId, 'setEstateZone', [0, 0])
+                return
+            estate = getattr(senderAv, 'estate', None)
+            if estate:
+                self._mapToEstate(senderAv, senderAv.estate)
+                if senderAv and senderAv.getPetId() != 0:
+                    pet = self.air.doId2do.get(senderAv.getPetId())
+                    if pet:
+                        self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadPet, extraArgs=[
+                         estate, senderAv])
+                        pet.requestDelete()
+                    else:
+                        self.__handleLoadPet(estate, senderAv)
+                if hasattr(senderAv, 'enterEstate'):
+                    senderAv.enterEstate(senderId, estate.zoneId)
+                self.sendUpdateToAvatarId(senderId, 'setEstateZone', [senderId, estate.zoneId])
+                if estate in self.estate2timeout:
+                    self.estate2timeout[estate].remove()
+                    del self.estate2timeout[estate]
+                return
+            if getattr(senderAv, 'loadEstateOperation', None):
+                return
+            zoneId = self.air.allocateZone()
+            self.zone2owner[zoneId] = avId
+
+            def estateLoaded(success):
+                if success:
+                    senderAv.estate = senderAv.loadEstateOperation.estate
+                    senderAv.estate.owner = senderAv
+                    self._mapToEstate(senderAv, senderAv.estate)
                     if hasattr(senderAv, 'enterEstate'):
-                        senderAv.enterEstate(avId, zoneId)
-                    self.sendUpdateToAvatarId(senderId, 'setEstateZone', [avId, zoneId])
-            self.sendUpdateToAvatarId(senderId, 'setEstateZone', [0, 0])
-            return
-        estate = getattr(senderAv, 'estate', None)
-        if estate:
-            self._mapToEstate(senderAv, senderAv.estate)
+                        senderAv.enterEstate(senderId, zoneId)
+                    self.sendUpdateToAvatarId(senderId, 'setEstateZone', [senderId, zoneId])
+                else:
+                    self.sendUpdateToAvatarId(senderId, 'setEstateZone', [0, 0])
+                    self.air.deallocateZone(zoneId)
+                    del self.zone2owner[zoneId]
+                senderAv.loadEstateOperation = None
+                return
+
+            self.acceptOnce(self.air.getAvatarExitEvent(senderAv.doId), self.__handleUnexpectedExit, extraArgs=[senderAv])
             if senderAv and senderAv.getPetId() != 0:
                 pet = self.air.doId2do.get(senderAv.getPetId())
                 if pet:
-                    self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadPet, extraArgs=[
-                     estate, senderAv])
+                    self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadEstate, extraArgs=[
+                     senderAv, estateLoaded, accId, zoneId])
                     pet.requestDelete()
-                else:
-                    self.__handleLoadPet(estate, senderAv)
-            if hasattr(senderAv, 'enterEstate'):
-                senderAv.enterEstate(senderId, estate.zoneId)
-            self.sendUpdateToAvatarId(senderId, 'setEstateZone', [senderId, estate.zoneId])
-            if estate in self.estate2timeout:
-                self.estate2timeout[estate].remove()
-                del self.estate2timeout[estate]
+                    return
+            self.__handleLoadEstate(senderAv, estateLoaded, accId, zoneId)
             return
-        if getattr(senderAv, 'loadEstateOperation', None):
-            return
-        zoneId = self.air.allocateZone()
-        self.zone2owner[zoneId] = avId
-
-        def estateLoaded(success):
-            if success:
-                senderAv.estate = senderAv.loadEstateOperation.estate
-                senderAv.estate.owner = senderAv
-                self._mapToEstate(senderAv, senderAv.estate)
-                if hasattr(senderAv, 'enterEstate'):
-                    senderAv.enterEstate(senderId, zoneId)
-                self.sendUpdateToAvatarId(senderId, 'setEstateZone', [senderId, zoneId])
-            else:
-                self.sendUpdateToAvatarId(senderId, 'setEstateZone', [0, 0])
-                self.air.deallocateZone(zoneId)
-                del self.zone2owner[zoneId]
-            senderAv.loadEstateOperation = None
-            return
-
-        self.acceptOnce(self.air.getAvatarExitEvent(senderAv.doId), self.__handleUnexpectedExit, extraArgs=[senderAv])
-        if senderAv and senderAv.getPetId() != 0:
-            pet = self.air.doId2do.get(senderAv.getPetId())
-            if pet:
-                self.acceptOnce(self.air.getAvatarExitEvent(senderAv.getPetId()), self.__handleLoadEstate, extraArgs=[
-                 senderAv, estateLoaded, accId, zoneId])
-                pet.requestDelete()
-                return
-        self.__handleLoadEstate(senderAv, estateLoaded, accId, zoneId)
-        return
 
     def __handleUnexpectedExit(self, senderAv):
         self._unmapFromEstate(senderAv)
@@ -429,17 +431,17 @@ class EstateManagerAI(DistributedObjectAI):
             del self.estate[av.doId]
         except KeyError:
             pass
-        else:
-            del self.toon2estate[av]
-            try:
-                self.estate2toons[estate].remove(av)
-            except (KeyError, ValueError):
-                pass
 
-            try:
-                self.zone2toons[estate.zoneId].remove(av.doId)
-            except (KeyError, ValueError):
-                pass
+        del self.toon2estate[av]
+        try:
+            self.estate2toons[estate].remove(av)
+        except (KeyError, ValueError):
+            pass
+
+        try:
+            self.zone2toons[estate.zoneId].remove(av.doId)
+        except (KeyError, ValueError):
+            pass
 
     def _cleanupEstate(self, estate):
         self._sendToonsToPlayground(estate, 1)
@@ -454,11 +456,11 @@ class EstateManagerAI(DistributedObjectAI):
             del self.estate2toons[estate]
         except KeyError:
             pass
-        else:
-            try:
-                del self.zone2toons[estate.zoneId]
-            except KeyError:
-                pass
+
+        try:
+            del self.zone2toons[estate.zoneId]
+        except KeyError:
+            pass
 
         if estate in self.estate2timeout:
             del self.estate2timeout[estate]

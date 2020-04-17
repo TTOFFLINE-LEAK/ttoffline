@@ -63,14 +63,12 @@ class DistributedButterfly(DistributedObject.DistributedObject):
             else:
                 if index == 0 or index == 1:
                     color = self.yellowColors[(self.doId % len(self.yellowColors))]
+                elif index == 2 or index == 3:
+                    color = self.whiteColors[(self.doId % len(self.whiteColors))]
+                elif index == 4:
+                    color = self.paleYellowColors[(self.doId % len(self.paleYellowColors))]
                 else:
-                    if index == 2 or index == 3:
-                        color = self.whiteColors[(self.doId % len(self.whiteColors))]
-                    else:
-                        if index == 4:
-                            color = self.paleYellowColors[(self.doId % len(self.paleYellowColors))]
-                        else:
-                            color = Vec4(1, 1, 1, 1)
+                    color = Vec4(1, 1, 1, 1)
                 wing.setColor(color)
 
         self.butterfly2 = Actor.Actor(other=self.butterfly)

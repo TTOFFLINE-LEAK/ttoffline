@@ -114,35 +114,32 @@ ROTATE_TABLE_ALLOWED_ANGLES = (0, 90, 180, 270)
 def rotateTable(table, angle):
     if angle == 0:
         t = table[:]
-    else:
-        if angle == 90:
-            t = []
-            width = len(table[0])
-            height = len(table)
-            for j in xrange(width):
-                row = []
-                for i in xrange(height):
-                    row.append(table[(height - 1 - i)][j])
+    elif angle == 90:
+        t = []
+        width = len(table[0])
+        height = len(table)
+        for j in xrange(width):
+            row = []
+            for i in xrange(height):
+                row.append(table[(height - 1 - i)][j])
 
-                t.append(row)
+            t.append(row)
 
-        else:
-            if angle == 180:
-                t = table[:]
-                for row in t:
-                    row.reverse()
+    elif angle == 180:
+        t = table[:]
+        for row in t:
+            row.reverse()
 
-                t.reverse()
-            else:
-                if angle == 270:
-                    t = []
-                    width = len(table[0])
-                    height = len(table)
-                    for j in xrange(width):
-                        row = []
-                        for i in xrange(height):
-                            row.append(table[i][(width - 1 - j)])
+        t.reverse()
+    elif angle == 270:
+        t = []
+        width = len(table[0])
+        height = len(table)
+        for j in xrange(width):
+            row = []
+            for i in xrange(height):
+                row.append(table[i][(width - 1 - j)])
 
-                        t.append(row)
+            t.append(row)
 
     return t

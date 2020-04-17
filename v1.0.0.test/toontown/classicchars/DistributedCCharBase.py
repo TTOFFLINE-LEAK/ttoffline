@@ -162,9 +162,8 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
         destHpr.setX(heading)
         if destHpr[0] - curHpr[0] > 180.0:
             destHpr.setX(destHpr[0] - 360)
-        else:
-            if destHpr[0] - curHpr[0] < -180.0:
-                destHpr.setX(destHpr[0] + 360)
+        elif destHpr[0] - curHpr[0] < -180.0:
+            destHpr.setX(destHpr[0] + 360)
         turnSpeed = 180.0
         time = abs(destHpr[0] - curHpr[0]) / turnSpeed
         turnTracks = Parallel()
@@ -202,12 +201,11 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
                     if ToontownGlobals.APRIL_FOOLS_COSTUMES in holidayIds:
                         if self.getName() == Pluto:
                             chatFlags = CFTimeout | CFSpeech
+            elif self.getName() == DonaldDock:
+                chatFlags = CFTimeout | CFSpeech
+                self.nametag3d.hide()
             else:
-                if self.getName() == DonaldDock:
-                    chatFlags = CFTimeout | CFSpeech
-                    self.nametag3d.hide()
-                else:
-                    chatFlags = CFTimeout | CFSpeech
+                chatFlags = CFTimeout | CFSpeech
             self.chatterDialogue = self.getChatterDialogue(category, msg)
             track.append(Func(self.setChatAbsolute, str, chatFlags, self.chatterDialogue))
             self.chatTrack.finish()
@@ -219,9 +217,8 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
         result = int(round((avatarPos[0] + avatarPos[1]) / 2))
         if result > 100:
             result = 100
-        else:
-            if result < 0:
-                result = 0
+        elif result < 0:
+            result = 0
         volumeList = range(100, -1, -1)
         return volumeList[result]
 
@@ -231,14 +228,13 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
         self.__currentDialogue = dialogue
         if dialogue:
             base.playSfx(dialogue, node=self)
-        else:
-            if chatFlags & CFSpeech != 0:
-                if self.nametag.getNumChatPages() > 0:
-                    self.playDialogueForString(self.nametag.getChat())
-                    if self.soundChatBubble != None:
-                        base.playSfx(self.soundChatBubble, node=self)
-                elif self.nametag.getChatStomp() > 0:
-                    self.playDialogueForString(self.nametag.getStompText(), self.nametag.getStompDelay())
+        elif chatFlags & CFSpeech != 0:
+            if self.nametag.getNumChatPages() > 0:
+                self.playDialogueForString(self.nametag.getChat())
+                if self.soundChatBubble != None:
+                    base.playSfx(self.soundChatBubble, node=self)
+            elif self.nametag.getChatStomp() > 0:
+                self.playDialogueForString(self.nametag.getStompText(), self.nametag.getStompDelay())
         return
 
     def playDialogueForString(self, chatString, delay=0.0):
@@ -247,28 +243,23 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
         searchString = chatString.lower()
         if searchString.find(OTPLocalizer.DialogSpecial) >= 0:
             type = 'special'
+        elif searchString.find(OTPLocalizer.DialogExclamation) >= 0:
+            type = 'exclamation'
+        elif searchString.find(OTPLocalizer.DialogQuestion) >= 0:
+            type = 'question'
+        elif random.randint(0, 1):
+            type = 'statementA'
         else:
-            if searchString.find(OTPLocalizer.DialogExclamation) >= 0:
-                type = 'exclamation'
-            else:
-                if searchString.find(OTPLocalizer.DialogQuestion) >= 0:
-                    type = 'question'
-                else:
-                    if random.randint(0, 1):
-                        type = 'statementA'
-                    else:
-                        type = 'statementB'
+            type = 'statementB'
         stringLength = len(chatString)
         if stringLength <= OTPLocalizer.DialogLength1:
             length = 1
+        elif stringLength <= OTPLocalizer.DialogLength2:
+            length = 2
+        elif stringLength <= OTPLocalizer.DialogLength3:
+            length = 3
         else:
-            if stringLength <= OTPLocalizer.DialogLength2:
-                length = 2
-            else:
-                if stringLength <= OTPLocalizer.DialogLength3:
-                    length = 3
-                else:
-                    length = 4
+            length = 4
         self.playDialogue(type, length, chatString, delay)
 
     def playDialogue(self, type, length, chatString='', delay=0.0):
@@ -278,24 +269,27 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
             soundSequence.start()
             self.cleanUpSoundList()
             return
-        dialogue = self.getDialogue(type, length)
-        soundSequence = Sequence(Wait(delay), SoundInterval(dialogue, node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
-        self.soundSequenceList.append(soundSequence)
-        soundSequence.start()
-        self.cleanUpSoundList()
-        return
+        else:
+            dialogue = self.getDialogue(type, length)
+            soundSequence = Sequence(Wait(delay), SoundInterval(dialogue, node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
+            self.soundSequenceList.append(soundSequence)
+            soundSequence.start()
+            self.cleanUpSoundList()
+            return
 
     def playTTS(self, chatString):
         try:
             if self.getTTSVolume() == 0:
                 return
-            if sys.platform == 'darwin':
-                voice = ToontownGlobals.DefaultVoiceClassicChar
-                Popen(['say', voice, chatString])
             else:
-                volume = '-a' + str(self.getTTSVolume())
-                Popen([base.textToSpeechPath, volume, '-ven', chatString])
-            return
+                if sys.platform == 'darwin':
+                    voice = ToontownGlobals.DefaultVoiceClassicChar
+                    Popen(['say', voice, chatString])
+                else:
+                    volume = '-a' + str(self.getTTSVolume())
+                    Popen([base.textToSpeechPath, volume, '-ven', chatString])
+                return
+
         except:
             base.resetTextToSpeech()
             self.setSystemMessage(0, TextToSpeechWarning)
@@ -325,9 +319,8 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
             if self.notify.getDebug():
                 self.notify.debug('enabling raycast for ' + self.getName())
             self.cTrav.addCollider(self.cRayNodePath, self.lifter)
-        else:
-            if self.notify.getDebug():
-                self.notify.debug('disabling raycast for ' + self.getName())
+        elif self.notify.getDebug():
+            self.notify.debug('disabling raycast for ' + self.getName())
 
     def getCCLocation(self):
         return 0

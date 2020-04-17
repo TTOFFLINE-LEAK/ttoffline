@@ -185,21 +185,22 @@ class ClosetGUI(ClothesGUI.ClothesGUI):
         if self.bottomChoice < 0 or self.bottomChoice >= len(self.bottoms) or len(self.bottoms[self.bottomChoice]) != 2:
             self.notify.warning('bottomChoice index is out of range!')
             return
-        self.toon.style.botTex = self.bottoms[self.bottomChoice][0]
-        self.toon.style.botTexColor = self.bottoms[self.bottomChoice][1]
-        if self.genderChange == 1:
-            if self.bottomChoice > 0:
-                self.__handleGenderBender(1)
-            else:
-                self.__handleGenderBender(0)
-        if self.toon.generateToonClothes() == 1:
-            self.toon.loop('neutral', 0)
-            self.swappedTorso = 1
-        if self.isOwner:
-            self.updateTrashButtons()
-        if self.swapEvent != None:
-            messenger.send(self.swapEvent)
-        return
+        else:
+            self.toon.style.botTex = self.bottoms[self.bottomChoice][0]
+            self.toon.style.botTexColor = self.bottoms[self.bottomChoice][1]
+            if self.genderChange == 1:
+                if self.bottomChoice > 0:
+                    self.__handleGenderBender(1)
+                else:
+                    self.__handleGenderBender(0)
+            if self.toon.generateToonClothes() == 1:
+                self.toon.loop('neutral', 0)
+                self.swappedTorso = 1
+            if self.isOwner:
+                self.updateTrashButtons()
+            if self.swapEvent != None:
+                messenger.send(self.swapEvent)
+            return
 
     def __handleGenderBender(self, type):
         if type == 1:
@@ -221,9 +222,8 @@ class ClosetGUI(ClothesGUI.ClothesGUI):
             del self.tops[index]
             if self.topChoice > index:
                 self.topChoice -= 1
-            else:
-                if self.topChoice == index:
-                    self.topChoice = 0
+            elif self.topChoice == index:
+                self.topChoice = 0
             return 1
         return 0
 
@@ -233,9 +233,8 @@ class ClosetGUI(ClothesGUI.ClothesGUI):
             del self.bottoms[index]
             if self.bottomChoice > index:
                 self.bottomChoice -= 1
-            else:
-                if self.bottomChoice == index:
-                    self.bottomChoice = 0
+            elif self.bottomChoice == index:
+                self.bottomChoice = 0
             return 1
         return 0
 
@@ -251,11 +250,10 @@ class ClosetGUI(ClothesGUI.ClothesGUI):
     def __handleDelete(self, t_or_b):
         if t_or_b == ClosetGlobals.SHIRT:
             item = TTLocalizer.ClosetShirt
+        elif self.toon.style.torso[1] == 'd':
+            item = TTLocalizer.ClosetSkirt
         else:
-            if self.toon.style.torso[1] == 'd':
-                item = TTLocalizer.ClosetSkirt
-            else:
-                item = TTLocalizer.ClosetShorts
+            item = TTLocalizer.ClosetShorts
         self.verify = TTDialog.TTGlobalDialog(doneEvent='verifyDone', message=TTLocalizer.ClosetVerifyDelete % item, style=TTDialog.TwoChoice)
         self.verify.show()
         self.accept('verifyDone', Functor(self.__handleVerifyDelete, t_or_b))

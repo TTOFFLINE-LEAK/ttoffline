@@ -148,7 +148,8 @@ class DistributedIceWorld(DistributedMinigamePhysicsWorld.DistributedMinigamePhy
     def createObstacle(self, pos, obstacleIndex, cubicObstacle):
         if cubicObstacle:
             return self.createCubicObstacle(pos, obstacleIndex)
-        return self.createCircularObstacle(pos, obstacleIndex)
+        else:
+            return self.createCircularObstacle(pos, obstacleIndex)
 
     def createCircularObstacle(self, pos, obstacleIndex):
         self.notify.debug('create obstacleindex %s' % obstacleIndex)

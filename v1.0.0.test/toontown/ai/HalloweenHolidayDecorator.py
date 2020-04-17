@@ -18,20 +18,22 @@ class HalloweenHolidayDecorator(HolidayDecorator.HolidayDecorator):
     def __checkStreetValidity(self):
         if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace() and isinstance(base.cr.playGame.getPlace(), Street.Street) and hasattr(base.cr.playGame.getPlace(), 'loader') and base.cr.playGame.getPlace().loader and hasattr(base.cr.playGame.getPlace().loader, 'geom') and base.cr.playGame.getPlace().loader.geom:
             return True
-        if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace():
-            self.notify.debug('Failed Street Check %s' % base.cr.playGame.getPlace())
         else:
-            self.notify.debug('Failed Street Check')
-        return False
+            if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace():
+                self.notify.debug('Failed Street Check %s' % base.cr.playGame.getPlace())
+            else:
+                self.notify.debug('Failed Street Check')
+            return False
 
     def __checkHoodValidity(self):
         if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace() and (isinstance(base.cr.playGame.getPlace(), Playground.Playground) or isinstance(base.cr.playGame.getPlace(), Estate.Estate)) and hasattr(base.cr.playGame.getPlace(), 'loader') and base.cr.playGame.getPlace().loader and hasattr(base.cr.playGame.getPlace().loader, 'hood') and base.cr.playGame.getPlace().loader.hood and hasattr(base.cr.playGame.getPlace().loader.hood, 'loader') and base.cr.playGame.getPlace().loader.hood.loader and hasattr(base.cr.playGame.getPlace().loader.hood.loader, 'geom') and base.cr.playGame.getPlace().loader.hood.loader.geom:
             return True
-        if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace():
-            self.notify.debug('Failed Hood Check %s' % base.cr.playGame.getPlace())
         else:
-            self.notify.debug('Failed Hood Check')
-        return False
+            if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace():
+                self.notify.debug('Failed Hood Check %s' % base.cr.playGame.getPlace())
+            else:
+                self.notify.debug('Failed Hood Check')
+            return False
 
     def __startSpookySky(self):
         if (self.__checkHoodValidity() or self.__checkStreetValidity()) and hasattr(base.cr.playGame.hood, 'sky') and base.cr.playGame.hood.sky:
@@ -61,11 +63,11 @@ class HalloweenHolidayDecorator(HolidayDecorator.HolidayDecorator):
             else:
                 if not self.__checkHoodValidity():
                     return
-            place.loader.hood.halloweenLights = place.loader.hood.loader.geom.findAllMatches('**/*light*')
-            place.loader.hood.halloweenLights += place.loader.hood.loader.geom.findAllMatches('**/*lamp*')
-            place.loader.hood.halloweenLights += place.loader.hood.loader.geom.findAllMatches('**/prop_snow_tree*')
-            for light in place.loader.hood.halloweenLights:
-                light.setColorScaleOff(0)
+                place.loader.hood.halloweenLights = place.loader.hood.loader.geom.findAllMatches('**/*light*')
+                place.loader.hood.halloweenLights += place.loader.hood.loader.geom.findAllMatches('**/*lamp*')
+                place.loader.hood.halloweenLights += place.loader.hood.loader.geom.findAllMatches('**/prop_snow_tree*')
+                for light in place.loader.hood.halloweenLights:
+                    light.setColorScaleOff(0)
 
         holidayIds = base.cr.newsManager.getDecorationHolidayId()
         if ToontownGlobals.HALLOWEEN_COSTUMES not in holidayIds and ToontownGlobals.SPOOKY_COSTUMES not in holidayIds:

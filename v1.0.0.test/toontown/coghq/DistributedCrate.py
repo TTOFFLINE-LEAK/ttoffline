@@ -180,9 +180,10 @@ class DistributedCrate(DistributedCrushableEntity.DistributedCrushableEntity):
             self.avPushTrack = Sequence(LerpPosHprInterval(lToon, 0.25, newPos, newHpr, startHpr=startHpr, other=self, blendType='easeInOut'), Func(place.fsm.request, 'push'), Func(self.__sendPushRequest, task.crateNormal), SoundInterval(self.creakSound, node=self))
             self.avPushTrack.start()
             return Task.done
-        pos = task.toonPos
-        base.localAvatar.setPos(task.toonPos)
-        return Task.cont
+        else:
+            pos = task.toonPos
+            base.localAvatar.setPos(task.toonPos)
+            return Task.cont
 
     def getCrateSide(self, crateNormal):
         for i in xrange(len(CrateNormals)):

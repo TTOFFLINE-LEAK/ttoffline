@@ -34,14 +34,12 @@ def openToAll(zoneId, avatar):
 
     if canonicalZoneId in allowedZones or avatar.isInEstate():
         allowed = True
-    else:
-        if zoneId in specialZones:
+    elif zoneId in specialZones:
+        allowed = True
+    elif canonicalZoneId >= ToontownGlobals.DynamicZonesBegin and not avatar.getTutorialAck():
+        zoneDict = simbase.air.tutorialManager.playerDict.get(avatar.doId)
+        if zoneDict:
             allowed = True
-        else:
-            if canonicalZoneId >= ToontownGlobals.DynamicZonesBegin and not avatar.getTutorialAck():
-                zoneDict = simbase.air.tutorialManager.playerDict.get(avatar.doId)
-                if zoneDict:
-                    allowed = True
     return allowed
 
 
@@ -53,6 +51,7 @@ def canWearSuit(avatarId, zoneId):
      ToontownGlobals.BossbotHQ]
     if canonicalZoneId in allowedSuitZones:
         return True
-    if zoneId >= ToontownGlobals.DynamicZonesBegin:
-        return True
-    return False
+    else:
+        if zoneId >= ToontownGlobals.DynamicZonesBegin:
+            return True
+        return False

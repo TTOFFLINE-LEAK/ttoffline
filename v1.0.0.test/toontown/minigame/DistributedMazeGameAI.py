@@ -77,22 +77,23 @@ class DistributedMazeGameAI(DistributedMinigameAI):
              self.scoreDict,
              self.avIdList))
             return
-        if treasureNum < 0 or treasureNum >= self.numTreasures:
-            self.air.writeServerEvent('warning', treasureNum, 'MazeGameAI.claimTreasure treasureNum out of range')
+        else:
+            if treasureNum < 0 or treasureNum >= self.numTreasures:
+                self.air.writeServerEvent('warning', treasureNum, 'MazeGameAI.claimTreasure treasureNum out of range')
+                return
+            if self.takenTable[treasureNum]:
+                return
+            self.takenTable[treasureNum] = 1
+            avId = self.air.getAvatarIdFromSender()
+            self.sendUpdate('setTreasureGrabbed', [avId, treasureNum])
+            self.scoreDict[avId] += 1
+            self.numTreasuresTaken += 1
+            if self.numTreasuresTaken >= self.numTreasures:
+                self.logAllPerfect()
+                self.sendUpdate('allTreasuresTaken', [])
+                if not MazeGameGlobals.ENDLESS_GAME:
+                    self.gameFSM.request('waitShowScores')
             return
-        if self.takenTable[treasureNum]:
-            return
-        self.takenTable[treasureNum] = 1
-        avId = self.air.getAvatarIdFromSender()
-        self.sendUpdate('setTreasureGrabbed', [avId, treasureNum])
-        self.scoreDict[avId] += 1
-        self.numTreasuresTaken += 1
-        if self.numTreasuresTaken >= self.numTreasures:
-            self.logAllPerfect()
-            self.sendUpdate('allTreasuresTaken', [])
-            if not MazeGameGlobals.ENDLESS_GAME:
-                self.gameFSM.request('waitShowScores')
-        return
 
     def timerExpired(self, task):
         self.notify.debug('timer expired')

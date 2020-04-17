@@ -80,8 +80,9 @@ def checkName(name, otherCheckFuncs=[], font=None):
                 if char in string.digits:
                     notify.info('name contains digits')
                     return OTPLocalizer.NCNoDigits
-                notify.info('name contains bad char: %s' % TextEncoder().encodeWtext(char))
-                return OTPLocalizer.NCBadCharacter % TextEncoder().encodeWtext(char)
+                else:
+                    notify.info('name contains bad char: %s' % TextEncoder().encodeWtext(char))
+                    return OTPLocalizer.NCBadCharacter % TextEncoder().encodeWtext(char)
 
     def fontHasCharacters(name, font=font):
         if font:
@@ -106,17 +107,18 @@ def checkName(name, otherCheckFuncs=[], font=None):
         def perWord(word):
             if '.' in word:
                 return
-            for char in word:
-                if ord(char) >= 128:
-                    return
+            else:
+                for char in word:
+                    if ord(char) >= 128:
+                        return
 
-            letters = filterString(word, string.letters)
-            if len(letters) > 2:
-                vowels = filterString(letters, 'aeiouyAEIOUY')
-                if len(vowels) == 0:
-                    notify.info('word "%s" has no vowels' % TextEncoder().encodeWtext(word))
-                    return OTPLocalizer.NCNeedVowels
-            return
+                letters = filterString(word, string.letters)
+                if len(letters) > 2:
+                    vowels = filterString(letters, 'aeiouyAEIOUY')
+                    if len(vowels) == 0:
+                        notify.info('word "%s" has no vowels' % TextEncoder().encodeWtext(word))
+                        return OTPLocalizer.NCNeedVowels
+                return
 
         if fallbackRestrictionBool:
             for word in wordList(name):
@@ -171,11 +173,12 @@ def checkName(name, otherCheckFuncs=[], font=None):
         def validComma(index, name=name):
             if index == 0 or i == len(name) - 1:
                 return OTPLocalizer.NCCommaEdge
-            if name[(i - 1)].isspace():
-                return OTPLocalizer.NCCommaAfterWord
-            if not name[(i + 1)].isspace():
-                return OTPLocalizer.NCCommaUsage
-            return
+            else:
+                if name[(i - 1)].isspace():
+                    return OTPLocalizer.NCCommaAfterWord
+                if not name[(i + 1)].isspace():
+                    return OTPLocalizer.NCCommaUsage
+                return
 
         if fallbackRestrictionBool:
             i = 0
@@ -273,8 +276,10 @@ def checkName(name, otherCheckFuncs=[], font=None):
                 if char in asciiDigits:
                     notify.info('name contains not allowed ascii digits')
                     return OTPLocalizer.NCNoDigits
-                notify.info('name contains not allowed utf8 char: 0x%04x' % char)
-                return OTPLocalizer.NCBadCharacter % te.encodeWtext(unichr(char))
+                else:
+                    notify.info('name contains not allowed utf8 char: 0x%04x' % char)
+                    return OTPLocalizer.NCBadCharacter % te.encodeWtext(unichr(char))
+
             elif char in halfwidthCharacter:
                 dc += 0.5
             else:

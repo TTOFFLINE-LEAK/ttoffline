@@ -32,12 +32,11 @@ class DistributedSpecialZonePortal(DistributedObject.DistributedObject):
             self.portalPos = (93.205, -106.482, 2.5)
             self.destinationZoneId = 19000
             self.generateMeetHere()
+        elif self.zoneId == 19000:
+            self.portalPos = (119.999, -99.9999, 0)
+            self.destinationZoneId = 2000
         else:
-            if self.zoneId == 19000:
-                self.portalPos = (119.999, -99.9999, 0)
-                self.destinationZoneId = 2000
-            else:
-                self.notify.error('DistributedSpecialZonePortal geom could not be found!')
+            self.notify.error('DistributedSpecialZonePortal geom could not be found!')
         self.fountainNode = loader.loadModel('phase_4/models/props/toontown_central_fountain')
         self.fountainNode.setPos(self.portalPos)
         self.fountainNode.reparentTo(render)
@@ -109,36 +108,34 @@ class DistributedSpecialZonePortal(DistributedObject.DistributedObject):
         if not place:
             self.acceptOnce('playGameSetPlace', self.togglePortal, extraArgs=[state, zoneId, npcId, avId, ts])
             return
-        if self.portalSeq:
-            if self.portalSeq.isPlaying():
-                self.portalSeq.finish()
-        if zoneId in ToontownGlobals.Location2Hood.keys():
-            hoodId = ToontownGlobals.Location2Hood[zoneId]
         else:
-            hoodId = zoneId
-        if state == 0:
-            self.makePortalOpenSequence(hoodId, zoneId)
-        else:
-            if state == 1:
+            if self.portalSeq:
+                if self.portalSeq.isPlaying():
+                    self.portalSeq.finish()
+            if zoneId in ToontownGlobals.Location2Hood.keys():
+                hoodId = ToontownGlobals.Location2Hood[zoneId]
+            else:
+                hoodId = zoneId
+            if state == 0:
+                self.makePortalOpenSequence(hoodId, zoneId)
+            elif state == 1:
                 if self.previousState != 0:
                     self.makePortalOpenSequence(hoodId, zoneId)
                     self.portalSeq.finish()
                 self.makePortalCloseSequence()
-            else:
-                if state == 2:
+            elif state == 2:
+                self.makeMeetHereSequence(npcId, avId)
+            elif state == 3:
+                if self.previousState != 2:
                     self.makeMeetHereSequence(npcId, avId)
-                else:
-                    if state == 3:
-                        if self.previousState != 2:
-                            self.makeMeetHereSequence(npcId, avId)
-                            if self.portalSeq != None:
-                                self.portalSeq.finish()
-                        self.makeNoResponseSequence()
-        if self.portalSeq:
-            ts = globalClockDelta.localElapsedTime(ts)
-            self.portalSeq.start(ts)
-        self.previousState = state
-        return
+                    if self.portalSeq != None:
+                        self.portalSeq.finish()
+                self.makeNoResponseSequence()
+            if self.portalSeq:
+                ts = globalClockDelta.localElapsedTime(ts)
+                self.portalSeq.start(ts)
+            self.previousState = state
+            return
 
     def makePortalOpenSequence(self, hoodId, zoneId):
         place = base.cr.playGame.getPlace()
@@ -198,9 +195,8 @@ class DistributedSpecialZonePortal(DistributedObject.DistributedObject):
     def togglePortalColl(self, state, hoodId=0, zoneId=0):
         if state:
             self.accept('enterportalTrigger', self.enterPortal, extraArgs=[hoodId, zoneId])
-        else:
-            if not state:
-                self.ignore('enterportalTrigger')
+        elif not state:
+            self.ignore('enterportalTrigger')
 
     def makePortalCloseSequence(self):
         self.portalDisappearSfx = loader.loadSfx('phase_11/audio/sfx/LB_evidence_miss.ogg')

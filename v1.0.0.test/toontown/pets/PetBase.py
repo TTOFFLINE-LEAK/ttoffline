@@ -10,9 +10,10 @@ class PetBase:
     def getAnimMood(self):
         if self.mood.getDominantMood() in PetMood.PetMood.ExcitedMoods:
             return AnimMoods.EXCITED
-        if self.mood.getDominantMood() in PetMood.PetMood.UnhappyMoods:
-            return AnimMoods.SAD
-        return AnimMoods.NEUTRAL
+        else:
+            if self.mood.getDominantMood() in PetMood.PetMood.UnhappyMoods:
+                return AnimMoods.SAD
+            return AnimMoods.NEUTRAL
 
     def isExcited(self):
         return self.getAnimMood() == AnimMoods.EXCITED

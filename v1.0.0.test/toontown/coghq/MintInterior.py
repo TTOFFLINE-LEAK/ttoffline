@@ -197,16 +197,17 @@ class MintInterior(BattlePlace.BattlePlace):
         MintInterior.notify.debug('handleMintWinEvent')
         if base.cr.playGame.getPlace().fsm.getCurrentState().getName() == 'died':
             return
-        self.mintDefeated = 1
-        zoneId = ZoneUtil.getHoodId(self.zoneId)
-        self.fsm.request('teleportOut', [
-         {'loader': ZoneUtil.getLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
-            'how': 'teleportIn', 
-            'hoodId': zoneId, 
-            'zoneId': zoneId, 
-            'shardId': None, 
-            'avId': -1}])
-        return
+        else:
+            self.mintDefeated = 1
+            zoneId = ZoneUtil.getHoodId(self.zoneId)
+            self.fsm.request('teleportOut', [
+             {'loader': ZoneUtil.getLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
+                'how': 'teleportIn', 
+                'hoodId': zoneId, 
+                'zoneId': zoneId, 
+                'shardId': None, 
+                'avId': -1}])
+            return
 
     def enterDied(self, requestStatus, callback=None):
         MintInterior.notify.debug('enterDied')

@@ -81,16 +81,18 @@ class DistributedMinigameAI(DistributedObjectAI.DistributedObjectAI):
     def _playing(self):
         if not hasattr(self, 'gameFSM'):
             return False
-        if self.gameFSM.getCurrentState() == None:
-            return False
-        return self.gameFSM.getCurrentState().getName() == 'play'
+        else:
+            if self.gameFSM.getCurrentState() == None:
+                return False
+            return self.gameFSM.getCurrentState().getName() == 'play'
 
     def _inState(self, states):
         if not hasattr(self, 'gameFSM'):
             return False
-        if self.gameFSM.getCurrentState() == None:
-            return False
-        return self.gameFSM.getCurrentState().getName() in makeList(states)
+        else:
+            if self.gameFSM.getCurrentState() == None:
+                return False
+            return self.gameFSM.getCurrentState().getName() in makeList(states)
 
     def generate(self):
         DistributedObjectAI.DistributedObjectAI.generate(self)
@@ -105,7 +107,8 @@ class DistributedMinigameAI(DistributedObjectAI.DistributedObjectAI):
     def isSinglePlayer(self):
         if self.numPlayers == 1:
             return 1
-        return 0
+        else:
+            return 0
 
     def getParticipants(self):
         return self.avIdList
@@ -305,21 +308,19 @@ class DistributedMinigameAI(DistributedObjectAI.DistributedObjectAI):
         for avId in self.avIdList:
             if self.normalExit == 2:
                 score = 255
+            elif self.normalExit:
+                score = int(self.scoreDict[avId] + 0.5)
             else:
-                if self.normalExit:
-                    score = int(self.scoreDict[avId] + 0.5)
-                else:
-                    score = randReward
+                score = randReward
             if ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY in simbase.air.holidayManager.currentHolidays or ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY_MONTH in simbase.air.holidayManager.currentHolidays:
                 score *= MinigameGlobals.JellybeanTrolleyHolidayScoreMultiplier
             logEvent = False
             if score > 255:
                 score = 255
                 logEvent = True
-            else:
-                if score < 0:
-                    score = 0
-                    logEvent = True
+            elif score < 0:
+                score = 0
+                logEvent = True
             if logEvent:
                 self.air.writeServerEvent('suspicious', avId, 'got %s jellybeans playing minigame %s in zone %s' % (score, self.minigameId, self.getSafezoneId()))
             scoreList.append(score)
@@ -415,16 +416,18 @@ class DistributedMinigameAI(DistributedObjectAI.DistributedObjectAI):
     def getDifficulty(self):
         if self.difficultyOverride is not None:
             return self.difficultyOverride
-        if hasattr(self.air, 'minigameDifficulty'):
-            return float(self.air.minigameDifficulty)
-        return MinigameGlobals.getDifficulty(self.getSafezoneId())
+        else:
+            if hasattr(self.air, 'minigameDifficulty'):
+                return float(self.air.minigameDifficulty)
+            return MinigameGlobals.getDifficulty(self.getSafezoneId())
 
     def getSafezoneId(self):
         if self.trolleyZoneOverride is not None:
             return self.trolleyZoneOverride
-        if hasattr(self.air, 'minigameSafezoneId'):
-            return MinigameGlobals.getSafezoneId(self.air.minigameSafezoneId)
-        return MinigameGlobals.getSafezoneId(self.trolleyZone)
+        else:
+            if hasattr(self.air, 'minigameSafezoneId'):
+                return MinigameGlobals.getSafezoneId(self.air.minigameSafezoneId)
+            return MinigameGlobals.getSafezoneId(self.trolleyZone)
 
     def logPerfectGame(self, avId):
         self.air.writeServerEvent('perfectMinigame', avId, '%s|%s|%s' % (self.minigameId, self.trolleyZone, self.avIdList))

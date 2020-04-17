@@ -140,43 +140,46 @@ class SpecialsPhoto(NodePath):
         if specialsIndex == -1:
             nodePath = self.attachNewNode('blank')
             return nodePath
-        if specialsIndex >= 105 and specialsIndex <= 109:
-            from toontown.estate import DistributedToonStatuary
-            self.toonStatuary = DistributedToonStatuary.DistributedToonStatuary(None)
-            if specialsIndex == 109:
-                self.toonStatuary.setupToonHead()
-                self.toonStatuary.toon.setH(180)
-            else:
-                self.toonStatuary.setupStoneToon(base.localAvatar.style)
-                self.toonStatuary.poseToonFromSpecialsIndex(specialsIndex)
-                self.toonStatuary.toon.setH(180)
-            pedestalModelPath = GardenGlobals.Specials[specialsIndex]['photoModel']
-            pedestal = loader.loadModel(pedestalModelPath)
-            self.toonStatuary.toon.reparentTo(pedestal)
-            pedestal.setScale(GardenGlobals.Specials[specialsIndex]['photoScale'] * 0.5)
-            return pedestal
-        if specialsIndex == 135:
-            model = Actor.Actor()
-            modelPath = GardenGlobals.Specials[specialsIndex]['photoModel']
-            anims = GardenGlobals.Specials[specialsIndex]['photoAnimation']
-            animPath = modelPath + anims[1]
-            model.loadModel(modelPath + anims[0])
-            model.loadAnims(dict([[anims[1], animPath]]))
-            frameNo = random.randint(1, 2)
-            model.pose(anims[1], 1)
-            model.setScale(GardenGlobals.Specials[specialsIndex]['photoScale'] * 0.1)
-            return model
-        modelName = GardenGlobals.Specials[specialsIndex]['photoModel']
-        nodePath = loader.loadModel(modelName)
-        desat = None
-        colorTuple = (1, 1, 1)
-        if desat and not desat.isEmpty():
-            desat.setColorScale(colorTuple[0], colorTuple[1], colorTuple[2], 1.0)
         else:
-            nodePath.setColorScale(colorTuple[0], colorTuple[1], colorTuple[2], 1.0)
-        nodePath.setScale(GardenGlobals.Specials[specialsIndex]['photoScale'] * 0.5)
-        return nodePath
-        return
+            if specialsIndex >= 105 and specialsIndex <= 109:
+                from toontown.estate import DistributedToonStatuary
+                self.toonStatuary = DistributedToonStatuary.DistributedToonStatuary(None)
+                if specialsIndex == 109:
+                    self.toonStatuary.setupToonHead()
+                    self.toonStatuary.toon.setH(180)
+                else:
+                    self.toonStatuary.setupStoneToon(base.localAvatar.style)
+                    self.toonStatuary.poseToonFromSpecialsIndex(specialsIndex)
+                    self.toonStatuary.toon.setH(180)
+                pedestalModelPath = GardenGlobals.Specials[specialsIndex]['photoModel']
+                pedestal = loader.loadModel(pedestalModelPath)
+                self.toonStatuary.toon.reparentTo(pedestal)
+                pedestal.setScale(GardenGlobals.Specials[specialsIndex]['photoScale'] * 0.5)
+                return pedestal
+            else:
+                if specialsIndex == 135:
+                    model = Actor.Actor()
+                    modelPath = GardenGlobals.Specials[specialsIndex]['photoModel']
+                    anims = GardenGlobals.Specials[specialsIndex]['photoAnimation']
+                    animPath = modelPath + anims[1]
+                    model.loadModel(modelPath + anims[0])
+                    model.loadAnims(dict([[anims[1], animPath]]))
+                    frameNo = random.randint(1, 2)
+                    model.pose(anims[1], 1)
+                    model.setScale(GardenGlobals.Specials[specialsIndex]['photoScale'] * 0.1)
+                    return model
+                modelName = GardenGlobals.Specials[specialsIndex]['photoModel']
+                nodePath = loader.loadModel(modelName)
+                desat = None
+                colorTuple = (1, 1, 1)
+                if desat and not desat.isEmpty():
+                    desat.setColorScale(colorTuple[0], colorTuple[1], colorTuple[2], 1.0)
+                else:
+                    nodePath.setColorScale(colorTuple[0], colorTuple[1], colorTuple[2], 1.0)
+                nodePath.setScale(GardenGlobals.Specials[specialsIndex]['photoScale'] * 0.5)
+                return nodePath
+
+            return
 
     def show(self, showBackground=0):
         self.notify.debug('show')

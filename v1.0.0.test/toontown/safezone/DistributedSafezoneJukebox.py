@@ -242,9 +242,10 @@ class DistributedSafezoneJukebox(DistributedObject):
     def getAvatar(self, toonId):
         if toonId in self.cr.doId2do:
             return self.cr.doId2do[toonId]
-        self.notify.warning('BASE: getAvatar: No avatar in doId2do with id: ' + str(toonId))
-        return
-        return
+        else:
+            self.notify.warning('BASE: getAvatar: No avatar in doId2do with id: ' + str(toonId))
+            return
+            return
 
     def __localUseJukebox(self):
         base.localAvatar.disableAvatarControls()
@@ -406,7 +407,8 @@ class DistributedSafezoneJukebox(DistributedObject):
     def __checkPartyValidity(self):
         if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace() and hasattr(base.cr.playGame.getPlace(), 'loader') and base.cr.playGame.getPlace().loader:
             return True
-        return False
+        else:
+            return False
 
     def showMessage(self, message, endState='walk'):
         base.cr.playGame.getPlace().fsm.request('activity')

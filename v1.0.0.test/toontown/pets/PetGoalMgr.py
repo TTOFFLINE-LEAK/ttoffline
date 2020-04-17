@@ -53,53 +53,55 @@ class PetGoalMgr(DirectObject.DirectObject):
     def updatePriorities(self):
         if len(self.goals) == 0:
             return
-        if __dev__:
-            self.pscSetup.start()
-        if self.primaryGoal is None:
-            highestPriority = -99999.0
-            candidates = []
         else:
-            highestPriority = self.primaryGoal.getPriority()
-            candidates = [self.primaryGoal]
-            decayDur = PetConstants.PrimaryGoalDecayDur
-            priFactor = PetConstants.PrimaryGoalScale
-            elapsed = min(decayDur, globalClock.getFrameTime() - self.primaryStartT)
-            highestPriority *= lerp(priFactor, 1.0, elapsed / decayDur)
-        if __dev__:
-            self.pscSetup.stop()
-        if __dev__:
-            self.pscFindPrimary.start()
-        for goal in self.goals:
-            thisPri = goal.getPriority()
-            if thisPri >= highestPriority:
-                if thisPri > highestPriority:
-                    highestPriority = thisPri
-                    candidates = [goal]
-                else:
-                    candidates.append(goal)
+            if __dev__:
+                self.pscSetup.start()
+            if self.primaryGoal is None:
+                highestPriority = -99999.0
+                candidates = []
+            else:
+                highestPriority = self.primaryGoal.getPriority()
+                candidates = [self.primaryGoal]
+                decayDur = PetConstants.PrimaryGoalDecayDur
+                priFactor = PetConstants.PrimaryGoalScale
+                elapsed = min(decayDur, globalClock.getFrameTime() - self.primaryStartT)
+                highestPriority *= lerp(priFactor, 1.0, elapsed / decayDur)
+            if __dev__:
+                self.pscSetup.stop()
+            if __dev__:
+                self.pscFindPrimary.start()
+            for goal in self.goals:
+                thisPri = goal.getPriority()
+                if thisPri >= highestPriority:
+                    if thisPri > highestPriority:
+                        highestPriority = thisPri
+                        candidates = [goal]
+                    else:
+                        candidates.append(goal)
 
-        if __dev__:
-            self.pscFindPrimary.stop()
-        if __dev__:
-            self.pscSetPrimary.start()
-        newPrimary = random.choice(candidates)
-        if self.primaryGoal != newPrimary:
-            self.pet.notify.debug('new goal: %s, priority=%s' % (newPrimary.__class__.__name__, highestPriority))
-            self._setPrimaryGoal(newPrimary)
-        if __dev__:
-            self.pscSetPrimary.stop()
-        return
+            if __dev__:
+                self.pscFindPrimary.stop()
+            if __dev__:
+                self.pscSetPrimary.start()
+            newPrimary = random.choice(candidates)
+            if self.primaryGoal != newPrimary:
+                self.pet.notify.debug('new goal: %s, priority=%s' % (newPrimary.__class__.__name__, highestPriority))
+                self._setPrimaryGoal(newPrimary)
+            if __dev__:
+                self.pscSetPrimary.stop()
+            return
 
     def _setPrimaryGoal(self, goal):
         if self.primaryGoal == goal:
             return
-        if self.primaryGoal is not None:
-            self.primaryGoal.fsm.request('background')
-        self.primaryGoal = goal
-        self.primaryStartT = globalClock.getFrameTime()
-        if goal is not None:
-            goal.fsm.request('foreground')
-        return
+        else:
+            if self.primaryGoal is not None:
+                self.primaryGoal.fsm.request('background')
+            self.primaryGoal = goal
+            self.primaryStartT = globalClock.getFrameTime()
+            if goal is not None:
+                goal.fsm.request('foreground')
+            return
 
     def _handlePrimaryGoalDone(self):
         self._setPrimaryGoal(None)

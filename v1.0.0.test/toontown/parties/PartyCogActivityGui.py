@@ -54,13 +54,12 @@ class PartyCogTrackerGui:
             self.cogLayers[cogNumber][0].unstash()
             if team == 1 and cog.currentT < -0.5 and not self.blinkIntervals[cogNumber].isPlaying():
                 self.blinkIntervals[cogNumber].start()
+        elif cog.currentT > 0.0:
+            self.cogLayers[cogNumber][1].unstash()
+            if team == 0 and cog.currentT > 0.5 and not self.blinkIntervals[cogNumber].isPlaying():
+                self.blinkIntervals[cogNumber].start()
         else:
-            if cog.currentT > 0.0:
-                self.cogLayers[cogNumber][1].unstash()
-                if team == 0 and cog.currentT > 0.5 and not self.blinkIntervals[cogNumber].isPlaying():
-                    self.blinkIntervals[cogNumber].start()
-            else:
-                self.cogLayers[cogNumber][2].unstash()
+            self.cogLayers[cogNumber][2].unstash()
 
     def destory(self):
         if self.blinkIntervals is not None:
@@ -294,11 +293,12 @@ class PartyCogActivityGui(DirectObject):
     def trackCogs(self, task):
         if self.cogs is None:
             return
-        self._updateVictoryBar()
-        for i, cog in enumerate(self.cogs):
-            self._cogTracker.updateCog(i, cog, self.team)
+        else:
+            self._updateVictoryBar()
+            for i, cog in enumerate(self.cogs):
+                self._cogTracker.updateCog(i, cog, self.team)
 
-        return task.cont
+            return task.cont
 
     def _updateVictoryBar(self):
         if not (hasattr(self, '_victoryBalanceBar') and self._victoryBalanceBar):
@@ -314,11 +314,10 @@ class PartyCogActivityGui(DirectObject):
         self._victoryBalanceBarPie.setZ(PartyGlobals.CogActivityVictoryBarPiePos[2])
         if teamDistance > 0.0:
             self._victoryBalanceBarArrow.setColor(PartyGlobals.CogActivityColors[1])
+        elif teamDistance < 0.0:
+            self._victoryBalanceBarArrow.setColor(PartyGlobals.CogActivityColors[0])
         else:
-            if teamDistance < 0.0:
-                self._victoryBalanceBarArrow.setColor(PartyGlobals.CogActivityColors[0])
-            else:
-                self._victoryBalanceBarArrow.setColor(VBase4(1.0, 1.0, 1.0, 1.0))
+            self._victoryBalanceBarArrow.setColor(VBase4(1.0, 1.0, 1.0, 1.0))
 
     def stopTrackingCogs(self):
         taskMgr.remove('trackCogs')

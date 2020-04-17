@@ -59,14 +59,13 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
             top = self.geom.find('**/TunnelEntrance')
             origin = top.find('**/tunnel_origin')
             origin.setH(-33.33)
+        elif zoneId == ToontownGlobals.BossbotLobby:
+            if base.config.GetBool('want-qa-regression', 0):
+                self.notify.info('QA-REGRESSION: COGHQ: Visit BossbotLobby')
+            self.notify.debug('cogHQLobbyModelPath = %s' % self.cogHQLobbyModelPath)
+            self.geom = loader.loadModel(self.cogHQLobbyModelPath)
         else:
-            if zoneId == ToontownGlobals.BossbotLobby:
-                if base.config.GetBool('want-qa-regression', 0):
-                    self.notify.info('QA-REGRESSION: COGHQ: Visit BossbotLobby')
-                self.notify.debug('cogHQLobbyModelPath = %s' % self.cogHQLobbyModelPath)
-                self.geom = loader.loadModel(self.cogHQLobbyModelPath)
-            else:
-                self.notify.warning('loadPlaceGeom: unclassified zone %s' % zoneId)
+            self.notify.warning('loadPlaceGeom: unclassified zone %s' % zoneId)
         self.startCollisionDetection()
         CogHQLoader.CogHQLoader.loadPlaceGeom(self, zoneId)
 
@@ -149,16 +148,18 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
     def enteringARace(self, status):
         if not status['where'] == 'golfcourse':
             return 0
-        if ZoneUtil.isDynamicZone(status['zoneId']):
-            return status['hoodId'] == self.hood.hoodId
-        return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
+        else:
+            if ZoneUtil.isDynamicZone(status['zoneId']):
+                return status['hoodId'] == self.hood.hoodId
+            return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
 
     def enteringAGolfCourse(self, status):
         if not status['where'] == 'golfcourse':
             return 0
-        if ZoneUtil.isDynamicZone(status['zoneId']):
-            return status['hoodId'] == self.hood.hoodId
-        return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
+        else:
+            if ZoneUtil.isDynamicZone(status['zoneId']):
+                return status['hoodId'] == self.hood.hoodId
+            return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
 
     def enterGolfCourse(self, requestStatus):
         if requestStatus.has_key('curseId'):

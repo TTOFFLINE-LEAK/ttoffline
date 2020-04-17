@@ -118,9 +118,8 @@ class CogdoGameAudioManager:
     def stopSound(self, audioSound):
         if audioSound in self._soundIvals:
             self._cleanupSoundIval(audioSound)
-        else:
-            if audioSound.status() == AudioSound.PLAYING:
-                audioSound.stop()
+        elif audioSound.status() == AudioSound.PLAYING:
+            audioSound.stop()
 
     def stopAllSfx(self):
         for audioSound in self._audioSounds:

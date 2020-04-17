@@ -81,4 +81,5 @@ class ElevatorNotifier:
     def isNotifierOpen(self):
         if self.frame:
             return True
-        return False
+        else:
+            return False

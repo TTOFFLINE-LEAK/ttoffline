@@ -280,7 +280,8 @@ class DistributedPetProxyAI(DistributedObjectAI.DistributedObjectAI):
     def __handleMoodGet(self, component):
         if self.isGenerated():
             return self.mood.getComponent(component)
-        return 0.0
+        else:
+            return 0.0
 
     def __generateDistMoodFuncs(self):
         for compName in PetMood.PetMood.Components:
@@ -446,8 +447,9 @@ class DistributedPetProxyAI(DistributedObjectAI.DistributedObjectAI):
             self._handleDidTrick(trickId)
             self.b_setLastSeenTimestamp(self.getCurEpochTimestamp())
             return 0
-        self.b_setLastSeenTimestamp(self.getCurEpochTimestamp())
-        return 1
+        else:
+            self.b_setLastSeenTimestamp(self.getCurEpochTimestamp())
+            return 1
 
     def handleMoodChange(self, components=[], distribute=1):
         if len(components) == 0:

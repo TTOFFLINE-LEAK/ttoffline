@@ -185,9 +185,8 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         nextPage = self.currentPage + 1 * direction
         if nextPage == len(self.pages):
             nextPage = 0
-        else:
-            if nextPage == -1:
-                nextPage = len(self.pages) - 1
+        elif nextPage == -1:
+            nextPage = len(self.pages) - 1
         self.currentPage = nextPage
         self.pages[nextPage].show()
 

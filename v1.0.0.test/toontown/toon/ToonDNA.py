@@ -131,36 +131,26 @@ def getSpeciesName(head):
     species = getSpecies(head)
     if species == 'd':
         speciesName = 'dog'
-    else:
-        if species == 'c':
-            speciesName = 'cat'
-        else:
-            if species == 'h':
-                speciesName = 'horse'
-            else:
-                if species == 'm':
-                    speciesName = 'mouse'
-                else:
-                    if species == 'r':
-                        speciesName = 'rabbit'
-                    else:
-                        if species == 'f':
-                            speciesName = 'duck'
-                        else:
-                            if species == 'p':
-                                speciesName = 'monkey'
-                            else:
-                                if species == 'b':
-                                    speciesName = 'bear'
-                                else:
-                                    if species == 's':
-                                        speciesName = 'pig'
-                                    else:
-                                        if species == 'i':
-                                            speciesName = 'gyro'
-                                        else:
-                                            if species == 'o':
-                                                speciesName = 'scrooge'
+    elif species == 'c':
+        speciesName = 'cat'
+    elif species == 'h':
+        speciesName = 'horse'
+    elif species == 'm':
+        speciesName = 'mouse'
+    elif species == 'r':
+        speciesName = 'rabbit'
+    elif species == 'f':
+        speciesName = 'duck'
+    elif species == 'p':
+        speciesName = 'monkey'
+    elif species == 'b':
+        speciesName = 'bear'
+    elif species == 's':
+        speciesName = 'pig'
+    elif species == 'i':
+        speciesName = 'gyro'
+    elif species == 'o':
+        speciesName = 'scrooge'
     return speciesName
 
 
@@ -2314,19 +2304,16 @@ def getRandomBottom(gender, tailorId=MAKE_A_TOON, generator=None, girlBottomType
     collection = TailorCollections[tailorId]
     if gender == 'm':
         style = generator.choice(collection[BOY_SHORTS])
+    elif girlBottomType is None:
+        style = generator.choice(collection[GIRL_BOTTOMS])
+    elif girlBottomType == SKIRT:
+        skirtCollection = filter(lambda style: GirlBottoms[BottomStyles[style][0]][1] == SKIRT, collection[GIRL_BOTTOMS])
+        style = generator.choice(skirtCollection)
+    elif girlBottomType == SHORTS:
+        shortsCollection = filter(lambda style: GirlBottoms[BottomStyles[style][0]][1] == SHORTS, collection[GIRL_BOTTOMS])
+        style = generator.choice(shortsCollection)
     else:
-        if girlBottomType is None:
-            style = generator.choice(collection[GIRL_BOTTOMS])
-        else:
-            if girlBottomType == SKIRT:
-                skirtCollection = filter(lambda style: GirlBottoms[BottomStyles[style][0]][1] == SKIRT, collection[GIRL_BOTTOMS])
-                style = generator.choice(skirtCollection)
-            else:
-                if girlBottomType == SHORTS:
-                    shortsCollection = filter(lambda style: GirlBottoms[BottomStyles[style][0]][1] == SHORTS, collection[GIRL_BOTTOMS])
-                    style = generator.choice(shortsCollection)
-                else:
-                    notify.error('Bad girlBottomType: %s' % girlBottomType)
+        notify.error('Bad girlBottomType: %s' % girlBottomType)
     styleList = BottomStyles[style]
     color = generator.choice(styleList[1])
     return (
@@ -2451,11 +2438,11 @@ def getAllTops(gender):
         else:
             if style[0] == 'b' or style[:3] == 'c_b':
                 continue
-        for color in ShirtStyles[style][2]:
-            tops.append((ShirtStyles[style][0],
-             color[0],
-             ShirtStyles[style][1],
-             color[1]))
+            for color in ShirtStyles[style][2]:
+                tops.append((ShirtStyles[style][0],
+                 color[0],
+                 ShirtStyles[style][1],
+                 color[1]))
 
     return tops
 
@@ -2505,9 +2492,8 @@ def getAllBottoms(gender, output='both'):
         if gender == 'm':
             if style[0] == 'g' or style[:3] == 'c_g' or style[:4] == 'vd_g' or style[:4] == 'sd_g' or style[:4] == 'j4_g' or style[:4] == 'pj_g' or style[:4] == 'wh_g' or style[:4] == 'sa_g' or style[:4] == 'sc_g' or style[:5] == 'sil_g' or style[:4] == 'hw_g':
                 continue
-        else:
-            if style[0] == 'b' or style[:3] == 'c_b' or style[:4] == 'vd_b' or style[:4] == 'sd_b' or style[:4] == 'j4_b' or style[:4] == 'pj_b' or style[:4] == 'wh_b' or style[:4] == 'sa_b' or style[:4] == 'sc_b' or style[:5] == 'sil_b' or style[:4] == 'hw_b':
-                continue
+        elif style[0] == 'b' or style[:3] == 'c_b' or style[:4] == 'vd_b' or style[:4] == 'sd_b' or style[:4] == 'j4_b' or style[:4] == 'pj_b' or style[:4] == 'wh_b' or style[:4] == 'sa_b' or style[:4] == 'sc_b' or style[:5] == 'sil_b' or style[:4] == 'hw_b':
+            continue
         bottomIdx = BottomStyles[style][0]
         if gender == 'f':
             textureType = GirlBottoms[bottomIdx][1]
@@ -3219,13 +3205,14 @@ def isValidShoes(itemIdx, textureIdx, colorIdx):
 def isValidAccessory(itemIdx, textureIdx, colorIdx, which):
     if which == HAT:
         return isValidHat(itemIdx, textureIdx, colorIdx)
-    if which == GLASSES:
-        return isValidGlasses(itemIdx, textureIdx, colorIdx)
-    if which == BACKPACK:
-        return isValidBackpack(itemIdx, textureIdx, colorIdx)
-    if which == SHOES:
-        return isValidShoes(itemIdx, textureIdx, colorIdx)
-    return False
+    else:
+        if which == GLASSES:
+            return isValidGlasses(itemIdx, textureIdx, colorIdx)
+        if which == BACKPACK:
+            return isValidBackpack(itemIdx, textureIdx, colorIdx)
+        if which == SHOES:
+            return isValidShoes(itemIdx, textureIdx, colorIdx)
+        return False
 
 
 class ToonDNA(AvatarDNA.AvatarDNA):
@@ -3234,16 +3221,15 @@ class ToonDNA(AvatarDNA.AvatarDNA):
         if str != None:
             self.loadColors()
             self.makeFromNetString(str)
+        elif type != None:
+            self.loadColors()
+            if type == 't':
+                if dna == None:
+                    self.newToonRandom(r, g, b)
+                else:
+                    self.newToonFromProperties(*dna.asTuple())
         else:
-            if type != None:
-                self.loadColors()
-                if type == 't':
-                    if dna == None:
-                        self.newToonRandom(r, g, b)
-                    else:
-                        self.newToonFromProperties(*dna.asTuple())
-            else:
-                self.type = 'u'
+            self.type = 'u'
         self.cache = ()
         return
 
@@ -3292,11 +3278,10 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             dg.addUint8(self.gloveColor)
             dg.addUint8(self.legColor)
             dg.addUint8(self.headColor)
+        elif self.type == 'u':
+            notify.error('undefined avatar')
         else:
-            if self.type == 'u':
-                notify.error('undefined avatar')
-            else:
-                notify.error('unknown avatar type: ', self.type)
+            notify.error('unknown avatar type: ', self.type)
         return dg.getMessage()
 
     def isValidNetString(self, string):

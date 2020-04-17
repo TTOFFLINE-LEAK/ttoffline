@@ -251,36 +251,39 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
     def calcDesiredNumFlyInSuits(self):
         if self.currDesired != None:
             return 0
-        return self.baseNumSuits + self.suitCountAdjust
+        else:
+            return self.baseNumSuits + self.suitCountAdjust
 
     def calcDesiredNumBuildingSuits(self):
         if self.currDesired != None:
             return self.currDesired
-        if not self.buildingMgr:
-            return 0
-        suitBuildings = self.buildingMgr.getEstablishedSuitBlocks()
-        return int(len(suitBuildings) * self.SUIT_BUILDING_NUM_SUITS)
+        else:
+            if not self.buildingMgr:
+                return 0
+            suitBuildings = self.buildingMgr.getEstablishedSuitBlocks()
+            return int(len(suitBuildings) * self.SUIT_BUILDING_NUM_SUITS)
 
     def getZoneIdToPointMap(self):
         if self.zoneIdToPointMap != None:
             return self.zoneIdToPointMap
-        self.zoneIdToPointMap = {}
-        for point in self.streetPointList:
-            points = self.dnaStore.getAdjacentPoints(point)
-            i = points.getNumPoints() - 1
-            while i >= 0:
-                pi = points.getPointIndex(i)
-                p = self.pointIndexes[pi]
-                i -= 1
-                zoneName = self.dnaStore.getSuitEdgeZone(point.getIndex(), p.getIndex())
-                zoneId = int(self.extractGroupName(zoneName))
-                if zoneId in self.zoneIdToPointMap:
-                    self.zoneIdToPointMap[zoneId].append(point)
-                else:
-                    self.zoneIdToPointMap[zoneId] = [
-                     point]
+        else:
+            self.zoneIdToPointMap = {}
+            for point in self.streetPointList:
+                points = self.dnaStore.getAdjacentPoints(point)
+                i = points.getNumPoints() - 1
+                while i >= 0:
+                    pi = points.getPointIndex(i)
+                    p = self.pointIndexes[pi]
+                    i -= 1
+                    zoneName = self.dnaStore.getSuitEdgeZone(point.getIndex(), p.getIndex())
+                    zoneId = int(self.extractGroupName(zoneName))
+                    if zoneId in self.zoneIdToPointMap:
+                        self.zoneIdToPointMap[zoneId].append(point)
+                    else:
+                        self.zoneIdToPointMap[zoneId] = [
+                         point]
 
-        return self.zoneIdToPointMap
+            return self.zoneIdToPointMap
 
     def getStreetPointsForBuilding(self, blockNumber):
         pointList = []
@@ -344,110 +347,107 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
 
         if startPoint == None:
             return
-        newSuit = DistributedSuitAI.DistributedSuitAI(simbase.air, self)
-        newSuit.startPoint = startPoint
-        if blockNumber != None:
-            newSuit.buildingSuit = 1
-            if suitTrack == None:
-                suitTrack = self.buildingMgr.getBuildingTrack(blockNumber)
         else:
-            newSuit.flyInSuit = 1
-            newSuit.attemptingTakeover = self.newSuitShouldAttemptTakeover()
-            if newSuit.attemptingTakeover:
-                cogdosNeeded = self.countNumNeededCogdos()
-                bldgsNeeded = self.countNumNeededBuildings()
-                cogdosAvailable = cogdosNeeded - self.numAttemptingCogdoTakeover
-                bldgsAvailable = bldgsNeeded - (self.numAttemptingTakeover - self.numAttemptingCogdoTakeover)
-                totalAvailable = cogdosAvailable + bldgsAvailable
-                if cogdoTakeover is None:
-                    cogdoTakeover = False
-                    if simbase.air.wantCogdominiums:
-                        if totalAvailable > 0:
-                            r = random.randrange(totalAvailable)
-                            if r < cogdosAvailable:
-                                cogdoTakeover = True
-                newSuit.takeoverIsCogdo = cogdoTakeover
-                if newSuit.takeoverIsCogdo:
-                    pendingTracks = ['s', 'l']
-                    pendingHeights = self.pendingCogdoHeights
-                else:
-                    pendingTracks = self.pendingBuildingTracks
-                    pendingHeights = self.pendingBuildingHeights
-                if suitTrack == None and len(pendingTracks) > 0:
-                    if cogdoTakeover:
-                        suitTrack = random.choice(pendingTracks)
-                        suitTrackIndex = pendingTracks.index(suitTrack)
-                        del pendingTracks[suitTrackIndex]
+            newSuit = DistributedSuitAI.DistributedSuitAI(simbase.air, self)
+            newSuit.startPoint = startPoint
+            if blockNumber != None:
+                newSuit.buildingSuit = 1
+                if suitTrack == None:
+                    suitTrack = self.buildingMgr.getBuildingTrack(blockNumber)
+            else:
+                newSuit.flyInSuit = 1
+                newSuit.attemptingTakeover = self.newSuitShouldAttemptTakeover()
+                if newSuit.attemptingTakeover:
+                    cogdosNeeded = self.countNumNeededCogdos()
+                    bldgsNeeded = self.countNumNeededBuildings()
+                    cogdosAvailable = cogdosNeeded - self.numAttemptingCogdoTakeover
+                    bldgsAvailable = bldgsNeeded - (self.numAttemptingTakeover - self.numAttemptingCogdoTakeover)
+                    totalAvailable = cogdosAvailable + bldgsAvailable
+                    if cogdoTakeover is None:
+                        cogdoTakeover = False
+                        if simbase.air.wantCogdominiums:
+                            if totalAvailable > 0:
+                                r = random.randrange(totalAvailable)
+                                if r < cogdosAvailable:
+                                    cogdoTakeover = True
+                    newSuit.takeoverIsCogdo = cogdoTakeover
+                    if newSuit.takeoverIsCogdo:
+                        pendingTracks = ['s', 'l']
+                        pendingHeights = self.pendingCogdoHeights
                     else:
-                        suitTrack = pendingTracks[0]
-                        del pendingTracks[0]
-                    pendingTracks.append(suitTrack)
-                if buildingHeight == None and len(pendingHeights) > 0:
-                    buildingHeight = pendingHeights[0]
-                    del pendingHeights[0]
-                    pendingHeights.append(buildingHeight)
-            else:
-                if cogdoTakeover and suitTrack == None:
-                    suitTrack = random.choice(['s', 'l'])
-            if suitName == None:
-                if not cogdoTakeover:
-                    suitName, specialSuit = self.air.suitInvasionManager.getInvadingCog()
-                    if suitName in SuitDNA.extraSuits:
-                        if suitName in SuitDNA.spawnableExtras:
-                            suitType = SuitDNA.suitHeadTypes.index(suitName)
+                        pendingTracks = self.pendingBuildingTracks
+                        pendingHeights = self.pendingBuildingHeights
+                    if suitTrack == None and len(pendingTracks) > 0:
+                        if cogdoTakeover:
+                            suitTrack = random.choice(pendingTracks)
+                            suitTrackIndex = pendingTracks.index(suitTrack)
+                            del pendingTracks[suitTrackIndex]
                         else:
-                            self.notify.warning('Custom suit spawned but not in spawnable!')
-                            suitName = self.defaultSuitName
+                            suitTrack = pendingTracks[0]
+                            del pendingTracks[0]
+                        pendingTracks.append(suitTrack)
+                    if buildingHeight == None and len(pendingHeights) > 0:
+                        buildingHeight = pendingHeights[0]
+                        del pendingHeights[0]
+                        pendingHeights.append(buildingHeight)
+                elif cogdoTakeover and suitTrack == None:
+                    suitTrack = random.choice(['s', 'l'])
                 if suitName == None:
-                    suitName = self.defaultSuitName
-            if suitType == None and suitName != None:
-                suitType = SuitDNA.getSuitType(suitName)
-                suitTrack = SuitDNA.getSuitDept(suitName)
-            if suitLevel == None and buildingHeight != None:
-                if not cogdoTakeover:
-                    suitLevel = self.chooseSuitLevel(self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_LVL], buildingHeight)
+                    if not cogdoTakeover:
+                        suitName, specialSuit = self.air.suitInvasionManager.getInvadingCog()
+                        if suitName in SuitDNA.extraSuits:
+                            if suitName in SuitDNA.spawnableExtras:
+                                suitType = SuitDNA.suitHeadTypes.index(suitName)
+                            else:
+                                self.notify.warning('Custom suit spawned but not in spawnable!')
+                                suitName = self.defaultSuitName
+                    if suitName == None:
+                        suitName = self.defaultSuitName
+                if suitType == None and suitName != None:
+                    suitType = SuitDNA.getSuitType(suitName)
+                    suitTrack = SuitDNA.getSuitDept(suitName)
+                if suitLevel == None and buildingHeight != None:
+                    if not cogdoTakeover:
+                        suitLevel = self.chooseSuitLevel(self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_LVL], buildingHeight)
+                    else:
+                        suitLevel = self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_LVL][(-1)] + 1
+                suitLevel, suitType, suitTrack = self.pickLevelTypeAndTrack(suitLevel, suitType, suitTrack)
+                if not specialSuit:
+                    specialSuit = SuitBattleGlobals.pickFromFreqList(self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_SPECIALS])
+                if suitName in SuitDNA.spawnableExtras:
+                    newSuit.setupSuitDNA(suitLevel, suitType, suitTrack, extraSuit=suitName)
                 else:
-                    suitLevel = self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_LVL][(-1)] + 1
-            suitLevel, suitType, suitTrack = self.pickLevelTypeAndTrack(suitLevel, suitType, suitTrack)
-            if not specialSuit:
-                specialSuit = SuitBattleGlobals.pickFromFreqList(self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_SPECIALS])
-            if suitName in SuitDNA.spawnableExtras:
-                newSuit.setupSuitDNA(suitLevel, suitType, suitTrack, extraSuit=suitName)
-            else:
-                newSuit.setupSuitDNA(suitLevel, suitType, suitTrack)
-            newSuit.buildingHeight = buildingHeight
-            gotDestination = self.chooseDestination(newSuit, startTime, toonBlockTakeover=toonBlockTakeover, cogdoTakeover=cogdoTakeover, minPathLen=minPathLen, maxPathLen=maxPathLen)
-            if not gotDestination:
-                self.notify.debug("Couldn't get a destination in %d!" % self.zoneId)
-                newSuit.doNotDeallocateChannel = None
-                newSuit.delete()
-                return
-        newSuit.initializePath()
-        self.zoneChange(newSuit, None, newSuit.zoneId)
-        if specialSuit == 1:
-            newSuit.setSkelecog(1)
-        else:
-            if specialSuit == 2:
+                    newSuit.setupSuitDNA(suitLevel, suitType, suitTrack)
+                newSuit.buildingHeight = buildingHeight
+                gotDestination = self.chooseDestination(newSuit, startTime, toonBlockTakeover=toonBlockTakeover, cogdoTakeover=cogdoTakeover, minPathLen=minPathLen, maxPathLen=maxPathLen)
+                if not gotDestination:
+                    self.notify.debug("Couldn't get a destination in %d!" % self.zoneId)
+                    newSuit.doNotDeallocateChannel = None
+                    newSuit.delete()
+                    return
+            newSuit.initializePath()
+            self.zoneChange(newSuit, None, newSuit.zoneId)
+            if specialSuit == 1:
+                newSuit.setSkelecog(1)
+            elif specialSuit == 2:
                 newSuit.setSkeleRevives(1)
-            else:
-                if specialSuit == 3:
-                    newSuit.setVirtual(1)
-                    newSuit.setSkelecog(1)
-                else:
-                    if specialSuit == 4:
-                        newSuit.setVirtual(1)
-        newSuit.generateWithRequired(newSuit.zoneId)
-        newSuit.moveToNextLeg(None)
-        self.suitList.append(newSuit)
-        if newSuit.flyInSuit:
-            self.numFlyInSuits += 1
-        if newSuit.buildingSuit:
-            self.numBuildingSuits += 1
-        if newSuit.attemptingTakeover:
-            self.numAttemptingTakeover += 1
-            if newSuit.takeoverIsCogdo:
-                self.numAttemptingCogdoTakeover += 1
-        return newSuit
+            elif specialSuit == 3:
+                newSuit.setVirtual(1)
+                newSuit.setSkelecog(1)
+            elif specialSuit == 4:
+                newSuit.setVirtual(1)
+            newSuit.generateWithRequired(newSuit.zoneId)
+            newSuit.moveToNextLeg(None)
+            self.suitList.append(newSuit)
+            if newSuit.flyInSuit:
+                self.numFlyInSuits += 1
+            if newSuit.buildingSuit:
+                self.numBuildingSuits += 1
+            if newSuit.attemptingTakeover:
+                self.numAttemptingTakeover += 1
+                if newSuit.takeoverIsCogdo:
+                    self.numAttemptingCogdoTakeover += 1
+            return newSuit
 
     def countNumNeededBuildings(self):
         if not self.buildingMgr:
@@ -562,16 +562,17 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
 
         if adjacentPoint != None:
             return self.battleCollision(point, adjacentPoint)
-        points = self.dnaStore.getAdjacentPoints(point)
-        i = points.getNumPoints() - 1
-        while i >= 0:
-            pi = points.getPointIndex(i)
-            p = self.pointIndexes[pi]
-            i -= 1
-            if self.battleCollision(point, p):
-                return 1
+        else:
+            points = self.dnaStore.getAdjacentPoints(point)
+            i = points.getNumPoints() - 1
+            while i >= 0:
+                pi = points.getPointIndex(i)
+                p = self.pointIndexes[pi]
+                i -= 1
+                if self.battleCollision(point, p):
+                    return 1
 
-        return 0
+            return 0
 
     def battleCollision(self, point, adjacentPoint):
         zoneName = self.dnaStore.getSuitEdgeZone(point.getIndex(), adjacentPoint.getIndex())
@@ -684,9 +685,8 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
         desiredNum = self.calcDesiredNumFlyInSuits()
         if desiredNum < min:
             self.suitCountAdjust = min - self.baseNumSuits
-        else:
-            if desiredNum > max:
-                self.suitCountAdjust = max - self.baseNumSuits
+        elif desiredNum > max:
+            self.suitCountAdjust = max - self.baseNumSuits
         self.__waitForNextAdjust()
         return Task.done
 
@@ -773,10 +773,9 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
         if wantedSuitBuildings > targetSuitBuildings:
             additionalBuildings = wantedSuitBuildings - targetSuitBuildings
             self.assignSuitBuildings(additionalBuildings)
-        else:
-            if wantedSuitBuildings < targetSuitBuildings:
-                extraBuildings = targetSuitBuildings - wantedSuitBuildings
-                self.unassignSuitBuildings(extraBuildings)
+        elif wantedSuitBuildings < targetSuitBuildings:
+            extraBuildings = targetSuitBuildings - wantedSuitBuildings
+            self.unassignSuitBuildings(extraBuildings)
         if simbase.air.wantCogdominiums:
             if wantedCogdos > targetCogdos:
                 additionalCogdos = wantedCogdos - targetCogdos
@@ -1182,15 +1181,13 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
         if type == None:
             typeChoices = xrange(max(level - 4, 1), min(level, self.MAX_SUIT_TYPES) + 1)
             type = random.choice(typeChoices)
+        elif type == 8:
+            level = min(max(level, type), type + 8)
+        elif extraSuit:
+            type = 8
+            level = min(max(level, type), type + 8)
         else:
-            if type == 8:
-                level = min(max(level, type), type + 8)
-            else:
-                if extraSuit:
-                    type = 8
-                    level = min(max(level, type), type + 8)
-                else:
-                    level = min(max(level, type), type + 4)
+            level = min(max(level, type), type + 4)
         if track == None:
             track = SuitDNA.suitDepts[SuitBattleGlobals.pickFromFreqList(self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_TRACK])]
         self.notify.debug('pickLevelTypeAndTrack: %d %d %s' % (level, type, track))

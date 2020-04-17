@@ -63,19 +63,20 @@ class PickANamePattern:
     def _recursiveCompute(self, words, nameParts, wi=0, nwli=0, pattern=None):
         if wi >= len(words):
             return pattern
-        if nwli >= len(nameParts):
-            return
-        if words[wi] in nameParts[nwli]:
-            if pattern is None:
-                pattern = [
-                 -1] * len(nameParts)
-            word2index = nameParts[nwli]
-            newPattern = pattern[:]
-            newPattern[nwli] = word2index[words[wi]]
-            result = self._recursiveCompute(words, nameParts, wi + 1, nwli + 1, newPattern)
-            if result:
-                return result
-        return self._recursiveCompute(words, nameParts, wi, nwli + 1, pattern)
+        else:
+            if nwli >= len(nameParts):
+                return
+            if words[wi] in nameParts[nwli]:
+                if pattern is None:
+                    pattern = [
+                     -1] * len(nameParts)
+                word2index = nameParts[nwli]
+                newPattern = pattern[:]
+                newPattern[nwli] = word2index[words[wi]]
+                result = self._recursiveCompute(words, nameParts, wi + 1, nwli + 1, newPattern)
+                if result:
+                    return result
+            return self._recursiveCompute(words, nameParts, wi, nwli + 1, pattern)
 
 
 class PickANamePatternTwoPartLastName(PickANamePattern):

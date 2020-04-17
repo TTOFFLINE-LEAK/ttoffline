@@ -41,11 +41,10 @@ class MakeClothesGUI(ClothesGUI.ClothesGUI):
         if len(self.dna.torso) == 1 and not self.nude:
             if self.gender == 'm':
                 torsoStyle = 's'
+            elif self.girlInShorts == 1:
+                torsoStyle = 's'
             else:
-                if self.girlInShorts == 1:
-                    torsoStyle = 's'
-                else:
-                    torsoStyle = 'd'
+                torsoStyle = 'd'
             self.toon.swapToonTorso(self.dna.torso[0] + torsoStyle)
             self.toon.loop('neutral', 0)
             self.toon.swapToonColor(self.dna)

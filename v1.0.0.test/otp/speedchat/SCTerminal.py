@@ -40,11 +40,10 @@ class SCTerminal(SCElement):
         if handleWhisperMode:
             self._wmcListener = DirectObject()
             self._wmcListener.accept(self.getEventName(SCWhisperModeChangeEvent), self._handleWhisperModeChange)
-        else:
-            if hasattr(self, '_wmcListener'):
-                self._wmcListener.ignoreAll()
-                del self._wmcListener
-                self.invalidate()
+        elif hasattr(self, '_wmcListener'):
+            self._wmcListener.ignoreAll()
+            del self._wmcListener
+            self.invalidate()
 
     def _handleWhisperModeChange(self, whisperMode):
         self.invalidate()
@@ -99,20 +98,21 @@ class SCTerminal(SCElement):
     def finalize(self, dbArgs={}):
         if not self.isDirty():
             return
-        args = {}
-        if self.hasLinkedEmote():
-            self.lastEmoteIconColor = self.getEmoteIconColor()
-            self.emotionIcon.setColorScale(*self.lastEmoteIconColor)
-            args.update({'image': self.emotionIcon, 'image_pos': (
-                           self.width - 0.6, 0, -self.height * 0.5)})
-        if self.isDisabled():
-            args.update({'rolloverColor': (0, 0, 0, 0), 'pressedColor': (0, 0, 0, 0), 
-               'rolloverSound': None, 
-               'clickSound': None, 
-               'text_fg': self.getColorScheme().getTextDisabledColor() + (1, )})
-        args.update(dbArgs)
-        SCElement.finalize(self, dbArgs=args)
-        return
+        else:
+            args = {}
+            if self.hasLinkedEmote():
+                self.lastEmoteIconColor = self.getEmoteIconColor()
+                self.emotionIcon.setColorScale(*self.lastEmoteIconColor)
+                args.update({'image': self.emotionIcon, 'image_pos': (
+                               self.width - 0.6, 0, -self.height * 0.5)})
+            if self.isDisabled():
+                args.update({'rolloverColor': (0, 0, 0, 0), 'pressedColor': (0, 0, 0, 0), 
+                   'rolloverSound': None, 
+                   'clickSound': None, 
+                   'text_fg': self.getColorScheme().getTextDisabledColor() + (1, )})
+            args.update(dbArgs)
+            SCElement.finalize(self, dbArgs=args)
+            return
 
     def getEmoteIconColor(self):
         if self.linkedEmoteEnabled() and not self.isWhispering():
@@ -164,4 +164,5 @@ class SCTerminal(SCElement):
     def getDisplayText(self):
         if self.getCharges() is not -1:
             return self.text + ' (%s)' % self.getCharges()
-        return self.text
+        else:
+            return self.text

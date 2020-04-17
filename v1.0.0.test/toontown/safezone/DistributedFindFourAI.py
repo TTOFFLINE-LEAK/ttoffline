@@ -112,14 +112,12 @@ class DistributedFindFourAI(DistributedNodeAI):
         self.playersSitting += 1
         if self.playersSitting < 2:
             self.timerEnd = 0
-        else:
-            if self.playersSitting == 2:
-                self.timerEnd = globalClock.getRealTime() + 20
-                self.parent.isAccepting = False
-                self.parent.sendUpdate('setIsPlaying', [1])
-            else:
-                if self.playersSitting > 2:
-                    pass
+        elif self.playersSitting == 2:
+            self.timerEnd = globalClock.getRealTime() + 20
+            self.parent.isAccepting = False
+            self.parent.sendUpdate('setIsPlaying', [1])
+        elif self.playersSitting > 2:
+            pass
         self.sendUpdate('setTimer', [globalClockDelta.localToNetworkTime(self.timerEnd)])
 
     def informGameOfPlayerLeave(self):
@@ -146,7 +144,8 @@ class DistributedFindFourAI(DistributedNodeAI):
     def getTimer(self):
         if self.timerEnd != 0:
             return 0
-        return 0
+        else:
+            return 0
 
     def getTurnTimer(self):
         return globalClockDelta.localToNetworkTime(self.turnEnd)
@@ -400,15 +399,18 @@ class DistributedFindFourAI(DistributedNodeAI):
         if self.checkHorizontal(rVal, cVal, playerNum) == True:
             self.winDirection = 0
             return True
-        if self.checkVertical(rVal, cVal, playerNum) == True:
-            self.winDirection = 1
-            return True
-        if self.checkDiagonal(rVal, cVal, playerNum) == True:
-            self.winDirection = 2
-            return True
-        self.winDirection = None
-        return False
-        return
+        else:
+            if self.checkVertical(rVal, cVal, playerNum) == True:
+                self.winDirection = 1
+                return True
+            else:
+                if self.checkDiagonal(rVal, cVal, playerNum) == True:
+                    self.winDirection = 2
+                    return True
+                self.winDirection = None
+                return False
+
+            return
 
     def checkHorizontal(self, rVal, cVal, playerNum):
         if cVal == 3:
@@ -480,51 +482,50 @@ class DistributedFindFourAI(DistributedNodeAI):
                         return True
 
                 return False
+        elif cVal >= 4:
+            if rVal == 2:
+                for x in xrange(1, 4):
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return True
+
+                return False
+            if rVal == 3:
+                for x in xrange(1, 4):
+                    if self.board[(rVal - x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
+                        return True
+
+                return False
         else:
-            if cVal >= 4:
-                if rVal == 2:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+            if rVal == 3 or rVal == 4 or rVal == 5:
+                for x in xrange(1, 4):
+                    if self.board[(rVal - x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
+                        return True
 
-                    return False
-                if rVal == 3:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal - x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+                for x in xrange(1, 4):
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return True
 
-                    return False
-            else:
-                if rVal == 3 or rVal == 4 or rVal == 5:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal - x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+                return False
+            if rVal == 0 or rVal == 1 or rVal == 2:
+                for x in xrange(1, 4):
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return True
 
-                    for x in xrange(1, 4):
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+                for x in xrange(1, 4):
+                    if self.board[(rVal + x)][(cVal + x)] != playerNum:
+                        break
+                    if self.board[(rVal + x)][(cVal + x)] == playerNum and x == 3:
+                        return True
 
-                    return False
-                if rVal == 0 or rVal == 1 or rVal == 2:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return True
-
-                    for x in xrange(1, 4):
-                        if self.board[(rVal + x)][(cVal + x)] != playerNum:
-                            break
-                        if self.board[(rVal + x)][(cVal + x)] == playerNum and x == 3:
-                            return True
-
-                    return False
+                return False
         return False

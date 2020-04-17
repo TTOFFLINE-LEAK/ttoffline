@@ -993,127 +993,128 @@ class DistributedMazeGame(DistributedMinigame):
         toon = self.getAvatar(avId)
         if toon == None:
             return
-        rng = self.toonRNGs[self.avIdList.index(avId)]
-        curPos = toon.getPos(render)
-        oldTrack = self.toonHitTracks[avId]
-        if oldTrack.isPlaying():
-            oldTrack.finish()
-        toon.setPos(curPos)
-        toon.setZ(self.TOON_Z)
-        parentNode = render.attachNewNode('mazeFlyToonParent-' + `avId`)
-        parentNode.setPos(toon.getPos())
-        toon.reparentTo(parentNode)
-        toon.setPos(0, 0, 0)
-        startPos = parentNode.getPos()
-        dropShadow = toon.dropShadow.copyTo(parentNode)
-        dropShadow.setScale(toon.dropShadow.getScale(render))
-        trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=1.0)
-        flyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
-        while 1:
-            endTile = [
-             rng.randint(2, self.maze.width - 1), rng.randint(2, self.maze.height - 1)]
-            if self.maze.isWalkable(endTile[0], endTile[1]):
-                break
-
-        endWorldCoords = self.maze.tile2world(endTile[0], endTile[1])
-        endPos = Point3(endWorldCoords[0], endWorldCoords[1], startPos[2])
-
-        def flyFunc(t, trajectory, startPos=startPos, endPos=endPos, dur=flyDur, moveNode=parentNode, flyNode=toon):
-            u = t / dur
-            moveNode.setX(startPos[0] + u * (endPos[0] - startPos[0]))
-            moveNode.setY(startPos[1] + u * (endPos[1] - startPos[1]))
-            flyNode.setPos(trajectory.getPos(t))
-
-        flyTrack = Sequence(LerpFunctionInterval(flyFunc, fromData=0.0, toData=flyDur, duration=flyDur, extraArgs=[trajectory]), name=toon.uniqueName('hitBySuit-fly'))
-        if avId != self.localAvId:
-            cameraTrack = Sequence()
         else:
-            self.camParent.reparentTo(parentNode)
-            startCamPos = camera.getPos()
-            destCamPos = camera.getPos()
-            zenith = trajectory.getPos(flyDur / 2.0)[2]
-            destCamPos.setZ(zenith * 1.3)
-            destCamPos.setY(destCamPos[1] * 0.3)
+            rng = self.toonRNGs[self.avIdList.index(avId)]
+            curPos = toon.getPos(render)
+            oldTrack = self.toonHitTracks[avId]
+            if oldTrack.isPlaying():
+                oldTrack.finish()
+            toon.setPos(curPos)
+            toon.setZ(self.TOON_Z)
+            parentNode = render.attachNewNode('mazeFlyToonParent-' + `avId`)
+            parentNode.setPos(toon.getPos())
+            toon.reparentTo(parentNode)
+            toon.setPos(0, 0, 0)
+            startPos = parentNode.getPos()
+            dropShadow = toon.dropShadow.copyTo(parentNode)
+            dropShadow.setScale(toon.dropShadow.getScale(render))
+            trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=1.0)
+            flyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
+            while 1:
+                endTile = [
+                 rng.randint(2, self.maze.width - 1), rng.randint(2, self.maze.height - 1)]
+                if self.maze.isWalkable(endTile[0], endTile[1]):
+                    break
 
-            def camTask(task, zenith=zenith, flyNode=toon, startCamPos=startCamPos, camOffset=destCamPos - startCamPos):
-                u = flyNode.getZ() / zenith
-                camera.setPos(startCamPos + camOffset * u)
-                camera.lookAt(toon)
-                return Task.cont
+            endWorldCoords = self.maze.tile2world(endTile[0], endTile[1])
+            endPos = Point3(endWorldCoords[0], endWorldCoords[1], startPos[2])
 
-            camTaskName = 'mazeToonFlyCam-' + `avId`
-            taskMgr.add(camTask, camTaskName, priority=20)
+            def flyFunc(t, trajectory, startPos=startPos, endPos=endPos, dur=flyDur, moveNode=parentNode, flyNode=toon):
+                u = t / dur
+                moveNode.setX(startPos[0] + u * (endPos[0] - startPos[0]))
+                moveNode.setY(startPos[1] + u * (endPos[1] - startPos[1]))
+                flyNode.setPos(trajectory.getPos(t))
 
-            def cleanupCamTask(self=self, toon=toon, camTaskName=camTaskName, startCamPos=startCamPos):
-                taskMgr.remove(camTaskName)
-                self.camParent.reparentTo(toon)
-                camera.setPos(startCamPos)
-                camera.lookAt(toon)
-
-            cameraTrack = Sequence(Wait(flyDur), Func(cleanupCamTask), name='hitBySuit-cameraLerp')
-        geomNode = toon.getGeomNode()
-        startHpr = geomNode.getHpr()
-        destHpr = Point3(startHpr)
-        hRot = rng.randrange(1, 8)
-        if rng.choice([0, 1]):
-            hRot = -hRot
-        destHpr.setX(destHpr[0] + hRot * 360)
-        spinHTrack = Sequence(LerpHprInterval(geomNode, flyDur, destHpr, startHpr=startHpr), Func(geomNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinH'))
-        parent = geomNode.getParent()
-        rotNode = parent.attachNewNode('rotNode')
-        geomNode.reparentTo(rotNode)
-        rotNode.setZ(toon.getHeight() / 2.0)
-        oldGeomNodeZ = geomNode.getZ()
-        geomNode.setZ(-toon.getHeight() / 2.0)
-        startHpr = rotNode.getHpr()
-        destHpr = Point3(startHpr)
-        pRot = rng.randrange(1, 3)
-        if rng.choice([0, 1]):
-            pRot = -pRot
-        destHpr.setY(destHpr[1] + pRot * 360)
-        spinPTrack = Sequence(LerpHprInterval(rotNode, flyDur, destHpr, startHpr=startHpr), Func(rotNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinP'))
-        i = self.avIdList.index(avId)
-        soundTrack = Sequence(Func(base.playSfx, self.sndTable['hitBySuit'][i]), Wait(flyDur * (2.0 / 3.0)), SoundInterval(self.sndTable['falling'][i], duration=flyDur * (1.0 / 3.0)), name=toon.uniqueName('hitBySuit-soundTrack'))
-
-        def preFunc(self=self, avId=avId, toon=toon, dropShadow=dropShadow):
-            forwardSpeed = toon.forwardSpeed
-            rotateSpeed = toon.rotateSpeed
-            if avId == self.localAvId:
-                self.orthoWalk.stop()
-            else:
-                toon.stopSmooth()
-            if forwardSpeed or rotateSpeed:
-                toon.setSpeed(forwardSpeed, rotateSpeed)
-            toon.dropShadow.hide()
-
-        def postFunc(self=self, avId=avId, oldGeomNodeZ=oldGeomNodeZ, dropShadow=dropShadow, parentNode=parentNode):
-            if avId == self.localAvId:
-                base.localAvatar.setPos(endPos)
-                if hasattr(self, 'orthoWalk'):
-                    if self.gameFSM.getCurrentState().getName() == 'play':
-                        self.orthoWalk.start()
-            dropShadow.removeNode()
-            del dropShadow
-            toon.dropShadow.show()
-            geomNode = toon.getGeomNode()
-            rotNode = geomNode.getParent()
-            baseNode = rotNode.getParent()
-            geomNode.reparentTo(baseNode)
-            rotNode.removeNode()
-            del rotNode
-            geomNode.setZ(oldGeomNodeZ)
-            toon.reparentTo(render)
-            toon.setPos(endPos)
-            parentNode.removeNode()
-            del parentNode
+            flyTrack = Sequence(LerpFunctionInterval(flyFunc, fromData=0.0, toData=flyDur, duration=flyDur, extraArgs=[trajectory]), name=toon.uniqueName('hitBySuit-fly'))
             if avId != self.localAvId:
-                toon.startSmooth()
+                cameraTrack = Sequence()
+            else:
+                self.camParent.reparentTo(parentNode)
+                startCamPos = camera.getPos()
+                destCamPos = camera.getPos()
+                zenith = trajectory.getPos(flyDur / 2.0)[2]
+                destCamPos.setZ(zenith * 1.3)
+                destCamPos.setY(destCamPos[1] * 0.3)
 
-        preFunc()
-        hitTrack = Sequence(Parallel(flyTrack, cameraTrack, spinHTrack, spinPTrack, soundTrack), Func(postFunc), name=toon.uniqueName('hitBySuit'))
-        self.toonHitTracks[avId] = hitTrack
-        hitTrack.start(globalClockDelta.localElapsedTime(timestamp))
-        return
+                def camTask(task, zenith=zenith, flyNode=toon, startCamPos=startCamPos, camOffset=destCamPos - startCamPos):
+                    u = flyNode.getZ() / zenith
+                    camera.setPos(startCamPos + camOffset * u)
+                    camera.lookAt(toon)
+                    return Task.cont
+
+                camTaskName = 'mazeToonFlyCam-' + `avId`
+                taskMgr.add(camTask, camTaskName, priority=20)
+
+                def cleanupCamTask(self=self, toon=toon, camTaskName=camTaskName, startCamPos=startCamPos):
+                    taskMgr.remove(camTaskName)
+                    self.camParent.reparentTo(toon)
+                    camera.setPos(startCamPos)
+                    camera.lookAt(toon)
+
+                cameraTrack = Sequence(Wait(flyDur), Func(cleanupCamTask), name='hitBySuit-cameraLerp')
+            geomNode = toon.getGeomNode()
+            startHpr = geomNode.getHpr()
+            destHpr = Point3(startHpr)
+            hRot = rng.randrange(1, 8)
+            if rng.choice([0, 1]):
+                hRot = -hRot
+            destHpr.setX(destHpr[0] + hRot * 360)
+            spinHTrack = Sequence(LerpHprInterval(geomNode, flyDur, destHpr, startHpr=startHpr), Func(geomNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinH'))
+            parent = geomNode.getParent()
+            rotNode = parent.attachNewNode('rotNode')
+            geomNode.reparentTo(rotNode)
+            rotNode.setZ(toon.getHeight() / 2.0)
+            oldGeomNodeZ = geomNode.getZ()
+            geomNode.setZ(-toon.getHeight() / 2.0)
+            startHpr = rotNode.getHpr()
+            destHpr = Point3(startHpr)
+            pRot = rng.randrange(1, 3)
+            if rng.choice([0, 1]):
+                pRot = -pRot
+            destHpr.setY(destHpr[1] + pRot * 360)
+            spinPTrack = Sequence(LerpHprInterval(rotNode, flyDur, destHpr, startHpr=startHpr), Func(rotNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinP'))
+            i = self.avIdList.index(avId)
+            soundTrack = Sequence(Func(base.playSfx, self.sndTable['hitBySuit'][i]), Wait(flyDur * (2.0 / 3.0)), SoundInterval(self.sndTable['falling'][i], duration=flyDur * (1.0 / 3.0)), name=toon.uniqueName('hitBySuit-soundTrack'))
+
+            def preFunc(self=self, avId=avId, toon=toon, dropShadow=dropShadow):
+                forwardSpeed = toon.forwardSpeed
+                rotateSpeed = toon.rotateSpeed
+                if avId == self.localAvId:
+                    self.orthoWalk.stop()
+                else:
+                    toon.stopSmooth()
+                if forwardSpeed or rotateSpeed:
+                    toon.setSpeed(forwardSpeed, rotateSpeed)
+                toon.dropShadow.hide()
+
+            def postFunc(self=self, avId=avId, oldGeomNodeZ=oldGeomNodeZ, dropShadow=dropShadow, parentNode=parentNode):
+                if avId == self.localAvId:
+                    base.localAvatar.setPos(endPos)
+                    if hasattr(self, 'orthoWalk'):
+                        if self.gameFSM.getCurrentState().getName() == 'play':
+                            self.orthoWalk.start()
+                dropShadow.removeNode()
+                del dropShadow
+                toon.dropShadow.show()
+                geomNode = toon.getGeomNode()
+                rotNode = geomNode.getParent()
+                baseNode = rotNode.getParent()
+                geomNode.reparentTo(baseNode)
+                rotNode.removeNode()
+                del rotNode
+                geomNode.setZ(oldGeomNodeZ)
+                toon.reparentTo(render)
+                toon.setPos(endPos)
+                parentNode.removeNode()
+                del parentNode
+                if avId != self.localAvId:
+                    toon.startSmooth()
+
+            preFunc()
+            hitTrack = Sequence(Parallel(flyTrack, cameraTrack, spinHTrack, spinPTrack, soundTrack), Func(postFunc), name=toon.uniqueName('hitBySuit'))
+            self.toonHitTracks[avId] = hitTrack
+            hitTrack.start(globalClockDelta.localElapsedTime(timestamp))
+            return
 
     def allTreasuresTaken(self):
         if not self.hasLocalToon:
@@ -1138,7 +1139,8 @@ class DistributedMazeGame(DistributedMinigame):
             EPSILON = 0.01
             if newTile > curTile:
                 return (newTile - centerTile) * self.CELL_WIDTH - EPSILON - WALL_OFFSET
-            return (curTile - centerTile) * self.CELL_WIDTH + WALL_OFFSET
+            else:
+                return (curTile - centerTile) * self.CELL_WIDTH + WALL_OFFSET
 
         offsetX = offset[0]
         offsetY = offset[1]

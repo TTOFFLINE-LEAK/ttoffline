@@ -219,7 +219,8 @@ class DistributedDoorEntity(DistributedDoorEntityBase.DistributedDoorEntityBase,
     def getNodePath(self):
         if hasattr(self, 'doorNode'):
             return self.doorNode
-        return
+        else:
+            return
 
     def setupDoor(self):
         model = loader.loadModel('phase_9/models/cogHQ/CogDoorHandShake')

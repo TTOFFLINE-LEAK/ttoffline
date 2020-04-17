@@ -181,56 +181,54 @@ class DistributedCogKart(DistributedElevatorExt.DistributedElevatorExt):
             del self.toonRequests[index]
         if avId == 0:
             pass
+        elif avId not in self.cr.doId2do:
+            func = PythonUtil.Functor(self.gotToon, index, avId)
+            self.toonRequests[index] = self.cr.relatedObjectMgr.requestObjects([avId], allCallback=func)
+        elif not self.isSetup:
+            self.deferredSlots.append((index, avId, wantBoardingShow))
         else:
-            if avId not in self.cr.doId2do:
-                func = PythonUtil.Functor(self.gotToon, index, avId)
-                self.toonRequests[index] = self.cr.relatedObjectMgr.requestObjects([avId], allCallback=func)
-            else:
-                if not self.isSetup:
-                    self.deferredSlots.append((index, avId, wantBoardingShow))
-                else:
-                    if avId == base.localAvatar.getDoId():
-                        place = base.cr.playGame.getPlace()
-                        if not place:
-                            return
-                        elevator = self.getPlaceElevator()
-                        if elevator == None:
-                            place.fsm.request('elevator')
-                            elevator = self.getPlaceElevator()
-                        if not elevator:
-                            return
-                        self.localToonOnBoard = 1
-                        if hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty:
-                            localAvatar.boardingParty.forceCleanupInviteePanel()
-                            localAvatar.boardingParty.forceCleanupInviterPanels()
-                        if hasattr(base.localAvatar, 'elevatorNotifier'):
-                            base.localAvatar.elevatorNotifier.cleanup()
-                        cameraTrack = Sequence()
-                        cameraTrack.append(Func(elevator.fsm.request, 'boarding', [self.getElevatorModel()]))
-                        cameraTrack.append(Func(elevator.fsm.request, 'boarded'))
-                    toon = self.cr.doId2do[avId]
-                    toon.stopSmooth()
-                    toon.wrtReparentTo(self.golfKart)
-                    sitStartDuration = toon.getDuration('sit-start')
-                    jumpTrack = self.generateToonJumpTrack(toon, index)
-                    track = Sequence(jumpTrack, Func(toon.setAnimState, 'Sit', 1.0), Func(self.clearToonTrack, avId), name=toon.uniqueName('fillElevator'), autoPause=1)
-                    if wantBoardingShow:
-                        boardingTrack, boardingTrackType = self.getBoardingTrack(toon, index, True)
-                        track = Sequence(boardingTrack, track)
-                        if avId == base.localAvatar.getDoId():
-                            cameraWaitTime = 2.5
-                            if boardingTrackType == BoardingGroupShow.TRACK_TYPE_RUN:
-                                cameraWaitTime = 0.5
-                            cameraTrack = Sequence(Wait(cameraWaitTime), cameraTrack)
-                    if self.canHideBoardingQuitBtn(avId):
-                        track = Sequence(Func(localAvatar.boardingParty.groupPanel.disableQuitButton), track)
-                    if avId == base.localAvatar.getDoId():
-                        track = Parallel(cameraTrack, track)
-                    track.delayDelete = DelayDelete.DelayDelete(toon, 'CogKart.fillSlot')
-                    self.storeToonTrack(avId, track)
-                    track.start()
-                    self.fillSlotTrack = track
-                    self.boardedAvIds[avId] = None
+            if avId == base.localAvatar.getDoId():
+                place = base.cr.playGame.getPlace()
+                if not place:
+                    return
+                elevator = self.getPlaceElevator()
+                if elevator == None:
+                    place.fsm.request('elevator')
+                    elevator = self.getPlaceElevator()
+                if not elevator:
+                    return
+                self.localToonOnBoard = 1
+                if hasattr(localAvatar, 'boardingParty') and localAvatar.boardingParty:
+                    localAvatar.boardingParty.forceCleanupInviteePanel()
+                    localAvatar.boardingParty.forceCleanupInviterPanels()
+                if hasattr(base.localAvatar, 'elevatorNotifier'):
+                    base.localAvatar.elevatorNotifier.cleanup()
+                cameraTrack = Sequence()
+                cameraTrack.append(Func(elevator.fsm.request, 'boarding', [self.getElevatorModel()]))
+                cameraTrack.append(Func(elevator.fsm.request, 'boarded'))
+            toon = self.cr.doId2do[avId]
+            toon.stopSmooth()
+            toon.wrtReparentTo(self.golfKart)
+            sitStartDuration = toon.getDuration('sit-start')
+            jumpTrack = self.generateToonJumpTrack(toon, index)
+            track = Sequence(jumpTrack, Func(toon.setAnimState, 'Sit', 1.0), Func(self.clearToonTrack, avId), name=toon.uniqueName('fillElevator'), autoPause=1)
+            if wantBoardingShow:
+                boardingTrack, boardingTrackType = self.getBoardingTrack(toon, index, True)
+                track = Sequence(boardingTrack, track)
+                if avId == base.localAvatar.getDoId():
+                    cameraWaitTime = 2.5
+                    if boardingTrackType == BoardingGroupShow.TRACK_TYPE_RUN:
+                        cameraWaitTime = 0.5
+                    cameraTrack = Sequence(Wait(cameraWaitTime), cameraTrack)
+            if self.canHideBoardingQuitBtn(avId):
+                track = Sequence(Func(localAvatar.boardingParty.groupPanel.disableQuitButton), track)
+            if avId == base.localAvatar.getDoId():
+                track = Parallel(cameraTrack, track)
+            track.delayDelete = DelayDelete.DelayDelete(toon, 'CogKart.fillSlot')
+            self.storeToonTrack(avId, track)
+            track.start()
+            self.fillSlotTrack = track
+            self.boardedAvIds[avId] = None
         return
 
     def generateToonJumpTrack(self, av, seatIndex):
@@ -273,13 +271,11 @@ class DistributedCogKart(DistributedElevatorExt.DistributedElevatorExt):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(LerpHprInterval(av, hpr=getJumpHpr, duration=0.9), ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 
@@ -298,38 +294,36 @@ class DistributedCogKart(DistributedElevatorExt.DistributedElevatorExt):
             self.fillSlotTrack = None
         if avId == 0:
             pass
-        else:
-            if not self.isSetup:
-                newSlots = []
-                for slot in self.deferredSlots:
-                    if slot[0] != index:
-                        newSlots.append(slot)
+        elif not self.isSetup:
+            newSlots = []
+            for slot in self.deferredSlots:
+                if slot[0] != index:
+                    newSlots.append(slot)
 
-                self.deferredSlots = newSlots
-            else:
-                if avId in self.cr.doId2do:
-                    if bailFlag == 1 and hasattr(self, 'clockNode'):
-                        if timestamp < self.countdownTime and timestamp >= 0:
-                            self.countdown(self.countdownTime - timestamp)
-                        else:
-                            self.countdown(self.countdownTime)
-                    toon = self.cr.doId2do[avId]
-                    toon.stopSmooth()
-                    sitStartDuration = toon.getDuration('sit-start')
-                    jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
-                    track = Sequence(jumpOutTrack, Func(self.notifyToonOffElevator, toon), Func(self.clearToonTrack, avId), name=toon.uniqueName('emptyElevator'), autoPause=1)
-                    if self.canHideBoardingQuitBtn(avId):
-                        track.append(Func(localAvatar.boardingParty.groupPanel.enableQuitButton))
-                        track.append(Func(localAvatar.boardingParty.enableGoButton))
-                    track.delayDelete = DelayDelete.DelayDelete(toon, 'CogKart.emptySlot')
-                    self.storeToonTrack(toon.doId, track)
-                    track.start()
-                    if avId == base.localAvatar.getDoId():
-                        messenger.send('exitElevator')
-                    if avId in self.boardedAvIds:
-                        del self.boardedAvIds[avId]
+            self.deferredSlots = newSlots
+        elif avId in self.cr.doId2do:
+            if bailFlag == 1 and hasattr(self, 'clockNode'):
+                if timestamp < self.countdownTime and timestamp >= 0:
+                    self.countdown(self.countdownTime - timestamp)
                 else:
-                    self.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the elevator!')
+                    self.countdown(self.countdownTime)
+            toon = self.cr.doId2do[avId]
+            toon.stopSmooth()
+            sitStartDuration = toon.getDuration('sit-start')
+            jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
+            track = Sequence(jumpOutTrack, Func(self.notifyToonOffElevator, toon), Func(self.clearToonTrack, avId), name=toon.uniqueName('emptyElevator'), autoPause=1)
+            if self.canHideBoardingQuitBtn(avId):
+                track.append(Func(localAvatar.boardingParty.groupPanel.enableQuitButton))
+                track.append(Func(localAvatar.boardingParty.enableGoButton))
+            track.delayDelete = DelayDelete.DelayDelete(toon, 'CogKart.emptySlot')
+            self.storeToonTrack(toon.doId, track)
+            track.start()
+            if avId == base.localAvatar.getDoId():
+                messenger.send('exitElevator')
+            if avId in self.boardedAvIds:
+                del self.boardedAvIds[avId]
+        else:
+            self.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the elevator!')
         return
 
     def generateToonReverseJumpTrack(self, av, seatIndex):
@@ -347,13 +341,11 @@ class DistributedCogKart(DistributedElevatorExt.DistributedElevatorExt):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 

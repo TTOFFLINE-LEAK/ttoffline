@@ -44,12 +44,11 @@ class DistributedMMPiano(DistributedObject.DistributedObject):
         now = globalClock.getFrameTime()
         if now > self.lerpFinish:
             offset = self.offset
+        elif now > self.lerpStart:
+            t = (now - self.lerpStart) / (self.lerpFinish - self.lerpStart)
+            offset = self.oldOffset + t * (self.offset - self.oldOffset)
         else:
-            if now > self.lerpStart:
-                t = (now - self.lerpStart) / (self.lerpFinish - self.lerpStart)
-                offset = self.oldOffset + t * (self.offset - self.oldOffset)
-            else:
-                offset = self.oldOffset
+            offset = self.oldOffset
         heading = self.degreesPerSecond * (now - self.spinStartTime) + offset
         self.piano.setHprScale(heading % 360.0, 0.0, 0.0, 1.0, 1.0, 1.0)
         return Task.cont

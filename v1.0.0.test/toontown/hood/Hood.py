@@ -165,21 +165,18 @@ class Hood(StateData.StateData):
                 loader.beginBulkLoad('hood', TTLocalizer.HeadingToPlayground, safeZoneCountMap[self.id], 1, TTLocalizer.TIP_GENERAL)
             self.loadLoader(requestStatus)
             loader.endBulkLoad('hood')
-        else:
-            if loaderName == 'townLoader':
-                if not loader.inBulkBlock:
-                    zoneId = requestStatus['zoneId']
-                    toPhrase = StreetNames[ZoneUtil.getCanonicalBranchZone(zoneId)][0]
-                    streetName = StreetNames[ZoneUtil.getCanonicalBranchZone(zoneId)][(-1)]
-                    loader.beginBulkLoad('hood', TTLocalizer.HeadingToStreet % {'to': toPhrase, 'street': streetName}, townCountMap[self.id], 1, TTLocalizer.TIP_STREET)
-                self.loadLoader(requestStatus)
-                loader.endBulkLoad('hood')
-            else:
-                if loaderName == 'minigame':
-                    pass
-                else:
-                    if loaderName == 'cogHQLoader':
-                        print 'should be loading HQ'
+        elif loaderName == 'townLoader':
+            if not loader.inBulkBlock:
+                zoneId = requestStatus['zoneId']
+                toPhrase = StreetNames[ZoneUtil.getCanonicalBranchZone(zoneId)][0]
+                streetName = StreetNames[ZoneUtil.getCanonicalBranchZone(zoneId)][(-1)]
+                loader.beginBulkLoad('hood', TTLocalizer.HeadingToStreet % {'to': toPhrase, 'street': streetName}, townCountMap[self.id], 1, TTLocalizer.TIP_STREET)
+            self.loadLoader(requestStatus)
+            loader.endBulkLoad('hood')
+        elif loaderName == 'minigame':
+            pass
+        elif loaderName == 'cogHQLoader':
+            print 'should be loading HQ'
 
     def handleLeftQuietZone(self):
         status = self.quietZoneStateData.getRequestStatus()

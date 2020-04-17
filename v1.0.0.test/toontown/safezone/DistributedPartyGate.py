@@ -63,14 +63,15 @@ class DistributedPartyGate(DistributedObject.DistributedObject):
         if partyGate.isEmpty():
             self.notify.warning('Could not find partyGate_grp in loader.geom')
             return
-        gateFont = ToontownGlobals.getMinnieFont()
-        leftSign = partyGate.find('**/signTextL_locatorBack')
-        signScale = 0.35
-        wordWrap = 8
-        leftText = DirectLabel.DirectLabel(parent=leftSign, pos=(0, 0.0, 0.0), relief=None, text=TTLocalizer.PartyGateLeftSign, text_align=TextNode.ACenter, text_font=gateFont, text_wordwrap=wordWrap, text_fg=Vec4(0.7, 0.3, 0.3, 1.0), scale=signScale)
-        rightSign = partyGate.find('**/signTextR_locatorFront')
-        rightText = DirectLabel.DirectLabel(parent=rightSign, pos=(0, 0.0, 0.0), relief=None, text=TTLocalizer.PartyGateRightSign, text_align=TextNode.ACenter, text_font=gateFont, text_wordwrap=wordWrap, text_fg=Vec4(0.7, 0.3, 0.3, 1.0), scale=signScale)
-        return
+        else:
+            gateFont = ToontownGlobals.getMinnieFont()
+            leftSign = partyGate.find('**/signTextL_locatorBack')
+            signScale = 0.35
+            wordWrap = 8
+            leftText = DirectLabel.DirectLabel(parent=leftSign, pos=(0, 0.0, 0.0), relief=None, text=TTLocalizer.PartyGateLeftSign, text_align=TextNode.ACenter, text_font=gateFont, text_wordwrap=wordWrap, text_fg=Vec4(0.7, 0.3, 0.3, 1.0), scale=signScale)
+            rightSign = partyGate.find('**/signTextR_locatorFront')
+            rightText = DirectLabel.DirectLabel(parent=rightSign, pos=(0, 0.0, 0.0), relief=None, text=TTLocalizer.PartyGateRightSign, text_align=TextNode.ACenter, text_font=gateFont, text_wordwrap=wordWrap, text_fg=Vec4(0.7, 0.3, 0.3, 1.0), scale=signScale)
+            return
 
     def announceGenerate(self):
         DistributedObject.DistributedObject.announceGenerate(self)
@@ -128,16 +129,16 @@ class DistributedPartyGate(DistributedObject.DistributedObject):
         if doneStatus is None:
             self.freeAvatar()
             return
-        self.sendUpdate('partyChoiceRequest', [base.localAvatar.doId, doneStatus[0], doneStatus[1]])
-        return
+        else:
+            self.sendUpdate('partyChoiceRequest', [base.localAvatar.doId, doneStatus[0], doneStatus[1]])
+            return
 
     def partyRequestDenied(self, reason):
         DistributedPartyGate.notify.debug('partyRequestDenied( reason=%s )' % PartyGlobals.PartyGateDenialReasons.getString(reason))
         if reason == PartyGlobals.PartyGateDenialReasons.Unavailable:
             self.showMessage(TTLocalizer.PartyGatePartyUnavailable)
-        else:
-            if reason == PartyGlobals.PartyGateDenialReasons.Full:
-                self.showMessage(TTLocalizer.PartyGatePartyFull)
+        elif reason == PartyGlobals.PartyGateDenialReasons.Full:
+            self.showMessage(TTLocalizer.PartyGatePartyFull)
 
     def setParty(self, partyInfoTuple):
         DistributedPartyGate.notify.debug('setParty')
@@ -145,16 +146,17 @@ class DistributedPartyGate(DistributedObject.DistributedObject):
         if partyInfoTuple[0] == 0:
             DistributedPartyGate.notify.debug('Public Party closed before toon could get to it.')
             return
-        shardId, zoneId, numberOfGuests, hostName, activityIds, lane = partyInfoTuple
-        if base.localAvatar.defaultShard == shardId:
-            shardId = None
-        base.cr.playGame.getPlace().requestLeave({'loader': 'safeZoneLoader', 'where': 'party', 
-           'how': 'teleportIn', 
-           'hoodId': ToontownGlobals.PartyHood, 
-           'zoneId': zoneId, 
-           'shardId': shardId, 
-           'avId': -1})
-        return
+        else:
+            shardId, zoneId, numberOfGuests, hostName, activityIds, lane = partyInfoTuple
+            if base.localAvatar.defaultShard == shardId:
+                shardId = None
+            base.cr.playGame.getPlace().requestLeave({'loader': 'safeZoneLoader', 'where': 'party', 
+               'how': 'teleportIn', 
+               'hoodId': ToontownGlobals.PartyHood, 
+               'zoneId': zoneId, 
+               'shardId': shardId, 
+               'avId': -1})
+            return
 
     def freeAvatar(self):
         base.localAvatar.posCamera(0, 0)

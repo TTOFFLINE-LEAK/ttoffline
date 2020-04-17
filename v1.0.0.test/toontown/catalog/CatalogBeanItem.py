@@ -24,9 +24,11 @@ class CatalogBeanItem(CatalogItem.CatalogItem):
         if retcode == ToontownGlobals.P_ItemAvailable:
             if self.giftCode == ToontownGlobals.GIFT_RAT:
                 return TTLocalizer.CatalogAcceptRATBeans
-            if self.giftCode == ToontownGlobals.GIFT_partyrefund:
-                return TTLocalizer.CatalogAcceptPartyRefund
-            return TTLocalizer.CatalogAcceptBeans
+            else:
+                if self.giftCode == ToontownGlobals.GIFT_partyrefund:
+                    return TTLocalizer.CatalogAcceptPartyRefund
+                return TTLocalizer.CatalogAcceptBeans
+
         return CatalogItem.CatalogItem.getAcceptItemErrorText(self, retcode)
 
     def saveHistory(self):

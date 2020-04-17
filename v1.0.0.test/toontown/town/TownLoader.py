@@ -298,13 +298,12 @@ class TownLoader(StateData.StateData):
                 animPropNode = animPropNodes.getPath(j)
                 if animPropNode.getName().startswith('animated_prop_generic'):
                     className = 'GenericAnimatedProp'
+                elif animPropNode.getName().startswith('animated_prop_'):
+                    name = animPropNode.getName()[len('animated_prop_'):]
+                    splits = name.split('_')
+                    className = splits[0]
                 else:
-                    if animPropNode.getName().startswith('animated_prop_'):
-                        name = animPropNode.getName()[len('animated_prop_'):]
-                        splits = name.split('_')
-                        className = splits[0]
-                    else:
-                        className = animPropNode.getName()[14:-8]
+                    className = animPropNode.getName()[14:-8]
                 symbols = {}
                 base.cr.importModule(symbols, 'toontown.hood', [className])
                 classObj = getattr(symbols[className], className)
@@ -319,12 +318,10 @@ class TownLoader(StateData.StateData):
                 className = 'InteractiveAnimatedProp'
                 if 'hydrant' in interactivePropNode.getName():
                     className = 'HydrantInteractiveProp'
-                else:
-                    if 'trashcan' in interactivePropNode.getName():
-                        className = 'TrashcanInteractiveProp'
-                    else:
-                        if 'mailbox' in interactivePropNode.getName():
-                            className = 'MailboxInteractiveProp'
+                elif 'trashcan' in interactivePropNode.getName():
+                    className = 'TrashcanInteractiveProp'
+                elif 'mailbox' in interactivePropNode.getName():
+                    className = 'MailboxInteractiveProp'
                 symbols = {}
                 base.cr.importModule(symbols, 'toontown.hood', [className])
                 classObj = getattr(symbols[className], className)

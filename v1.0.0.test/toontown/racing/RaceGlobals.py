@@ -28,12 +28,13 @@ def getTrackGenre(trackId):
      RT_Speedway_2,
      RT_Speedway_2_rev):
         return Speedway
-    if trackId in (RT_Rural_1,
-     RT_Rural_1_rev,
-     RT_Rural_2,
-     RT_Rural_2_rev):
-        return Rural
-    return Urban
+    else:
+        if trackId in (RT_Rural_1,
+         RT_Rural_1_rev,
+         RT_Rural_2,
+         RT_Rural_2_rev):
+            return Rural
+        return Urban
 
 
 RT_Speedway_1_Gags = (
@@ -181,11 +182,10 @@ def RaceInfo2RacePadId(trackId, trackType):
             padId = 0
         else:
             padId = 2
+    elif trackType == Practice:
+        padId = 1
     else:
-        if trackType == Practice:
-            padId = 1
-        else:
-            padId = 3
+        padId = 3
     return padId
 
 
@@ -198,9 +198,10 @@ def getTrackGenreString(genreId):
 def getTunnelSignName(genreId, padId):
     if genreId == 2 and padId == 0:
         return 'tunne1l_citysign'
-    if genreId == 1 and padId == 0:
-        return 'tunnel_countrysign1'
-    return 'tunnel%s_%ssign' % (padId + 1, getTrackGenreString(genreId))
+    else:
+        if genreId == 1 and padId == 0:
+            return 'tunnel_countrysign1'
+        return 'tunnel%s_%ssign' % (padId + 1, getTrackGenreString(genreId))
 
 
 RacePadId2RaceInfo = {0: (0, Practice, 3), 1: (
@@ -213,9 +214,10 @@ RacePadId2RaceInfo = {0: (0, Practice, 3), 1: (
 def getGenreFromString(string):
     if string == 'town':
         return Urban
-    if string == 'stadium':
-        return Speedway
-    return Rural
+    else:
+        if string == 'stadium':
+            return Speedway
+        return Rural
 
 
 def getTrackListByType(genre, type):
@@ -379,9 +381,8 @@ def getEntryFee(trackId, raceType):
     fee = 0
     if raceType == ToonBattle:
         fee = TrackDict[trackId][3][0]
-    else:
-        if raceType == Circuit:
-            fee = TrackDict[trackId][3][1]
+    elif raceType == Circuit:
+        fee = TrackDict[trackId][3][1]
     return fee
 
 

@@ -198,16 +198,17 @@ class PlayGame(StateData.StateData):
             messenger.send(self.doneEvent)
             base.transitions.fadeOut(0)
             return
-        if doneStatus['where'] == 'party':
-            self.getPartyZoneAndGoToParty(doneStatus['avId'], doneStatus['zoneId'])
-            return
-        how = doneStatus['how']
-        if how in ('tunnelIn', 'teleportIn', 'doorIn', 'elevatorIn', 'skipTunnelIn',
-                   'portalIn'):
-            self.fsm.request('quietZone', [doneStatus])
         else:
-            self.notify.error('Exited hood with unexpected mode %s' % how)
-        return
+            if doneStatus['where'] == 'party':
+                self.getPartyZoneAndGoToParty(doneStatus['avId'], doneStatus['zoneId'])
+                return
+            how = doneStatus['how']
+            if how in ('tunnelIn', 'teleportIn', 'doorIn', 'elevatorIn', 'skipTunnelIn',
+                       'portalIn'):
+                self.fsm.request('quietZone', [doneStatus])
+            else:
+                self.notify.error('Exited hood with unexpected mode %s' % how)
+            return
 
     def _destroyHood(self):
         self.ignore(self.hoodDoneEvent)
@@ -252,9 +253,8 @@ class PlayGame(StateData.StateData):
         count = ToontownGlobals.hoodCountMap[canonicalHoodId]
         if loaderName == 'safeZoneLoader':
             count += ToontownGlobals.safeZoneCountMap[canonicalHoodId]
-        else:
-            if loaderName == 'townLoader':
-                count += ToontownGlobals.townCountMap[canonicalHoodId]
+        elif loaderName == 'townLoader':
+            count += ToontownGlobals.townCountMap[canonicalHoodId]
         if not loader.inBulkBlock:
             if hoodId == ToontownGlobals.MyEstate:
                 if avId == -1:
@@ -447,17 +447,18 @@ class PlayGame(StateData.StateData):
             taskMgr.remove('goHomeFailed')
             taskMgr.add(self.goHomeFailed, 'goHomeFailed')
             return
-        if ownerId == 0 and zoneId == 0:
-            self.doneStatus['failed'] = 1
-            self.goHomeFailed(None)
-            return
-        if self.doneStatus['zoneId'] != zoneId:
-            self.doneStatus['where'] = 'house'
         else:
-            self.doneStatus['where'] = 'estate'
-        self.doneStatus['ownerId'] = ownerId
-        self.fsm.request('quietZone', [self.doneStatus])
-        return
+            if ownerId == 0 and zoneId == 0:
+                self.doneStatus['failed'] = 1
+                self.goHomeFailed(None)
+                return
+            if self.doneStatus['zoneId'] != zoneId:
+                self.doneStatus['where'] = 'house'
+            else:
+                self.doneStatus['where'] = 'estate'
+            self.doneStatus['ownerId'] = ownerId
+            self.fsm.request('quietZone', [self.doneStatus])
+            return
 
     def goHomeFailed(self, task):
         self.notify.debug('goHomeFailed')
@@ -591,5 +592,6 @@ class PlayGame(StateData.StateData):
     def getPlaceId(self):
         if self.hood:
             return self.hood.hoodId
-        return
-        return
+        else:
+            return
+            return

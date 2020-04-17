@@ -42,10 +42,11 @@ class AvatarDetail:
         if avatar != self.avatar:
             self.notify.warning('Ignoring unexpected request for avatar %s' % avatar.doId)
             return
-        if gotData:
-            self.callWhenDone(self.avatar)
-            del self.callWhenDone
         else:
-            self.callWhenDone(None)
-            del self.callWhenDone
-        return
+            if gotData:
+                self.callWhenDone(self.avatar)
+                del self.callWhenDone
+            else:
+                self.callWhenDone(None)
+                del self.callWhenDone
+            return

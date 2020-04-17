@@ -113,24 +113,25 @@ class DistributedLevelAI(DistributedObjectAI.DistributedObjectAI, Level.Level):
             self.notify.info('client is in dev mode and we are not')
             self.sendUpdateToAvatarId(senderId, 'setSpecDeny', ['AI server is not running in dev mode. Set want-dev to false on your client or true on the AI.'])
             return
-        srvHash = self.levelSpec.entTypeReg.getHashStr()
-        self.notify.info('srv entTypeRegHash %s' % srvHash)
-        if srvHash != entTypeRegHash:
-            self.sendUpdateToAvatarId(senderId, 'setSpecDeny', ['EntityTypeRegistry hashes do not match! (server:%s, client:%s' % (srvHash, entTypeRegHash)])
-            return
-        if hash(self.levelSpec) != specHash:
-            self.notify.info('spec hashes do not match, sending our spec')
-            spec = self.levelSpec
-            useDisk = simbase.config.GetBool('spec-by-disk', 1)
         else:
-            self.notify.info('spec hashes match, sending null spec')
-            spec = None
-            useDisk = 0
-        specStr = repr(spec)
-        from direct.directutil import DistributedLargeBlobSenderAI
-        largeBlob = DistributedLargeBlobSenderAI.DistributedLargeBlobSenderAI(self.air, self.zoneId, senderId, specStr, useDisk=useDisk)
-        self.sendUpdateToAvatarId(senderId, 'setSpecSenderDoId', [largeBlob.doId])
-        return
+            srvHash = self.levelSpec.entTypeReg.getHashStr()
+            self.notify.info('srv entTypeRegHash %s' % srvHash)
+            if srvHash != entTypeRegHash:
+                self.sendUpdateToAvatarId(senderId, 'setSpecDeny', ['EntityTypeRegistry hashes do not match! (server:%s, client:%s' % (srvHash, entTypeRegHash)])
+                return
+            if hash(self.levelSpec) != specHash:
+                self.notify.info('spec hashes do not match, sending our spec')
+                spec = self.levelSpec
+                useDisk = simbase.config.GetBool('spec-by-disk', 1)
+            else:
+                self.notify.info('spec hashes match, sending null spec')
+                spec = None
+                useDisk = 0
+            specStr = repr(spec)
+            from direct.directutil import DistributedLargeBlobSenderAI
+            largeBlob = DistributedLargeBlobSenderAI.DistributedLargeBlobSenderAI(self.air, self.zoneId, senderId, specStr, useDisk=useDisk)
+            self.sendUpdateToAvatarId(senderId, 'setSpecSenderDoId', [largeBlob.doId])
+            return
 
     if __dev__:
 

@@ -99,9 +99,8 @@ class EffectController:
     def enableEffect(self):
         if self.f and self.particleDummy:
             self.f.start(self, self.particleDummy)
-        else:
-            if self.f:
-                self.f.start(self, self)
+        elif self.f:
+            self.f.start(self, self)
 
     def disableEffect(self):
         if self.f:

@@ -233,44 +233,46 @@ class DistributedRace(DistributedObject.DistributedObject):
     def setPlace(self, avId, totalTime, place, entryFee, qualify, winnings, bonus, trophies, circuitPoints, circuitTime):
         if self.fsm.getCurrentState().getName() == 'leaving':
             return
-        if avId == localAvatar.doId:
-            cheerToPlay = place + (4 - self.numRacers)
-            if cheerToPlay > 4:
-                cheerToPlay = 4
-            self.victory = base.loader.loadSfx(self.SFX_Applause % cheerToPlay)
-            self.victory.play()
-        self.knownPlace[avId] = place
-        kart = base.cr.doId2do.get(self.kartMap.get(avId, None), None)
-        avatar = base.cr.doId2do.get(avId, None)
-        if avatar:
-            self.gui.racerFinished(avId, self.trackId, place, totalTime, entryFee, qualify, winnings, bonus, trophies, circuitPoints, circuitTime)
-            taskName = 'hideAv: %s' % avId
-            taskMgr.doMethodLater(6, avatar.reparentTo, taskName, extraArgs=[hidden])
-            self.miscTaskNames.append(taskName)
-        if kart:
-            taskName = 'hideKart: %s' % self.localKart.doId
-            taskMgr.doMethodLater(6, kart.reparentTo, taskName, extraArgs=[hidden])
-            self.miscTaskNames.append(taskName)
-        return
+        else:
+            if avId == localAvatar.doId:
+                cheerToPlay = place + (4 - self.numRacers)
+                if cheerToPlay > 4:
+                    cheerToPlay = 4
+                self.victory = base.loader.loadSfx(self.SFX_Applause % cheerToPlay)
+                self.victory.play()
+            self.knownPlace[avId] = place
+            kart = base.cr.doId2do.get(self.kartMap.get(avId, None), None)
+            avatar = base.cr.doId2do.get(avId, None)
+            if avatar:
+                self.gui.racerFinished(avId, self.trackId, place, totalTime, entryFee, qualify, winnings, bonus, trophies, circuitPoints, circuitTime)
+                taskName = 'hideAv: %s' % avId
+                taskMgr.doMethodLater(6, avatar.reparentTo, taskName, extraArgs=[hidden])
+                self.miscTaskNames.append(taskName)
+            if kart:
+                taskName = 'hideKart: %s' % self.localKart.doId
+                taskMgr.doMethodLater(6, kart.reparentTo, taskName, extraArgs=[hidden])
+                self.miscTaskNames.append(taskName)
+            return
 
     def setCircuitPlace(self, avId, place, entryFee, winnings, bonus, trophies):
         print 'setting cicruit place'
         if self.fsm.getCurrentState().getName() == 'leaving':
             return
-        if avId == localAvatar.doId:
-            cheerToPlay = place + (4 - self.numRacers)
-            self.victory = base.loader.loadSfx(self.SFX_Applause % cheerToPlay)
-            self.victory.play()
-        oldPlace = 0
-        if self.knownPlace.get(avId):
-            oldPlace = self.knownPlace[avId]
-            self.placeFixup.append([oldPlace - 1, place - 1])
-        avatar = base.cr.doId2do.get(avId, None)
-        if avatar:
-            print 'circuit trophies %s' % trophies
-            print 'winnings %s' % winnings
-            self.gui.racerFinishedCircuit(avId, oldPlace, entryFee, winnings, bonus, trophies)
-        return
+        else:
+            if avId == localAvatar.doId:
+                cheerToPlay = place + (4 - self.numRacers)
+                self.victory = base.loader.loadSfx(self.SFX_Applause % cheerToPlay)
+                self.victory.play()
+            oldPlace = 0
+            if self.knownPlace.get(avId):
+                oldPlace = self.knownPlace[avId]
+                self.placeFixup.append([oldPlace - 1, place - 1])
+            avatar = base.cr.doId2do.get(avId, None)
+            if avatar:
+                print 'circuit trophies %s' % trophies
+                print 'winnings %s' % winnings
+                self.gui.racerFinishedCircuit(avId, oldPlace, entryFee, winnings, bonus, trophies)
+            return
 
     def endCircuitRace(self):
         print self.placeFixup
@@ -547,9 +549,8 @@ class DistributedRace(DistributedObject.DistributedObject):
         globalDirection = kartDirection.dot(project)
         if globalDirection < 0:
             self.wrongWay = True
-        else:
-            if globalDirection > 0.1:
-                self.wrongWay = False
+        elif globalDirection > 0.1:
+            self.wrongWay = False
         newLapT = (newT - self.startT) / self.curve.getMaxT() % 1.0
         if newLapT - self.currLapT < -0.5:
             self.laps += 1
@@ -558,14 +559,13 @@ class DistributedRace(DistributedObject.DistributedObject):
              self.startT,
              self.currT,
              newT))
-        else:
-            if newLapT - self.currLapT > 0.5:
-                self.laps -= 1
-                self.changeMusicTempo(1 + self.laps * 0.5)
-                self.notify.debug('crossed the start line - wrong way: %s, %s, %s, %s' % (self.laps,
-                 self.startT,
-                 self.currT,
-                 newT))
+        elif newLapT - self.currLapT > 0.5:
+            self.laps -= 1
+            self.changeMusicTempo(1 + self.laps * 0.5)
+            self.notify.debug('crossed the start line - wrong way: %s, %s, %s, %s' % (self.laps,
+             self.startT,
+             self.currT,
+             newT))
         self.currT = newT
         self.currLapT = newLapT
         if self.isUrbanTrack:
@@ -685,7 +685,8 @@ class DistributedRace(DistributedObject.DistributedObject):
             self.clockNode.setTextColor(self.getCountdownColor(-1))
             taskMgr.doMethodLater(1, self.endGoSign, 'removeGoSign')
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def endGoSign(self, t):
         self.clock.removeNode()
@@ -915,10 +916,10 @@ class DistributedRace(DistributedObject.DistributedObject):
                     else:
                         if side == 'outersidest':
                             dict = self.outerBarricadeDict
-                    if segmentInd in dict:
-                        self.currBldgGroups[side] = dict[segmentInd]
-                    for i in self.currBldgGroups[side]:
-                        self.buildingGroups[side][i].unstash()
+                        if segmentInd in dict:
+                            self.currBldgGroups[side] = dict[segmentInd]
+                        for i in self.currBldgGroups[side]:
+                            self.buildingGroups[side][i].unstash()
 
                     self.currBldgInd[side] = segmentInd
 
@@ -992,11 +993,10 @@ class DistributedRace(DistributedObject.DistributedObject):
                         if vector.lengthSquared() < farDistSquared:
                             if side == 'innersidest':
                                 dict = self.innerBarricadeDict
+                            elif side == 'outersidest':
+                                dict = self.outerBarricadeDict
                             else:
-                                if side == 'outersidest':
-                                    dict = self.outerBarricadeDict
-                                else:
-                                    self.notify.error('unhandled side')
+                                self.notify.error('unhandled side')
                             if i in dict:
                                 if bldgGroupIndex not in dict[i]:
                                     dict[i].append(bldgGroupIndex)
@@ -1012,11 +1012,10 @@ class DistributedRace(DistributedObject.DistributedObject):
                         if vector.lengthSquared() < farDistSquared:
                             if side == 'innersidest':
                                 dict = self.innerBarricadeDict
+                            elif side == 'outersidest':
+                                dict = self.outerBarricadeDict
                             else:
-                                if side == 'outersidest':
-                                    dict = self.outerBarricadeDict
-                                else:
-                                    self.notify.error('unhandled side')
+                                self.notify.error('unhandled side')
                             if i in dict:
                                 if bldgGroupIndex not in dict[i]:
                                     dict[i].append(bldgGroupIndex)
@@ -1056,8 +1055,9 @@ class DistributedRace(DistributedObject.DistributedObject):
         forwardSegment = nextPoint - currPoint
         if (kartPoint - currPoint).dot(forwardSegment) > 0:
             return minIndex
-        return prevIndex
-        return
+        else:
+            return prevIndex
+            return
 
     def getNearestT(self, pos):
         minLength2 = 1000000
@@ -1137,17 +1137,14 @@ class DistributedRace(DistributedObject.DistributedObject):
             if self.currGag == 1:
                 self.bananaSound.play()
                 self.shootBanana()
-            else:
-                if self.currGag == 2:
-                    self.d_requestThrow(0, 0, 0)
-                    self.localKart.startTurbo()
-                else:
-                    if self.currGag == 3:
-                        self.d_requestThrow(0, 0, 0)
-                    else:
-                        if self.currGag == 4:
-                            self.bananaSound.play()
-                            self.shootPie()
+            elif self.currGag == 2:
+                self.d_requestThrow(0, 0, 0)
+                self.localKart.startTurbo()
+            elif self.currGag == 3:
+                self.d_requestThrow(0, 0, 0)
+            elif self.currGag == 4:
+                self.bananaSound.play()
+                self.shootPie()
             self.currGag = 0
             self.gui.updateGag(0)
 
@@ -1216,12 +1213,13 @@ class DistributedRace(DistributedObject.DistributedObject):
         if arrowVec == None:
             print 'Unknown boost arrow %s' % idStr
             return
-        fvec = self.localKart.forward.getPos(self.geom) - self.localKart.getPos(self.geom)
-        fvec.normalize()
-        dotP = arrowVec.dot(fvec)
-        if dotP > 0.7:
-            self.localKart.startTurbo()
-        return
+        else:
+            fvec = self.localKart.forward.getPos(self.geom) - self.localKart.getPos(self.geom)
+            fvec.normalize()
+            dotP = arrowVec.dot(fvec)
+            if dotP > 0.7:
+                self.localKart.startTurbo()
+            return
 
     def fadeOutMusic(self):
         if self.musicTrack:

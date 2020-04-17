@@ -79,30 +79,31 @@ class GuiScreen:
         GuiScreen.notify.debug('stopFocusMgmt')
         if not self.focusMgmtActive():
             return
-        self.ignore('tab')
-        self.ignore('shift-tab')
-        self.ignore('enter')
-        self.__stopFrameStartTask()
-        self.userGlobalFocusHandler = None
-        self.focusIndex = None
-        self.focusHandlerAbsorbCounts = {}
-        for item in self.focusList:
-            if isinstance(item, DirectEntry):
-                userHandler, userHandlerArgs = self.userFocusHandlers[item]
-                item['focusInCommand'] = userHandler
-                item['focusInExtraArgs'] = userHandlerArgs
-                userHandler, userHandlerArgs = self.userCommandHandlers[item]
-                item['command'] = userHandler
-                item['extraArgs'] = userHandlerArgs
-            elif isinstance(item, DirectScrolledList):
-                userHandler, userHandlerArgs = self.userCommandHandlers[item]
-                item['command'] = userHandler
-                item['extraArgs'] = userHandlerArgs
+        else:
+            self.ignore('tab')
+            self.ignore('shift-tab')
+            self.ignore('enter')
+            self.__stopFrameStartTask()
+            self.userGlobalFocusHandler = None
+            self.focusIndex = None
+            self.focusHandlerAbsorbCounts = {}
+            for item in self.focusList:
+                if isinstance(item, DirectEntry):
+                    userHandler, userHandlerArgs = self.userFocusHandlers[item]
+                    item['focusInCommand'] = userHandler
+                    item['focusInExtraArgs'] = userHandlerArgs
+                    userHandler, userHandlerArgs = self.userCommandHandlers[item]
+                    item['command'] = userHandler
+                    item['extraArgs'] = userHandlerArgs
+                elif isinstance(item, DirectScrolledList):
+                    userHandler, userHandlerArgs = self.userCommandHandlers[item]
+                    item['command'] = userHandler
+                    item['extraArgs'] = userHandlerArgs
 
-        self.userFocusHandlers = {}
-        self.userCommandHandlers = {}
-        self.enterPressHandlers = {}
-        return
+            self.userFocusHandlers = {}
+            self.userCommandHandlers = {}
+            self.enterPressHandlers = {}
+            return
 
     def setFocus(self, arg, suppressSound=1):
         if type(arg) == type(0):
@@ -122,12 +123,14 @@ class GuiScreen:
     def getFocusIndex(self):
         if not self.focusMgmtActive():
             return None
-        return self.focusIndex
+        else:
+            return self.focusIndex
 
     def getFocusItem(self):
         if not self.focusMgmtActive():
             return None
-        return self.focusList[self.focusIndex]
+        else:
+            return self.focusList[self.focusIndex]
 
     def removeFocus(self):
         focusItem = self.getFocusItem()

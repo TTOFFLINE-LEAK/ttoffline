@@ -97,8 +97,9 @@ class DistributedPartyCannon(DistributedObject, Cannon):
     def getParentNodePath(self):
         if hasattr(base.cr.playGame, 'hood') and base.cr.playGame.hood and hasattr(base.cr.playGame.hood, 'loader') and base.cr.playGame.hood.loader and hasattr(base.cr.playGame.hood.loader, 'geom') and base.cr.playGame.hood.loader.geom:
             return base.cr.playGame.hood.loader.geom
-        self.notify.warning('Hood or loader not created, defaulting to render')
-        return render
+        else:
+            self.notify.warning('Hood or loader not created, defaulting to render')
+            return render
 
     def disable(self):
         self.notify.debug('disable')
@@ -136,18 +137,15 @@ class DistributedPartyCannon(DistributedObject, Cannon):
         self.notify.debug('%s setMovie(%s, %s)' % (self.doId, avId, mode))
         if mode == PartyGlobals.CANNON_MOVIE_CLEAR:
             self.setClear()
+        elif mode == PartyGlobals.CANNON_MOVIE_FORCE_EXIT:
+            self.exitCannon(avId)
+            self.setClear()
+        elif mode == PartyGlobals.CANNON_MOVIE_LOAD:
+            self.enterCannon(avId)
+        elif mode == PartyGlobals.CANNON_MOVIE_LANDED:
+            self.setLanded(avId)
         else:
-            if mode == PartyGlobals.CANNON_MOVIE_FORCE_EXIT:
-                self.exitCannon(avId)
-                self.setClear()
-            else:
-                if mode == PartyGlobals.CANNON_MOVIE_LOAD:
-                    self.enterCannon(avId)
-                else:
-                    if mode == PartyGlobals.CANNON_MOVIE_LANDED:
-                        self.setLanded(avId)
-                    else:
-                        self.notify.error('setMovie Unhandled case mode=%d avId=%d' % (mode, avId))
+            self.notify.error('setMovie Unhandled case mode=%d avId=%d' % (mode, avId))
 
     def __handleToonCollisionWithCannon(self, collEntry):
         self.notify.debug('collEntry: %s' % collEntry)
@@ -294,29 +292,30 @@ class DistributedPartyCannon(DistributedObject, Cannon):
         av = base.cr.doId2do.get(avId)
         if not av:
             return
-        if av != None:
-            av.dropShadow.show()
-            self.hitBumper = 0
-            self.hitTarget = 0
-            self.angularVel = 0
-            self.vel = Vec3(0, 0, 0)
-            self.lastVel = Vec3(0, 0, 0)
-            self.lastPos = Vec3(0, 0, 0)
-            self.landingPos = Vec3(0, 0, 0)
-            self.t = 0
-            self.lastT = 0
-            self.deltaT = 0
-            av = None
-            self.lastWakeTime = 0
-            self.localToonShooting = 0
-        if self.toonHead != None:
-            self.toonHead.reparentTo(hidden)
-            self.toonHead.stopBlink()
-            self.toonHead.stopLookAroundNow()
-            self.toonHead.delete()
-            self.toonHead = None
-        self.model_Created = 0
-        return
+        else:
+            if av != None:
+                av.dropShadow.show()
+                self.hitBumper = 0
+                self.hitTarget = 0
+                self.angularVel = 0
+                self.vel = Vec3(0, 0, 0)
+                self.lastVel = Vec3(0, 0, 0)
+                self.lastPos = Vec3(0, 0, 0)
+                self.landingPos = Vec3(0, 0, 0)
+                self.t = 0
+                self.lastT = 0
+                self.deltaT = 0
+                av = None
+                self.lastWakeTime = 0
+                self.localToonShooting = 0
+            if self.toonHead != None:
+                self.toonHead.reparentTo(hidden)
+                self.toonHead.stopBlink()
+                self.toonHead.stopLookAroundNow()
+                self.toonHead.delete()
+                self.toonHead = None
+            self.model_Created = 0
+            return
 
     def setClear(self):
         toon = base.cr.doId2do.get(self.toonInsideAvId)
@@ -401,12 +400,11 @@ class DistributedPartyCannon(DistributedObject, Cannon):
                 self.notify.debug('Broadcast local cannon %s position' % self.doId)
                 task.lastPositionBroadcastTime = task.time
                 self.__broadcastLocalCannonPosition()
-        else:
-            if self.localCannonMoving:
-                self.localCannonMoving = False
-                self.stopMovingSound()
-                self.__broadcastLocalCannonPosition()
-                self.notify.debug('Cannon Rot = %s, Angle = %s' % (self._rotation, self._angle))
+        elif self.localCannonMoving:
+            self.localCannonMoving = False
+            self.stopMovingSound()
+            self.__broadcastLocalCannonPosition()
+            self.notify.debug('Cannon Rot = %s, Angle = %s' % (self._rotation, self._angle))
         return Task.cont
 
     def __broadcastLocalCannonPosition(self):

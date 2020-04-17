@@ -200,34 +200,36 @@ class SCMenu(SCObject, NodePath):
     def __setActiveMember(self, member):
         if self.activeMember is member:
             return
-        if self.activeMember is not None:
-            self.activeMember.exitActive()
-        self.activeMember = member
-        if self.activeMember is not None:
-            self.activeMember.reparentTo(self)
-            self.activeMember.enterActive()
-        return
+        else:
+            if self.activeMember is not None:
+                self.activeMember.exitActive()
+            self.activeMember = member
+            if self.activeMember is not None:
+                self.activeMember.reparentTo(self)
+                self.activeMember.enterActive()
+            return
 
     def memberGainedInputFocus(self, member):
         self.__cancelActiveMemberSwitch()
         if member is self.activeMember:
             return
-        if self.activeMember is None or SCMenu.SpeedChatRolloverTolerance == 0 or member.posInParentMenu < self.activeMember.posInParentMenu:
-            self.__setActiveMember(member)
         else:
-
-            def doActiveMemberSwitch(task, self=self, member=member):
-                self.activeCandidate = None
+            if self.activeMember is None or SCMenu.SpeedChatRolloverTolerance == 0 or member.posInParentMenu < self.activeMember.posInParentMenu:
                 self.__setActiveMember(member)
-                return Task.done
-
-            minFrameRate = 1.0 / SCMenu.SpeedChatRolloverTolerance
-            if globalClock.getAverageFrameRate() > minFrameRate:
-                taskMgr.doMethodLater(SCMenu.SpeedChatRolloverTolerance, doActiveMemberSwitch, self.ActiveMemberSwitchTaskName)
-                self.activeCandidate = member
             else:
-                self.__setActiveMember(member)
-        return
+
+                def doActiveMemberSwitch(task, self=self, member=member):
+                    self.activeCandidate = None
+                    self.__setActiveMember(member)
+                    return Task.done
+
+                minFrameRate = 1.0 / SCMenu.SpeedChatRolloverTolerance
+                if globalClock.getAverageFrameRate() > minFrameRate:
+                    taskMgr.doMethodLater(SCMenu.SpeedChatRolloverTolerance, doActiveMemberSwitch, self.ActiveMemberSwitchTaskName)
+                    self.activeCandidate = member
+                else:
+                    self.__setActiveMember(member)
+            return
 
     def __cancelActiveMemberSwitch(self):
         taskMgr.remove(self.ActiveMemberSwitchTaskName)
@@ -239,9 +241,8 @@ class SCMenu(SCObject, NodePath):
             self.__cancelActiveMemberSwitch()
         if member is not self.activeMember:
             pass
-        else:
-            if not member.hasStickyFocus():
-                self.__setActiveMember(None)
+        elif not member.hasStickyFocus():
+            self.__setActiveMember(None)
         return
 
     def memberViewabilityChanged(self, member):
@@ -270,83 +271,84 @@ class SCMenu(SCObject, NodePath):
     def finalize(self):
         if not self.isDirty():
             return
-        self.inFinalize = 1
-        SCObject.finalize(self)
-        visibleMembers = []
-        for member in self:
-            if member.isViewable():
-                visibleMembers.append(member)
-                member.reparentTo(self)
-            else:
-                member.reparentTo(hidden)
-                if self.activeMember is member:
-                    self.__setActiveMember(None)
+        else:
+            self.inFinalize = 1
+            SCObject.finalize(self)
+            visibleMembers = []
+            for member in self:
+                if member.isViewable():
+                    visibleMembers.append(member)
+                    member.reparentTo(self)
+                else:
+                    member.reparentTo(hidden)
+                    if self.activeMember is member:
+                        self.__setActiveMember(None)
 
-        maxWidth = 0.0
-        maxHeight = 0.0
-        for member in visibleMembers:
-            width, height = member.getMinDimensions()
-            maxWidth = max(maxWidth, width)
-            maxHeight = max(maxHeight, height)
+            maxWidth = 0.0
+            maxHeight = 0.0
+            for member in visibleMembers:
+                width, height = member.getMinDimensions()
+                maxWidth = max(maxWidth, width)
+                maxHeight = max(maxHeight, height)
 
-        holder = self.getHolder()
-        if holder is not None:
-            widthToCover = holder.getMinSubmenuWidth()
-            maxWidth = max(maxWidth, widthToCover)
-        memberWidth, memberHeight = maxWidth, maxHeight
-        self.width = maxWidth
-        for i in xrange(len(visibleMembers)):
-            member = visibleMembers[i]
-            member.setPos(0, 0, -i * maxHeight)
-            member.setDimensions(memberWidth, memberHeight)
-            member.finalize()
+            holder = self.getHolder()
+            if holder is not None:
+                widthToCover = holder.getMinSubmenuWidth()
+                maxWidth = max(maxWidth, widthToCover)
+            memberWidth, memberHeight = maxWidth, maxHeight
+            self.width = maxWidth
+            for i in xrange(len(visibleMembers)):
+                member = visibleMembers[i]
+                member.setPos(0, 0, -i * maxHeight)
+                member.setDimensions(memberWidth, memberHeight)
+                member.finalize()
 
-        if len(visibleMembers) > 0:
-            z1 = visibleMembers[0].getZ(aspect2d)
-            visibleMembers[0].setZ(-maxHeight)
-            z2 = visibleMembers[0].getZ(aspect2d)
-            visibleMembers[0].setZ(0)
-            actualHeight = (z2 - z1) * len(visibleMembers)
-            bottomZ = self.getZ(aspect2d) + actualHeight
-            if bottomZ < -1.0:
-                overlap = bottomZ - -1.0
-                self.setZ(aspect2d, self.getZ(aspect2d) - overlap)
-            if self.getZ(aspect2d) > 1.0:
-                self.setZ(aspect2d, 1.0)
-        sX = memberWidth
-        sZ = memberHeight * len(visibleMembers)
-        self.bgMiddle.setScale(sX, 1, sZ)
-        self.bgTop.setScale(sX, 1, 1)
-        self.bgBottom.setScale(sX, 1, 1)
-        self.bgLeft.setScale(1, 1, sZ)
-        self.bgRight.setScale(1, 1, sZ)
-        self.bgBottomLeft.setZ(-sZ)
-        self.bgBottom.setZ(-sZ)
-        self.bgTopRight.setX(sX)
-        self.bgRight.setX(sX)
-        self.bgBottomRight.setX(sX)
-        self.bgBottomRight.setZ(-sZ)
-        sB = 0.15
-        self.bgTopLeft.setSx(aspect2d, sB)
-        self.bgTopLeft.setSz(aspect2d, sB)
-        self.bgBottomRight.setSx(aspect2d, sB)
-        self.bgBottomRight.setSz(aspect2d, sB)
-        self.bgBottomLeft.setSx(aspect2d, sB)
-        self.bgBottomLeft.setSz(aspect2d, sB)
-        self.bgTopRight.setSx(aspect2d, sB)
-        self.bgTopRight.setSz(aspect2d, sB)
-        self.bgTop.setSz(aspect2d, sB)
-        self.bgBottom.setSz(aspect2d, sB)
-        self.bgLeft.setSx(aspect2d, sB)
-        self.bgRight.setSx(aspect2d, sB)
-        r, g, b = self.getColorScheme().getFrameColor()
-        a = self.getColorScheme().getAlpha()
-        self.bg.setColorScale(r, g, b, a)
-        if self.activeMember is not None:
-            self.activeMember.reparentTo(self)
-        self.validate()
-        self.inFinalize = 0
-        return
+            if len(visibleMembers) > 0:
+                z1 = visibleMembers[0].getZ(aspect2d)
+                visibleMembers[0].setZ(-maxHeight)
+                z2 = visibleMembers[0].getZ(aspect2d)
+                visibleMembers[0].setZ(0)
+                actualHeight = (z2 - z1) * len(visibleMembers)
+                bottomZ = self.getZ(aspect2d) + actualHeight
+                if bottomZ < -1.0:
+                    overlap = bottomZ - -1.0
+                    self.setZ(aspect2d, self.getZ(aspect2d) - overlap)
+                if self.getZ(aspect2d) > 1.0:
+                    self.setZ(aspect2d, 1.0)
+            sX = memberWidth
+            sZ = memberHeight * len(visibleMembers)
+            self.bgMiddle.setScale(sX, 1, sZ)
+            self.bgTop.setScale(sX, 1, 1)
+            self.bgBottom.setScale(sX, 1, 1)
+            self.bgLeft.setScale(1, 1, sZ)
+            self.bgRight.setScale(1, 1, sZ)
+            self.bgBottomLeft.setZ(-sZ)
+            self.bgBottom.setZ(-sZ)
+            self.bgTopRight.setX(sX)
+            self.bgRight.setX(sX)
+            self.bgBottomRight.setX(sX)
+            self.bgBottomRight.setZ(-sZ)
+            sB = 0.15
+            self.bgTopLeft.setSx(aspect2d, sB)
+            self.bgTopLeft.setSz(aspect2d, sB)
+            self.bgBottomRight.setSx(aspect2d, sB)
+            self.bgBottomRight.setSz(aspect2d, sB)
+            self.bgBottomLeft.setSx(aspect2d, sB)
+            self.bgBottomLeft.setSz(aspect2d, sB)
+            self.bgTopRight.setSx(aspect2d, sB)
+            self.bgTopRight.setSz(aspect2d, sB)
+            self.bgTop.setSz(aspect2d, sB)
+            self.bgBottom.setSz(aspect2d, sB)
+            self.bgLeft.setSx(aspect2d, sB)
+            self.bgRight.setSx(aspect2d, sB)
+            r, g, b = self.getColorScheme().getFrameColor()
+            a = self.getColorScheme().getAlpha()
+            self.bg.setColorScale(r, g, b, a)
+            if self.activeMember is not None:
+                self.activeMember.reparentTo(self)
+            self.validate()
+            self.inFinalize = 0
+            return
 
     def append(self, element):
         if isinstance(self.__members, types.TupleType):

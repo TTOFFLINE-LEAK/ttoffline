@@ -19,7 +19,8 @@ class CatalogGardenItem(CatalogItem.CatalogItem):
     def getPurchaseLimit(self):
         if self.gardenIndex == GardenGlobals.GardenAcceleratorSpecial:
             return 1
-        return 100
+        else:
+            return 100
 
     def reachedPurchaseLimit(self, avatar):
         if self in avatar.onOrder or self in avatar.mailboxContents or self in avatar.onGiftOrder or self in avatar.awardMailboxContents or self in avatar.onAwardOrder:
@@ -64,17 +65,18 @@ class CatalogGardenItem(CatalogItem.CatalogItem):
             self.hasPicture = True
             return (
              frame, ival)
-        self.model = loader.loadModel(photoModel)
-        frame = self.makeFrame()
-        self.model.reparentTo(frame)
-        photoPos = GardenGlobals.Specials[self.gardenIndex]['photoPos']
-        self.model.setPos(*photoPos)
-        photoScale = GardenGlobals.Specials[self.gardenIndex]['photoScale']
-        self.model.setScale(photoScale)
-        self.hasPicture = True
-        return (
-         frame, None)
-        return
+        else:
+            self.model = loader.loadModel(photoModel)
+            frame = self.makeFrame()
+            self.model.reparentTo(frame)
+            photoPos = GardenGlobals.Specials[self.gardenIndex]['photoPos']
+            self.model.setPos(*photoPos)
+            photoScale = GardenGlobals.Specials[self.gardenIndex]['photoScale']
+            self.model.setScale(photoScale)
+            self.hasPicture = True
+            return (
+             frame, None)
+            return
 
     def cleanupPicture(self):
         CatalogItem.CatalogItem.cleanupPicture(self)
@@ -125,12 +127,14 @@ class CatalogGardenItem(CatalogItem.CatalogItem):
     def getDeliveryTime(self):
         if self.gardenIndex == GardenGlobals.GardenAcceleratorSpecial:
             return 1440
-        return 0
+        else:
+            return 0
 
     def getPurchaseLimit(self):
         if self.gardenIndex == GardenGlobals.GardenAcceleratorSpecial:
             return 1
-        return 0
+        else:
+            return 0
 
     def compareTo(self, other):
         if self.gardenIndex != other.gardenIndex:

@@ -53,7 +53,8 @@ class DistributedCashbotBossSafe(DistributedCashbotBossObject.DistributedCashbot
     def getMinImpact(self):
         if self.boss.heldObject:
             return ToontownGlobals.CashbotBossSafeKnockImpact
-        return ToontownGlobals.CashbotBossSafeNewImpact
+        else:
+            return ToontownGlobals.CashbotBossSafeNewImpact
 
     def doHitGoon(self, goon):
         goon.b_destroyGoon()

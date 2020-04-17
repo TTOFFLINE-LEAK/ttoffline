@@ -42,19 +42,20 @@ class DistributedCashbotBossObject(DistributedSmoothNode.DistributedSmoothNode, 
     def cleanup(self):
         if self.cleanedUp:
             return
-        self.cleanedUp = 1
-        self.demand('Off')
-        self.detachNode()
-        self.toMagnetSoundInterval.finish()
-        self.hitFloorSoundInterval.finish()
-        self.hitBossSoundInterval.finish()
-        self.touchedBossSoundInterval.finish()
-        del self.toMagnetSoundInterval
-        del self.hitFloorSoundInterval
-        del self.hitBossSoundInterval
-        del self.touchedBossSoundInterval
-        self.boss = None
-        return
+        else:
+            self.cleanedUp = 1
+            self.demand('Off')
+            self.detachNode()
+            self.toMagnetSoundInterval.finish()
+            self.hitFloorSoundInterval.finish()
+            self.hitBossSoundInterval.finish()
+            self.touchedBossSoundInterval.finish()
+            del self.toMagnetSoundInterval
+            del self.hitFloorSoundInterval
+            del self.hitBossSoundInterval
+            del self.touchedBossSoundInterval
+            self.boss = None
+            return
 
     def setupPhysics(self, name):
         an = ActorNode('%s-%s' % (name, self.doId))
@@ -166,19 +167,16 @@ class DistributedCashbotBossObject(DistributedSmoothNode.DistributedSmoothNode, 
     def setObjectState(self, state, avId, craneId):
         if state == 'G':
             self.demand('Grabbed', avId, craneId)
+        elif state == 'D':
+            if self.state != 'Dropped':
+                self.demand('Dropped', avId, craneId)
+        elif state == 's':
+            if self.state != 'SlidingFloor':
+                self.demand('SlidingFloor', avId)
+        elif state == 'F':
+            self.demand('Free')
         else:
-            if state == 'D':
-                if self.state != 'Dropped':
-                    self.demand('Dropped', avId, craneId)
-            else:
-                if state == 's':
-                    if self.state != 'SlidingFloor':
-                        self.demand('SlidingFloor', avId)
-                else:
-                    if state == 'F':
-                        self.demand('Free')
-                    else:
-                        self.notify.error('Invalid state from AI: %s' % state)
+            self.notify.error('Invalid state from AI: %s' % state)
 
     def d_requestGrab(self):
         self.sendUpdate('requestGrab')

@@ -99,11 +99,10 @@ class ToonInterior(Place.Place):
         if self.zoneId in (ToontownGlobals.Kongdominium, ToontownGlobals.PrivateServerCafe):
             if self.zoneId == ToontownGlobals.Kongdominium:
                 type = 0
+            elif self.zoneId == ToontownGlobals.PrivateServerCafe:
+                type = 1
             else:
-                if self.zoneId == ToontownGlobals.PrivateServerCafe:
-                    type = 1
-                else:
-                    type = -1
+                type = -1
             taskMgr.add(self.customMusicTask, 'custom-music-task', extraArgs=[volume, type], appendTask=True)
         else:
             base.playMusic(self.loader.activityMusic, looping=1, volume=volume)
@@ -150,11 +149,10 @@ class ToonInterior(Place.Place):
         ds = doneStatus['mode']
         if ds == 'complete':
             self.fsm.request('NPCFA', [requestStatus])
+        elif ds == 'incomplete':
+            self.fsm.request('DFAReject')
         else:
-            if ds == 'incomplete':
-                self.fsm.request('DFAReject')
-            else:
-                self.notify.error('Unknown done status for DownloadForceAcknowledge: ' + `doneStatus`)
+            self.notify.error('Unknown done status for DownloadForceAcknowledge: ' + `doneStatus`)
 
     def enterNPCFA(self, requestStatus):
         self.acceptOnce(self.npcfaDoneEvent, self.enterNPCFACallback, [requestStatus])
@@ -170,11 +168,10 @@ class ToonInterior(Place.Place):
         if doneStatus['mode'] == 'complete':
             outHow = {'teleportIn': 'teleportOut', 'tunnelIn': 'tunnelOut', 'doorIn': 'doorOut'}
             self.fsm.request(outHow[requestStatus['how']], [requestStatus])
+        elif doneStatus['mode'] == 'incomplete':
+            self.fsm.request('NPCFAReject')
         else:
-            if doneStatus['mode'] == 'incomplete':
-                self.fsm.request('NPCFAReject')
-            else:
-                self.notify.error('Unknown done status for NPCForceAcknowledge: ' + `doneStatus`)
+            self.notify.error('Unknown done status for NPCForceAcknowledge: ' + `doneStatus`)
 
     def enterNPCFAReject(self):
         self.fsm.request('walk')
@@ -196,11 +193,10 @@ class ToonInterior(Place.Place):
         if doneStatus['mode'] == 'complete':
             outHow = {'teleportIn': 'teleportOut', 'tunnelIn': 'tunnelOut', 'doorIn': 'doorOut'}
             self.fsm.request(outHow[requestStatus['how']], [requestStatus])
+        elif doneStatus['mode'] == 'incomplete':
+            self.fsm.request('HFAReject')
         else:
-            if doneStatus['mode'] == 'incomplete':
-                self.fsm.request('HFAReject')
-            else:
-                self.notify.error('Unknown done status for HealthForceAcknowledge: ' + `doneStatus`)
+            self.notify.error('Unknown done status for HealthForceAcknowledge: ' + `doneStatus`)
 
     def enterHFAReject(self):
         self.fsm.request('walk')
@@ -224,12 +220,11 @@ class ToonInterior(Place.Place):
         shardId = requestStatus['shardId']
         if hoodId == self.loader.hood.id and zoneId == self.zoneId and shardId == None:
             self.fsm.request('teleportIn', [requestStatus])
+        elif hoodId == ToontownGlobals.MyEstate:
+            self.getEstateZoneAndGoHome(requestStatus)
         else:
-            if hoodId == ToontownGlobals.MyEstate:
-                self.getEstateZoneAndGoHome(requestStatus)
-            else:
-                self.doneStatus = requestStatus
-                messenger.send(self.doneEvent)
+            self.doneStatus = requestStatus
+            messenger.send(self.doneEvent)
         return
 
     def goHomeFailed(self, task):
@@ -246,7 +241,8 @@ class ToonInterior(Place.Place):
     def getCustomSongs(self, type):
         if not type:
             return ToontownGlobals.KongdominiumSongs
-        return ToontownGlobals.PrivateServerCafeSongs
+        else:
+            return ToontownGlobals.PrivateServerCafeSongs
 
     def customMusicTask(self, volume, type, task):
         if type == -1:

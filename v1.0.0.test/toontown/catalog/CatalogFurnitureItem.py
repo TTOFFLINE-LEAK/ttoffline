@@ -896,12 +896,15 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
     def getYourOldDesc(self):
         if self.getFlags() & FLCloset:
             return TTLocalizer.FurnitureYourOldCloset
-        if self.getFlags() & FLBank:
-            return TTLocalizer.FurnitureYourOldBank
-        if self.getFlags() & FLTrunk:
-            return TTLocalizer.FurnitureYourOldTrunk
-        return
-        return
+        else:
+            if self.getFlags() & FLBank:
+                return TTLocalizer.FurnitureYourOldBank
+            else:
+                if self.getFlags() & FLTrunk:
+                    return TTLocalizer.FurnitureYourOldTrunk
+                return
+
+            return
 
     def notOfferedTo(self, avatar):
         if self.getFlags() & FLCloset or self.getFlags() & FLTrunk:
@@ -925,16 +928,19 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
         index = self.furnitureType % 10
         if index == 0:
             return 10
-        if index == 2:
-            return 15
-        if index == 4:
-            return 20
-        if index == 6:
-            return 25
-        if index == 8:
-            return 50
-        return
-        return
+        else:
+            if index == 2:
+                return 15
+            else:
+                if index == 4:
+                    return 20
+                if index == 6:
+                    return 25
+                if index == 8:
+                    return 50
+                return
+
+            return
 
     def reachedPurchaseLimit(self, avatar):
         if self.getFlags() & FLBank:
@@ -958,7 +964,8 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
         flags = self.getFlags()
         if flags & FLPainting:
             return TTLocalizer.PaintingTypeName
-        return TTLocalizer.FurnitureTypeName
+        else:
+            return TTLocalizer.FurnitureTypeName
 
     def getName(self):
         return TTLocalizer.FurnitureNames[self.furnitureType]
@@ -977,9 +984,10 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
     def isGift(self):
         if self.getEmblemPrices():
             return 0
-        if self.getFlags() & (FLCloset | FLBank | FLTrunk):
-            return 0
-        return 1
+        else:
+            if self.getFlags() & (FLCloset | FLBank | FLTrunk):
+                return 0
+            return 1
 
     def recordPurchase(self, avatar, optional):
         house, retcode = self.getHouseInfo(avatar)
@@ -1006,12 +1014,10 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
         if flags & FLRug:
             spin = 0
             model.setP(90)
-        else:
-            if flags & FLPainting:
-                spin = 0
-            else:
-                if flags & FLBillboard:
-                    spin = 0
+        elif flags & FLPainting:
+            spin = 0
+        elif flags & FLBillboard:
+            spin = 0
         model.setBin('unsorted', 0, 1)
         self.hasPicture = True
         return self.makeFrameModel(model, spin)
@@ -1032,7 +1038,8 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
     def getSalePrice(self):
         if self.furnitureType in (508, 518):
             return 50
-        return CatalogItem.CatalogItem.getSalePrice(self)
+        else:
+            return CatalogItem.CatalogItem.getSalePrice(self)
 
     def getBasePrice(self):
         return FurnitureTypes[self.furnitureType][FTBasePrice]
@@ -1085,21 +1092,22 @@ def nextAvailableCloset(avatar, duplicateItems):
         index = 1
     if not hasattr(avatar, 'maxClothes'):
         return
-    closetIds = ClothesToCloset.get(avatar.getMaxClothes())
-    closetIds = list(closetIds)
-    closetIds.sort()
-    closetId = closetIds[index]
-    if closetId == None or closetId == MaxClosetIds[index]:
-        return
-    closetId += 2
-    item = CatalogFurnitureItem(closetId)
-    while item in avatar.onOrder or item in avatar.mailboxContents:
-        closetId += 2
-        if closetId > MaxClosetIds[index]:
+    else:
+        closetIds = ClothesToCloset.get(avatar.getMaxClothes())
+        closetIds = list(closetIds)
+        closetIds.sort()
+        closetId = closetIds[index]
+        if closetId == None or closetId == MaxClosetIds[index]:
             return
+        closetId += 2
         item = CatalogFurnitureItem(closetId)
+        while item in avatar.onOrder or item in avatar.mailboxContents:
+            closetId += 2
+            if closetId > MaxClosetIds[index]:
+                return
+            item = CatalogFurnitureItem(closetId)
 
-    return item
+        return item
 
 
 def get50ItemCloset(avatar, duplicateItems):

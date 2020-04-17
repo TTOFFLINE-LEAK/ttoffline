@@ -162,12 +162,11 @@ def chooseSoundOpenShot(sounds, targets, attackDuration):
         else:
             shotChoices = [
              avatarCloseUpThreeQuarterRightShot, allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
+    elif numSounds >= 2 and numSounds <= 4:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numSounds >= 2 and numSounds <= 4:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of sounds: %s' % numSounds)
+        notify.error('Bad number of sounds: %s' % numSounds)
     track = apply(random.choice(shotChoices), [av, duration])
     return track
 
@@ -182,12 +181,11 @@ def chooseSoundCloseShot(sounds, targets, openDuration, openName, attackDuration
          avatarCloseUpThreeQuarterLeftShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numSuits >= 2 and numSuits <= 4:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numSuits >= 2 and numSuits <= 4:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of suits: %s' % numSuits)
+        notify.error('Bad number of suits: %s' % numSuits)
     track = apply(random.choice(shotChoices), [av, duration])
     return track
 
@@ -212,12 +210,11 @@ def chooseThrowOpenShot(throws, suitThrowsDict, attackDuration):
          avatarBehindShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numThrows >= 2 and numThrows <= 4:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numThrows >= 2 and numThrows <= 4:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of throws: %s' % numThrows)
+        notify.error('Bad number of throws: %s' % numThrows)
     track = apply(random.choice(shotChoices), [av, duration])
     return track
 
@@ -232,12 +229,11 @@ def chooseThrowCloseShot(throws, suitThrowsDict, openDuration, openName, attackD
          avatarCloseUpThreeQuarterLeftShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numSuits >= 2 and numSuits <= 4 or numSuits == 0:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numSuits >= 2 and numSuits <= 4 or numSuits == 0:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of suits: %s' % numSuits)
+        notify.error('Bad number of suits: %s' % numSuits)
     track = apply(random.choice(shotChoices), [av, duration])
     return track
 
@@ -262,12 +258,11 @@ def chooseSquirtOpenShot(squirts, suitSquirtsDict, attackDuration):
          avatarBehindShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numSquirts >= 2 and numSquirts <= 4:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numSquirts >= 2 and numSquirts <= 4:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of squirts: %s' % numSquirts)
+        notify.error('Bad number of squirts: %s' % numSquirts)
     track = apply(random.choice(shotChoices), [av, duration])
     return track
 
@@ -282,12 +277,11 @@ def chooseSquirtCloseShot(squirts, suitSquirtsDict, openDuration, openName, atta
          avatarCloseUpThreeQuarterLeftShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numSuits >= 2 and numSuits <= 4:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numSuits >= 2 and numSuits <= 4:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of suits: %s' % numSuits)
+        notify.error('Bad number of suits: %s' % numSuits)
     track = apply(random.choice(shotChoices), [av, duration])
     return track
 
@@ -314,12 +308,11 @@ def chooseDropOpenShot(drops, suitDropsDict, attackDuration):
          avatarBehindShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numDrops >= 2 and numDrops <= 4 or numDrops == 0:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numDrops >= 2 and numDrops <= 4 or numDrops == 0:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of drops: %s' % numDrops)
+        notify.error('Bad number of drops: %s' % numDrops)
     track = apply(random.choice(shotChoices), [av, duration])
     return track
 
@@ -334,12 +327,11 @@ def chooseDropCloseShot(drops, suitDropsDict, openDuration, openName, attackDura
          avatarCloseUpThreeQuarterLeftShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numSuits >= 2 and numSuits <= 4 or numSuits == 0:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numSuits >= 2 and numSuits <= 4 or numSuits == 0:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of suits: %s' % numSuits)
+        notify.error('Bad number of suits: %s' % numSuits)
     choice = random.choice(shotChoices)
     track = choice(av, duration)
     return track
@@ -374,191 +366,134 @@ def chooseSuitShot(attack, attackDuration):
     def defaultCamera(attack=attack, attackDuration=attackDuration, openShotDuration=3.5, target=target):
         if attack['group'] == ATK_TGT_GROUP:
             return randomGroupAttackCam(attack['suit'], target, attack['battle'], attackDuration, openShotDuration)
-        return randomAttackCam(attack['suit'], target['toon'], attack['battle'], attackDuration, openShotDuration, 'suit')
+        else:
+            return randomAttackCam(attack['suit'], target['toon'], attack['battle'], attackDuration, openShotDuration, 'suit')
 
     if name == AUDIT:
         camTrack.append(defaultCamera())
+    elif name == BITE:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == BOUNCE_CHECK:
+        camTrack.append(defaultCamera())
+    elif name == BRAIN_STORM:
+        camTrack.append(defaultCamera(openShotDuration=2.4))
+    elif name == BUZZ_WORD:
+        camTrack.append(defaultCamera(openShotDuration=4.7))
+    elif name == CALCULATE:
+        camTrack.append(defaultCamera())
+    elif name == CANNED:
+        camTrack.append(defaultCamera(openShotDuration=2.9))
+    elif name == CHOMP:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == CLIPON_TIE:
+        camTrack.append(defaultCamera(openShotDuration=3.3))
+    elif name == CRUNCH:
+        camTrack.append(defaultCamera(openShotDuration=3.4))
+    elif name == DEMOTION:
+        camTrack.append(defaultCamera(openShotDuration=1.7))
+    elif name == DOUBLE_TALK:
+        camTrack.append(defaultCamera(openShotDuration=3.9))
+    elif name == EVICTION_NOTICE:
+        camTrack.append(defaultCamera(openShotDuration=3.2))
+    elif name == EVIL_EYE:
+        camTrack.append(defaultCamera(openShotDuration=2.7))
+    elif name == FILIBUSTER:
+        camTrack.append(defaultCamera(openShotDuration=2.7))
+    elif name == FILL_WITH_LEAD:
+        camTrack.append(defaultCamera(openShotDuration=3.2))
+    elif name == FINGER_WAG:
+        camTrack.append(defaultCamera(openShotDuration=2.3))
+    elif name == FIRED:
+        camTrack.append(defaultCamera(openShotDuration=1.7))
+    elif name == FOUNTAIN_PEN:
+        camTrack.append(defaultCamera(openShotDuration=2.6))
+    elif name == FREEZE_ASSETS:
+        camTrack.append(defaultCamera(openShotDuration=2.5))
+    elif name == HALF_WINDSOR:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == HEAD_SHRINK:
+        camTrack.append(defaultCamera(openShotDuration=1.3))
+    elif name == GLOWER_POWER:
+        camTrack.append(defaultCamera(openShotDuration=1.4))
+    elif name == GUILT_TRIP:
+        camTrack.append(defaultCamera(openShotDuration=0.9))
+    elif name == HANG_UP:
+        camTrack.append(defaultCamera(openShotDuration=5.1))
+    elif name == HOT_AIR:
+        camTrack.append(defaultCamera(openShotDuration=2.5))
+    elif name == JARGON:
+        camTrack.append(defaultCamera())
+    elif name == LEGALESE:
+        camTrack.append(defaultCamera(openShotDuration=1.5))
+    elif name == LIQUIDATE:
+        camTrack.append(defaultCamera(openShotDuration=2.5))
+    elif name == MARKET_CRASH:
+        camTrack.append(defaultCamera(openShotDuration=2.9))
+    elif name == MUMBO_JUMBO:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == PARADIGM_SHIFT:
+        camTrack.append(defaultCamera(openShotDuration=1.6))
+    elif name == PECKING_ORDER:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == PLAY_HARDBALL:
+        camTrack.append(defaultCamera(openShotDuration=2.3))
+    elif name == PICK_POCKET:
+        camTrack.append(allGroupLowShot(suit, 2.7))
+    elif name == PINK_SLIP:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == POUND_KEY:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == POWER_TIE:
+        camTrack.append(defaultCamera(openShotDuration=2.4))
+    elif name == POWER_TRIP:
+        camTrack.append(defaultCamera(openShotDuration=1.1))
+    elif name == QUAKE:
+        shakeIntensity = 5.15
+        quake = 1
+        camTrack.append(suitCameraShakeShot(suit, attackDuration, shakeIntensity, quake))
+    elif name == RAZZLE_DAZZLE:
+        camTrack.append(defaultCamera(openShotDuration=2.2))
+    elif name == RED_TAPE:
+        camTrack.append(defaultCamera(openShotDuration=3.5))
+    elif name == RE_ORG:
+        camTrack.append(defaultCamera(openShotDuration=1.1))
+    elif name == RESTRAINING_ORDER:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == ROLODEX:
+        camTrack.append(defaultCamera())
+    elif name == RUBBER_STAMP:
+        camTrack.append(defaultCamera(openShotDuration=3.2))
+    elif name == RUB_OUT:
+        camTrack.append(defaultCamera(openShotDuration=2.2))
+    elif name == SACKED:
+        camTrack.append(defaultCamera(openShotDuration=2.9))
+    elif name == SCHMOOZE:
+        camTrack.append(defaultCamera(openShotDuration=2.8))
+    elif name == SHAKE:
+        shakeIntensity = 1.75
+        camTrack.append(suitCameraShakeShot(suit, attackDuration, shakeIntensity))
+    elif name == SHRED:
+        camTrack.append(defaultCamera(openShotDuration=4.1))
+    elif name == SPIN:
+        camTrack.append(defaultCamera(openShotDuration=1.7))
+    elif name == SYNERGY:
+        camTrack.append(defaultCamera(openShotDuration=1.7))
+    elif name == TABULATE:
+        camTrack.append(defaultCamera())
+    elif name == TEE_OFF:
+        camTrack.append(defaultCamera(openShotDuration=4.5))
+    elif name == TREMOR:
+        shakeIntensity = 0.25
+        camTrack.append(suitCameraShakeShot(suit, attackDuration, shakeIntensity))
+    elif name == WATERCOOLER:
+        camTrack.append(defaultCamera())
+    elif name == WITHDRAWAL:
+        camTrack.append(defaultCamera(openShotDuration=1.2))
+    elif name == WRITE_OFF:
+        camTrack.append(defaultCamera())
     else:
-        if name == BITE:
-            camTrack.append(defaultCamera(openShotDuration=2.8))
-        else:
-            if name == BOUNCE_CHECK:
-                camTrack.append(defaultCamera())
-            else:
-                if name == BRAIN_STORM:
-                    camTrack.append(defaultCamera(openShotDuration=2.4))
-                else:
-                    if name == BUZZ_WORD:
-                        camTrack.append(defaultCamera(openShotDuration=4.7))
-                    else:
-                        if name == CALCULATE:
-                            camTrack.append(defaultCamera())
-                        else:
-                            if name == CANNED:
-                                camTrack.append(defaultCamera(openShotDuration=2.9))
-                            else:
-                                if name == CHOMP:
-                                    camTrack.append(defaultCamera(openShotDuration=2.8))
-                                else:
-                                    if name == CLIPON_TIE:
-                                        camTrack.append(defaultCamera(openShotDuration=3.3))
-                                    else:
-                                        if name == CRUNCH:
-                                            camTrack.append(defaultCamera(openShotDuration=3.4))
-                                        else:
-                                            if name == DEMOTION:
-                                                camTrack.append(defaultCamera(openShotDuration=1.7))
-                                            else:
-                                                if name == DOUBLE_TALK:
-                                                    camTrack.append(defaultCamera(openShotDuration=3.9))
-                                                else:
-                                                    if name == EVICTION_NOTICE:
-                                                        camTrack.append(defaultCamera(openShotDuration=3.2))
-                                                    else:
-                                                        if name == EVIL_EYE:
-                                                            camTrack.append(defaultCamera(openShotDuration=2.7))
-                                                        else:
-                                                            if name == FILIBUSTER:
-                                                                camTrack.append(defaultCamera(openShotDuration=2.7))
-                                                            else:
-                                                                if name == FILL_WITH_LEAD:
-                                                                    camTrack.append(defaultCamera(openShotDuration=3.2))
-                                                                else:
-                                                                    if name == FINGER_WAG:
-                                                                        camTrack.append(defaultCamera(openShotDuration=2.3))
-                                                                    else:
-                                                                        if name == FIRED:
-                                                                            camTrack.append(defaultCamera(openShotDuration=1.7))
-                                                                        else:
-                                                                            if name == FOUNTAIN_PEN:
-                                                                                camTrack.append(defaultCamera(openShotDuration=2.6))
-                                                                            else:
-                                                                                if name == FREEZE_ASSETS:
-                                                                                    camTrack.append(defaultCamera(openShotDuration=2.5))
-                                                                                else:
-                                                                                    if name == HALF_WINDSOR:
-                                                                                        camTrack.append(defaultCamera(openShotDuration=2.8))
-                                                                                    else:
-                                                                                        if name == HEAD_SHRINK:
-                                                                                            camTrack.append(defaultCamera(openShotDuration=1.3))
-                                                                                        else:
-                                                                                            if name == GLOWER_POWER:
-                                                                                                camTrack.append(defaultCamera(openShotDuration=1.4))
-                                                                                            else:
-                                                                                                if name == GUILT_TRIP:
-                                                                                                    camTrack.append(defaultCamera(openShotDuration=0.9))
-                                                                                                else:
-                                                                                                    if name == HANG_UP:
-                                                                                                        camTrack.append(defaultCamera(openShotDuration=5.1))
-                                                                                                    else:
-                                                                                                        if name == HOT_AIR:
-                                                                                                            camTrack.append(defaultCamera(openShotDuration=2.5))
-                                                                                                        else:
-                                                                                                            if name == JARGON:
-                                                                                                                camTrack.append(defaultCamera())
-                                                                                                            else:
-                                                                                                                if name == LEGALESE:
-                                                                                                                    camTrack.append(defaultCamera(openShotDuration=1.5))
-                                                                                                                else:
-                                                                                                                    if name == LIQUIDATE:
-                                                                                                                        camTrack.append(defaultCamera(openShotDuration=2.5))
-                                                                                                                    else:
-                                                                                                                        if name == MARKET_CRASH:
-                                                                                                                            camTrack.append(defaultCamera(openShotDuration=2.9))
-                                                                                                                        else:
-                                                                                                                            if name == MUMBO_JUMBO:
-                                                                                                                                camTrack.append(defaultCamera(openShotDuration=2.8))
-                                                                                                                            else:
-                                                                                                                                if name == PARADIGM_SHIFT:
-                                                                                                                                    camTrack.append(defaultCamera(openShotDuration=1.6))
-                                                                                                                                else:
-                                                                                                                                    if name == PECKING_ORDER:
-                                                                                                                                        camTrack.append(defaultCamera(openShotDuration=2.8))
-                                                                                                                                    else:
-                                                                                                                                        if name == PLAY_HARDBALL:
-                                                                                                                                            camTrack.append(defaultCamera(openShotDuration=2.3))
-                                                                                                                                        else:
-                                                                                                                                            if name == PICK_POCKET:
-                                                                                                                                                camTrack.append(allGroupLowShot(suit, 2.7))
-                                                                                                                                            else:
-                                                                                                                                                if name == PINK_SLIP:
-                                                                                                                                                    camTrack.append(defaultCamera(openShotDuration=2.8))
-                                                                                                                                                else:
-                                                                                                                                                    if name == POUND_KEY:
-                                                                                                                                                        camTrack.append(defaultCamera(openShotDuration=2.8))
-                                                                                                                                                    else:
-                                                                                                                                                        if name == POWER_TIE:
-                                                                                                                                                            camTrack.append(defaultCamera(openShotDuration=2.4))
-                                                                                                                                                        else:
-                                                                                                                                                            if name == POWER_TRIP:
-                                                                                                                                                                camTrack.append(defaultCamera(openShotDuration=1.1))
-                                                                                                                                                            else:
-                                                                                                                                                                if name == QUAKE:
-                                                                                                                                                                    shakeIntensity = 5.15
-                                                                                                                                                                    quake = 1
-                                                                                                                                                                    camTrack.append(suitCameraShakeShot(suit, attackDuration, shakeIntensity, quake))
-                                                                                                                                                                else:
-                                                                                                                                                                    if name == RAZZLE_DAZZLE:
-                                                                                                                                                                        camTrack.append(defaultCamera(openShotDuration=2.2))
-                                                                                                                                                                    else:
-                                                                                                                                                                        if name == RED_TAPE:
-                                                                                                                                                                            camTrack.append(defaultCamera(openShotDuration=3.5))
-                                                                                                                                                                        else:
-                                                                                                                                                                            if name == RE_ORG:
-                                                                                                                                                                                camTrack.append(defaultCamera(openShotDuration=1.1))
-                                                                                                                                                                            else:
-                                                                                                                                                                                if name == RESTRAINING_ORDER:
-                                                                                                                                                                                    camTrack.append(defaultCamera(openShotDuration=2.8))
-                                                                                                                                                                                else:
-                                                                                                                                                                                    if name == ROLODEX:
-                                                                                                                                                                                        camTrack.append(defaultCamera())
-                                                                                                                                                                                    else:
-                                                                                                                                                                                        if name == RUBBER_STAMP:
-                                                                                                                                                                                            camTrack.append(defaultCamera(openShotDuration=3.2))
-                                                                                                                                                                                        else:
-                                                                                                                                                                                            if name == RUB_OUT:
-                                                                                                                                                                                                camTrack.append(defaultCamera(openShotDuration=2.2))
-                                                                                                                                                                                            else:
-                                                                                                                                                                                                if name == SACKED:
-                                                                                                                                                                                                    camTrack.append(defaultCamera(openShotDuration=2.9))
-                                                                                                                                                                                                else:
-                                                                                                                                                                                                    if name == SCHMOOZE:
-                                                                                                                                                                                                        camTrack.append(defaultCamera(openShotDuration=2.8))
-                                                                                                                                                                                                    else:
-                                                                                                                                                                                                        if name == SHAKE:
-                                                                                                                                                                                                            shakeIntensity = 1.75
-                                                                                                                                                                                                            camTrack.append(suitCameraShakeShot(suit, attackDuration, shakeIntensity))
-                                                                                                                                                                                                        else:
-                                                                                                                                                                                                            if name == SHRED:
-                                                                                                                                                                                                                camTrack.append(defaultCamera(openShotDuration=4.1))
-                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                if name == SPIN:
-                                                                                                                                                                                                                    camTrack.append(defaultCamera(openShotDuration=1.7))
-                                                                                                                                                                                                                else:
-                                                                                                                                                                                                                    if name == SYNERGY:
-                                                                                                                                                                                                                        camTrack.append(defaultCamera(openShotDuration=1.7))
-                                                                                                                                                                                                                    else:
-                                                                                                                                                                                                                        if name == TABULATE:
-                                                                                                                                                                                                                            camTrack.append(defaultCamera())
-                                                                                                                                                                                                                        else:
-                                                                                                                                                                                                                            if name == TEE_OFF:
-                                                                                                                                                                                                                                camTrack.append(defaultCamera(openShotDuration=4.5))
-                                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                                if name == TREMOR:
-                                                                                                                                                                                                                                    shakeIntensity = 0.25
-                                                                                                                                                                                                                                    camTrack.append(suitCameraShakeShot(suit, attackDuration, shakeIntensity))
-                                                                                                                                                                                                                                else:
-                                                                                                                                                                                                                                    if name == WATERCOOLER:
-                                                                                                                                                                                                                                        camTrack.append(defaultCamera())
-                                                                                                                                                                                                                                    else:
-                                                                                                                                                                                                                                        if name == WITHDRAWAL:
-                                                                                                                                                                                                                                            camTrack.append(defaultCamera(openShotDuration=1.2))
-                                                                                                                                                                                                                                        else:
-                                                                                                                                                                                                                                            if name == WRITE_OFF:
-                                                                                                                                                                                                                                                camTrack.append(defaultCamera())
-                                                                                                                                                                                                                                            else:
-                                                                                                                                                                                                                                                notify.warning('unknown attack id in chooseSuitShot: %d using default cam' % name)
-                                                                                                                                                                                                                                                camTrack.append(defaultCamera())
+        notify.warning('unknown attack id in chooseSuitShot: %d using default cam' % name)
+        camTrack.append(defaultCamera())
     pbpText = attack['playByPlayText']
     displayName = TTLocalizer.SuitAttackNames[attack['name']]
     pbpTrack = pbpText.getShowInterval(displayName, 3.5)
@@ -581,39 +516,40 @@ def chooseSuitCloseShot(attack, openDuration, openName, attackDuration):
             diedText = av.getName() + ' was defeated!'
             diedTextList = [diedText]
             diedTrack = pbpText.getToonsDiedInterval(diedTextList, duration)
-    else:
-        if groupStatus == ATK_TGT_GROUP:
-            av = None
-            shotChoices = [allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-            deadToons = []
-            targetDicts = attack['target']
-            for targetDict in targetDicts:
-                died = targetDict['died']
-                if died != 0:
-                    deadToons.append(targetDict['toon'])
+    elif groupStatus == ATK_TGT_GROUP:
+        av = None
+        shotChoices = [allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
+        deadToons = []
+        targetDicts = attack['target']
+        for targetDict in targetDicts:
+            died = targetDict['died']
+            if died != 0:
+                deadToons.append(targetDict['toon'])
 
-            if len(deadToons) > 0:
+        if len(deadToons) > 0:
+            pbpText = attack['playByPlayText']
+            diedTextList = []
+            for toon in deadToons:
                 pbpText = attack['playByPlayText']
-                diedTextList = []
-                for toon in deadToons:
-                    pbpText = attack['playByPlayText']
-                    diedTextList.append(toon.getName() + ' was defeated!')
+                diedTextList.append(toon.getName() + ' was defeated!')
 
-                diedTrack = pbpText.getToonsDiedInterval(diedTextList, duration)
-        else:
-            notify.error('Bad groupStatus: %s' % groupStatus)
+            diedTrack = pbpText.getToonsDiedInterval(diedTextList, duration)
+    else:
+        notify.error('Bad groupStatus: %s' % groupStatus)
     track = apply(random.choice(shotChoices), [av, duration])
     if diedTrack == None:
         return track
-    mtrack = Parallel(track, diedTrack)
-    return mtrack
-    return
+    else:
+        mtrack = Parallel(track, diedTrack)
+        return mtrack
+        return
 
 
 def makeShot(x, y, z, h, p, r, duration, other=None, name='makeShot'):
     if other:
         return heldRelativeShot(other, x, y, z, h, p, r, duration, name)
-    return heldShot(x, y, z, h, p, r, duration, name)
+    else:
+        return heldShot(x, y, z, h, p, r, duration, name)
 
 
 def focusShot(x, y, z, duration, target, other=None, splitFocusPoint=None, name='focusShot'):
@@ -887,19 +823,17 @@ def randomAttackCam(suit, toon, battle, attackDuration, openShotDuration, attack
     randomDouble = random.random()
     if randomDouble > 0.6:
         openShot = randomActorShot(attacker, battle, openShotDuration, attackerString)
+    elif randomDouble > 0.2:
+        openShot = randomOverShoulderShot(suit, toon, battle, openShotDuration, focus=attackerString)
     else:
-        if randomDouble > 0.2:
-            openShot = randomOverShoulderShot(suit, toon, battle, openShotDuration, focus=attackerString)
-        else:
-            openShot = randomSplitShot(attacker, defender, battle, openShotDuration)
+        openShot = randomSplitShot(attacker, defender, battle, openShotDuration)
     randomDouble = random.random()
     if randomDouble > 0.6:
         closeShot = randomActorShot(defender, battle, closeShotDuration, defenderString)
+    elif randomDouble > 0.2:
+        closeShot = randomOverShoulderShot(suit, toon, battle, closeShotDuration, focus=defenderString)
     else:
-        if randomDouble > 0.2:
-            closeShot = randomOverShoulderShot(suit, toon, battle, closeShotDuration, focus=defenderString)
-        else:
-            closeShot = randomSplitShot(attacker, defender, battle, closeShotDuration)
+        closeShot = randomSplitShot(attacker, defender, battle, closeShotDuration)
     return Sequence(openShot, closeShot)
 
 
@@ -1026,12 +960,11 @@ def chooseFireOpenShot(throws, suitThrowsDict, attackDuration):
          avatarBehindShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numThrows >= 2 and numThrows <= 4:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numThrows >= 2 and numThrows <= 4:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of throws: %s' % numThrows)
+        notify.error('Bad number of throws: %s' % numThrows)
     shotChoice = random.choice(shotChoices)
     track = apply(shotChoice, [av, duration])
     print 'chooseFireOpenShot %s' % shotChoice
@@ -1048,12 +981,11 @@ def chooseFireCloseShot(throws, suitThrowsDict, openDuration, openName, attackDu
          avatarCloseUpThreeQuarterLeftFireShot,
          allGroupLowShot,
          suitGroupThreeQuarterLeftBehindShot]
+    elif numSuits >= 2 and numSuits <= 4 or numSuits == 0:
+        shotChoices = [
+         allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
     else:
-        if numSuits >= 2 and numSuits <= 4 or numSuits == 0:
-            shotChoices = [
-             allGroupLowShot, suitGroupThreeQuarterLeftBehindShot]
-        else:
-            notify.error('Bad number of suits: %s' % numSuits)
+        notify.error('Bad number of suits: %s' % numSuits)
     shotChoice = random.choice(shotChoices)
     track = apply(shotChoice, [av, duration])
     print 'chooseFireOpenShot %s' % shotChoice

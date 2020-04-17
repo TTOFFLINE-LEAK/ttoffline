@@ -70,22 +70,23 @@ class DistributedGolfCourse(DistributedObject.DistributedObject, FSM, DelayDelet
         DistributedObject.DistributedObject.announceGenerate(self)
         if not self.hasLocalToon:
             return
-        self.notify.debug('BASE: handleAnnounceGenerate: send setAvatarJoined')
-        self.__delayDelete = DelayDelete.DelayDelete(self, 'GolfCourse.self')
-        self.request('Join')
-        self.normalExit = 1
-        count = self.modelCount
-        loader.beginBulkLoad('minigame', TTLocalizer.HeadingToMinigameTitle % self.getTitle(), count, 1, TTLocalizer.TIP_GOLF)
-        self.load()
-        globalClock.syncFrameTime()
-        self.onstage()
-        self.accept('clientCleanup', self._handleClientCleanup)
-        title = self.getTitle()
-        zone = ToontownGlobals.GolfZone
-        if title == TTLocalizer.GolfCourseNames.get(3):
-            zone = ToontownGlobals.BossbotHQ
-        base.cr.discordManager.setInfo(base.cr.discordManager.getState(), title, ToontownGlobals.Zone2String.get(zone), None, None, None, zone)
-        return
+        else:
+            self.notify.debug('BASE: handleAnnounceGenerate: send setAvatarJoined')
+            self.__delayDelete = DelayDelete.DelayDelete(self, 'GolfCourse.self')
+            self.request('Join')
+            self.normalExit = 1
+            count = self.modelCount
+            loader.beginBulkLoad('minigame', TTLocalizer.HeadingToMinigameTitle % self.getTitle(), count, 1, TTLocalizer.TIP_GOLF)
+            self.load()
+            globalClock.syncFrameTime()
+            self.onstage()
+            self.accept('clientCleanup', self._handleClientCleanup)
+            title = self.getTitle()
+            zone = ToontownGlobals.GolfZone
+            if title == TTLocalizer.GolfCourseNames.get(3):
+                zone = ToontownGlobals.BossbotHQ
+            base.cr.discordManager.setInfo(base.cr.discordManager.getState(), title, ToontownGlobals.Zone2String.get(zone), None, None, None, zone)
+            return
 
     def _handleClientCleanup(self):
         self._destroyDelayDelete()
@@ -131,58 +132,59 @@ class DistributedGolfCourse(DistributedObject.DistributedObject, FSM, DelayDelet
         self.notify.debug('GOLF COURSE: received setCourseReady')
         if self.state == 'Cleanup':
             return
-        self.numHoles = numHoles
-        self.holeIds = holeIds
-        self.coursePar = coursePar
-        for avId in self.avIdList:
-            blankScoreList = [
-             0] * self.numHoles
-            self.scores[avId] = blankScoreList
-
-        self.request('WaitStartHole')
-        for avId in self.avIdList:
-            av = base.cr.doId2do.get(avId)
-            if av:
-                av.show()
-                av.reparentTo(render)
-                av.setPos(0, 0, -100)
-            else:
-                self.notify.warning('avId =%d does not exist')
-
-        self.scoreBoard = GolfScoreBoard.GolfScoreBoard(self)
-        toonPanelsStart = -0.7
-        whichToon = 0
-        color = 0
-        tpDiff = -0.45
-        headPanel = loader.loadModel('phase_6/models/golf/headPanel')
-        if self.numPlayers > 0:
-            for avId in self.avIdList:
-                if not self.localAvId == avId:
-                    av = base.cr.doId2do.get(avId)
-                    if av:
-                        tPanels = ToonHeadFrame.ToonHeadFrame(av, GolfGlobals.PlayerColors[color], headPanel)
-                        tPanels.reparentTo(base.a2dTopLeft)
-                        tPanels.setPos(0.163333, 0, toonPanelsStart + whichToon * tpDiff)
-                        tPanels.setScale(0.3, 1, 0.7)
-                        tPanels.head.setPos(0, 10, 0.18)
-                        tPanels.head.setScale(0.47, 0.2, 0.2)
-                        tPanels.tag1.setPos(0.3, 10, 0.18)
-                        tPanels.tag1.setScale(0.1283, 0.055, 0.055)
-                        tPanels.tag2.setPos(0, 10, 0.43)
-                        tPanels.tag2.setScale(0.117, 0.05, 0.05)
-                        self.toonPanels.append(tPanels)
-                        whichToon = whichToon + 1
-                        color += 1
-                else:
-                    color += 1
-
         else:
-            self.toonPanels = None
-        for avId in self.exitedAvIdList:
-            if avId not in self.exitedToonsWithPanels:
-                self.exitMessageForToon(avId)
+            self.numHoles = numHoles
+            self.holeIds = holeIds
+            self.coursePar = coursePar
+            for avId in self.avIdList:
+                blankScoreList = [
+                 0] * self.numHoles
+                self.scores[avId] = blankScoreList
 
-        return
+            self.request('WaitStartHole')
+            for avId in self.avIdList:
+                av = base.cr.doId2do.get(avId)
+                if av:
+                    av.show()
+                    av.reparentTo(render)
+                    av.setPos(0, 0, -100)
+                else:
+                    self.notify.warning('avId =%d does not exist')
+
+            self.scoreBoard = GolfScoreBoard.GolfScoreBoard(self)
+            toonPanelsStart = -0.7
+            whichToon = 0
+            color = 0
+            tpDiff = -0.45
+            headPanel = loader.loadModel('phase_6/models/golf/headPanel')
+            if self.numPlayers > 0:
+                for avId in self.avIdList:
+                    if not self.localAvId == avId:
+                        av = base.cr.doId2do.get(avId)
+                        if av:
+                            tPanels = ToonHeadFrame.ToonHeadFrame(av, GolfGlobals.PlayerColors[color], headPanel)
+                            tPanels.reparentTo(base.a2dTopLeft)
+                            tPanels.setPos(0.163333, 0, toonPanelsStart + whichToon * tpDiff)
+                            tPanels.setScale(0.3, 1, 0.7)
+                            tPanels.head.setPos(0, 10, 0.18)
+                            tPanels.head.setScale(0.47, 0.2, 0.2)
+                            tPanels.tag1.setPos(0.3, 10, 0.18)
+                            tPanels.tag1.setScale(0.1283, 0.055, 0.055)
+                            tPanels.tag2.setPos(0, 10, 0.43)
+                            tPanels.tag2.setScale(0.117, 0.05, 0.05)
+                            self.toonPanels.append(tPanels)
+                            whichToon = whichToon + 1
+                            color += 1
+                    else:
+                        color += 1
+
+            else:
+                self.toonPanels = None
+            for avId in self.exitedAvIdList:
+                if avId not in self.exitedToonsWithPanels:
+                    self.exitMessageForToon(avId)
+
+            return
 
     def setPlayHole(self):
         self.notify.debug('GOLF COURSE: received setPlayHole')
@@ -429,9 +431,8 @@ class DistributedGolfCourse(DistributedObject.DistributedObject, FSM, DelayDelet
         if canDrive:
             if avId not in self.drivingToons:
                 self.drivingToons.append(avId)
-        else:
-            if avId in self.drivingToons:
-                self.drivingToons.remove(avId)
+        elif avId in self.drivingToons:
+            self.drivingToons.remove(avId)
 
     def canDrive(self, avId):
         retval = avId in self.drivingToons

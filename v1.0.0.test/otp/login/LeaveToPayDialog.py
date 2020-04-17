@@ -75,7 +75,8 @@ class LeaveToPayDialog:
     def removed(self):
         if hasattr(self, 'dialog') and self.dialog:
             return self.dialog.removed()
-        return 1
+        else:
+            return 1
 
     def __handleLeaveToPayOK(self):
         self.destroy()

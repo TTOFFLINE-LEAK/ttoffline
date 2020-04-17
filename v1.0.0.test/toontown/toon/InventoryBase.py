@@ -105,7 +105,9 @@ class InventoryBase(DirectObject.DirectObject):
                             self.inventory[track][level] += amount
                             self.totalProps += amount
                             return self.inventory[track][level]
-                        return -3
+                        else:
+                            return -3
+
                     else:
                         return -2
                 else:
@@ -133,9 +135,8 @@ class InventoryBase(DirectObject.DirectObject):
         if self.numItem(track, level) > 0:
             self.inventory[track][level] -= 1
             self.calcTotalProps()
-        else:
-            if self.numItem(track, level) == -1:
-                return -1
+        elif self.numItem(track, level) == -1:
+            return -1
 
     def setItem(self, track, level, amount):
         if type(track) == type(''):
@@ -148,7 +149,9 @@ class InventoryBase(DirectObject.DirectObject):
                     self.inventory[track][level] = amount
                     self.totalProps = self.totalProps - curAmount + amount
                     return self.inventory[track][level]
-                return -2
+                else:
+                    return -2
+
             else:
                 return -1
         else:
@@ -160,7 +163,8 @@ class InventoryBase(DirectObject.DirectObject):
         maxList = CarryLimits[track]
         if self.toon.experience:
             return maxList[self.toon.experience.getExpLevel(track)][level]
-        return 0
+        else:
+            return 0
 
     def getTrackAndLevel(self, propName):
         for track in xrange(0, len(Tracks)):

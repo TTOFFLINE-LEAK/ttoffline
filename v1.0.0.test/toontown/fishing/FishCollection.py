@@ -49,7 +49,8 @@ class FishCollection:
                     if updateCollection:
                         fish.setWeight(newFish.getWeight())
                     return FishGlobals.COLLECT_NEW_RECORD
-                return FishGlobals.COLLECT_NO_UPDATE
+                else:
+                    return FishGlobals.COLLECT_NO_UPDATE
 
         if updateCollection:
             self.fishList.append(newFish)

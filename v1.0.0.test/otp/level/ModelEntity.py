@@ -30,44 +30,46 @@ class ModelEntity(BasicEntities.NodePathEntity):
             self.model = None
         if self.modelPath is None:
             return
-        self.model = ModelEntity.LoadFuncs[self.loadType](self.modelPath)
-        if self.model:
-            self.model.reparentTo(self)
-            if self.collisionsOnly:
-                if __dev__:
-                    self.model.setTransparency(1)
-                    self.model.setColorScale(1, 1, 1, 0.1)
+        else:
+            self.model = ModelEntity.LoadFuncs[self.loadType](self.modelPath)
+            if self.model:
+                self.model.reparentTo(self)
+                if self.collisionsOnly:
+                    if __dev__:
+                        self.model.setTransparency(1)
+                        self.model.setColorScale(1, 1, 1, 0.1)
+                    else:
+                        self.model.hide()
                 else:
-                    self.model.hide()
-            else:
-                self.model.show()
-            if self.modelPath in ('phase_9/models/cogHQ/woodCrateB.bam', 'phase_9/models/cogHQ/metal_crateB.bam',
-                                  'phase_10/models/cashbotHQ/CBMetalCrate.bam', 'phase_10/models/cogHQ/CBMetalCrate2.bam',
-                                  'phase_10/models/cashbotHQ/CBWoodCrate.bam', 'phase_11/models/lawbotHQ/LB_metal_crate.bam',
-                                  'phase_11/models/lawbotHQ/LB_metal_crate2.bam'):
-                cNode = self.find('**/wall')
-                cNode.setZ(cNode, -0.75)
-                colNode = self.find('**/collision')
-                floor = colNode.find('**/floor')
-                floor2 = floor.copyTo(colNode)
-                floor2.setZ(floor2, -0.75)
-            if self.goonHatType is not 'none':
-                self.goonType = {'hardhat': 'pg', 'security': 'sg'}[self.goonHatType]
-                self.hat = self.model
-                if self.goonType == 'pg':
-                    self.hat.find('**/security_hat').hide()
-                else:
-                    if self.goonType == 'sg':
+                    self.model.show()
+                if self.modelPath in ('phase_9/models/cogHQ/woodCrateB.bam', 'phase_9/models/cogHQ/metal_crateB.bam',
+                                      'phase_10/models/cashbotHQ/CBMetalCrate.bam',
+                                      'phase_10/models/cogHQ/CBMetalCrate2.bam',
+                                      'phase_10/models/cashbotHQ/CBWoodCrate.bam',
+                                      'phase_11/models/lawbotHQ/LB_metal_crate.bam',
+                                      'phase_11/models/lawbotHQ/LB_metal_crate2.bam'):
+                    cNode = self.find('**/wall')
+                    cNode.setZ(cNode, -0.75)
+                    colNode = self.find('**/collision')
+                    floor = colNode.find('**/floor')
+                    floor2 = floor.copyTo(colNode)
+                    floor2.setZ(floor2, -0.75)
+                if self.goonHatType is not 'none':
+                    self.goonType = {'hardhat': 'pg', 'security': 'sg'}[self.goonHatType]
+                    self.hat = self.model
+                    if self.goonType == 'pg':
+                        self.hat.find('**/security_hat').hide()
+                    elif self.goonType == 'sg':
                         self.hat.find('**/hard_hat').hide()
-                del self.hat
-                del self.goonType
-            if self.flattenType == 'light':
-                self.model.flattenLight()
-            elif self.flattenType == 'medium':
-                self.model.flattenMedium()
-            elif self.flattenType == 'strong':
-                self.model.flattenStrong()
-        return
+                    del self.hat
+                    del self.goonType
+                if self.flattenType == 'light':
+                    self.model.flattenLight()
+                elif self.flattenType == 'medium':
+                    self.model.flattenMedium()
+                elif self.flattenType == 'strong':
+                    self.model.flattenStrong()
+            return
 
     def setModelPath(self, path):
         self.modelPath = path

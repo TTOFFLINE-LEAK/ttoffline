@@ -123,21 +123,18 @@ class FireCogPanel(StateData.StateData):
             self.textFrame['text'] = TTLocalizer.FireCogLowTitle % localAvatar.getPinkSlips()
         if numAvatars == 1:
             self.avatarButtons[0].setX(0)
+        elif numAvatars == 2:
+            self.avatarButtons[0].setX(0.2)
+            self.avatarButtons[1].setX(-0.2)
+        elif numAvatars == 3:
+            self.avatarButtons[0].setX(0.4)
+            self.avatarButtons[1].setX(0.0)
+            self.avatarButtons[2].setX(-0.4)
+        elif numAvatars == 4:
+            self.avatarButtons[0].setX(0.6)
+            self.avatarButtons[1].setX(0.2)
+            self.avatarButtons[2].setX(-0.2)
+            self.avatarButtons[3].setX(-0.6)
         else:
-            if numAvatars == 2:
-                self.avatarButtons[0].setX(0.2)
-                self.avatarButtons[1].setX(-0.2)
-            else:
-                if numAvatars == 3:
-                    self.avatarButtons[0].setX(0.4)
-                    self.avatarButtons[1].setX(0.0)
-                    self.avatarButtons[2].setX(-0.4)
-                else:
-                    if numAvatars == 4:
-                        self.avatarButtons[0].setX(0.6)
-                        self.avatarButtons[1].setX(0.2)
-                        self.avatarButtons[2].setX(-0.2)
-                        self.avatarButtons[3].setX(-0.6)
-                    else:
-                        self.notify.error('Invalid number of avatars: %s' % numAvatars)
+            self.notify.error('Invalid number of avatars: %s' % numAvatars)
         return

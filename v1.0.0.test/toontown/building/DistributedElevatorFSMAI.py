@@ -113,10 +113,11 @@ class DistributedElevatorFSMAI(DistributedObjectAI.DistributedObjectAI, FSM):
         self.notify.debug('acceptBoarder')
         if self.findAvatar(avId) != None:
             return
-        self.seats[seatIndex] = avId
-        self.timeOfBoarding = globalClock.getRealTime()
-        self.sendUpdate('fillSlot' + str(seatIndex), [avId])
-        return
+        else:
+            self.seats[seatIndex] = avId
+            self.timeOfBoarding = globalClock.getRealTime()
+            self.sendUpdate('fillSlot' + str(seatIndex), [avId])
+            return
 
     def rejectingExitersHandler(self, avId):
         self.rejectExiter(avId)
@@ -160,19 +161,20 @@ class DistributedElevatorFSMAI(DistributedObjectAI.DistributedObjectAI, FSM):
         if self.findAvatar(avId) != None:
             self.notify.warning('Ignoring multiple requests from %s to board.' % avId)
             return
-        av = self.air.doId2do.get(avId)
-        if av:
-            newArgs = (
-             avId,) + args
-            boardResponse = self.checkBoard(av)
-            newArgs = (avId,) + args + (boardResponse,)
-            if boardResponse == 0:
-                self.acceptingBoardersHandler(*newArgs)
-            else:
-                self.rejectingBoardersHandler(*newArgs)
         else:
-            self.notify.warning('avid: %s does not exist, but tried to board an elevator' % avId)
-        return
+            av = self.air.doId2do.get(avId)
+            if av:
+                newArgs = (
+                 avId,) + args
+                boardResponse = self.checkBoard(av)
+                newArgs = (avId,) + args + (boardResponse,)
+                if boardResponse == 0:
+                    self.acceptingBoardersHandler(*newArgs)
+                else:
+                    self.rejectingBoardersHandler(*newArgs)
+            else:
+                self.notify.warning('avid: %s does not exist, but tried to board an elevator' % avId)
+            return
 
     def requestExit(self, *args):
         if hasattr(self, 'air'):

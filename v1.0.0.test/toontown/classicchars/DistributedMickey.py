@@ -98,4 +98,5 @@ class DistributedMickey(DistributedCCharBase.DistributedCCharBase):
     def getCCLocation(self):
         if isinstance(self.cr.playGame.hood, TTHood.TTHood):
             return 1
-        return 0
+        else:
+            return 0

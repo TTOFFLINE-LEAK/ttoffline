@@ -233,7 +233,8 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def isLegalEagleInterestRequestSent(self, index):
         if index in self.legalEagleInterestRequest:
             return True
-        return False
+        else:
+            return False
 
     def setLegalEagleInterestRequest(self, index):
         if index not in self.legalEagleInterestRequest:
@@ -487,21 +488,19 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
             if self.state == 'FreeFly' and self.isInTransition() == False:
                 self.notify.debug('FreeFly -> FlyingUp')
                 self.request('FlyingUp')
-        else:
-            if self.state == 'FlyingUp' and self.isInTransition() == False:
-                self.notify.debug('FlyingUp -> FreeFly')
-                self.request('FreeFly')
+        elif self.state == 'FlyingUp' and self.isInTransition() == False:
+            self.notify.debug('FlyingUp -> FreeFly')
+            self.request('FreeFly')
         if leftPressed and not rightPressed:
             self.toon.setH(self.toon, Globals.Gameplay.ToonTurning['turningSpeed'] * dt)
             max = Globals.Gameplay.ToonTurning['maxTurningAngle']
             if self.toon.getH() > max:
                 self.toon.setH(max)
-        else:
-            if rightPressed and not leftPressed:
-                self.toon.setH(self.toon, -1.0 * Globals.Gameplay.ToonTurning['turningSpeed'] * dt)
-                min = -1.0 * Globals.Gameplay.ToonTurning['maxTurningAngle']
-                if self.toon.getH() < min:
-                    self.toon.setH(min)
+        elif rightPressed and not leftPressed:
+            self.toon.setH(self.toon, -1.0 * Globals.Gameplay.ToonTurning['turningSpeed'] * dt)
+            min = -1.0 * Globals.Gameplay.ToonTurning['maxTurningAngle']
+            if self.toon.getH() < min:
+                self.toon.setH(min)
 
     def updateControlVelocity(self, dt):
         leftPressed = self._inputMgr.arrowKeys.leftPressed()
@@ -604,25 +603,24 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
         if velocityVal > 0.0:
             velocityVal -= Globals.Gameplay.ToonDeceleration[typePos] * dt
             velocityVal = clamp(velocityVal, 0.0, maxVal)
-        else:
-            if velocityVal < 0.0:
-                velocityVal += Globals.Gameplay.ToonDeceleration[typeNeg] * dt
-                velocityVal = clamp(velocityVal, minVal, 0.0)
+        elif velocityVal < 0.0:
+            velocityVal += Globals.Gameplay.ToonDeceleration[typeNeg] * dt
+            velocityVal = clamp(velocityVal, minVal, 0.0)
         return velocityVal
 
     def allowFuelDeath(self):
         if Globals.Gameplay.DoesToonDieWithFuel:
             return True
-        return not self.isFuelLeft()
+        else:
+            return not self.isFuelLeft()
 
     def updateToonPos(self, dt):
         toonWorldY = self.toon.getY(render)
         if self.hasPickedUpFirstPropeller == False:
             if toonWorldY > -7.6:
                 self.toon.setY(-7.6)
-            else:
-                if toonWorldY < -35.0:
-                    self.toon.setY(-35.0)
+            elif toonWorldY < -35.0:
+                self.toon.setY(-35.0)
             return
         self.velocity = self.controlVelocity + self.fanVelocity
         vel = self.velocity * dt
@@ -630,10 +628,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
         toonPos = self.toon.getPos()
         if Globals.Dev.DisableDeath:
             pass
-        else:
-            if toonPos[2] < 0.0 and self.state in ('FreeFly', 'FlyingUp') and self.allowFuelDeath():
-                self.postSpawnState = 'Running'
-                self.game.distGame.b_toonDied(self.toon.doId)
+        elif toonPos[2] < 0.0 and self.state in ('FreeFly', 'FlyingUp') and self.allowFuelDeath():
+            self.postSpawnState = 'Running'
+            self.game.distGame.b_toonDied(self.toon.doId)
         if toonPos[2] > self._levelBounds[2][1]:
             self.controlVelocity[2] = 0.0
             self.fanVelocity[2] = 0.0
@@ -666,14 +663,12 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
         self._guiMgr.setFuel(fuel)
         if self.fuel <= 0.0:
             fuelState = Globals.Gameplay.FuelStates.FuelEmpty
+        elif self.fuel < Globals.Gameplay.FuelVeryLowAmt:
+            fuelState = Globals.Gameplay.FuelStates.FuelVeryLow
+        elif self.fuel < Globals.Gameplay.FuelLowAmt:
+            fuelState = Globals.Gameplay.FuelStates.FuelLow
         else:
-            if self.fuel < Globals.Gameplay.FuelVeryLowAmt:
-                fuelState = Globals.Gameplay.FuelStates.FuelVeryLow
-            else:
-                if self.fuel < Globals.Gameplay.FuelLowAmt:
-                    fuelState = Globals.Gameplay.FuelStates.FuelLow
-                else:
-                    fuelState = Globals.Gameplay.FuelStates.FuelNormal
+            fuelState = Globals.Gameplay.FuelStates.FuelNormal
         if fuelState > self.fuelState:
             self.game.distGame.b_toonSetBlades(self.toon.doId, fuelState)
         if fuelState < self.fuelState:
@@ -696,12 +691,10 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def updateFuel(self, dt):
         if Globals.Dev.InfiniteFuel:
             self.setFuel(Globals.Gameplay.FuelNormalAmt)
-        else:
-            if self.state in Globals.Gameplay.DepleteFuelStates and self.fuel > 0.0:
-                self.setFuel(self.fuel - Globals.Gameplay.FuelBurnRate * dt)
-            else:
-                if self.fuel < 0.0:
-                    self.setFuel(0.0)
+        elif self.state in Globals.Gameplay.DepleteFuelStates and self.fuel > 0.0:
+            self.setFuel(self.fuel - Globals.Gameplay.FuelBurnRate * dt)
+        elif self.fuel < 0.0:
+            self.setFuel(0.0)
 
     def update(self, dt=0.0):
         self.instantaneousVelocity = (self.toon.getPos() - self.oldPos) / dt
@@ -718,7 +711,8 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def isFlying(self):
         if self.state in ('FreeFly', 'FlyingUp'):
             return True
-        return False
+        else:
+            return False
 
     def pressedControlWhileRunning(self):
         if self.isFuelLeft() and self.state == 'Running':
@@ -761,8 +755,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterInactive(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitInactive(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -778,8 +773,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterSpawn(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitSpawn(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -794,12 +790,13 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterFreeFly(self, request, args):
         if request == self.state:
             return
-        try:
-            return self.defaultFilter(request, args)
-        except:
-            return
+        else:
+            try:
+                return self.defaultFilter(request, args)
+            except:
+                return
 
-        return
+            return
 
     def exitFreeFly(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -814,12 +811,13 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterFlyingUp(self, request, args):
         if request == self.state:
             return
-        try:
-            return self.defaultFilter(request, args)
-        except:
-            return
+        else:
+            try:
+                return self.defaultFilter(request, args)
+            except:
+                return
 
-        return
+            return
 
     def exitFlyingUp(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -834,8 +832,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterHitWhileFlying(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitHitWhileFlying(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -852,8 +851,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterInWhirlwind(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitInWhirlwind(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -870,8 +870,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterHitWhileRunning(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitHitWhileRunning(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -895,8 +896,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterRunning(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitRunning(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -922,8 +924,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterOutOfTime(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitOutOfTime(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -941,8 +944,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterDeath(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitDeath(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -960,12 +964,13 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterWaitingForWin(self, request, args):
         if request == self.state:
             return
-        try:
-            return self.defaultFilter(request, args)
-        except:
-            return
+        else:
+            try:
+                return self.defaultFilter(request, args)
+            except:
+                return
 
-        return
+            return
 
     def exitWaitingForWin(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -981,8 +986,9 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def filterWin(self, request, args):
         if request == self.state:
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitWin(self):
         CogdoFlyingLocalPlayer.notify.debug("exit%s: '%s' -> '%s'" % (self.oldState, self.oldState, self.newState))
@@ -1016,9 +1022,10 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
     def shouldLegalEagleBeInFrame(self):
         if not self.isLegalEagleTarget():
             return False
-        index = len(self.legalEaglesTargeting) - 1
-        eagle = self.legalEaglesTargeting[index]
-        return eagle.shouldBeInFrame()
+        else:
+            index = len(self.legalEaglesTargeting) - 1
+            eagle = self.legalEaglesTargeting[index]
+            return eagle.shouldBeInFrame()
 
     def startHitRunningToonInterval(self):
         dur = self.toon.getDuration('slip-backward')
@@ -1060,9 +1067,8 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
         self.collPos = collPos
         if self.state in ('FlyingUp', 'FreeFly'):
             self.request('HitWhileFlying')
-        else:
-            if self.state in ('Running', ):
-                self.request('HitWhileRunning')
+        elif self.state in ('Running', ):
+            self.request('HitWhileRunning')
 
     def handleEnterFan(self, fan):
         if fan in self.activeFans:
@@ -1090,15 +1096,12 @@ class CogdoFlyingLocalPlayer(CogdoFlyingPlayer):
         CogdoFlyingPlayer.handleEnterGatherable(self, gatherable, elapsedTime)
         if gatherable.type == Globals.Level.GatherableTypes.Memo:
             self.handleEnterMemo(gatherable)
-        else:
-            if gatherable.type == Globals.Level.GatherableTypes.Propeller:
-                self.handleEnterPropeller(gatherable)
-            else:
-                if gatherable.type == Globals.Level.GatherableTypes.LaffPowerup:
-                    self.handleEnterLaffPowerup(gatherable)
-                else:
-                    if gatherable.type == Globals.Level.GatherableTypes.InvulPowerup:
-                        self.handleEnterInvulPowerup(gatherable)
+        elif gatherable.type == Globals.Level.GatherableTypes.Propeller:
+            self.handleEnterPropeller(gatherable)
+        elif gatherable.type == Globals.Level.GatherableTypes.LaffPowerup:
+            self.handleEnterLaffPowerup(gatherable)
+        elif gatherable.type == Globals.Level.GatherableTypes.InvulPowerup:
+            self.handleEnterInvulPowerup(gatherable)
 
     def handleEnterMemo(self, gatherable):
         self.score += 1

@@ -222,20 +222,21 @@ class NewsPageButtonManager(FSM.FSM):
         self.ignoreAll()
         if not self.buttonsLoaded:
             return
-        if self.__blinkIval:
-            self.__blinkIval.finish()
-            self.__blinkIval = None
-        self.newIssueButton.destroy()
-        self.gotoPrevPageButton.destroy()
-        self.goto3dWorldButton.destroy()
-        del self.openNewNewsUp
-        del self.openNewNewsUpBlink
-        del self.openNewNewsHover
-        del self.openOldNewsUp
-        del self.openOldNewsHover
-        del self.closeNewsUp
-        del self.closeNewsHover
-        return
+        else:
+            if self.__blinkIval:
+                self.__blinkIval.finish()
+                self.__blinkIval = None
+            self.newIssueButton.destroy()
+            self.gotoPrevPageButton.destroy()
+            self.goto3dWorldButton.destroy()
+            del self.openNewNewsUp
+            del self.openNewNewsUpBlink
+            del self.openNewNewsHover
+            del self.openOldNewsUp
+            del self.openOldNewsHover
+            del self.closeNewsUp
+            del self.closeNewsHover
+            return
 
     def exitOff(self):
         self.notify.warning('Should not get here. NewsPageButtonManager.exitOff')

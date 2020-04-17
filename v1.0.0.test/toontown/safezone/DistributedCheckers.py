@@ -235,20 +235,18 @@ class DistributedCheckers(DistributedNode.DistributedNode):
             else:
                 if self.playerNum == 2:
                     rotation = 0
+                for x in self.locatorList:
+                    x.setH(180)
+
+            self.isRotated = True
+        elif self.playerNum == 1:
+            rotation = 0
+        elif self.playerNum == 2:
+            rotation = 180
             for x in self.locatorList:
                 x.setH(180)
 
             self.isRotated = True
-        else:
-            if self.playerNum == 1:
-                rotation = 0
-            else:
-                if self.playerNum == 2:
-                    rotation = 180
-                    for x in self.locatorList:
-                        x.setH(180)
-
-                    self.isRotated = True
         int = LerpHprInterval(self.boardNode, 4.2, Vec3(rotation, self.boardNode.getP(), self.boardNode.getR()), self.boardNode.getHpr())
         int.start()
 
@@ -321,14 +319,13 @@ class DistributedCheckers(DistributedNode.DistributedNode):
         if self.playerNum == 1:
             message = TTLocalizer.CheckersColorWhite
             color = Vec4(1, 1, 1, 1)
+        elif self.playerNum == 2:
+            message = TTLocalizer.CheckersColorBlack
+            color = Vec4(0, 0, 0, 1)
         else:
-            if self.playerNum == 2:
-                message = TTLocalizer.CheckersColorBlack
-                color = Vec4(0, 0, 0, 1)
-            else:
-                message = TTLocalizer.CheckersObserver
-                color = Vec4(0, 0, 0, 1)
-                defaultPos = (-0.8, -0.4)
+            message = TTLocalizer.CheckersObserver
+            color = Vec4(0, 0, 0, 1)
+            defaultPos = (-0.8, -0.4)
         self.screenText = OnscreenText(text=message, pos=defaultPos, scale=0.1, fg=color, align=TextNode.ACenter, mayChange=1)
 
     def enableStartButton(self):
@@ -375,14 +372,12 @@ class DistributedCheckers(DistributedNode.DistributedNode):
         if player == self.playerNum:
             message2 = TTLocalizer.ChineseCheckersYourTurn
             color = (0, 0, 0, 1)
-        else:
-            if player == 1:
-                message2 = TTLocalizer.CheckersWhiteTurn
-                color = (1, 1, 1, 1)
-            else:
-                if player == 2:
-                    message2 = TTLocalizer.CheckersBlackTurn
-                    color = (0, 0, 0, 1)
+        elif player == 1:
+            message2 = TTLocalizer.CheckersWhiteTurn
+            color = (1, 1, 1, 1)
+        elif player == 2:
+            message2 = TTLocalizer.CheckersBlackTurn
+            color = (0, 0, 0, 1)
         self.turnText = OnscreenText(text=message1 + message2, pos=(-0.8, -0.5), scale=0.092, fg=color, align=TextNode.ACenter, mayChange=1)
         return
 
@@ -429,69 +424,67 @@ class DistributedCheckers(DistributedNode.DistributedNode):
             self.blinker.append(LerpColorInterval(self.locatorList[index], 0.7, col, self.tintConstant))
             self.blinker.loop()
             self.sound.start()
-        else:
-            if index in self.mySquares or index in self.myKings:
-                for x in self.moveList:
-                    self.locatorList[x].setColor(1, 1, 1, 1)
-                    self.locatorList[x].hide()
+        elif index in self.mySquares or index in self.myKings:
+            for x in self.moveList:
+                self.locatorList[x].setColor(1, 1, 1, 1)
+                self.locatorList[x].hide()
 
-                self.blinker.finish()
-                self.blinker = Sequence()
-                col = self.locatorList[index].getColor()
-                self.blinker.append(LerpColorInterval(self.locatorList[index], 0.7, self.tintConstant, col))
-                self.blinker.append(LerpColorInterval(self.locatorList[index], 0.7, col, self.tintConstant))
-                self.blinker.loop()
-                self.sound.start()
-                self.locatorList[self.moveList[0]].show()
-                self.moveList = []
-                self.moveList.append(index)
-                type = self.board.squareList[index].getState()
-                if type == 3 or type == 4:
-                    self.moverType = 'king'
-                else:
-                    self.moverType = 'normal'
+            self.blinker.finish()
+            self.blinker = Sequence()
+            col = self.locatorList[index].getColor()
+            self.blinker.append(LerpColorInterval(self.locatorList[index], 0.7, self.tintConstant, col))
+            self.blinker.append(LerpColorInterval(self.locatorList[index], 0.7, col, self.tintConstant))
+            self.blinker.loop()
+            self.sound.start()
+            self.locatorList[self.moveList[0]].show()
+            self.moveList = []
+            self.moveList.append(index)
+            type = self.board.squareList[index].getState()
+            if type == 3 or type == 4:
+                self.moverType = 'king'
             else:
-                self.currentMove = index
-                lastItem = self.board.squareList[self.moveList[(len(self.moveList) - 1)]]
-                thisItem = self.board.squareList[index]
-                if self.mustJump == True:
-                    if lastItem.getNum() == index:
-                        self.blinker.finish()
-                        self.d_requestMove(self.moveList)
-                        self.isMyTurn = False
-                        self.moveList = []
-                        return
-                    if self.checkLegalJump(lastItem, thisItem, self.moverType) == True:
-                        col = self.locatorList[index].getColor()
-                        self.locatorList[index].show()
-                        self.sound.start()
-                        if self.existsLegalJumpsFrom(index, self.moverType) == False:
-                            self.moveList.append(index)
-                            self.blinker.finish()
-                            self.d_requestMove(self.moveList)
-                            self.moveList = []
-                            self.isMyTurn = False
-                        else:
-                            self.moveList.append(index)
-                            if self.playerColorString == 'white':
-                                x = self.locatorList[index].getChildren()[1]
-                                x.show()
-                            else:
-                                x = self.locatorList[index].getChildren()[2]
-                                x.show()
-                            if self.moverType == 'king':
-                                x.find('**/checker_k*').show()
-                            self.locatorList[index].setColor(Vec4(0.5, 0.5, 0.5, 0.5))
-                else:
-                    if self.checkLegalMove(lastItem, thisItem, self.moverType) == True:
+                self.moverType = 'normal'
+        else:
+            self.currentMove = index
+            lastItem = self.board.squareList[self.moveList[(len(self.moveList) - 1)]]
+            thisItem = self.board.squareList[index]
+            if self.mustJump == True:
+                if lastItem.getNum() == index:
+                    self.blinker.finish()
+                    self.d_requestMove(self.moveList)
+                    self.isMyTurn = False
+                    self.moveList = []
+                    return
+                if self.checkLegalJump(lastItem, thisItem, self.moverType) == True:
+                    col = self.locatorList[index].getColor()
+                    self.locatorList[index].show()
+                    self.sound.start()
+                    if self.existsLegalJumpsFrom(index, self.moverType) == False:
                         self.moveList.append(index)
-                        col = self.locatorList[index].getColor()
-                        self.locatorList[index].show()
-                        self.sound.start()
                         self.blinker.finish()
                         self.d_requestMove(self.moveList)
                         self.moveList = []
                         self.isMyTurn = False
+                    else:
+                        self.moveList.append(index)
+                        if self.playerColorString == 'white':
+                            x = self.locatorList[index].getChildren()[1]
+                            x.show()
+                        else:
+                            x = self.locatorList[index].getChildren()[2]
+                            x.show()
+                        if self.moverType == 'king':
+                            x.find('**/checker_k*').show()
+                        self.locatorList[index].setColor(Vec4(0.5, 0.5, 0.5, 0.5))
+            elif self.checkLegalMove(lastItem, thisItem, self.moverType) == True:
+                self.moveList.append(index)
+                col = self.locatorList[index].getColor()
+                self.locatorList[index].show()
+                self.sound.start()
+                self.blinker.finish()
+                self.d_requestMove(self.moveList)
+                self.moveList = []
+                self.isMyTurn = False
 
     def existsLegalJumpsFrom(self, index, peice):
         if peice == 'king':
@@ -508,28 +501,29 @@ class DistributedCheckers(DistributedNode.DistributedNode):
                             return True
 
             return False
-        if peice == 'normal':
-            if self.playerNum == 1:
-                moveForward = [
-                 1, 2]
-            else:
-                if self.playerNum == 2:
+        else:
+            if peice == 'normal':
+                if self.playerNum == 1:
                     moveForward = [
-                     0, 3]
-            for x in moveForward:
-                if self.board.squareList[index].getAdjacent()[x] != None and self.board.squareList[index].getJumps()[x] != None:
-                    adj = self.board.squareList[self.board.squareList[index].getAdjacent()[x]]
-                    jump = self.board.squareList[self.board.squareList[index].getJumps()[x]]
-                    if adj.getState() == 0:
-                        pass
-                    elif adj.getState() == self.playerNum or adj.getState() == self.playerNum + 2:
-                        pass
-                    elif jump.getState() == 0:
-                        if index not in self.moveList:
-                            return True
+                     1, 2]
+                else:
+                    if self.playerNum == 2:
+                        moveForward = [
+                         0, 3]
+                    for x in moveForward:
+                        if self.board.squareList[index].getAdjacent()[x] != None and self.board.squareList[index].getJumps()[x] != None:
+                            adj = self.board.squareList[self.board.squareList[index].getAdjacent()[x]]
+                            jump = self.board.squareList[self.board.squareList[index].getJumps()[x]]
+                            if adj.getState() == 0:
+                                pass
+                            elif adj.getState() == self.playerNum or adj.getState() == self.playerNum + 2:
+                                pass
+                            elif jump.getState() == 0:
+                                if index not in self.moveList:
+                                    return True
 
-            return False
-        return
+                return False
+            return
 
     def existsLegalMovesFrom(self, index, peice):
         if peice == 'king':
@@ -547,11 +541,11 @@ class DistributedCheckers(DistributedNode.DistributedNode):
                 if self.playerNum == 2:
                     moveForward = [
                      0, 3]
-            for x in moveForward:
-                if self.board.squareList[index].getAdjacent()[x] != None:
-                    adj = self.board.squareList[self.board.squareList[index].getAdjacent()[x]]
-                    if adj.getState() == 0:
-                        return True
+                for x in moveForward:
+                    if self.board.squareList[index].getAdjacent()[x] != None:
+                        adj = self.board.squareList[self.board.squareList[index].getAdjacent()[x]]
+                        if adj.getState() == 0:
+                            return True
 
             return False
         return
@@ -559,27 +553,28 @@ class DistributedCheckers(DistributedNode.DistributedNode):
     def checkLegalMove(self, firstSquare, secondSquare, peice):
         if firstSquare.getNum() not in self.mySquares and firstSquare.getNum() not in self.myKings:
             return False
-        if self.playerNum == 1:
-            moveForward = [
-             1, 2]
         else:
-            moveForward = [
-             0, 3]
-        if peice == 'king':
-            for x in xrange(4):
-                if firstSquare.getAdjacent()[x] != None:
-                    if self.board.squareList[firstSquare.getAdjacent()[x]].getState() == 0 and secondSquare.getNum() in firstSquare.getAdjacent():
-                        return True
+            if self.playerNum == 1:
+                moveForward = [
+                 1, 2]
+            else:
+                moveForward = [
+                 0, 3]
+            if peice == 'king':
+                for x in xrange(4):
+                    if firstSquare.getAdjacent()[x] != None:
+                        if self.board.squareList[firstSquare.getAdjacent()[x]].getState() == 0 and secondSquare.getNum() in firstSquare.getAdjacent():
+                            return True
 
-            return False
-        if peice == 'normal':
-            for x in moveForward:
-                if firstSquare.getAdjacent()[x] != None and secondSquare.getNum() in firstSquare.getAdjacent():
-                    if self.board.squareList[firstSquare.getAdjacent()[x]].getState() == 0 and firstSquare.getAdjacent().index(secondSquare.getNum()) == x:
-                        return True
+                return False
+            if peice == 'normal':
+                for x in moveForward:
+                    if firstSquare.getAdjacent()[x] != None and secondSquare.getNum() in firstSquare.getAdjacent():
+                        if self.board.squareList[firstSquare.getAdjacent()[x]].getState() == 0 and firstSquare.getAdjacent().index(secondSquare.getNum()) == x:
+                            return True
 
-            return False
-        return
+                return False
+            return
 
     def checkLegalJump(self, firstSquare, secondSquare, peice):
         if firstSquare.getNum() not in self.mySquares and firstSquare.getNum() not in self.myKings and len(self.moveList) == 1:
@@ -598,18 +593,19 @@ class DistributedCheckers(DistributedNode.DistributedNode):
                 if self.board.squareList[firstSquare.getAdjacent()[index]].getState() in opposingPeices:
                     return True
                 return False
-        else:
-            if peice == 'normal':
-                if secondSquare.getNum() in firstSquare.getJumps():
-                    index = firstSquare.getJumps().index(secondSquare.getNum())
-                    if index in moveForward:
-                        if self.board.squareList[firstSquare.getAdjacent()[index]].getState() in opposingPeices:
-                            return True
-                        return False
+        elif peice == 'normal':
+            if secondSquare.getNum() in firstSquare.getJumps():
+                index = firstSquare.getJumps().index(secondSquare.getNum())
+                if index in moveForward:
+                    if self.board.squareList[firstSquare.getAdjacent()[index]].getState() in opposingPeices:
+                        return True
                     else:
                         return False
+
                 else:
                     return False
+            else:
+                return False
 
     def d_requestMove(self, moveList):
         self.sendUpdate('requestMove', [moveList])
@@ -688,41 +684,42 @@ class DistributedCheckers(DistributedNode.DistributedNode):
             self.playerNum = None
             self.playerColorString = None
             return
-        self.mustJump = False
-        self.hasNormalMoves = False
-        for x in self.myKings:
-            if self.existsLegalJumpsFrom(x, 'king') == True:
-                self.mustJump = True
-                break
-            else:
-                self.mustJump = False
-
-        if self.mustJump == False:
-            for x in self.mySquares:
-                if self.existsLegalJumpsFrom(x, 'normal') == True:
+        else:
+            self.mustJump = False
+            self.hasNormalMoves = False
+            for x in self.myKings:
+                if self.existsLegalJumpsFrom(x, 'king') == True:
                     self.mustJump = True
                     break
                 else:
                     self.mustJump = False
 
-        if self.mustJump != True:
-            for x in self.mySquares:
-                if self.existsLegalMovesFrom(x, 'normal') == True:
-                    self.hasNormalMoves = True
-                    break
-                else:
-                    self.hasNormalMoves = False
-                if self.hasNormalMoves == False:
-                    for x in self.myKings:
-                        if self.existsLegalMovesFrom(x, 'king') == True:
-                            self.hasNormalMoves = True
-                            break
-                        else:
-                            self.hasNormalMoves = False
+            if self.mustJump == False:
+                for x in self.mySquares:
+                    if self.existsLegalJumpsFrom(x, 'normal') == True:
+                        self.mustJump = True
+                        break
+                    else:
+                        self.mustJump = False
 
-        if self.mustJump == False and self.hasNormalMoves == False:
-            pass
-        return
+            if self.mustJump != True:
+                for x in self.mySquares:
+                    if self.existsLegalMovesFrom(x, 'normal') == True:
+                        self.hasNormalMoves = True
+                        break
+                    else:
+                        self.hasNormalMoves = False
+                    if self.hasNormalMoves == False:
+                        for x in self.myKings:
+                            if self.existsLegalMovesFrom(x, 'king') == True:
+                                self.hasNormalMoves = True
+                                break
+                            else:
+                                self.hasNormalMoves = False
+
+            if self.mustJump == False and self.hasNormalMoves == False:
+                pass
+            return
 
     def hideChildren(self, nodeList):
         for x in xrange(1, 2):

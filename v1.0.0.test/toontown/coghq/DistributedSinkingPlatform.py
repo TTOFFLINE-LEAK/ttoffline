@@ -100,12 +100,10 @@ class DistributedSinkingPlatform(BasicEntities.DistributedNodePathEntity):
         self.notify.debug('setSinkMode %s' % mode)
         if mode == SinkingPlatformGlobals.OFF:
             self.fsm.requestInitialState()
-        else:
-            if mode == SinkingPlatformGlobals.RISING:
-                self.fsm.request('rising', [ts])
-            else:
-                if mode == SinkingPlatformGlobals.SINKING:
-                    self.fsm.request('sinking', [ts])
+        elif mode == SinkingPlatformGlobals.RISING:
+            self.fsm.request('rising', [ts])
+        elif mode == SinkingPlatformGlobals.SINKING:
+            self.fsm.request('sinking', [ts])
 
     def startMoving(self, direction, ts):
         if direction == SinkingPlatformGlobals.RISING:
@@ -121,9 +119,8 @@ class DistributedSinkingPlatform(BasicEntities.DistributedNodePathEntity):
         ivalTime = curT - startT
         if ivalTime < 0:
             ivalTime = 0
-        else:
-            if ivalTime > duration:
-                ivalTime = duration
+        elif ivalTime > duration:
+            ivalTime = duration
         duration = duration - ivalTime
         duration = max(0.0, duration)
         moveNode = self.platform

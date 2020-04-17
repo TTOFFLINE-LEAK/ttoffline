@@ -205,68 +205,57 @@ class Char(Avatar.Avatar):
                 else:
                     if self._name == 'witch_minnie':
                         height = 3.0
-                    else:
-                        if self._name == 'goofy':
-                            height = 4.8
-                        else:
-                            if self._name == 'super_goofy':
-                                height = 4.8
-                            else:
-                                if self._name == 'donald' or self._name == 'donald-wheel' or self._name == 'franken_donald':
-                                    height = 4.5
-                                else:
-                                    if self._name == 'daisy' or self._name == 'sockHop_daisy':
-                                        height = 4.5
-                                    else:
-                                        if self._name == 'pluto':
-                                            height = 3.0
-                                        else:
-                                            if self._name == 'western_pluto':
-                                                height = 4.5
-                                            else:
-                                                if self._name == 'clarabelle':
-                                                    height = 3.0
-                                                else:
-                                                    if self._name == 'chip':
-                                                        height = 2.0
-                                                    else:
-                                                        if self._name == 'dale':
-                                                            height = 2.0
-                                                        else:
-                                                            if self._name == 'police_chip':
-                                                                height = 2.0
-                                                            else:
-                                                                if self._name == 'jailbird_dale':
-                                                                    height = 2.0
-        self.lodStrings = []
-        for lod in LODModelDict[self.style.name]:
-            self.lodStrings.append(str(lod))
+                    elif self._name == 'goofy':
+                        height = 4.8
+                    elif self._name == 'super_goofy':
+                        height = 4.8
+                    elif self._name == 'donald' or self._name == 'donald-wheel' or self._name == 'franken_donald':
+                        height = 4.5
+                    elif self._name == 'daisy' or self._name == 'sockHop_daisy':
+                        height = 4.5
+                    elif self._name == 'pluto':
+                        height = 3.0
+                    elif self._name == 'western_pluto':
+                        height = 4.5
+                    elif self._name == 'clarabelle':
+                        height = 3.0
+                    elif self._name == 'chip':
+                        height = 2.0
+                    elif self._name == 'dale':
+                        height = 2.0
+                    elif self._name == 'police_chip':
+                        height = 2.0
+                    elif self._name == 'jailbird_dale':
+                        height = 2.0
+                    self.lodStrings = []
+                    for lod in LODModelDict[self.style.name]:
+                        self.lodStrings.append(str(lod))
 
-        if self.lodStrings:
+                if self.lodStrings:
+                    for lodStr in self.lodStrings:
+                        if len(self.lodStrings) > 1:
+                            lodName = lodStr
+                        else:
+                            lodName = 'lodRoot'
+                        if self._name == 'goofy':
+                            self.loadModel(filePrefix + '-' + lodStr, lodName=lodName)
+                        else:
+                            self.loadModel(filePrefix + lodStr, lodName=lodName)
+
+                else:
+                    self.loadModel(filePrefix)
+                animDict = {}
+                animList = AnimDict[self.style.name]
+                for anim in animList:
+                    animFilePrefix = filePrefix[:6] + str(anim[2]) + filePrefix[7:]
+                    animDict[anim[0]] = animFilePrefix + anim[1]
+
             for lodStr in self.lodStrings:
                 if len(self.lodStrings) > 1:
                     lodName = lodStr
                 else:
                     lodName = 'lodRoot'
-                if self._name == 'goofy':
-                    self.loadModel(filePrefix + '-' + lodStr, lodName=lodName)
-                else:
-                    self.loadModel(filePrefix + lodStr, lodName=lodName)
-
-        else:
-            self.loadModel(filePrefix)
-        animDict = {}
-        animList = AnimDict[self.style.name]
-        for anim in animList:
-            animFilePrefix = filePrefix[:6] + str(anim[2]) + filePrefix[7:]
-            animDict[anim[0]] = animFilePrefix + anim[1]
-
-        for lodStr in self.lodStrings:
-            if len(self.lodStrings) > 1:
-                lodName = lodStr
-            else:
-                lodName = 'lodRoot'
-            self.loadAnims(animDict, lodName=lodName)
+                self.loadAnims(animDict, lodName=lodName)
 
         self.setHeight(height)
         self.loadDialogue(dna.name)
@@ -316,66 +305,61 @@ class Char(Avatar.Avatar):
             for lodName in self.getLODNames():
                 self.drawInFront('joint_pupil?', 'eyes*', -3, lodName=lodName)
 
-        else:
-            if self._name == 'witch_minnie' or self._name == 'vampire_mickey' or self._name == 'super_goofy' or self._name == 'western_pluto' or self._name == 'police_chip' or self._name == 'jailbird_dale' or self._name == 'franken_donald' or self._name == 'sockHop_daisy':
-                self.geoEyes = 1
-                self.eyeOpenList = []
-                self.eyeCloseList = []
-                if self.find('**/1200/**/eyesOpen').isEmpty():
-                    self.eyeCloseList.append(self.find('**/eyesClosed'))
-                    self.eyeOpenList.append(self.find('**/eyesOpen'))
-                else:
-                    self.eyeCloseList.append(self.find('**/1200/**/eyesClosed'))
-                    self.eyeOpenList.append(self.find('**/1200/**/eyesOpen'))
-                for part in self.eyeOpenList:
-                    part.show()
-
-                for part in self.eyeCloseList:
-                    part.hide()
-
+        elif self._name == 'witch_minnie' or self._name == 'vampire_mickey' or self._name == 'super_goofy' or self._name == 'western_pluto' or self._name == 'police_chip' or self._name == 'jailbird_dale' or self._name == 'franken_donald' or self._name == 'sockHop_daisy':
+            self.geoEyes = 1
+            self.eyeOpenList = []
+            self.eyeCloseList = []
+            if self.find('**/1200/**/eyesOpen').isEmpty():
+                self.eyeCloseList.append(self.find('**/eyesClosed'))
+                self.eyeOpenList.append(self.find('**/eyesOpen'))
             else:
-                if self._name == 'pluto':
-                    self.eyesOpen = loader.loadTexture('phase_6/maps/plutoEyesOpen.jpg', 'phase_6/maps/plutoEyesOpen_a.rgb')
-                    self.eyesClosed = loader.loadTexture('phase_6/maps/plutoEyesClosed.jpg', 'phase_6/maps/plutoEyesClosed_a.rgb')
-                    self.eyes = self.find('**/1000/**/eyes')
-                    self.lpupil = self.find('**/1000/**/joint_pupilL')
-                    self.rpupil = self.find('**/1000/**/joint_pupilR')
-                    for lodName in self.getLODNames():
-                        self.drawInFront('joint_pupil?', 'eyes*', -3, lodName=lodName)
+                self.eyeCloseList.append(self.find('**/1200/**/eyesClosed'))
+                self.eyeOpenList.append(self.find('**/1200/**/eyesOpen'))
+            for part in self.eyeOpenList:
+                part.show()
 
-                else:
-                    if self._name == 'daisy':
-                        self.geoEyes = 1
-                        self.eyeOpenList = []
-                        self.eyeCloseList = []
-                        self.eyeCloseList.append(self.find('**/1600/**/eyesclose'))
-                        self.eyeCloseList.append(self.find('**/800/**/eyesclose'))
-                        self.eyeOpenList.append(self.find('**/1600/**/eyesclose'))
-                        self.eyeOpenList.append(self.find('**/800/**/eyesclose'))
-                        self.eyeOpenList.append(self.find('**/1600/**/eyespupil'))
-                        self.eyeOpenList.append(self.find('**/800/**/eyespupil'))
-                        self.eyeOpenList.append(self.find('**/1600/**/eyesopen'))
-                        self.eyeOpenList.append(self.find('**/800/**/eyesopen'))
-                        for part in self.eyeOpenList:
-                            part.show()
+            for part in self.eyeCloseList:
+                part.hide()
 
-                        for part in self.eyeCloseList:
-                            part.hide()
+        elif self._name == 'pluto':
+            self.eyesOpen = loader.loadTexture('phase_6/maps/plutoEyesOpen.jpg', 'phase_6/maps/plutoEyesOpen_a.rgb')
+            self.eyesClosed = loader.loadTexture('phase_6/maps/plutoEyesClosed.jpg', 'phase_6/maps/plutoEyesClosed_a.rgb')
+            self.eyes = self.find('**/1000/**/eyes')
+            self.lpupil = self.find('**/1000/**/joint_pupilL')
+            self.rpupil = self.find('**/1000/**/joint_pupilR')
+            for lodName in self.getLODNames():
+                self.drawInFront('joint_pupil?', 'eyes*', -3, lodName=lodName)
 
-                    else:
-                        if self._name == 'donald-wheel':
-                            self.eyes = self.find('**/eyes')
-                            self.lpupil = self.find('**/joint_pupilL')
-                            self.rpupil = self.find('**/joint_pupilR')
-                            self.drawInFront('joint_pupil?', 'eyes*', -3)
-                        else:
-                            if self._name == 'chip' or self._name == 'dale':
-                                self.eyesOpen = loader.loadTexture('phase_6/maps/dale_eye1.jpg', 'phase_6/maps/dale_eye1_a.rgb')
-                                self.eyesClosed = loader.loadTexture('phase_6/maps/chip_dale_eye1_blink.jpg', 'phase_6/maps/chip_dale_eye1_blink_a.rgb')
-                                self.eyes = self.find('**/eyes')
-                                self.lpupil = self.find('**/pupil_left')
-                                self.rpupil = self.find('**/pupil_right')
-                                self.find('**/blink').hide()
+        elif self._name == 'daisy':
+            self.geoEyes = 1
+            self.eyeOpenList = []
+            self.eyeCloseList = []
+            self.eyeCloseList.append(self.find('**/1600/**/eyesclose'))
+            self.eyeCloseList.append(self.find('**/800/**/eyesclose'))
+            self.eyeOpenList.append(self.find('**/1600/**/eyesclose'))
+            self.eyeOpenList.append(self.find('**/800/**/eyesclose'))
+            self.eyeOpenList.append(self.find('**/1600/**/eyespupil'))
+            self.eyeOpenList.append(self.find('**/800/**/eyespupil'))
+            self.eyeOpenList.append(self.find('**/1600/**/eyesopen'))
+            self.eyeOpenList.append(self.find('**/800/**/eyesopen'))
+            for part in self.eyeOpenList:
+                part.show()
+
+            for part in self.eyeCloseList:
+                part.hide()
+
+        elif self._name == 'donald-wheel':
+            self.eyes = self.find('**/eyes')
+            self.lpupil = self.find('**/joint_pupilL')
+            self.rpupil = self.find('**/joint_pupilR')
+            self.drawInFront('joint_pupil?', 'eyes*', -3)
+        elif self._name == 'chip' or self._name == 'dale':
+            self.eyesOpen = loader.loadTexture('phase_6/maps/dale_eye1.jpg', 'phase_6/maps/dale_eye1_a.rgb')
+            self.eyesClosed = loader.loadTexture('phase_6/maps/chip_dale_eye1_blink.jpg', 'phase_6/maps/chip_dale_eye1_blink_a.rgb')
+            self.eyes = self.find('**/eyes')
+            self.lpupil = self.find('**/pupil_left')
+            self.rpupil = self.find('**/pupil_right')
+            self.find('**/blink').hide()
         if self.lpupil != None:
             self.lpupil.adjustAllPriorities(1)
             self.rpupil.adjustAllPriorities(1)
@@ -414,21 +398,19 @@ class Char(Avatar.Avatar):
                 sfxIndex = 1
             elif length >= 3:
                 sfxIndex = 2
+        elif type == 'question':
+            sfxIndex = 3
+        elif type == 'exclamation':
+            sfxIndex = 4
+        elif type == 'special':
+            sfxIndex = 5
         else:
-            if type == 'question':
-                sfxIndex = 3
-            else:
-                if type == 'exclamation':
-                    sfxIndex = 4
-                else:
-                    if type == 'special':
-                        sfxIndex = 5
-                    else:
-                        self.notify.error('unrecognized dialogue type: ', type)
+            self.notify.error('unrecognized dialogue type: ', type)
         if sfxIndex != None and sfxIndex < len(self.dialogueArray) and self.dialogueArray[sfxIndex] != None:
             return self.dialogueArray[sfxIndex]
-        return
-        return
+        else:
+            return
+            return
 
     def playDialogue(self, type, length, delay=None):
         dialogue = self.getDialogue(type, length)
@@ -488,12 +470,110 @@ class Char(Avatar.Avatar):
                   4,
                   5])
                 self.loadChatterDialogue('mickey', chatterIndexArray, 'phase_3/audio/dial', language)
-        else:
-            if char == 'vmk':
-                dialogueFile = base.loader.loadSfx('phase_3/audio/dial/mickey.ogg')
-                for i in xrange(0, 6):
-                    self.dialogueArray.append(dialogueFile)
+        elif char == 'vmk':
+            dialogueFile = base.loader.loadSfx('phase_3/audio/dial/mickey.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
 
+            if language == 'japanese':
+                chatterIndexArray = (
+                 [
+                  1, 2],
+                 [1,
+                  2,
+                  3,
+                  4],
+                 [1,
+                  2,
+                  3,
+                  4,
+                  5])
+                self.loadChatterDialogue('mickey', chatterIndexArray, 'phase_3/audio/dial', language)
+        elif char == 'mn' or char == 'wmn':
+            dialogueFile = base.loader.loadSfx('phase_3/audio/dial/minnie.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
+
+            if language == 'japanese':
+                chatterIndexArray = (
+                 [
+                  1, 2],
+                 [1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17], [1, 2, 3])
+                self.loadChatterDialogue('minnie', chatterIndexArray, 'phase_3/audio/dial', language)
+        elif char == 'dd' or char == 'shdd':
+            dialogueFile = base.loader.loadSfx('phase_4/audio/dial/daisy.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
+
+            if language == 'japanese':
+                chatterIndexArray = (
+                 [
+                  1, 2, 3],
+                 [1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12],
+                 [1,
+                  2,
+                  3,
+                  4])
+                self.loadChatterDialogue('daisy', chatterIndexArray, 'phase_8/audio/dial', language)
+        elif char == 'g' or char == 'sg':
+            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/goofy.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
+
+            if language == 'japanese':
+                chatterIndexArray = (
+                 [
+                  1, 2, 3],
+                 [1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12],
+                 [1,
+                  2,
+                  3,
+                  4])
+                self.loadChatterDialogue('goofy', chatterIndexArray, 'phase_6/audio/dial', language)
+        elif char == 'd' or char == 'dw' or char == 'fd':
+            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/donald.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
+
+            if char == 'd':
                 if language == 'japanese':
                     chatterIndexArray = (
                      [
@@ -501,160 +581,51 @@ class Char(Avatar.Avatar):
                      [1,
                       2,
                       3,
-                      4],
+                      4,
+                      5,
+                      6,
+                      7,
+                      8,
+                      9,
+                      10,
+                      11],
                      [1,
                       2,
                       3,
-                      4,
-                      5])
-                    self.loadChatterDialogue('mickey', chatterIndexArray, 'phase_3/audio/dial', language)
-            else:
-                if char == 'mn' or char == 'wmn':
-                    dialogueFile = base.loader.loadSfx('phase_3/audio/dial/minnie.ogg')
-                    for i in xrange(0, 6):
-                        self.dialogueArray.append(dialogueFile)
+                      4])
+                    self.loadChatterDialogue('donald', chatterIndexArray, 'phase_6/audio/dial', language)
+        elif char == 'p' or char == 'wp':
+            dialogueFile = base.loader.loadSfx('phase_3.5/audio/dial/AV_dog_med.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
 
-                    if language == 'japanese':
-                        chatterIndexArray = (
-                         [
-                          1, 2],
-                         [1,
-                          2,
-                          3,
-                          4,
-                          5,
-                          6,
-                          7,
-                          8,
-                          9,
-                          10,
-                          11,
-                          12,
-                          13,
-                          14,
-                          15,
-                          16,
-                          17], [1, 2, 3])
-                        self.loadChatterDialogue('minnie', chatterIndexArray, 'phase_3/audio/dial', language)
-                else:
-                    if char == 'dd' or char == 'shdd':
-                        dialogueFile = base.loader.loadSfx('phase_4/audio/dial/daisy.ogg')
-                        for i in xrange(0, 6):
-                            self.dialogueArray.append(dialogueFile)
+        elif char == 'cl':
+            dialogueFile = base.loader.loadSfx('phase_3.5/audio/dial/AV_dog_med.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
 
-                        if language == 'japanese':
-                            chatterIndexArray = (
-                             [
-                              1, 2, 3],
-                             [1,
-                              2,
-                              3,
-                              4,
-                              5,
-                              6,
-                              7,
-                              8,
-                              9,
-                              10,
-                              11,
-                              12],
-                             [1,
-                              2,
-                              3,
-                              4])
-                            self.loadChatterDialogue('daisy', chatterIndexArray, 'phase_8/audio/dial', language)
-                    else:
-                        if char == 'g' or char == 'sg':
-                            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/goofy.ogg')
-                            for i in xrange(0, 6):
-                                self.dialogueArray.append(dialogueFile)
+        elif char == 'ch':
+            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/chip.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
 
-                            if language == 'japanese':
-                                chatterIndexArray = (
-                                 [
-                                  1, 2, 3],
-                                 [1,
-                                  2,
-                                  3,
-                                  4,
-                                  5,
-                                  6,
-                                  7,
-                                  8,
-                                  9,
-                                  10,
-                                  11,
-                                  12],
-                                 [1,
-                                  2,
-                                  3,
-                                  4])
-                                self.loadChatterDialogue('goofy', chatterIndexArray, 'phase_6/audio/dial', language)
-                        else:
-                            if char == 'd' or char == 'dw' or char == 'fd':
-                                dialogueFile = base.loader.loadSfx('phase_6/audio/dial/donald.ogg')
-                                for i in xrange(0, 6):
-                                    self.dialogueArray.append(dialogueFile)
+        elif char == 'da':
+            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/dale.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
 
-                                if char == 'd':
-                                    if language == 'japanese':
-                                        chatterIndexArray = (
-                                         [
-                                          1, 2],
-                                         [1,
-                                          2,
-                                          3,
-                                          4,
-                                          5,
-                                          6,
-                                          7,
-                                          8,
-                                          9,
-                                          10,
-                                          11],
-                                         [1,
-                                          2,
-                                          3,
-                                          4])
-                                        self.loadChatterDialogue('donald', chatterIndexArray, 'phase_6/audio/dial', language)
-                            else:
-                                if char == 'p' or char == 'wp':
-                                    dialogueFile = base.loader.loadSfx('phase_3.5/audio/dial/AV_dog_med.ogg')
-                                    for i in xrange(0, 6):
-                                        self.dialogueArray.append(dialogueFile)
+        elif char == 'pch':
+            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/chip.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
 
-                                else:
-                                    if char == 'cl':
-                                        dialogueFile = base.loader.loadSfx('phase_3.5/audio/dial/AV_dog_med.ogg')
-                                        for i in xrange(0, 6):
-                                            self.dialogueArray.append(dialogueFile)
+        elif char == 'jda':
+            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/dale.ogg')
+            for i in xrange(0, 6):
+                self.dialogueArray.append(dialogueFile)
 
-                                    else:
-                                        if char == 'ch':
-                                            dialogueFile = base.loader.loadSfx('phase_6/audio/dial/chip.ogg')
-                                            for i in xrange(0, 6):
-                                                self.dialogueArray.append(dialogueFile)
-
-                                        else:
-                                            if char == 'da':
-                                                dialogueFile = base.loader.loadSfx('phase_6/audio/dial/dale.ogg')
-                                                for i in xrange(0, 6):
-                                                    self.dialogueArray.append(dialogueFile)
-
-                                            else:
-                                                if char == 'pch':
-                                                    dialogueFile = base.loader.loadSfx('phase_6/audio/dial/chip.ogg')
-                                                    for i in xrange(0, 6):
-                                                        self.dialogueArray.append(dialogueFile)
-
-                                                else:
-                                                    if char == 'jda':
-                                                        dialogueFile = base.loader.loadSfx('phase_6/audio/dial/dale.ogg')
-                                                        for i in xrange(0, 6):
-                                                            self.dialogueArray.append(dialogueFile)
-
-                                                    else:
-                                                        self.notify.error('unknown character %s' % char)
+        else:
+            self.notify.error('unknown character %s' % char)
 
     def unloadDialogue(self):
         self.dialogueArray = []

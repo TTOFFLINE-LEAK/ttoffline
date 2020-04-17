@@ -799,26 +799,22 @@ class PurchaseHeadFrame(DirectFrame):
             self.head.hide()
             self.tag1.hide()
             self.tag2.hide()
+        elif state == PURCHASE_EXIT_STATE:
+            self.statusLabel['text'] = TTLocalizer.GagShopPlayerExited % self.av.getName()
+            self.statusLabel['text_pos'] = (0.015, 0.072, 0)
+            self.head.hide()
+            self.tag1.hide()
+            self.tag2.hide()
+        elif state == PURCHASE_PLAYAGAIN_STATE:
+            self.statusLabel['text'] = TTLocalizer.GagShopPlayerPlayAgain
+            self.statusLabel['text_pos'] = (0.1, -0.12, 0)
+        elif state == PURCHASE_WAITING_STATE:
+            self.statusLabel['text'] = TTLocalizer.GagShopPlayerBuying
+            self.statusLabel['text_pos'] = (0.1, -0.12, 0)
+        elif state == PURCHASE_NO_CLIENT_STATE:
+            Purchase.notify.warning("setAvatarState('no client state'); OK for gag purchase tutorial")
         else:
-            if state == PURCHASE_EXIT_STATE:
-                self.statusLabel['text'] = TTLocalizer.GagShopPlayerExited % self.av.getName()
-                self.statusLabel['text_pos'] = (0.015, 0.072, 0)
-                self.head.hide()
-                self.tag1.hide()
-                self.tag2.hide()
-            else:
-                if state == PURCHASE_PLAYAGAIN_STATE:
-                    self.statusLabel['text'] = TTLocalizer.GagShopPlayerPlayAgain
-                    self.statusLabel['text_pos'] = (0.1, -0.12, 0)
-                else:
-                    if state == PURCHASE_WAITING_STATE:
-                        self.statusLabel['text'] = TTLocalizer.GagShopPlayerBuying
-                        self.statusLabel['text_pos'] = (0.1, -0.12, 0)
-                    else:
-                        if state == PURCHASE_NO_CLIENT_STATE:
-                            Purchase.notify.warning("setAvatarState('no client state'); OK for gag purchase tutorial")
-                        else:
-                            Purchase.notify.warning('unknown avatar state: %s' % state)
+            Purchase.notify.warning('unknown avatar state: %s' % state)
 
     def _handleClientCleanup(self):
         self.destroy()

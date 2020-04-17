@@ -68,8 +68,9 @@ class CharChattyStateAI(StateData.StateData):
         self.getLatestChatter()
         if self.chatter:
             return random.randint(0, len(self.chatter[category]) - 1)
-        return
-        return
+        else:
+            return
+            return
 
     def getLatestChatter(self):
         self.chatter = CCharChatter.getChatter(self.character.getName(), self.character.getCCChatter())
@@ -81,42 +82,43 @@ class CharChattyStateAI(StateData.StateData):
         now = globalClock.getFrameTime()
         if now < self.nextChatTime:
             return Task.cont
-        self.getLatestChatter()
-        if self.character.lostInterest():
-            self.leave()
-            return Task.done
-        if not self.chatter:
-            self.notify.debug('I do not want to talk')
-            return Task.done
-        if not self.character.getNearbyAvatars():
-            return Task.cont
-        target = self.character.getNearbyAvatars()[0]
-        if self.lastChatTarget != target:
-            self.lastChatTarget = target
-            category = CCharChatter.GREETING
         else:
-            category = CCharChatter.COMMENT
-        self.setCorrectChatter()
-        if category == self.lastMessage[0] and len(self.chatter[category]) > 1:
-            msg = self.lastMessage[1]
-            lastMsgIndex = self.lastMessage[1]
-            if lastMsgIndex < len(self.chatter[category]) and lastMsgIndex >= 0:
-                while self.chatter[category][msg] == self.chatter[category][lastMsgIndex]:
-                    msg = self.pickMsg(category)
-                    if not msg:
-                        break
+            self.getLatestChatter()
+            if self.character.lostInterest():
+                self.leave()
+                return Task.done
+            if not self.chatter:
+                self.notify.debug('I do not want to talk')
+                return Task.done
+            if not self.character.getNearbyAvatars():
+                return Task.cont
+            target = self.character.getNearbyAvatars()[0]
+            if self.lastChatTarget != target:
+                self.lastChatTarget = target
+                category = CCharChatter.GREETING
+            else:
+                category = CCharChatter.COMMENT
+            self.setCorrectChatter()
+            if category == self.lastMessage[0] and len(self.chatter[category]) > 1:
+                msg = self.lastMessage[1]
+                lastMsgIndex = self.lastMessage[1]
+                if lastMsgIndex < len(self.chatter[category]) and lastMsgIndex >= 0:
+                    while self.chatter[category][msg] == self.chatter[category][lastMsgIndex]:
+                        msg = self.pickMsg(category)
+                        if not msg:
+                            break
 
+                else:
+                    msg = self.pickMsg(category)
             else:
                 msg = self.pickMsg(category)
-        else:
-            msg = self.pickMsg(category)
-        if msg == None:
-            self.notify.debug('I do not want to talk')
-            return Task.done
-        self.character.sendUpdate('setChat', [category, msg, target])
-        self.lastMessage = [category, msg]
-        self.nextChatTime = now + 8.0 + random.random() * 4.0
-        return Task.cont
+            if msg == None:
+                self.notify.debug('I do not want to talk')
+                return Task.done
+            self.character.sendUpdate('setChat', [category, msg, target])
+            self.lastMessage = [category, msg]
+            self.nextChatTime = now + 8.0 + random.random() * 4.0
+            return Task.cont
 
     def leave(self):
         if self.chatter != None:
@@ -179,7 +181,8 @@ class CharWalkStateAI(StateData.StateData):
     def getDestNode(self):
         if hasattr(self, 'destNode') and self.destNode:
             return self.destNode
-        return self.__curWalkNode
+        else:
+            return self.__curWalkNode
 
     def setCurNode(self, curWalkNode):
         self.__curWalkNode = curWalkNode
@@ -263,44 +266,45 @@ class ChipChattyStateAI(CharChattyStateAI):
         now = globalClock.getFrameTime()
         if now < self.nextChatTime:
             return Task.cont
-        self.getLatestChatter()
-        if self.character.lostInterest():
-            self.leave()
-            return Task.done
-        if not self.chatter:
-            self.notify.debug('I do not want to talk')
-            return Task.done
-        if not self.character.getNearbyAvatars():
-            return Task.cont
-        target = self.character.getNearbyAvatars()[0]
-        if self.lastChatTarget != target:
-            self.lastChatTarget = target
-            category = CCharChatter.GREETING
         else:
-            category = CCharChatter.COMMENT
-        if category == self.lastMessage[0] and len(self.chatter[category]) > 1:
-            msg = self.lastMessage[1]
-            lastMsgIndex = self.lastMessage[1]
-            if lastMsgIndex < len(self.chatter[category]) and lastMsgIndex >= 0:
-                while self.chatter[category][msg] == self.chatter[category][lastMsgIndex]:
-                    msg = self.pickMsg(category)
-                    if not msg:
-                        break
+            self.getLatestChatter()
+            if self.character.lostInterest():
+                self.leave()
+                return Task.done
+            if not self.chatter:
+                self.notify.debug('I do not want to talk')
+                return Task.done
+            if not self.character.getNearbyAvatars():
+                return Task.cont
+            target = self.character.getNearbyAvatars()[0]
+            if self.lastChatTarget != target:
+                self.lastChatTarget = target
+                category = CCharChatter.GREETING
+            else:
+                category = CCharChatter.COMMENT
+            if category == self.lastMessage[0] and len(self.chatter[category]) > 1:
+                msg = self.lastMessage[1]
+                lastMsgIndex = self.lastMessage[1]
+                if lastMsgIndex < len(self.chatter[category]) and lastMsgIndex >= 0:
+                    while self.chatter[category][msg] == self.chatter[category][lastMsgIndex]:
+                        msg = self.pickMsg(category)
+                        if not msg:
+                            break
 
+                else:
+                    msg = self.pickMsg(category)
             else:
                 msg = self.pickMsg(category)
-        else:
-            msg = self.pickMsg(category)
-        if msg == None:
-            self.notify.debug('I do not want to talk')
-            return Task.done
-        self.character.sendUpdate('setChat', [category, msg, target])
-        if hasattr(self, 'dale') and self.dale:
-            self.dale.sendUpdate('setChat', [category, msg, target])
-        self.lastMessage = [
-         category, msg]
-        self.nextChatTime = now + 8.0 + random.random() * 4.0
-        return Task.cont
+            if msg == None:
+                self.notify.debug('I do not want to talk')
+                return Task.done
+            self.character.sendUpdate('setChat', [category, msg, target])
+            if hasattr(self, 'dale') and self.dale:
+                self.dale.sendUpdate('setChat', [category, msg, target])
+            self.lastMessage = [
+             category, msg]
+            self.nextChatTime = now + 8.0 + random.random() * 4.0
+            return Task.cont
 
     def leave(self):
         if self.chatter != None:

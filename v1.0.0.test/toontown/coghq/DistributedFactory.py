@@ -56,11 +56,12 @@ class DistributedFactory(DistributedLevel.DistributedLevel, FactoryBase.FactoryB
     def setForemanConfronted(self, avId):
         if avId == base.localAvatar.doId:
             return
-        av = base.cr.identifyFriend(avId)
-        if av is None:
+        else:
+            av = base.cr.identifyFriend(avId)
+            if av is None:
+                return
+            base.localAvatar.setSystemMessage(avId, TTLocalizer.ForemanConfrontedMsg % av.getName())
             return
-        base.localAvatar.setSystemMessage(avId, TTLocalizer.ForemanConfrontedMsg % av.getName())
-        return
 
     def setDefeated(self):
         self.notify.info('setDefeated')

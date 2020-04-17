@@ -99,11 +99,12 @@ class QuestMap(DirectFrame):
         currPercentage = self.suitPercentage.get(self.zoneId)
         if currPercentage is None:
             return
-        self.cInfo['text'] = '%s%%' % currPercentage[0]
-        self.lInfo['text'] = '%s%%' % currPercentage[1]
-        self.mInfo['text'] = '%s%%' % currPercentage[2]
-        self.sInfo['text'] = '%s%%' % currPercentage[3]
-        return
+        else:
+            self.cInfo['text'] = '%s%%' % currPercentage[0]
+            self.lInfo['text'] = '%s%%' % currPercentage[1]
+            self.mInfo['text'] = '%s%%' % currPercentage[2]
+            self.sInfo['text'] = '%s%%' % currPercentage[3]
+            return
 
     def destroy(self):
         self.ignore('questPageUpdated')
@@ -179,12 +180,13 @@ class QuestMap(DirectFrame):
     def transformAvPos(self, pos):
         if self.cornerPosInfo is None:
             return (0, 0)
-        topRight = self.cornerPosInfo[0]
-        bottomLeft = self.cornerPosInfo[1]
-        relativeX = (pos.getX() - bottomLeft.getX()) / (topRight.getX() - bottomLeft.getX()) - 0.5
-        relativeY = (pos.getY() - bottomLeft.getY()) / (topRight.getY() - bottomLeft.getY()) - 0.5
-        return (
-         relativeX, relativeY)
+        else:
+            topRight = self.cornerPosInfo[0]
+            bottomLeft = self.cornerPosInfo[1]
+            relativeX = (pos.getX() - bottomLeft.getX()) / (topRight.getX() - bottomLeft.getX()) - 0.5
+            relativeY = (pos.getY() - bottomLeft.getY()) / (topRight.getY() - bottomLeft.getY()) - 0.5
+            return (
+             relativeX, relativeY)
 
     def update(self, task):
         if self.av:
@@ -245,8 +247,9 @@ class QuestMap(DirectFrame):
              0.8 - 1.4 * task.time % 0.5 * 2 / 0.8 + 0.2)
         if task.time < 1:
             return Task.cont
-        self.marker['geom_color'] = (1, 1, 1, 0)
-        return Task.done
+        else:
+            self.marker['geom_color'] = (1, 1, 1, 0)
+            return Task.done
 
     def show(self):
         taskMgr.add(self.initMarker, 'questMapInit')

@@ -90,10 +90,9 @@ class ChatInputTyped(DirectObject.DirectObject):
             elif not base.talkAssistant.checkWhisperTypedChatAvatar(self.whisperId):
                 messenger.send('Chat-Failed avatar typed chat test')
                 self.deactivate()
-        else:
-            if not base.talkAssistant.checkOpenTypedChat():
-                messenger.send('Chat-Failed open typed chat test')
-                self.deactivate()
+        elif not base.talkAssistant.checkOpenTypedChat():
+            messenger.send('Chat-Failed open typed chat test')
+            self.deactivate()
 
     def deactivate(self):
         self.chatEntry.set('')
@@ -110,15 +109,14 @@ class ChatInputTyped(DirectObject.DirectObject):
             if self.toPlayer:
                 if self.whisperId:
                     pass
+            elif self.whisperId:
+                pass
             else:
-                if self.whisperId:
-                    pass
-                else:
-                    if base.config.GetBool('exec-chat', 0) and text[0] == '>':
-                        text = self.__execMessage(text[1:])
-                        base.localAvatar.setChatAbsolute(text, CFSpeech | CFTimeout)
-                        return
-                    base.talkAssistant.sendOpenTalk(text)
+                if base.config.GetBool('exec-chat', 0) and text[0] == '>':
+                    text = self.__execMessage(text[1:])
+                    base.localAvatar.setChatAbsolute(text, CFSpeech | CFTimeout)
+                    return
+                base.talkAssistant.sendOpenTalk(text)
             if self.wantHistory:
                 self.addToHistory(text)
         self.chatEntry.set('')

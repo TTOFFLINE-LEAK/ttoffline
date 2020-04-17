@@ -384,17 +384,17 @@ class DistributedGoon(DistributedCrushableEntity.DistributedCrushableEntity, Goo
     def setMovie(self, mode, avId, pauseTime, timestamp):
         if self.isDead:
             return
-        ts = ClockDelta.globalClockDelta.localElapsedTime(timestamp)
-        self.notify.debug('%s: setMovie(%s,%s,%s,%s)' % (self.doId,
-         mode,
-         avId,
-         pauseTime,
-         ts))
-        if mode == GOON_MOVIE_BATTLE:
-            if self.state != 'Battle':
-                self.request('Battle', avId, ts)
         else:
-            if mode == GOON_MOVIE_STUNNED:
+            ts = ClockDelta.globalClockDelta.localElapsedTime(timestamp)
+            self.notify.debug('%s: setMovie(%s,%s,%s,%s)' % (self.doId,
+             mode,
+             avId,
+             pauseTime,
+             ts))
+            if mode == GOON_MOVIE_BATTLE:
+                if self.state != 'Battle':
+                    self.request('Battle', avId, ts)
+            elif mode == GOON_MOVIE_STUNNED:
                 if self.state != 'Stunned':
                     toon = base.cr.doId2do.get(avId)
                     if toon:
@@ -403,23 +403,21 @@ class DistributedGoon(DistributedCrushableEntity.DistributedCrushableEntity, Goo
                             self.notify.warning('Stunned a goon, but outside of attack radius')
                             return
                         self.request('Stunned', ts)
+            elif mode == GOON_MOVIE_RECOVERY:
+                if self.state != 'Recovery':
+                    self.request('Recovery', ts, pauseTime)
+            elif mode == GOON_MOVIE_SYNC:
+                if self.walkTrack:
+                    self.walkTrack.pause()
+                    self.paused = 1
+                if self.state == 'Off' or self.state == 'Walk':
+                    self.request('Walk', avId, pauseTime + ts)
             else:
-                if mode == GOON_MOVIE_RECOVERY:
-                    if self.state != 'Recovery':
-                        self.request('Recovery', ts, pauseTime)
-                else:
-                    if mode == GOON_MOVIE_SYNC:
-                        if self.walkTrack:
-                            self.walkTrack.pause()
-                            self.paused = 1
-                        if self.state == 'Off' or self.state == 'Walk':
-                            self.request('Walk', avId, pauseTime + ts)
-                    else:
-                        if self.walkTrack:
-                            self.walkTrack.pause()
-                            self.walkTrack = None
-                        self.request('Walk', avId, pauseTime + ts)
-        return
+                if self.walkTrack:
+                    self.walkTrack.pause()
+                    self.walkTrack = None
+                self.request('Walk', avId, pauseTime + ts)
+            return
 
     def stunToon(self, avId):
         self.notify.debug('stunToon(%s)' % avId)

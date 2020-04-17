@@ -66,11 +66,12 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def d_toonJoinRequest(self, team):
         if self.isLocalToonInActivity():
             return
-        if self.activityFSM.state in ('WaitForEnough', 'WaitToStart') and self._localToonRequestStatus is None:
-            base.cr.playGame.getPlace().fsm.request('activity')
-            self.localToonJoining()
-            self.sendUpdate('toonJoinRequest', [team])
-        return
+        else:
+            if self.activityFSM.state in ('WaitForEnough', 'WaitToStart') and self._localToonRequestStatus is None:
+                base.cr.playGame.getPlace().fsm.request('activity')
+                self.localToonJoining()
+                self.sendUpdate('toonJoinRequest', [team])
+            return
 
     def d_toonExitRequest(self):
         toonId = base.localAvatar.doId
@@ -88,9 +89,8 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
         self.notify.debug('joinRequestDenied')
         if reason == PartyGlobals.DenialReasons.Full:
             self.showMessage(TTLocalizer.PartyTeamActivityTeamFull)
-        else:
-            if reason == PartyGlobals.DenialReasons.Default:
-                self.showMessage(TTLocalizer.PartyTeamActivityJoinDenied % self.getTitle())
+        elif reason == PartyGlobals.DenialReasons.Default:
+            self.showMessage(TTLocalizer.PartyTeamActivityJoinDenied % self.getTitle())
 
     def exitRequestDenied(self, reason):
         DistributedPartyActivity.exitRequestDenied(self, reason)
@@ -110,9 +110,8 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
         self.notify.debug('switchTeamRequestDenied')
         if reason == PartyGlobals.DenialReasons.Full:
             self.showMessage(TTLocalizer.PartyTeamActivityTeamFull, endState='activity')
-        else:
-            if reason == PartyGlobals.DenialReasons.Default:
-                self.showMessage(TTLocalizer.PartyTeamActivitySwitchDenied, endState='activity')
+        elif reason == PartyGlobals.DenialReasons.Default:
+            self.showMessage(TTLocalizer.PartyTeamActivitySwitchDenied, endState='activity')
         if self.isLocalToonPlaying and (self.isState('WaitToStart') or self.isState('WaitForEnough')) and self._canSwitchTeams:
             self.teamActivityGui.enableSwitchButton()
 
@@ -150,11 +149,10 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
         DistributedPartyActivity.setState(self, newState, timestamp)
         if newState == 'WaitToStart':
             self.activityFSM.request(newState, timestamp)
+        elif newState == 'Conclusion':
+            self.activityFSM.request(newState, data)
         else:
-            if newState == 'Conclusion':
-                self.activityFSM.request(newState, data)
-            else:
-                self.activityFSM.request(newState)
+            self.activityFSM.request(newState)
 
     def d_toonReady(self):
         self.sendUpdate('toonReady')
@@ -231,7 +229,8 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def getNumToonsNeededToStart(self):
         if self._willBalanceTeams:
             return abs(self._minPlayersPerTeam * 2 - self.getNumToonsPlaying())
-        return self._minPlayersPerTeam
+        else:
+            return self._minPlayersPerTeam
 
     def getToonIdsAsList(self):
         return self.toonIds[0] + self.toonIds[1]
@@ -254,8 +253,9 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def getIndex(self, toonId, team):
         if self.toonIds[team].count(toonId) > 0:
             return self.toonIds[team].index(toonId)
-        return
-        return
+        else:
+            return
+            return
 
     def _joinLeftTeam(self, collEntry):
         if self.isLocalToonInActivity():
@@ -271,10 +271,11 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
         if self.waitToStartTimestamp is None:
             self.notify.warning('showWaitToStartCountdown was called when self.waitToStartTimestamp was None')
             return
-        self.teamActivityGui.showWaitToStartCountdown(self._startDelay, self.waitToStartTimestamp, almostDoneCallback=self._onCountdownAlmostDone)
-        self.showStatus()
-        self.teamActivityGui.enableExitButton()
-        return
+        else:
+            self.teamActivityGui.showWaitToStartCountdown(self._startDelay, self.waitToStartTimestamp, almostDoneCallback=self._onCountdownAlmostDone)
+            self.showStatus()
+            self.teamActivityGui.enableExitButton()
+            return
 
     def _onCountdownAlmostDone(self):
         if self._canSwitchTeams:

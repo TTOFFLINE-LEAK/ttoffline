@@ -109,60 +109,49 @@ class DistCogdoFlyingGameAI(DistCogdoGameAI):
                 self.updateGotoWinState()
             else:
                 self._reportSuspiciousEvent(senderId, 'Client %s has landed on the win platform twice.' % senderId)
-        else:
-            if action == Globals.AI.GameActions.WinStateFinished:
-                if senderId not in self.toonsInWinState:
-                    self.toonsInWinState.append(senderId)
-                    self.d_broadcastDoAction(action, senderId)
-                    self.updateGameFinished()
-                else:
-                    self._reportSuspiciousEvent(senderId, 'Client %s wants to exit from the win state multiple times.' % senderId)
+        elif action == Globals.AI.GameActions.WinStateFinished:
+            if senderId not in self.toonsInWinState:
+                self.toonsInWinState.append(senderId)
+                self.d_broadcastDoAction(action, senderId)
+                self.updateGameFinished()
             else:
-                if action == Globals.AI.GameActions.HitWhirlwind:
-                    if Globals.Dev.Invincibility != True:
-                        self.damageToon(av, Globals.AI.SafezoneId2WhirlwindDamage)
-                else:
-                    if action == Globals.AI.GameActions.HitLegalEagle:
-                        if Globals.Dev.Invincibility != True:
-                            self.damageToon(av, Globals.AI.SafezoneId2LegalEagleDamage)
-                    else:
-                        if action == Globals.AI.GameActions.HitMinion:
-                            if Globals.Dev.Invincibility != True:
-                                self.damageToon(av, Globals.AI.SafezoneId2MinionDamage)
-                        else:
-                            if action == Globals.AI.GameActions.RequestEnterEagleInterest:
-                                self.b_toonSetAsEagleTarget(senderId, data, self.getCurrentNetworkTime())
-                            else:
-                                if action == Globals.AI.GameActions.RequestExitEagleInterest:
-                                    self.b_toonClearAsEagleTarget(senderId, data, self.getCurrentNetworkTime())
-                                else:
-                                    if action == Globals.AI.GameActions.RanOutOfTimePenalty:
-                                        self.memoCount = 0
-                                    else:
-                                        if action == Globals.AI.GameActions.Died:
-                                            self.toonDied(av)
-                                            self.sendUpdate('toonDied', [
-                                             senderId,
-                                             self.getCurrentNetworkTime()])
-                                        else:
-                                            if action == Globals.AI.GameActions.Spawn:
-                                                self.sendUpdate('toonSpawn', [
-                                                 senderId,
-                                                 self.getCurrentNetworkTime()])
-                                            else:
-                                                if action == Globals.AI.GameActions.SetBlades:
-                                                    if data in Globals.Gameplay.FuelStates:
-                                                        self.sendUpdate('toonSetBlades', [
-                                                         senderId,
-                                                         data])
-                                                    else:
-                                                        self._reportSuspiciousEvent(senderId, "Client %s has requested a fuel state that doesn't exist:%s." % (senderId, data))
-                                                else:
-                                                    if action == Globals.AI.GameActions.BladeLost:
-                                                        self.sendUpdate('toonBladeLost', [
-                                                         senderId])
-                                                    else:
-                                                        self._reportSuspiciousEvent(senderId, 'Client %s has made an illegal game action request: %s.' % (senderId, action))
+                self._reportSuspiciousEvent(senderId, 'Client %s wants to exit from the win state multiple times.' % senderId)
+        elif action == Globals.AI.GameActions.HitWhirlwind:
+            if Globals.Dev.Invincibility != True:
+                self.damageToon(av, Globals.AI.SafezoneId2WhirlwindDamage)
+        elif action == Globals.AI.GameActions.HitLegalEagle:
+            if Globals.Dev.Invincibility != True:
+                self.damageToon(av, Globals.AI.SafezoneId2LegalEagleDamage)
+        elif action == Globals.AI.GameActions.HitMinion:
+            if Globals.Dev.Invincibility != True:
+                self.damageToon(av, Globals.AI.SafezoneId2MinionDamage)
+        elif action == Globals.AI.GameActions.RequestEnterEagleInterest:
+            self.b_toonSetAsEagleTarget(senderId, data, self.getCurrentNetworkTime())
+        elif action == Globals.AI.GameActions.RequestExitEagleInterest:
+            self.b_toonClearAsEagleTarget(senderId, data, self.getCurrentNetworkTime())
+        elif action == Globals.AI.GameActions.RanOutOfTimePenalty:
+            self.memoCount = 0
+        elif action == Globals.AI.GameActions.Died:
+            self.toonDied(av)
+            self.sendUpdate('toonDied', [
+             senderId,
+             self.getCurrentNetworkTime()])
+        elif action == Globals.AI.GameActions.Spawn:
+            self.sendUpdate('toonSpawn', [
+             senderId,
+             self.getCurrentNetworkTime()])
+        elif action == Globals.AI.GameActions.SetBlades:
+            if data in Globals.Gameplay.FuelStates:
+                self.sendUpdate('toonSetBlades', [
+                 senderId,
+                 data])
+            else:
+                self._reportSuspiciousEvent(senderId, "Client %s has requested a fuel state that doesn't exist:%s." % (senderId, data))
+        elif action == Globals.AI.GameActions.BladeLost:
+            self.sendUpdate('toonBladeLost', [
+             senderId])
+        else:
+            self._reportSuspiciousEvent(senderId, 'Client %s has made an illegal game action request: %s.' % (senderId, action))
 
     def requestPickUp(self, pickupNum, pickupType):
         senderId = self.air.getAvatarIdFromSender()
@@ -180,9 +169,8 @@ class DistCogdoFlyingGameAI(DistCogdoGameAI):
             self.d_broadcastPickup(senderId, pickupNum, self.getCurrentNetworkTime())
             if pickupType == Globals.Level.GatherableTypes.LaffPowerup:
                 self.pickedUpLaffPowerup(senderId)
-            else:
-                if pickupType == Globals.Level.GatherableTypes.InvulPowerup:
-                    self.pickedUpInvulPowerup(senderId)
+            elif pickupType == Globals.Level.GatherableTypes.InvulPowerup:
+                self.pickedUpInvulPowerup(senderId)
 
     def damageToon(self, av, damageDict):
         safezoneId = self.getSafezoneId()

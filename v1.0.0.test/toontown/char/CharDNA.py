@@ -30,29 +30,28 @@ class CharDNA(AvatarDNA.AvatarDNA):
     def __init__(self, str=None, type=None, dna=None, r=None, b=None, g=None):
         if str != None:
             self.makeFromNetString(str)
+        elif type != None:
+            if type == 'c':
+                self.newChar(dna)
         else:
-            if type != None:
-                if type == 'c':
-                    self.newChar(dna)
-            else:
-                self.type = 'u'
+            self.type = 'u'
         return
 
     def __str__(self):
         if self.type == 'c':
             return 'type = char, name = %s' % self.name
-        return 'type undefined'
+        else:
+            return 'type undefined'
 
     def makeNetString(self):
         dg = PyDatagram()
         dg.addFixedString(self.type, 1)
         if self.type == 'c':
             dg.addFixedString(self.name, 2)
+        elif self.type == 'u':
+            notify.error('undefined avatar')
         else:
-            if self.type == 'u':
-                notify.error('undefined avatar')
-            else:
-                notify.error('unknown avatar type: ', self.type)
+            notify.error('unknown avatar type: ', self.type)
         return dg.getMessage()
 
     def makeFromNetString(self, string):

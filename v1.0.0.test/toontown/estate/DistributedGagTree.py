@@ -244,15 +244,12 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
     def setMovie(self, mode, avId):
         if mode == GardenGlobals.MOVIE_HARVEST:
             self.doHarvestTrack(avId)
-        else:
-            if mode == GardenGlobals.MOVIE_WATER:
-                self.doWaterTrack(avId)
-            else:
-                if mode == GardenGlobals.MOVIE_FINISHPLANTING:
-                    self.doFinishPlantingTrack(avId)
-                else:
-                    if mode == GardenGlobals.MOVIE_REMOVE:
-                        self.doDigupTrack(avId)
+        elif mode == GardenGlobals.MOVIE_WATER:
+            self.doWaterTrack(avId)
+        elif mode == GardenGlobals.MOVIE_FINISHPLANTING:
+            self.doFinishPlantingTrack(avId)
+        elif mode == GardenGlobals.MOVIE_REMOVE:
+            self.doDigupTrack(avId)
 
     def doFinishPlantingTrack(self, avId):
         toon = base.cr.doId2do.get(avId)

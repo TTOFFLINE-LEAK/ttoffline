@@ -39,31 +39,32 @@ class PublicWalk(Walk.Walk):
         currentState = base.localAvatar.animFSM.getCurrentState().getName()
         if currentState == 'jumpAirborne':
             return
-        if base.localAvatar.book.isObscured():
+        else:
+            if base.localAvatar.book.isObscured():
+                return
+            doneStatus = {}
+            doneStatus['mode'] = 'StickerBook'
+            messenger.send(self.doneEvent, [doneStatus])
             return
-        doneStatus = {}
-        doneStatus['mode'] = 'StickerBook'
-        messenger.send(self.doneEvent, [doneStatus])
-        return
 
     def __handleOptionsEntry(self):
         currentState = base.localAvatar.animFSM.getCurrentState().getName()
         if currentState == 'jumpAirborne':
             return
-        if base.localAvatar.book.isObscured():
+        else:
+            if base.localAvatar.book.isObscured():
+                return
+            doneStatus = {}
+            doneStatus['mode'] = 'Options'
+            messenger.send(self.doneEvent, [doneStatus])
             return
-        doneStatus = {}
-        doneStatus['mode'] = 'Options'
-        messenger.send(self.doneEvent, [doneStatus])
-        return
 
     def toggleBook(self, state):
         if state == 'disable':
             self.ignore(StickerBookHotkey)
             self.ignore('enterStickerBook')
             self.ignore(OptionsPageHotkey)
-        else:
-            if state == 'enable':
-                self.accept(StickerBookHotkey, self.__handleStickerBookEntry)
-                self.accept('enterStickerBook', self.__handleStickerBookEntry)
-                self.accept(OptionsPageHotkey, self.__handleOptionsEntry)
+        elif state == 'enable':
+            self.accept(StickerBookHotkey, self.__handleStickerBookEntry)
+            self.accept('enterStickerBook', self.__handleStickerBookEntry)
+            self.accept(OptionsPageHotkey, self.__handleOptionsEntry)

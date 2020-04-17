@@ -199,17 +199,18 @@ class StageInterior(BattlePlace.BattlePlace):
         StageInterior.notify.debug('handleStageWinEvent')
         if base.cr.playGame.getPlace().fsm.getCurrentState().getName() == 'died':
             return
-        self.stageDefeated = 1
-        zoneId = ZoneUtil.getHoodId(self.zoneId)
-        self.fsm.request('teleportOut', [
-         {'loader': ZoneUtil.getLoaderName(zoneId), 
-            'where': ZoneUtil.getToonWhereName(zoneId), 
-            'how': 'teleportIn', 
-            'hoodId': zoneId, 
-            'zoneId': zoneId, 
-            'shardId': None, 
-            'avId': -1}])
-        return
+        else:
+            self.stageDefeated = 1
+            zoneId = ZoneUtil.getHoodId(self.zoneId)
+            self.fsm.request('teleportOut', [
+             {'loader': ZoneUtil.getLoaderName(zoneId), 
+                'where': ZoneUtil.getToonWhereName(zoneId), 
+                'how': 'teleportIn', 
+                'hoodId': zoneId, 
+                'zoneId': zoneId, 
+                'shardId': None, 
+                'avId': -1}])
+            return
 
     def enterDied(self, requestStatus, callback=None):
         StageInterior.notify.debug('enterDied')
@@ -263,13 +264,11 @@ class StageInterior(BattlePlace.BattlePlace):
                 pass
             else:
                 self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where == 'factoryInterior' or where == 'suitInterior':
+            self.doneStatus = doneStatus
+            self.doneEvent = 'lawOfficeFloorDone'
+            messenger.send(self.doneEvent)
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where == 'factoryInterior' or where == 'suitInterior':
-                    self.doneStatus = doneStatus
-                    self.doneEvent = 'lawOfficeFloorDone'
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
+            self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')

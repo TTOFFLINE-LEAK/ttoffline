@@ -145,8 +145,9 @@ class TeamActivityGui:
                 self._countdownAlmostDoneCallback = None
         if task.time >= task.duration:
             return Task.done
-        return Task.cont
-        return
+        else:
+            return Task.cont
+            return
 
     def showTimer(self, duration):
         self.timer.setTime(duration)

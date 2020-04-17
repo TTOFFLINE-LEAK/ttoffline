@@ -21,15 +21,16 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
         if av is None:
             self.notify.warning('toon isnt there! toon: %s' % avId)
             return
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
-        if self.isBusy():
-            self.freeAvatar(avId)
-            return
-        if av.getMoney():
-            self.sendStartMovie(avId)
         else:
-            self.sendNoMoneyMovie(avId)
-        return
+            self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
+            if self.isBusy():
+                self.freeAvatar(avId)
+                return
+            if av.getMoney():
+                self.sendStartMovie(avId)
+            else:
+                self.sendNoMoneyMovie(avId)
+            return
 
     def sendStartMovie(self, avId):
         self.busy = avId

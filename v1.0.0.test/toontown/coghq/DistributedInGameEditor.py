@@ -269,32 +269,34 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         entity = self.getEntInstance(entId)
         if entity is None:
             return
-        if isinstance(entity, NodePath):
-            return entity
-        if hasattr(entity, 'getNodePath'):
-            return entity.getNodePath()
-        return
+        else:
+            if isinstance(entity, NodePath):
+                return entity
+            if hasattr(entity, 'getNodePath'):
+                return entity.getNodePath()
+            return
 
     def getEntInstanceNPCopy(self, entId):
         np = self.getEntInstanceNP(entId)
         if np is None:
             return np
-        stashNodeGroups = []
-        searches = ('**/+ActorNode', '**/+Character')
-        for search in searches:
-            stashNodeGroups.append(np.findAllMatches(search))
+        else:
+            stashNodeGroups = []
+            searches = ('**/+ActorNode', '**/+Character')
+            for search in searches:
+                stashNodeGroups.append(np.findAllMatches(search))
 
-        for group in stashNodeGroups:
-            if not group.isEmpty():
-                group.stash()
+            for group in stashNodeGroups:
+                if not group.isEmpty():
+                    group.stash()
 
-        par = np.getParent()
-        copy = np.copyTo(par)
-        for group in stashNodeGroups:
-            if not group.isEmpty():
-                group.unstash()
+            par = np.getParent()
+            copy = np.copyTo(par)
+            for group in stashNodeGroups:
+                if not group.isEmpty():
+                    group.unstash()
 
-        return copy
+            return copy
 
     def saveSpec(self, filename):
         return self.levelSpec.saveToDisk(filename)
@@ -308,12 +310,13 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         if entId == LevelConstants.UberZoneEntId:
             self.setEntityParent(ent, self)
             return
-        parentEnt = self.getEntity(ent.parentEntId)
-        if parentEnt is not None:
-            self.setEntityParent(ent, parentEnt)
+        else:
+            parentEnt = self.getEntity(ent.parentEntId)
+            if parentEnt is not None:
+                self.setEntityParent(ent, parentEnt)
+                return
+            self.setEntityParent(ent, self.uberZoneEntity)
             return
-        self.setEntityParent(ent, self.uberZoneEntity)
-        return
 
     def buildEntityTree(self):
         self.setChildren([])
@@ -502,11 +505,10 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         except AttributeError:
             self.editor.showWarning('Please select a valid entity to be removed first.', 'error')
             return -1
-        else:
-            if self.getEntity(selectedEntId).getNumChildren() > 0:
-                self.editor.showWarning('Remove children first.')
-                return -1
 
+        if self.getEntity(selectedEntId).getNumChildren() > 0:
+            self.editor.showWarning('Remove children first.')
+            return -1
         self.doRemoveEntity(selectedEntId)
 
     def removeSelectedEntityTree(self):
@@ -560,34 +562,33 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         oldName = name
         if len(oldName) <= len(prefix):
             newName = prefix + oldName
+        elif oldName[:len(prefix)] != prefix:
+            newName = prefix + oldName
         else:
-            if oldName[:len(prefix)] != prefix:
-                newName = prefix + oldName
-            else:
-                hasSuffix = True
-                copyNum = 2
-                if oldName[(-1)] != ')':
-                    hasSuffix = False
-                if hasSuffix and oldName[(-2)] in string.digits:
-                    i = len(oldName) - 2
-                    numString = ''
-                    while oldName[i] in string.digits:
-                        numString = oldName[i] + numString
-                        i -= 1
+            hasSuffix = True
+            copyNum = 2
+            if oldName[(-1)] != ')':
+                hasSuffix = False
+            if hasSuffix and oldName[(-2)] in string.digits:
+                i = len(oldName) - 2
+                numString = ''
+                while oldName[i] in string.digits:
+                    numString = oldName[i] + numString
+                    i -= 1
 
-                    if oldName[i] != '(':
+                if oldName[i] != '(':
+                    hasSuffix = False
+                else:
+                    i -= 1
+                    if oldName[i] != ' ':
                         hasSuffix = False
                     else:
-                        i -= 1
-                        if oldName[i] != ' ':
-                            hasSuffix = False
-                        else:
-                            print 'numString: %s' % numString
-                            copyNum = int(numString) + 1
-                if hasSuffix:
-                    newName = oldName[:i] + suffix % copyNum
-                else:
-                    newName = oldName + suffix % copyNum
+                        print 'numString: %s' % numString
+                        copyNum = int(numString) + 1
+            if hasSuffix:
+                newName = oldName[:i] + suffix % copyNum
+            else:
+                newName = oldName + suffix % copyNum
         return newName
 
     def duplicateSelectedEntity(self):
@@ -597,13 +598,11 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         except AttributeError:
             self.editor.showWarning('Please select a valid entity to be removed first.', 'error')
             return
-        else:
-            if self.selectedEntity.getNumChildren() > 0:
-                self.editor.showTodo('Cannot duplicate entity with children.')
-                return
 
-        removeAction = (
-         self.editMgrEntity.entId, 'removeEntity', {'entId': selectedEntId})
+        if self.selectedEntity.getNumChildren() > 0:
+            self.editor.showTodo('Cannot duplicate entity with children.')
+            return
+        removeAction = (self.editMgrEntity.entId, 'removeEntity', {'entId': selectedEntId})
         new2old = [removeAction]
         copyAttribs = self.levelSpec.getEntitySpecCopy(selectedEntId)
         copyAttribs['comment'] = ''
@@ -647,22 +646,22 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         except AttributeError:
             self.editor.showWarning('Please select a valid entity first.', 'error')
             return
-        else:
-            import tkFileDialog
-            filename = tkFileDialog.askopenfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
-            if len(filename) == 0:
-                return
-            try:
-                import pickle
-                f = open(filename, 'r')
-                eTree = pickle.load(f)
-                eGroup = pickle.load(f)
-                for entId, spec in eGroup.items():
-                    eGroup[entId] = self.specPostUnpickle(spec)
 
-            except:
-                self.editor.showWarning("Error importing entity group from '%s'." % filename, 'error')
-                return
+        import tkFileDialog
+        filename = tkFileDialog.askopenfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
+        if len(filename) == 0:
+            return
+        try:
+            import pickle
+            f = open(filename, 'r')
+            eTree = pickle.load(f)
+            eGroup = pickle.load(f)
+            for entId, spec in eGroup.items():
+                eGroup[entId] = self.specPostUnpickle(spec)
+
+        except:
+            self.editor.showWarning("Error importing entity group from '%s'." % filename, 'error')
+            return
 
         oldEntId2new = {}
 
@@ -699,25 +698,25 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         except AttributeError:
             self.editor.showWarning('Please select a valid entity first.', 'error')
             return
-        else:
-            import tkFileDialog
-            filename = tkFileDialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
-            if len(filename) == 0:
-                return
-            eTree = {selectedEntId: {}}
-            eGroup = {}
-            eGroup[selectedEntId] = self.levelSpec.getEntitySpecCopy(selectedEntId)
-            for entId, spec in eGroup.items():
-                eGroup[entId] = self.specPrePickle(spec)
 
-            try:
-                import pickle
-                f = open(filename, 'w')
-                pickle.dump(eTree, f)
-                pickle.dump(eGroup, f)
-            except:
-                self.editor.showWarning("Error exporting entity group to '%s'." % filename, 'error')
-                return
+        import tkFileDialog
+        filename = tkFileDialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
+        if len(filename) == 0:
+            return
+        eTree = {selectedEntId: {}}
+        eGroup = {}
+        eGroup[selectedEntId] = self.levelSpec.getEntitySpecCopy(selectedEntId)
+        for entId, spec in eGroup.items():
+            eGroup[entId] = self.specPrePickle(spec)
+
+        try:
+            import pickle
+            f = open(filename, 'w')
+            pickle.dump(eTree, f)
+            pickle.dump(eGroup, f)
+        except:
+            self.editor.showWarning("Error exporting entity group to '%s'." % filename, 'error')
+            return
 
     def handleExportEntityTree(self):
         try:
@@ -725,33 +724,33 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         except AttributeError:
             self.editor.showWarning('Please select a valid entity first.', 'error')
             return
-        else:
-            import tkFileDialog
-            filename = tkFileDialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
-            if len(filename) == 0:
-                return
-            eTree = {}
-            eGroup = {}
 
-            def addEntity(entId, treeEntry):
-                treeEntry[entId] = {}
-                eGroup[entId] = self.levelSpec.getEntitySpecCopy(entId)
-                entity = self.getEntity(entId)
-                for child in entity.getChildren():
-                    addEntity(child.entId, treeEntry[entId])
+        import tkFileDialog
+        filename = tkFileDialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
+        if len(filename) == 0:
+            return
+        eTree = {}
+        eGroup = {}
 
-            addEntity(selectedEntId, eTree)
-            for entId, spec in eGroup.items():
-                eGroup[entId] = self.specPrePickle(spec)
+        def addEntity(entId, treeEntry):
+            treeEntry[entId] = {}
+            eGroup[entId] = self.levelSpec.getEntitySpecCopy(entId)
+            entity = self.getEntity(entId)
+            for child in entity.getChildren():
+                addEntity(child.entId, treeEntry[entId])
 
-            try:
-                import pickle
-                f = open(filename, 'w')
-                pickle.dump(eTree, f)
-                pickle.dump(eGroup, f)
-            except:
-                self.editor.showWarning("Error exporting entity group to '%s'." % filename, 'error')
-                return
+        addEntity(selectedEntId, eTree)
+        for entId, spec in eGroup.items():
+            eGroup[entId] = self.specPrePickle(spec)
+
+        try:
+            import pickle
+            f = open(filename, 'w')
+            pickle.dump(eTree, f)
+            pickle.dump(eGroup, f)
+        except:
+            self.editor.showWarning("Error exporting entity group to '%s'." % filename, 'error')
+            return
 
     def moveAvToSelected(self):
         try:

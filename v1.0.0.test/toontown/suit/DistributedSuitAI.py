@@ -68,33 +68,34 @@ class DistributedSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
         toonId = self.air.getAvatarIdFromSender()
         if self.air.doId2do.get(toonId) == None:
             return
-        if self.pathState == 3:
-            pass
         else:
-            if self.pathState != 1:
-                if self.notify.getDebug():
-                    self.notify.debug('requestBattle() - suit %d not on path' % self.getDoId())
-                if self.pathState == 2 or self.pathState == 4:
+            if self.pathState == 3:
+                pass
+            else:
+                if self.pathState != 1:
+                    if self.notify.getDebug():
+                        self.notify.debug('requestBattle() - suit %d not on path' % self.getDoId())
+                    if self.pathState == 2 or self.pathState == 4:
+                        self.b_setBrushOff(SuitDialog.getBrushOffIndex(self.getStyleName()))
+                    self.d_denyBattle(toonId)
+                    return
+                if self.legType != SuitLeg.TWalk:
+                    if self.notify.getDebug():
+                        self.notify.debug('requestBattle() - suit %d not in Bellicose' % self.getDoId())
                     self.b_setBrushOff(SuitDialog.getBrushOffIndex(self.getStyleName()))
-                self.d_denyBattle(toonId)
-                return
-            if self.legType != SuitLeg.TWalk:
+                    self.d_denyBattle(toonId)
+                    return
+            self.confrontPos = Point3(x, y, z)
+            self.confrontHpr = Vec3(h, p, r)
+            if self.sp.requestBattle(self.zoneId, self, toonId):
                 if self.notify.getDebug():
-                    self.notify.debug('requestBattle() - suit %d not in Bellicose' % self.getDoId())
+                    self.notify.debug('Suit %d requesting battle in zone %d' % (self.getDoId(), self.zoneId))
+            else:
+                if self.notify.getDebug():
+                    self.notify.debug('requestBattle from suit %d - denied by battle manager' % self.getDoId())
                 self.b_setBrushOff(SuitDialog.getBrushOffIndex(self.getStyleName()))
                 self.d_denyBattle(toonId)
-                return
-        self.confrontPos = Point3(x, y, z)
-        self.confrontHpr = Vec3(h, p, r)
-        if self.sp.requestBattle(self.zoneId, self, toonId):
-            if self.notify.getDebug():
-                self.notify.debug('Suit %d requesting battle in zone %d' % (self.getDoId(), self.zoneId))
-        else:
-            if self.notify.getDebug():
-                self.notify.debug('requestBattle from suit %d - denied by battle manager' % self.getDoId())
-            self.b_setBrushOff(SuitDialog.getBrushOffIndex(self.getStyleName()))
-            self.d_denyBattle(toonId)
-        return
+            return
 
     def getConfrontPosHpr(self):
         return (
@@ -125,7 +126,8 @@ class DistributedSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
     def getSPDoId(self):
         if self.sp:
             return self.sp.getDoId()
-        return 0
+        else:
+            return 0
 
     def releaseControl(self):
         self.b_setPathState(0)
@@ -268,18 +270,14 @@ class DistributedSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
         self.legType = legType
         if legType == SuitLeg.TWalkFromStreet:
             self.checkBuildingState()
-        else:
-            if legType == SuitLeg.TToToonBuilding:
-                self.openToonDoor()
-            else:
-                if legType == SuitLeg.TToSuitBuilding:
-                    self.openSuitDoor()
-                else:
-                    if legType == SuitLeg.TToCoghq:
-                        self.openCogHQDoor(1)
-                    else:
-                        if legType == SuitLeg.TFromCoghq:
-                            self.openCogHQDoor(0)
+        elif legType == SuitLeg.TToToonBuilding:
+            self.openToonDoor()
+        elif legType == SuitLeg.TToSuitBuilding:
+            self.openSuitDoor()
+        elif legType == SuitLeg.TToCoghq:
+            self.openCogHQDoor(1)
+        elif legType == SuitLeg.TFromCoghq:
+            self.openCogHQDoor(0)
 
     def resume(self):
         self.notify.debug('Suit %s resume' % self.doId)
@@ -299,19 +297,19 @@ class DistributedSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
         blockNumber = self.buildingDestination
         if blockNumber == None:
             return
-        building = self.sp.buildingMgr.getBuilding(blockNumber)
-        if self.attemptingTakeover:
-            if not building.isToonBlock():
-                self.flyAwayNow()
-                return
-            if not hasattr(building, 'door'):
-                self.flyAwayNow()
-                return
-            building.door.setDoorLock(FADoorCodes.SUIT_APPROACHING)
         else:
-            if not building.isSuitBlock():
+            building = self.sp.buildingMgr.getBuilding(blockNumber)
+            if self.attemptingTakeover:
+                if not building.isToonBlock():
+                    self.flyAwayNow()
+                    return
+                if not hasattr(building, 'door'):
+                    self.flyAwayNow()
+                    return
+                building.door.setDoorLock(FADoorCodes.SUIT_APPROACHING)
+            elif not building.isSuitBlock():
                 self.flyAwayNow()
-        return
+            return
 
     def openToonDoor(self):
         blockNumber = self.buildingDestination

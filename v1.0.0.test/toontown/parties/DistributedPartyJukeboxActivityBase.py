@@ -230,4 +230,5 @@ class DistributedPartyJukeboxActivityBase(DistributedPartyActivity):
     def __checkPartyValidity(self):
         if hasattr(base.cr.playGame, 'getPlace') and base.cr.playGame.getPlace() and hasattr(base.cr.playGame.getPlace(), 'loader') and base.cr.playGame.getPlace().loader:
             return True
-        return False
+        else:
+            return False

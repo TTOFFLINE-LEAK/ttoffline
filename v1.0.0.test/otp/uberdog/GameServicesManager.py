@@ -43,12 +43,10 @@ class GameServicesManager(DistributedObjectGlobal):
             names = [avName, '', '', '']
             if nameState == 2:
                 names[1] = avName
-            else:
-                if nameState == 3:
-                    names[2] = avName
-                else:
-                    if nameState == 4:
-                        names[3] = avName
+            elif nameState == 3:
+                names[2] = avName
+            elif nameState == 4:
+                names[3] = avName
             avList.append(PotentialAvatar(avNum, names, avDNA, avPosition, nameOpen))
 
         self.cr.handleAvatarsList(avList)

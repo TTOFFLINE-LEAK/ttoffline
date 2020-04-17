@@ -61,27 +61,28 @@ class GZSafeZoneLoader(SafeZoneLoader):
         if self.enteringAGolfCourse(status) and status.get('shardId') == None:
             zoneId = status['zoneId']
             self.fsm.request('quietZone', [status])
+        elif ZoneUtil.getBranchZone(status['zoneId']) == self.hood.hoodId and status['shardId'] == None:
+            self.fsm.request('quietZone', [status])
         else:
-            if ZoneUtil.getBranchZone(status['zoneId']) == self.hood.hoodId and status['shardId'] == None:
-                self.fsm.request('quietZone', [status])
-            else:
-                self.doneStatus = status
-                messenger.send(self.doneEvent)
+            self.doneStatus = status
+            messenger.send(self.doneEvent)
         return
 
     def enteringARace(self, status):
         if not status['where'] == 'golfcourse':
             return 0
-        if ZoneUtil.isDynamicZone(status['zoneId']):
-            return status['hoodId'] == self.hood.hoodId
-        return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
+        else:
+            if ZoneUtil.isDynamicZone(status['zoneId']):
+                return status['hoodId'] == self.hood.hoodId
+            return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
 
     def enteringAGolfCourse(self, status):
         if not status['where'] == 'golfcourse':
             return 0
-        if ZoneUtil.isDynamicZone(status['zoneId']):
-            return status['hoodId'] == self.hood.hoodId
-        return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
+        else:
+            if ZoneUtil.isDynamicZone(status['zoneId']):
+                return status['hoodId'] == self.hood.hoodId
+            return ZoneUtil.getHoodId(status['zoneId']) == self.hood.hoodId
 
     def enterGolfCourse(self, requestStatus):
         if 'curseId' in requestStatus:

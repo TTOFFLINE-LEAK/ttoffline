@@ -9,4 +9,5 @@ def getStoreClass(type):
     storeClass = TYPES.get(type, None)
     if storeClass:
         return storeClass[0]
-    return
+    else:
+        return

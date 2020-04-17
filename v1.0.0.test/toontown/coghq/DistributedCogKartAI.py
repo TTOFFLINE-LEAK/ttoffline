@@ -20,14 +20,12 @@ class DistributedCogKartAI(DistributedElevatorExtAI.DistributedElevatorExtAI):
         self.courseIndex = index
         if self.courseIndex == 0:
             self.countryClubId = ToontownGlobals.BossbotCountryClubIntA
+        elif self.courseIndex == 1:
+            self.countryClubId = ToontownGlobals.BossbotCountryClubIntB
+        elif self.courseIndex == 2:
+            self.countryClubId = ToontownGlobals.BossbotCountryClubIntC
         else:
-            if self.courseIndex == 1:
-                self.countryClubId = ToontownGlobals.BossbotCountryClubIntB
-            else:
-                if self.courseIndex == 2:
-                    self.countryClubId = ToontownGlobals.BossbotCountryClubIntC
-                else:
-                    self.countryClubId = 12500
+            self.countryClubId = 12500
 
     def getPosHpr(self):
         return self.posHpr

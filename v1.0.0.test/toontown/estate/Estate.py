@@ -288,13 +288,12 @@ class Estate(Place.Place):
         shardId = requestStatus['shardId']
         if hoodId == ToontownGlobals.MyEstate and zoneId == self.getZoneId() and shardId == None:
             self.fsm.request('teleportIn', [requestStatus])
+        elif hoodId == ToontownGlobals.MyEstate and shardId == None:
+            self.doneStatus = requestStatus
+            self.getEstateZoneAndGoHome(requestStatus)
         else:
-            if hoodId == ToontownGlobals.MyEstate and shardId == None:
-                self.doneStatus = requestStatus
-                self.getEstateZoneAndGoHome(requestStatus)
-            else:
-                self.doneStatus = requestStatus
-                messenger.send(self.doneEvent, [self.doneStatus])
+            self.doneStatus = requestStatus
+            messenger.send(self.doneEvent, [self.doneStatus])
         return
 
     def goHomeFailed(self, task):

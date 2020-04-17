@@ -125,8 +125,11 @@ class TalkAssistant(DirectObject.DirectObject):
                     self.floodDataByDoId[doId] = [
                      floodRating + 3.0, self.stampTime(), message]
                     return 1
-                self.floodDataByDoId[doId] = [oldRating - timeDiff, self.stampTime(), message]
-                return 2
+                else:
+                    self.floodDataByDoId[doId] = [
+                     oldRating - timeDiff, self.stampTime(), message]
+                    return 2
+
         return 0
 
     def addToHistoryDISLId(self, message, dISLId, scrubbed=0):
@@ -153,19 +156,22 @@ class TalkAssistant(DirectObject.DirectObject):
     def findName(self, id, isPlayer=0):
         if isPlayer:
             return self.findPlayerName(id)
-        return self.findAvatarName(id)
+        else:
+            return self.findAvatarName(id)
 
     def findAvatarName(self, id):
         info = base.cr.identifyAvatar(id)
         if info:
             return info.getName()
-        return ''
+        else:
+            return ''
 
     def findPlayerName(self, id):
         info = base.cr.playerFriendsManager.getFriendInfo(id)
         if info:
             return info.playerName
-        return ''
+        else:
+            return ''
 
     def whiteListFilterMessage(self, text):
         if not self.useWhiteListFilter:
@@ -206,30 +212,34 @@ class TalkAssistant(DirectObject.DirectObject):
     def isThought(self, message):
         if not message:
             return 0
-        if len(message) == 0:
+        else:
+            if len(message) == 0:
+                return 0
+            if string.find(message, ThoughtPrefix, 0, len(ThoughtPrefix)) >= 0:
+                return 1
             return 0
-        if string.find(message, ThoughtPrefix, 0, len(ThoughtPrefix)) >= 0:
-            return 1
-        return 0
 
     def removeThoughtPrefix(self, message):
         if self.isThought(message):
             return message[len(ThoughtPrefix):]
-        return message
+        else:
+            return message
 
     def isExclaim(self, message):
         if not message:
             return False
-        if len(message) < 2:
+        else:
+            if len(message) < 2:
+                return False
+            if message.find(ExclaimPrefix, 0, len(ExclaimPrefix)) >= 0:
+                return True
             return False
-        if message.find(ExclaimPrefix, 0, len(ExclaimPrefix)) >= 0:
-            return True
-        return False
 
     def removeExclaimPrefix(self, message):
         if self.isExclaim(message):
             return message[len(ExclaimPrefix):]
-        return message
+        else:
+            return message
 
     def fillWithTestText(self):
         hold = self.floodThreshold
@@ -609,20 +619,19 @@ class TalkAssistant(DirectObject.DirectObject):
             name = self.findName(senderAvId, 0)
         if type == SPEEDCHAT_NORMAL:
             message = self.SCDecoder.decodeSCStaticTextMsg(messageIndex)
+        elif type == SPEEDCHAT_EMOTE:
+            message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, name)
+        elif type == SPEEDCHAT_CUSTOM:
+            message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
+        if message in (None, ''):
+            return
         else:
-            if type == SPEEDCHAT_EMOTE:
-                message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, name)
-            else:
-                if type == SPEEDCHAT_CUSTOM:
-                    message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
-            if message in (None, ''):
-                return
-        newMessage = TalkMessage(self.countMessage(), self.stampTime(), message, senderAvId, name, None, None, None, None, None, None, TALK_OPEN, None)
-        self.historyComplete.append(newMessage)
-        self.historyOpen.append(newMessage)
-        self.addToHistoryDoId(newMessage, senderAvId)
-        messenger.send('NewOpenMessage', [newMessage])
-        return error
+            newMessage = TalkMessage(self.countMessage(), self.stampTime(), message, senderAvId, name, None, None, None, None, None, None, TALK_OPEN, None)
+            self.historyComplete.append(newMessage)
+            self.historyOpen.append(newMessage)
+            self.addToHistoryDoId(newMessage, senderAvId)
+            messenger.send('NewOpenMessage', [newMessage])
+            return error
 
     def receiveAvatarWhisperSpeedChat(self, type, messageIndex, senderAvId, name=None):
         error = None
@@ -630,12 +639,10 @@ class TalkAssistant(DirectObject.DirectObject):
             name = self.findName(senderAvId, 0)
         if type == SPEEDCHAT_NORMAL:
             message = self.SCDecoder.decodeSCStaticTextMsg(messageIndex)
-        else:
-            if type == SPEEDCHAT_EMOTE:
-                message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, name)
-            else:
-                if type == SPEEDCHAT_CUSTOM:
-                    message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
+        elif type == SPEEDCHAT_EMOTE:
+            message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, name)
+        elif type == SPEEDCHAT_CUSTOM:
+            message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
         newMessage = TalkMessage(self.countMessage(), self.stampTime(), message, senderAvId, name, None, None, localAvatar.doId, localAvatar.getName(), localAvatar.DISLid, localAvatar.DISLname, TALK_WHISPER, None)
         self.historyComplete.append(newMessage)
         self.historyOpen.append(newMessage)
@@ -649,12 +656,10 @@ class TalkAssistant(DirectObject.DirectObject):
             name = self.findName(senderAvId, 1)
         if type == SPEEDCHAT_NORMAL:
             message = self.SCDecoder.decodeSCStaticTextMsg(messageIndex)
-        else:
-            if type == SPEEDCHAT_EMOTE:
-                message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, name)
-            else:
-                if type == SPEEDCHAT_CUSTOM:
-                    message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
+        elif type == SPEEDCHAT_EMOTE:
+            message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, name)
+        elif type == SPEEDCHAT_CUSTOM:
+            message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
         newMessage = TalkMessage(self.countMessage(), self.stampTime(), message, None, None, senderAvId, name, localAvatar.doId, localAvatar.getName(), localAvatar.DISLid, localAvatar.DISLname, TALK_WHISPER, None)
         self.historyComplete.append(newMessage)
         self.historyOpen.append(newMessage)
@@ -678,9 +683,8 @@ class TalkAssistant(DirectObject.DirectObject):
             chatFlags = CFSpeech | CFTimeout
             if self.isThought(message):
                 chatFlags = CFThought
-            else:
-                if self.isExclaim(message):
-                    chatFlags = CFExclaim | CFTimeout
+            elif self.isExclaim(message):
+                chatFlags = CFExclaim | CFTimeout
             base.cr.chatManager.sendChatMessage(message)
             messenger.send('chatUpdate', [message, chatFlags])
         return error
@@ -715,16 +719,14 @@ class TalkAssistant(DirectObject.DirectObject):
             messenger.send(SCChatEvent)
             messenger.send('chatUpdateSC', [messageIndex])
             base.localAvatar.b_setSC(messageIndex, displayType)
-        else:
-            if type == SPEEDCHAT_EMOTE:
-                messenger.send('chatUpdateSCEmote', [messageIndex])
-                messenger.send(SCEmoteChatEvent)
-                base.localAvatar.b_setSCEmote(messageIndex)
-            else:
-                if type == SPEEDCHAT_CUSTOM:
-                    messenger.send('chatUpdateSCCustom', [messageIndex])
-                    messenger.send(SCCustomChatEvent)
-                    base.localAvatar.b_setSCCustom(messageIndex)
+        elif type == SPEEDCHAT_EMOTE:
+            messenger.send('chatUpdateSCEmote', [messageIndex])
+            messenger.send(SCEmoteChatEvent)
+            base.localAvatar.b_setSCEmote(messageIndex)
+        elif type == SPEEDCHAT_CUSTOM:
+            messenger.send('chatUpdateSCCustom', [messageIndex])
+            messenger.send(SCCustomChatEvent)
+            base.localAvatar.b_setSCCustom(messageIndex)
         return error
 
     def sendAvatarWhisperSpeedChat(self, type, messageIndex, receiverId):
@@ -732,14 +734,12 @@ class TalkAssistant(DirectObject.DirectObject):
         if type == SPEEDCHAT_NORMAL:
             base.localAvatar.whisperSCTo(messageIndex, receiverId, 0)
             message = self.SCDecoder.decodeSCStaticTextMsg(messageIndex)
-        else:
-            if type == SPEEDCHAT_EMOTE:
-                base.localAvatar.whisperSCEmoteTo(messageIndex, receiverId, 0)
-                message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, localAvatar.getName())
-            else:
-                if type == SPEEDCHAT_CUSTOM:
-                    base.localAvatar.whisperSCCustomTo(messageIndex, receiverId, 0)
-                    message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
+        elif type == SPEEDCHAT_EMOTE:
+            base.localAvatar.whisperSCEmoteTo(messageIndex, receiverId, 0)
+            message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, localAvatar.getName())
+        elif type == SPEEDCHAT_CUSTOM:
+            base.localAvatar.whisperSCCustomTo(messageIndex, receiverId, 0)
+            message = self.SCDecoder.decodeSCCustomMsg(messageIndex)
         if self.logWhispers:
             avatarName = None
             avatar = base.cr.identifyAvatar(receiverId)
@@ -757,11 +757,10 @@ class TalkAssistant(DirectObject.DirectObject):
         if type == SPEEDCHAT_NORMAL:
             base.cr.speedchatRelay.sendSpeedchat(receiverId, messageIndex)
             message = self.SCDecoder.decodeSCStaticTextMsg(messageIndex)
-        else:
-            if type == SPEEDCHAT_EMOTE:
-                base.cr.speedchatRelay.sendSpeedchatEmote(receiverId, messageIndex)
-                message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, localAvatar.getName())
-                return
+        elif type == SPEEDCHAT_EMOTE:
+            base.cr.speedchatRelay.sendSpeedchatEmote(receiverId, messageIndex)
+            message = self.SCDecoder.decodeSCEmoteWhisperMsg(messageIndex, localAvatar.getName())
+            return
         if type == SPEEDCHAT_CUSTOM:
             base.cr.speedchatRelay.sendSpeedchatCustom(receiverId, messageIndex)
             message = self.SCDecoder.decodeSCCustomMsg(messageIndex)

@@ -28,15 +28,12 @@ class DistributedFoodBeltAI(DistributedObjectAI.DistributedObjectAI, FSM.FSM, Fo
         newState = state
         if state == 'On':
             newState = 'N'
-        else:
-            if state == 'Off':
-                newState = 'F'
-            else:
-                if state == 'Inactive':
-                    newState = 'I'
-                else:
-                    if state == 'Toonup':
-                        newState = 'T'
+        elif state == 'Off':
+            newState = 'F'
+        elif state == 'Inactive':
+            newState = 'I'
+        elif state == 'Toonup':
+            newState = 'T'
         self.sendUpdate('setState', [newState])
 
     def b_setState(self, state):

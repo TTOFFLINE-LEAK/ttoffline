@@ -149,26 +149,21 @@ class DistributedCashbotBossGoon(DistributedGoon.DistributedGoon, DistributedCas
     def setObjectState(self, state, avId, craneId):
         if state == 'W':
             self.demand('Walk')
+        elif state == 'B':
+            if self.state != 'Battle':
+                self.demand('Battle')
+        elif state == 'S':
+            if self.state != 'Stunned':
+                self.demand('Stunned')
+        elif state == 'R':
+            if self.state != 'Recovery':
+                self.demand('Recovery')
+        elif state == 'a':
+            self.demand('EmergeA')
+        elif state == 'b':
+            self.demand('EmergeB')
         else:
-            if state == 'B':
-                if self.state != 'Battle':
-                    self.demand('Battle')
-            else:
-                if state == 'S':
-                    if self.state != 'Stunned':
-                        self.demand('Stunned')
-                else:
-                    if state == 'R':
-                        if self.state != 'Recovery':
-                            self.demand('Recovery')
-                    else:
-                        if state == 'a':
-                            self.demand('EmergeA')
-                        else:
-                            if state == 'b':
-                                self.demand('EmergeB')
-                            else:
-                                DistributedCashbotBossObject.DistributedCashbotBossObject.setObjectState(self, state, avId, craneId)
+            DistributedCashbotBossObject.DistributedCashbotBossObject.setObjectState(self, state, avId, craneId)
 
     def setTarget(self, x, y, h, arrivalTime):
         self.target = Point3(x, y, 0)

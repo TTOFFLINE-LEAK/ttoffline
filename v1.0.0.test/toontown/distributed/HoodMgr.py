@@ -1019,20 +1019,22 @@ class HoodMgr(DirectObject.DirectObject):
     def getDropPoint(self, dropPointList):
         if self.dbgDropMode == 0:
             return random.choice(dropPointList)
-        droppnt = self.currentDropPoint % len(dropPointList)
-        self.currentDropPoint = (self.currentDropPoint + 1) % len(dropPointList)
-        return dropPointList[droppnt]
+        else:
+            droppnt = self.currentDropPoint % len(dropPointList)
+            self.currentDropPoint = (self.currentDropPoint + 1) % len(dropPointList)
+            return dropPointList[droppnt]
 
     def getAvailableZones(self):
         if base.launcher == None:
             return self.getZonesInPhase(4) + self.getZonesInPhase(6) + self.getZonesInPhase(8) + self.getZonesInPhase(9) + self.getZonesInPhase(10) + self.getZonesInPhase(11) + self.getZonesInPhase(12) + self.getZonesInPhase(13)
-        zones = []
-        for phase in set(ToontownGlobals.phaseMap.values()):
-            if base.launcher.getPhaseComplete(phase):
-                zones = zones + self.getZonesInPhase(phase)
+        else:
+            zones = []
+            for phase in set(ToontownGlobals.phaseMap.values()):
+                if base.launcher.getPhaseComplete(phase):
+                    zones = zones + self.getZonesInPhase(phase)
 
-        return zones
-        return
+            return zones
+            return
 
     def getZonesInPhase(self, phase):
         p = []
@@ -1050,25 +1052,28 @@ class HoodMgr(DirectObject.DirectObject):
         dropPointList = self.dropPoints.get(hoodId, None)
         if dropPointList:
             return self.getDropPoint(dropPointList)
-        self.notify.warning('getPlaygroundCenterFromId: No such hood name as: ' + str(hoodId))
-        return self.DefaultDropPoint
-        return
+        else:
+            self.notify.warning('getPlaygroundCenterFromId: No such hood name as: ' + str(hoodId))
+            return self.DefaultDropPoint
+            return
 
     def getIdFromName(self, hoodName):
         id = self.hoodName2Id.get(hoodName)
         if id:
             return id
-        self.notify.error('No such hood name as: %s' % hoodName)
-        return
-        return
+        else:
+            self.notify.error('No such hood name as: %s' % hoodName)
+            return
+            return
 
     def getNameFromId(self, hoodId):
         name = self.hoodId2Name.get(hoodId)
         if name:
             return name
-        self.notify.error('No such hood id as: %s' % hoodId)
-        return
-        return
+        else:
+            self.notify.error('No such hood id as: %s' % hoodId)
+            return
+            return
 
     def getFullnameFromId(self, hoodId):
         hoodId = ZoneUtil.getCanonicalZoneId(hoodId)

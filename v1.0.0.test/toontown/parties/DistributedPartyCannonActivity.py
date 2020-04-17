@@ -191,12 +191,10 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
             return
         if mode == PartyGlobals.CANNON_MOVIE_CLEAR:
             self.landToon(toonId)
-        else:
-            if mode == PartyGlobals.CANNON_MOVIE_LANDED:
-                self.landToon(toonId)
-            else:
-                if mode == PartyGlobals.CANNON_MOVIE_FORCE_EXIT:
-                    self.landToon(toonId)
+        elif mode == PartyGlobals.CANNON_MOVIE_LANDED:
+            self.landToon(toonId)
+        elif mode == PartyGlobals.CANNON_MOVIE_FORCE_EXIT:
+            self.landToon(toonId)
 
     def __handleAvatarGone(self):
         self.setMovie(PartyGlobals.CANNON_MOVIE_CLEAR, 0)
@@ -236,22 +234,23 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
         if cannon is None:
             self.notify.warning("Cannon has not been created, but we got this message. Don't show firing.")
             return
-        if not cannon.getToonInside():
-            self.notify.warning("setCannonWillFire, but no toon insde. Don't show firing")
+        else:
+            if not cannon.getToonInside():
+                self.notify.warning("setCannonWillFire, but no toon insde. Don't show firing")
+                return
+            if self.isLocalToon(cannon.getToonInside()):
+                self.localFlyingToon = base.localAvatar
+                self.localFlyingToonId = base.localAvatar.doId
+                self.localFiringCannon = cannon
+                self.flyingToonCloudsHit = 0
+            cannon.updateModel(zRot, angle)
+            toonId = cannon.getToonInside().doId
+            task = Task(self.__fireCannonTask)
+            task.toonId = toonId
+            task.cannon = cannon
+            taskMgr.add(task, self.taskNameFireCannon)
+            self.toonIds.append(toonId)
             return
-        if self.isLocalToon(cannon.getToonInside()):
-            self.localFlyingToon = base.localAvatar
-            self.localFlyingToonId = base.localAvatar.doId
-            self.localFiringCannon = cannon
-            self.flyingToonCloudsHit = 0
-        cannon.updateModel(zRot, angle)
-        toonId = cannon.getToonInside().doId
-        task = Task(self.__fireCannonTask)
-        task.toonId = toonId
-        task.cannon = cannon
-        taskMgr.add(task, self.taskNameFireCannon)
-        self.toonIds.append(toonId)
-        return
 
     def __fireCannonTask(self, task):
         launchTime = 0.0
@@ -551,73 +550,74 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
         if toon.isEmpty():
             self.__resetToonToCannon(self.localFlyingToon)
             return Task.done
-        curTime = task.time + task.info['launchTime']
-        t = curTime
-        t *= self.TimeFactor
-        self.lastT = self.t
-        self.t = t
-        deltaT = self.t - self.lastT
-        self.deltaT = deltaT
-        if self.hitBumper:
-            pos = self.lastPos + self.lastVel * deltaT
-            vel = self.lastVel
-            self.lastVel += Vec3(0, 0, -32.0) * deltaT
-            self.lastPos = pos
-            toon.setFluidPos(pos)
-            lastR = toon.getR()
-            toon.setR(lastR - deltaT * self.angularVel * 2.0)
-            cameraView = 0
         else:
-            if not self.hitCloud and self.__isFlightKeyPressed():
-                self.__moveFlyingToon(toon)
-                self.__updateFlightVelocity(task.info['trajectory'])
-            if self.hitCloud == 1:
+            curTime = task.time + task.info['launchTime']
+            t = curTime
+            t *= self.TimeFactor
+            self.lastT = self.t
+            self.t = t
+            deltaT = self.t - self.lastT
+            self.deltaT = deltaT
+            if self.hitBumper:
+                pos = self.lastPos + self.lastVel * deltaT
+                vel = self.lastVel
+                self.lastVel += Vec3(0, 0, -32.0) * deltaT
+                self.lastPos = pos
+                toon.setFluidPos(pos)
+                lastR = toon.getR()
+                toon.setR(lastR - deltaT * self.angularVel * 2.0)
+                cameraView = 0
+            else:
+                if not self.hitCloud and self.__isFlightKeyPressed():
+                    self.__moveFlyingToon(toon)
+                    self.__updateFlightVelocity(task.info['trajectory'])
+                if self.hitCloud == 1:
+                    vel = task.info['trajectory'].getVel(t)
+                    startPos = toon.getPos(render)
+                    task.info['trajectory'].setStartTime(t)
+                    task.info['trajectory'].setStartPos(startPos)
+                    task.info['trajectory'].setStartVel(self.lastVel)
+                    toon.lookAt(toon.getPos() + vel)
+                    toon.setH(-toon.getH())
+                    now = globalClock.getFrameTime()
+                    netLaunchTime = globalClockDelta.localToNetworkTime(now, bits=31)
+                    hpr = toon.getHpr()
+                    self.sendUpdate('setToonTrajectoryAi', [netLaunchTime,
+                     startPos[0],
+                     startPos[1],
+                     startPos[2],
+                     hpr[0],
+                     hpr[1],
+                     hpr[2],
+                     self.lastVel[0],
+                     self.lastVel[1],
+                     self.lastVel[2]])
+                    self._lastBroadcastTime = now
+                    self._dirtyNewVel = None
+                    self.flyingToonOffsetRotation = 0
+                    self.flyingToonOffsetAngle = 0
+                    self.flyingToonOffsetX = 0
+                    self.flyingToonOffsetY = 0
+                    self.hitCloud = 2
+                pos = task.info['trajectory'].getPos(t)
+                toon.setFluidPos(pos)
+                toon.setFluidPos(toon, self.flyingToonOffsetX, self.flyingToonOffsetY, 0)
                 vel = task.info['trajectory'].getVel(t)
-                startPos = toon.getPos(render)
-                task.info['trajectory'].setStartTime(t)
-                task.info['trajectory'].setStartPos(startPos)
-                task.info['trajectory'].setStartVel(self.lastVel)
-                toon.lookAt(toon.getPos() + vel)
-                toon.setH(-toon.getH())
-                now = globalClock.getFrameTime()
-                netLaunchTime = globalClockDelta.localToNetworkTime(now, bits=31)
-                hpr = toon.getHpr()
-                self.sendUpdate('setToonTrajectoryAi', [netLaunchTime,
-                 startPos[0],
-                 startPos[1],
-                 startPos[2],
-                 hpr[0],
-                 hpr[1],
-                 hpr[2],
-                 self.lastVel[0],
-                 self.lastVel[1],
-                 self.lastVel[2]])
-                self._lastBroadcastTime = now
-                self._dirtyNewVel = None
-                self.flyingToonOffsetRotation = 0
-                self.flyingToonOffsetAngle = 0
-                self.flyingToonOffsetX = 0
-                self.flyingToonOffsetY = 0
-                self.hitCloud = 2
-            pos = task.info['trajectory'].getPos(t)
-            toon.setFluidPos(pos)
-            toon.setFluidPos(toon, self.flyingToonOffsetX, self.flyingToonOffsetY, 0)
-            vel = task.info['trajectory'].getVel(t)
-            toon.lookAt(toon.getPos() + Vec3(vel[0], vel[1], vel[2]))
-            toon.setP(toon.getP() - 90)
-            cameraView = 2
-            if self.hitCloud == 2:
-                self.lastStartVel = vel
-                self.hitCloud = 0
-            shadowPos = toon.getPos()
-            shadowPos.setZ(SHADOW_Z_OFFSET)
-            self.localFlyingDropShadow.setPos(shadowPos)
-            if pos.getZ() < -20 or pos.getZ() > 1000:
-                self.notify.debug('stopping fly task toon.getZ()=%.2f' % pos.getZ())
-                self.__resetToonToCannon(self.localFlyingToon)
-                return Task.done
-        self.__setFlyingCameraView(task.info['toon'], cameraView, deltaT)
-        return Task.cont
+                toon.lookAt(toon.getPos() + Vec3(vel[0], vel[1], vel[2]))
+                toon.setP(toon.getP() - 90)
+                cameraView = 2
+                if self.hitCloud == 2:
+                    self.lastStartVel = vel
+                    self.hitCloud = 0
+                shadowPos = toon.getPos()
+                shadowPos.setZ(SHADOW_Z_OFFSET)
+                self.localFlyingDropShadow.setPos(shadowPos)
+                if pos.getZ() < -20 or pos.getZ() > 1000:
+                    self.notify.debug('stopping fly task toon.getZ()=%.2f' % pos.getZ())
+                    self.__resetToonToCannon(self.localFlyingToon)
+                    return Task.done
+            self.__setFlyingCameraView(task.info['toon'], cameraView, deltaT)
+            return Task.cont
 
     def __setFlyingCameraView(self, toon, view, deltaT):
         if toon != base.localAvatar:
@@ -627,25 +627,23 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
         if view == 0:
             camera.wrtReparentTo(render)
             camera.lookAt(lookAt)
-        else:
-            if view == 1:
-                camera.reparentTo(render)
-                camera.setPos(render, 100, 100, 35.25)
-                camera.lookAt(render, lookAt)
-            else:
-                if view == 2:
-                    if camera.getParent() != self.camNode:
-                        camera.wrtReparentTo(self.camNode)
-                        camera.setPos(self.cameraPos)
-                        camera.lookAt(toon)
-                    self.camNode.setPos(toon.getPos(render))
-                    camHpr = self.camNode.getHpr(toon)
-                    vec = -Point3(0, 0, 0) - camHpr
-                    relativeSpeed = math.pow(vec.length() / 60.0, 2) + 0.1
-                    newHpr = camHpr + vec * deltaT * self.cameraSpeed * relativeSpeed
-                    self.camNode.setHpr(toon, newHpr)
-                    camera.lookAt(self.camNode)
-                    camera.setR(render, 0)
+        elif view == 1:
+            camera.reparentTo(render)
+            camera.setPos(render, 100, 100, 35.25)
+            camera.lookAt(render, lookAt)
+        elif view == 2:
+            if camera.getParent() != self.camNode:
+                camera.wrtReparentTo(self.camNode)
+                camera.setPos(self.cameraPos)
+                camera.lookAt(toon)
+            self.camNode.setPos(toon.getPos(render))
+            camHpr = self.camNode.getHpr(toon)
+            vec = -Point3(0, 0, 0) - camHpr
+            relativeSpeed = math.pow(vec.length() / 60.0, 2) + 0.1
+            newHpr = camHpr + vec * deltaT * self.cameraSpeed * relativeSpeed
+            self.camNode.setHpr(toon, newHpr)
+            camera.lookAt(self.camNode)
+            camera.setR(render, 0)
 
     def __cleanupFlyingToonData(self, toon):
         self.notify.debug('__cleanupFlyingToonData')
@@ -755,15 +753,15 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
         if hitNode.find('cSphere') == 0 or hitNode.find('treasureSphere') == 0 or hitNode.find('prop') == 0 or hitNode.find('distAvatarCollNode') == 0 or hitNode.find('CannonSphere') == 0 or hitNode.find('plotSphere') == 0 or hitNode.find('flySphere') == 0 or hitNode.find('FishingSpotSphere') == 0 or hitNode.find('TrampolineTrigger') == 0 or hitNode == 'gagtree_collision' or hitNode == 'sign_collision' or hitNode == 'FlowerSellBox' or hitPylonBelowWater:
             self.notify.debug('--------------hit and ignoring %s' % hitNode)
             return
-        if vel.dot(hitNormal) > 0 and not hitNode == 'collision_roof' and not hitNode == 'collision_fence':
-            self.notify.debug('--------------hit and ignoring backfacing %s, dot=%s' % (hitNode, vel.dot(hitNormal)))
-            return
-        intoNode = collisionEntry.getIntoNodePath()
-        bumperNodes = ['sky_collision'] + PartyCannonCollisions['bounce'] + PartyCannonCollisions['fence']
-        cloudBumpers = PartyCannonCollisions['clouds']
-        bumperNodes += cloudBumpers
-        if hitNode in bumperNodes or hitNode.find('cogPie') == 0 or PartyCannonCollisions['trampoline_bounce'] in hitNode:
-            if hitNode == 'sky_collision' or hitNode in PartyCannonCollisions['fence'] or hitNode.find('cogPie') == 0:
+        else:
+            if vel.dot(hitNormal) > 0 and not hitNode == 'collision_roof' and not hitNode == 'collision_fence':
+                self.notify.debug('--------------hit and ignoring backfacing %s, dot=%s' % (hitNode, vel.dot(hitNormal)))
+                return
+            intoNode = collisionEntry.getIntoNodePath()
+            bumperNodes = ['sky_collision'] + PartyCannonCollisions['bounce'] + PartyCannonCollisions['fence']
+            cloudBumpers = PartyCannonCollisions['clouds']
+            bumperNodes += cloudBumpers
+            if (hitNode in bumperNodes or hitNode.find('cogPie') == 0 or PartyCannonCollisions['trampoline_bounce'] in hitNode) and (hitNode == 'sky_collision' or hitNode in PartyCannonCollisions['fence'] or hitNode.find('cogPie') == 0):
                 self.__hitFence(self.localFlyingToon, collisionEntry)
             else:
                 if PartyCannonCollisions['trampoline_bounce'] in hitNode or hitNode in PartyCannonCollisions['bounce']:
@@ -774,57 +772,52 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
                     self.hitCloud = 1
                     self.__hitBumper(self.localFlyingToon, collisionEntry, hitSound, kr=0.09, angVel=5)
                     self.hitBumper = 0
+                elif hitNode in cloudBumpers:
+                    self.__hitCloudPlatform(self.localFlyingToon, collisionEntry)
+                elif hitNode == 'statuaryCol':
+                    self.__hitStatuary(self.localFlyingToon, collisionEntry)
                 else:
-                    if hitNode in cloudBumpers:
-                        self.__hitCloudPlatform(self.localFlyingToon, collisionEntry)
-                    else:
-                        if hitNode == 'statuaryCol':
-                            self.__hitStatuary(self.localFlyingToon, collisionEntry)
-                        else:
-                            self.notify.debug('*************** hit something else ************')
-            return
-        self.__stopCollisionHandler(self.localFlyingToon)
-        self.__stopLocalFlyTask(self.localFlyingToonId)
-        self.notify.debug('stopping flying since we hit %s' % hitNode)
-        if self.isLocalToonId(self.localFlyingToon.doId):
-            camera.wrtReparentTo(render)
-        if self.localFlyingDropShadow:
-            self.localFlyingDropShadow.reparentTo(hidden)
-        pos = collisionEntry.getSurfacePoint(render)
-        hpr = self.localFlyingToon.getHpr()
-        hitPos = collisionEntry.getSurfacePoint(render)
-        pos = hitPos
-        self.landingPos = pos
-        self.notify.debug('hitNode, Normal = %s,%s' % (hitNode, intoNormal))
-        track = Sequence()
-        track.append(Func(self.localFlyingToon.wrtReparentTo, render))
-        if self.isLocalToonId(self.localFlyingToon.doId):
-            track.append(Func(self.localFlyingToon.collisionsOff))
-        if hitNode in PartyCannonCollisions['ground']:
-            track.append(Func(self.__hitGround, self.localFlyingToon, pos))
-            track.append(Wait(1.0))
-            track.append(Func(self.__setToonUpright, self.localFlyingToon, self.landingPos))
-        else:
-            if hitNode in PartyCannonCollisions['fence']:
+                    self.notify.debug('*************** hit something else ************')
+                return
+            self.__stopCollisionHandler(self.localFlyingToon)
+            self.__stopLocalFlyTask(self.localFlyingToonId)
+            self.notify.debug('stopping flying since we hit %s' % hitNode)
+            if self.isLocalToonId(self.localFlyingToon.doId):
+                camera.wrtReparentTo(render)
+            if self.localFlyingDropShadow:
+                self.localFlyingDropShadow.reparentTo(hidden)
+            pos = collisionEntry.getSurfacePoint(render)
+            hpr = self.localFlyingToon.getHpr()
+            hitPos = collisionEntry.getSurfacePoint(render)
+            pos = hitPos
+            self.landingPos = pos
+            self.notify.debug('hitNode, Normal = %s,%s' % (hitNode, intoNormal))
+            track = Sequence()
+            track.append(Func(self.localFlyingToon.wrtReparentTo, render))
+            if self.isLocalToonId(self.localFlyingToon.doId):
+                track.append(Func(self.localFlyingToon.collisionsOff))
+            if hitNode in PartyCannonCollisions['ground']:
+                track.append(Func(self.__hitGround, self.localFlyingToon, pos))
+                track.append(Wait(1.0))
+                track.append(Func(self.__setToonUpright, self.localFlyingToon, self.landingPos))
+            elif hitNode in PartyCannonCollisions['fence']:
                 track.append(Func(self.__hitFence, self.localFlyingToon, collisionEntry))
+            elif hitNode == 'collision3':
+                track.append(Func(self.__hitWater, self.localFlyingToon, pos, collisionEntry))
+                track.append(Wait(2.0))
+                track.append(Func(self.__setToonUpright, self.localFlyingToon, self.landingPos))
+            elif hitNode.find('cloudSphere') == 0:
+                track.append(Func(self.__hitCloudPlatform, self.localFlyingToon, collisionEntry))
             else:
-                if hitNode == 'collision3':
-                    track.append(Func(self.__hitWater, self.localFlyingToon, pos, collisionEntry))
-                    track.append(Wait(2.0))
-                    track.append(Func(self.__setToonUpright, self.localFlyingToon, self.landingPos))
-                else:
-                    if hitNode.find('cloudSphere') == 0:
-                        track.append(Func(self.__hitCloudPlatform, self.localFlyingToon, collisionEntry))
-                    else:
-                        self.notify.warning('************* unhandled hitNode=%s parent =%s' % (hitNode, collisionEntry.getIntoNodePath().getParent()))
-        track.append(Func(self.d_setLanded, self.localFlyingToonId))
-        if self.isLocalToonId(self.localFlyingToonId):
-            track.append(Func(self.localFlyingToon.collisionsOn))
-        if self.hitTrack:
-            self.hitTrack.finish()
-        self.hitTrack = track
-        self.hitTrack.start()
-        return
+                self.notify.warning('************* unhandled hitNode=%s parent =%s' % (hitNode, collisionEntry.getIntoNodePath().getParent()))
+            track.append(Func(self.d_setLanded, self.localFlyingToonId))
+            if self.isLocalToonId(self.localFlyingToonId):
+                track.append(Func(self.localFlyingToon.collisionsOn))
+            if self.hitTrack:
+                self.hitTrack.finish()
+            self.hitTrack = track
+            self.hitTrack.start()
+            return
 
     def __hitBumper(self, avatar, collisionEntry, sound, kr=0.6, angVel=1):
         self.hitBumper = 1
@@ -954,7 +947,8 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
     def __checkHoodValidity(self):
         if hasattr(base.cr.playGame, 'hood') and base.cr.playGame.hood and hasattr(base.cr.playGame.hood, 'loader') and base.cr.playGame.hood.loader and hasattr(base.cr.playGame.hood.loader, 'geom') and base.cr.playGame.hood.loader.geom:
             return True
-        return False
+        else:
+            return False
 
     def handleToonExited(self, toonId):
         self.notify.debug('DistributedPartyCannonActivity handleToonExited( toonId=%s ) ' % toonId)

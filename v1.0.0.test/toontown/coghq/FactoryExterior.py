@@ -116,12 +116,11 @@ class FactoryExterior(BattlePlace.BattlePlace):
         shardId = requestStatus['shardId']
         if hoodId == self.loader.hood.hoodId and zoneId == self.zoneId and shardId == None:
             self.fsm.request('teleportIn', [requestStatus])
+        elif hoodId == ToontownGlobals.MyEstate:
+            self.getEstateZoneAndGoHome(requestStatus)
         else:
-            if hoodId == ToontownGlobals.MyEstate:
-                self.getEstateZoneAndGoHome(requestStatus)
-            else:
-                self.doneStatus = requestStatus
-                messenger.send(self.doneEvent)
+            self.doneStatus = requestStatus
+            messenger.send(self.doneEvent)
         return
 
     def exitTeleportOut(self):
@@ -153,19 +152,16 @@ class FactoryExterior(BattlePlace.BattlePlace):
                 pass
             else:
                 self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where == 'factoryInterior':
+            self.doneStatus = doneStatus
+            messenger.send(self.doneEvent)
+        elif where == 'stageInterior':
+            self.doneStatus = doneStatus
+            messenger.send(self.doneEvent)
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where == 'factoryInterior':
-                    self.doneStatus = doneStatus
-                    messenger.send(self.doneEvent)
-                else:
-                    if where == 'stageInterior':
-                        self.doneStatus = doneStatus
-                        messenger.send(self.doneEvent)
-                    else:
-                        self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
+            self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
 
     def handleInterests(self):
         dnaStore = DNAStorage()

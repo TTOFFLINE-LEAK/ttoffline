@@ -137,15 +137,12 @@ class CogdoFlyingPlayer(FSM):
         if state in Globals.Gameplay.BackpackStates:
             if state == Globals.Gameplay.BackpackStates.Normal:
                 pass
-            else:
-                if state == Globals.Gameplay.BackpackStates.Targeted:
-                    pass
-                else:
-                    if state == Globals.Gameplay.BackpackStates.Refuel:
-                        self.refuelSeq.start()
-                    else:
-                        if state == Globals.Gameplay.BackpackStates.Attacked:
-                            self.blinkWarningSeq.start()
+            elif state == Globals.Gameplay.BackpackStates.Targeted:
+                pass
+            elif state == Globals.Gameplay.BackpackStates.Refuel:
+                self.refuelSeq.start()
+            elif state == Globals.Gameplay.BackpackStates.Attacked:
+                self.blinkWarningSeq.start()
             self.setBackpackTexture(state)
 
     def setBackpackTexture(self, state):
@@ -164,9 +161,8 @@ class CogdoFlyingPlayer(FSM):
             self.popUpBubbleSeq.start()
             if gatherable.type not in self.activeBuffs:
                 self.activeBuffs.append(gatherable.type)
-        else:
-            if gatherable.type == Globals.Level.GatherableTypes.Propeller:
-                self.setBackpackState(Globals.Gameplay.BackpackStates.Refuel)
+        elif gatherable.type == Globals.Level.GatherableTypes.Propeller:
+            self.setBackpackState(Globals.Gameplay.BackpackStates.Refuel)
 
     def handleDebuffPowerup(self, pickupType, elapsedTime):
         if pickupType == Globals.Level.GatherableTypes.InvulPowerup:
@@ -195,25 +191,24 @@ class CogdoFlyingPlayer(FSM):
     def hasFuelStateChanged(self):
         if self.fuelState != self.oldFuelState:
             return True
-        return False
+        else:
+            return False
 
     def updatePropellerSmoke(self):
         if not self.hasFuelStateChanged():
             return
         if self.fuelState in [Globals.Gameplay.FuelStates.FuelNoPropeller, Globals.Gameplay.FuelStates.FuelNormal]:
             self.propellerSmoke.stop()
-        else:
-            if self.fuelState in [Globals.Gameplay.FuelStates.FuelVeryLow, Globals.Gameplay.FuelStates.FuelEmpty]:
-                self.propellerSmoke.stop()
-                self.propellerSmoke.setScale(0.25)
-                self.propellerSmoke.setZ(self.toon.getHeight() + 2.5)
-                self.propellerSmoke.loop(rate=48)
-            else:
-                if self.fuelState in [Globals.Gameplay.FuelStates.FuelLow]:
-                    self.propellerSmoke.stop()
-                    self.propellerSmoke.setScale(0.0825)
-                    self.propellerSmoke.setZ(self.toon.getHeight() + 2.0)
-                    self.propellerSmoke.loop(rate=24)
+        elif self.fuelState in [Globals.Gameplay.FuelStates.FuelVeryLow, Globals.Gameplay.FuelStates.FuelEmpty]:
+            self.propellerSmoke.stop()
+            self.propellerSmoke.setScale(0.25)
+            self.propellerSmoke.setZ(self.toon.getHeight() + 2.5)
+            self.propellerSmoke.loop(rate=48)
+        elif self.fuelState in [Globals.Gameplay.FuelStates.FuelLow]:
+            self.propellerSmoke.stop()
+            self.propellerSmoke.setScale(0.0825)
+            self.propellerSmoke.setZ(self.toon.getHeight() + 2.0)
+            self.propellerSmoke.loop(rate=24)
 
     def resetBlades(self):
         self.setBlades(len(self.blades))
@@ -229,7 +224,8 @@ class CogdoFlyingPlayer(FSM):
     def isLegalEagleTarget(self):
         if len(self.legalEaglesTargeting) > 0:
             return True
-        return False
+        else:
+            return False
 
     def setBlades(self, fuelState):
         if fuelState not in Globals.Gameplay.FuelStates:

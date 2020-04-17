@@ -72,12 +72,11 @@ class DirectNewsFrame(DirectObject.DirectObject):
                     majorVer, minorVer = self.calcIssueVersion(dateStr)
                     if majorVer == 1:
                         oneIssue = IssueFrame.IssueFrame(self.backFrame, newsDir, dateStr, myIssueIndex, len(allHomeFiles), self.strFilenames)
+                    elif majorVer == 2:
+                        oneIssue = IssueFrameV2.IssueFrameV2(self.backFrame, newsDir, dateStr, myIssueIndex, len(allHomeFiles), self.strFilenames, self.newsIndexEntries)
                     else:
-                        if majorVer == 2:
-                            oneIssue = IssueFrameV2.IssueFrameV2(self.backFrame, newsDir, dateStr, myIssueIndex, len(allHomeFiles), self.strFilenames, self.newsIndexEntries)
-                        else:
-                            self.notify.warning('Dont know how to handle version %s, asuming v2' % majorVer)
-                            oneIssue = IssueFrameV2.IssueFrameV2(self.backFrame, newsDir, dateStr, myIssueIndex, len(allHomeFiles), self.strFilenames, self.newsIndexEntries)
+                        self.notify.warning('Dont know how to handle version %s, asuming v2' % majorVer)
+                        oneIssue = IssueFrameV2.IssueFrameV2(self.backFrame, newsDir, dateStr, myIssueIndex, len(allHomeFiles), self.strFilenames, self.newsIndexEntries)
                     oneIssue.hide()
                     self.issues.append(oneIssue)
 
@@ -125,22 +124,23 @@ class DirectNewsFrame(DirectObject.DirectObject):
     def findNewsDir(self):
         if self.NewsOverHttp:
             return self.NewsStageDir
-        searchPath = DSearchPath()
-        if AppRunnerGlobal.appRunner:
-            searchPath.appendDirectory(Filename.expandFrom('$TT_3_5_ROOT/phase_3.5/models/news'))
         else:
-            basePath = os.path.expandvars('$TTMODELS') or './ttmodels'
-            searchPath.appendDirectory(Filename.fromOsSpecific(basePath + '/built/' + self.NewsBaseDir))
-            searchPath.appendDirectory(Filename(self.NewsBaseDir))
-        pfile = Filename(self.NewsIndexFilename)
-        found = vfs.resolveFilename(pfile, searchPath)
-        if not found:
-            self.notify.warning('findNewsDir - no path: %s' % self.NewsIndexFilename)
-            self.setErrorMessage(TTLocalizer.NewsPageErrorDownloadingFile % self.NewsIndexFilename)
-            return None
-        self.notify.debug('found index file %s' % pfile)
-        realDir = pfile.getDirname()
-        return realDir
+            searchPath = DSearchPath()
+            if AppRunnerGlobal.appRunner:
+                searchPath.appendDirectory(Filename.expandFrom('$TT_3_5_ROOT/phase_3.5/models/news'))
+            else:
+                basePath = os.path.expandvars('$TTMODELS') or './ttmodels'
+                searchPath.appendDirectory(Filename.fromOsSpecific(basePath + '/built/' + self.NewsBaseDir))
+                searchPath.appendDirectory(Filename(self.NewsBaseDir))
+            pfile = Filename(self.NewsIndexFilename)
+            found = vfs.resolveFilename(pfile, searchPath)
+            if not found:
+                self.notify.warning('findNewsDir - no path: %s' % self.NewsIndexFilename)
+                self.setErrorMessage(TTLocalizer.NewsPageErrorDownloadingFile % self.NewsIndexFilename)
+                return None
+            self.notify.debug('found index file %s' % pfile)
+            realDir = pfile.getDirname()
+            return realDir
 
     def load(self):
         self.loadBackground()
@@ -221,30 +221,31 @@ class DirectNewsFrame(DirectObject.DirectObject):
         if self.redownloadingNews:
             self.notify.warning('averting potential crash redownloadNews called twice, just returning')
             return
-        self.percentDownloaded = 0.0
-        self.notify.info('starting redownloadNews')
-        self.startRedownload = datetime.datetime.now()
-        self.redownloadingNews = True
-        self.addDownloadingTextTask()
-        for issue in self.issues:
-            issue.destroy()
+        else:
+            self.percentDownloaded = 0.0
+            self.notify.info('starting redownloadNews')
+            self.startRedownload = datetime.datetime.now()
+            self.redownloadingNews = True
+            self.addDownloadingTextTask()
+            for issue in self.issues:
+                issue.destroy()
 
-        self.issues = []
-        self.curIssueIndex = 0
-        self.strFilenames = None
-        self.needsParseNews = True
-        self.newsUrl = self.getInGameNewsUrl()
-        self.newsDir = Filename(self.findNewsDir())
-        Filename(self.newsDir + '/.').makeDir()
-        http = HTTPClient.getGlobalPtr()
-        self.url = self.newsUrl + self.NewsIndexFilename
-        self.ch = http.makeChannel(True)
-        self.ch.beginGetDocument(self.url)
-        self.rf = Ramfile()
-        self.ch.downloadToRam(self.rf)
-        taskMgr.remove(self.RedownloadTaskName)
-        taskMgr.add(self.downloadIndexTask, self.RedownloadTaskName)
-        return
+            self.issues = []
+            self.curIssueIndex = 0
+            self.strFilenames = None
+            self.needsParseNews = True
+            self.newsUrl = self.getInGameNewsUrl()
+            self.newsDir = Filename(self.findNewsDir())
+            Filename(self.newsDir + '/.').makeDir()
+            http = HTTPClient.getGlobalPtr()
+            self.url = self.newsUrl + self.NewsIndexFilename
+            self.ch = http.makeChannel(True)
+            self.ch.beginGetDocument(self.url)
+            self.rf = Ramfile()
+            self.ch.downloadToRam(self.rf)
+            taskMgr.remove(self.RedownloadTaskName)
+            taskMgr.add(self.downloadIndexTask, self.RedownloadTaskName)
+            return
 
     def downloadIndexTask(self, task):
         if self.ch.run():
@@ -369,10 +370,9 @@ class DirectNewsFrame(DirectObject.DirectObject):
     def handleNewIssueOut(self):
         if hasattr(self, 'createdTime') and base.cr.inGameNewsMgr.getLatestIssue() < self.createdTime:
             self.createdTime = base.cr.inGameNewsMgr.getLatestIssue()
-        else:
-            if self.NewsOverHttp and not self.redownloadingNews:
-                if not self.active:
-                    self.redownloadNews()
+        elif self.NewsOverHttp and not self.redownloadingNews:
+            if not self.active:
+                self.redownloadNews()
 
     def getInGameNewsUrl(self):
         result = base.config.GetString('fallback-news-url', 'http://cdn.toontown.disney.go.com/toontown/en/gamenews/')

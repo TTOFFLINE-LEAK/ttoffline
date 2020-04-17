@@ -71,19 +71,18 @@ class DistributedPhysicsWorld(DistributedObject.DistributedObject, PhysicsWorldB
                     self.physicsSfxDict[index] = (windmillSfx, windMillSoundInterval)
                     break
 
-        else:
-            if type == 4:
-                box = self.commonObjectDict[commonId][2]
-                for pair in self.odePandaRelationList:
-                    pandaNodePathGeom = pair[0]
-                    odeBody = pair[1]
-                    if odeBody == box:
-                        self.notify.debug('nodePath = %s' % pandaNodePathGeom)
-                        moverSfx = loader.loadSfx('phase_6/audio/sfx/Golf_Moving_Barrier.ogg')
-                        moverSoundInterval = SoundInterval(moverSfx, node=pandaNodePathGeom, listenerNode=base.camera, seamlessLoop=True, volume=0.5)
-                        moverSoundInterval.start()
-                        self.physicsSfxDict[index] = (moverSfx, moverSoundInterval, index)
-                        break
+        elif type == 4:
+            box = self.commonObjectDict[commonId][2]
+            for pair in self.odePandaRelationList:
+                pandaNodePathGeom = pair[0]
+                odeBody = pair[1]
+                if odeBody == box:
+                    self.notify.debug('nodePath = %s' % pandaNodePathGeom)
+                    moverSfx = loader.loadSfx('phase_6/audio/sfx/Golf_Moving_Barrier.ogg')
+                    moverSoundInterval = SoundInterval(moverSfx, node=pandaNodePathGeom, listenerNode=base.camera, seamlessLoop=True, volume=0.5)
+                    moverSoundInterval.start()
+                    self.physicsSfxDict[index] = (moverSfx, moverSoundInterval, index)
+                    break
 
     def commonObjectEvent(self, key, model, type, force, event):
         self.notify.debug('commonObjectForceEvent key %s model %s type %s force %s event %s' % (key,

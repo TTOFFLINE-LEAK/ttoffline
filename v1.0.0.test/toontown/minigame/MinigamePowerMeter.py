@@ -111,9 +111,8 @@ class MinigamePowerMeter(DirectFrame):
         self.tooFast.hide()
         if curSpeed < target - 2:
             self.tooSlow.show()
-        else:
-            if curSpeed > target + 2:
-                self.tooFast.show()
+        elif curSpeed > target + 2:
+            self.tooFast.show()
 
     def setBarColor(self, color):
         self.largeGauge[0]['barColor'] = color

@@ -148,21 +148,22 @@ class PetLookerAI:
         if not self.__active:
             PetLookerAI.notify.warning('%s: _handleLookingAtOtherStart: not active!' % self.doId)
             return
-        if isinstance(other, CollisionEntry):
-            other = self.__getOtherLookerDoIdFromCollEntry(other)
-            if other == 0:
-                PetLookerAI.notify.warning('%s: looking at unknown other avatar' % self.doId)
-                return
-        PetLookerAI.notify.debug('_handleLookingAtOtherStart: %s looking at %s' % (self.doId, other))
-        if other in self.others:
-            PetLookerAI.notify.warning('%s: other (%s) is already in self.others!' % (self.doId, other))
-            if not hasattr(self, '_cHandler'):
-                PetLookerAI.notify.warning('-->The looker sphere has already been destroyed')
         else:
-            self.others[other] = None
-            messenger.send(getStartLookingAtOtherEvent(self.doId), [other])
-            messenger.send(getStartLookedAtByOtherEvent(other), [self.doId])
-        return
+            if isinstance(other, CollisionEntry):
+                other = self.__getOtherLookerDoIdFromCollEntry(other)
+                if other == 0:
+                    PetLookerAI.notify.warning('%s: looking at unknown other avatar' % self.doId)
+                    return
+            PetLookerAI.notify.debug('_handleLookingAtOtherStart: %s looking at %s' % (self.doId, other))
+            if other in self.others:
+                PetLookerAI.notify.warning('%s: other (%s) is already in self.others!' % (self.doId, other))
+                if not hasattr(self, '_cHandler'):
+                    PetLookerAI.notify.warning('-->The looker sphere has already been destroyed')
+            else:
+                self.others[other] = None
+                messenger.send(getStartLookingAtOtherEvent(self.doId), [other])
+                messenger.send(getStartLookedAtByOtherEvent(other), [self.doId])
+            return
 
     def _handleLookingAtOtherStop(self, other):
         if not self.__active:

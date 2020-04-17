@@ -199,9 +199,8 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
             else:
                 if field == KartDNA.rimsType:
                     self.__applyRims()
-                else:
-                    if field == KartDNA.decalType:
-                        self.__applyDecals()
+                elif field == KartDNA.decalType:
+                    self.__applyDecals()
                 self.__applyAccessoryColor()
 
         self.updateFields = []
@@ -210,30 +209,22 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
     def updateDNAField(self, field, fieldValue):
         if field == KartDNA.bodyType:
             self.setBodyType(fieldValue)
-        else:
-            if field == KartDNA.bodyColor:
-                self.setBodyColor(fieldValue)
-            else:
-                if field == KartDNA.accColor:
-                    self.setAccessoryColor(fieldValue)
-                else:
-                    if field == KartDNA.ebType:
-                        self.setEngineBlockType(fieldValue)
-                    else:
-                        if field == KartDNA.spType:
-                            self.setSpoilerType(fieldValue)
-                        else:
-                            if field == KartDNA.fwwType:
-                                self.setFrontWheelWellType(fieldValue)
-                            else:
-                                if field == KartDNA.bwwType:
-                                    self.setBackWheelWellType(fieldValue)
-                                else:
-                                    if field == KartDNA.rimsType:
-                                        self.setRimType(fieldValue)
-                                    else:
-                                        if field == KartDNA.decalType:
-                                            self.setDecalType(fieldValue)
+        elif field == KartDNA.bodyColor:
+            self.setBodyColor(fieldValue)
+        elif field == KartDNA.accColor:
+            self.setAccessoryColor(fieldValue)
+        elif field == KartDNA.ebType:
+            self.setEngineBlockType(fieldValue)
+        elif field == KartDNA.spType:
+            self.setSpoilerType(fieldValue)
+        elif field == KartDNA.fwwType:
+            self.setFrontWheelWellType(fieldValue)
+        elif field == KartDNA.bwwType:
+            self.setBackWheelWellType(fieldValue)
+        elif field == KartDNA.rimsType:
+            self.setRimType(fieldValue)
+        elif field == KartDNA.decalType:
+            self.setDecalType(fieldValue)
         self.updateFields.append(field)
         self.__update()
 

@@ -87,21 +87,23 @@ class MagicWord:
             if self.air:
                 invoker = self.air.doId2do.get(self.invokerId)
                 toon = self.air.doId2do.get(avId)
-            else:
-                if self.cr:
-                    invoker = self.cr.doId2do.get(self.invokerId)
-                    toon = self.cr.doId2do.get(avId)
+            elif self.cr:
+                invoker = self.cr.doId2do.get(self.invokerId)
+                toon = self.cr.doId2do.get(avId)
             if not self.validateTarget(toon):
                 if hasattr(toon, 'getName'):
                     return ('{} is not a valid target!').format(toon.getName())
-                return ('{} is not a valid target!').format(avId)
+                else:
+                    return ('{} is not a valid target!').format(avId)
+
             if self.execLocation == MagicWordConfig.EXEC_LOC_CLIENT:
                 self.args = json.loads(self.args)
             executedWord = self.handleWord(invoker, avId, toon, *self.args)
 
         if executedWord:
             return executedWord
-        return
+        else:
+            return
 
     def validateTarget(self, target):
         if self.air:
@@ -180,16 +182,17 @@ class SetSpeed(MagicWord):
         speed = args[0]
         if not 1.0 <= speed <= 1000.0:
             return ("Can't set speed to {}! Specify a value between 1 and 1000.").format(toon.getName())
-        if speed == OTPGlobals.ToonForwardSpeed:
-            base.localAvatar.currentSpeed = OTPGlobals.ToonForwardSpeed
-            base.localAvatar.currentReverseSpeed = OTPGlobals.ToonReverseSpeed
-            base.localAvatar.controlManager.setSpeeds(OTPGlobals.ToonForwardSpeed, OTPGlobals.ToonJumpForce, OTPGlobals.ToonReverseSpeed, OTPGlobals.ToonRotateSpeed)
-            return ('Your speed has been set to the default ({}).').format(OTPGlobals.ToonForwardSpeed)
-        reverseSpeed = speed / 3
-        base.localAvatar.currentSpeed = speed
-        base.localAvatar.currentReverseSpeed = reverseSpeed
-        base.localAvatar.controlManager.setSpeeds(speed, OTPGlobals.ToonJumpForce, reverseSpeed, OTPGlobals.ToonRotateSpeed)
-        return ('Your speed has been set to {}.').format(speed)
+        else:
+            if speed == OTPGlobals.ToonForwardSpeed:
+                base.localAvatar.currentSpeed = OTPGlobals.ToonForwardSpeed
+                base.localAvatar.currentReverseSpeed = OTPGlobals.ToonReverseSpeed
+                base.localAvatar.controlManager.setSpeeds(OTPGlobals.ToonForwardSpeed, OTPGlobals.ToonJumpForce, OTPGlobals.ToonReverseSpeed, OTPGlobals.ToonRotateSpeed)
+                return ('Your speed has been set to the default ({}).').format(OTPGlobals.ToonForwardSpeed)
+            reverseSpeed = speed / 3
+            base.localAvatar.currentSpeed = speed
+            base.localAvatar.currentReverseSpeed = reverseSpeed
+            base.localAvatar.controlManager.setSpeeds(speed, OTPGlobals.ToonJumpForce, reverseSpeed, OTPGlobals.ToonRotateSpeed)
+            return ('Your speed has been set to {}.').format(speed)
 
 
 class MaxToon(MagicWord):
@@ -453,8 +456,9 @@ class ToggleSleeping(MagicWord):
         if not base.localAvatar.neverSleep:
             base.localAvatar.disableSleeping()
             return 'Sleeping has been deactivated for the current session.'
-        base.localAvatar.enableSleeping()
-        return 'Sleeping has been activated for the current session.'
+        else:
+            base.localAvatar.enableSleeping()
+            return 'Sleeping has been activated for the current session.'
 
 
 class ToggleRainbow(MagicWord):
@@ -481,11 +485,10 @@ class Teleport(MagicWord):
             request = ToontownGlobals.hood2Id[hood.upper()]
         except:
             return 'Invalid location!'
-        else:
-            hoodId = request[0]
-            if hoodId in (ToontownGlobals.ToontownOutskirts, ToontownGlobals.ToontownCentralBeta, ToontownGlobals.DaisyGardensBeta) and not toon.getUnlocks()[0]:
-                return "You don't know how to get to that location yet!"
 
+        hoodId = request[0]
+        if hoodId in (ToontownGlobals.ToontownOutskirts, ToontownGlobals.ToontownCentralBeta, ToontownGlobals.DaisyGardensBeta) and not toon.getUnlocks()[0]:
+            return "You don't know how to get to that location yet!"
         toon.d_doTeleport(hood)
         return ('Teleporting {0} to {1}!').format(toon.getName(), ToontownGlobals.hoodNameMap[hoodId][(-1)])
 
@@ -819,10 +822,11 @@ class Ban(MagicWord):
         if toon.getDoId() not in simbase.air.doId2do.keys() or invoker.getDoId() not in simbase.air.doId2do.keys():
             simbase.air.writeServerEvent('suspicious', issue='Invalid invoker: %s and target: %s when trying to ban them.' % (invoker.getDoId(), toon.getDoId()))
             return 'Failed to ban the target!'
-        if not isinstance(toon, DistributedToonAI) and not isinstance(invoker, DistributedToonAI):
-            return 'You can only ban a Toon.'
-        toon.sendSetBan(reason=reason, target=toon, invoker=invoker, duration=duration)
-        return 'Banned %s!' % toon.getName()
+        else:
+            if not isinstance(toon, DistributedToonAI) and not isinstance(invoker, DistributedToonAI):
+                return 'You can only ban a Toon.'
+            toon.sendSetBan(reason=reason, target=toon, invoker=invoker, duration=duration)
+            return 'Banned %s!' % toon.getName()
 
 
 class BanId(MagicWord):
@@ -839,16 +843,17 @@ class BanId(MagicWord):
         toon = self.air.doId2do.get(id)
         if not toon:
             return 'Invalid Toon ID specified, or the Toon is offline!'
-        if duration:
-            if not 10 <= duration <= 30000:
-                return ("Can't ban {0}'s with duration {1}! Specify a value between 10 and 30000.").format(toon.getName(), duration)
-        if toon.getDoId() not in simbase.air.doId2do.keys() or invoker.getDoId() not in simbase.air.doId2do.keys():
-            simbase.air.writeServerEvent('suspicious', issue='Invalid invoker: %s and target: %s when trying to ban them.' % (invoker.getDoId(), toon.getDoId()))
-            return 'Failed to ban the target!'
-        if not isinstance(toon, DistributedToonAI) and not isinstance(invoker, DistributedToonAI):
-            return 'You can only ban a Toon.'
-        toon.sendSetBan(reason=reason, target=toon, invoker=invoker, duration=duration)
-        return 'Banned %s!' % toon.getName()
+        else:
+            if duration:
+                if not 10 <= duration <= 30000:
+                    return ("Can't ban {0}'s with duration {1}! Specify a value between 10 and 30000.").format(toon.getName(), duration)
+            if toon.getDoId() not in simbase.air.doId2do.keys() or invoker.getDoId() not in simbase.air.doId2do.keys():
+                simbase.air.writeServerEvent('suspicious', issue='Invalid invoker: %s and target: %s when trying to ban them.' % (invoker.getDoId(), toon.getDoId()))
+                return 'Failed to ban the target!'
+            if not isinstance(toon, DistributedToonAI) and not isinstance(invoker, DistributedToonAI):
+                return 'You can only ban a Toon.'
+            toon.sendSetBan(reason=reason, target=toon, invoker=invoker, duration=duration)
+            return 'Banned %s!' % toon.getName()
 
 
 class Kick(MagicWord):
@@ -865,12 +870,13 @@ class Kick(MagicWord):
             simbase.air.writeServerEvent('suspicious', issue='Invalid invoker: %s and target: %s when trying to kick them.' % (
              invoker.getDoId(), toon.getDoId()))
             return 'Failed to kick avatar!'
-        if not isinstance(toon, DistributedToonAI) and not isinstance(invoker, DistributedToonAI):
-            return 'You can only kick an avatar.'
-        if toon.getDoId() == invoker.getDoId():
-            return "You can't kick yourself, %s" % toon.getName()
-        toon.sendSetKick(reason=reason, target=toon, invoker=invoker, silent=3)
-        return 'Kicked %s!' % toon.getName()
+        else:
+            if not isinstance(toon, DistributedToonAI) and not isinstance(invoker, DistributedToonAI):
+                return 'You can only kick an avatar.'
+            if toon.getDoId() == invoker.getDoId():
+                return "You can't kick yourself, %s" % toon.getName()
+            toon.sendSetKick(reason=reason, target=toon, invoker=invoker, silent=3)
+            return 'Kicked %s!' % toon.getName()
 
 
 class InvasionStatus(MagicWord):
@@ -903,7 +909,8 @@ class RevealMap(MagicWord):
             mazeGame.game.guiMgr.mazeMapGui.showExit()
             mazeGame.game.guiMgr.mazeMapGui.revealAll()
             return 'Map revealed!'
-        return 'You are not in a Maze Game!'
+        else:
+            return 'You are not in a Maze Game!'
 
 
 class EndMaze(MagicWord):
@@ -922,7 +929,8 @@ class EndMaze(MagicWord):
         if mazeGame:
             mazeGame.openDoor()
             return 'Completed Maze Game'
-        return 'You are not in a Maze Game!'
+        else:
+            return 'You are not in a Maze Game!'
 
 
 class SpawnBuilding(MagicWord):
@@ -938,13 +946,12 @@ class SpawnBuilding(MagicWord):
             suitIndex = SuitDNA.suitHeadTypes.index(suitName)
         except:
             return ('Invalid Cog specified.').format(suitName)
-        else:
-            if suitName in SuitDNA.extraSuits.keys():
-                return 'Custom Cogs cannot take over buildings.'
-            returnCode = invoker.doBuildingTakeover(suitIndex)
-            if returnCode[0] == 'success':
-                return ("Successfully spawned building with Cog '{0}'!").format(suitName)
 
+        if suitName in SuitDNA.extraSuits.keys():
+            return 'Custom Cogs cannot take over buildings.'
+        returnCode = invoker.doBuildingTakeover(suitIndex)
+        if returnCode[0] == 'success':
+            return ("Successfully spawned building with Cog '{0}'!").format(suitName)
         return ("Couldn't spawn building with Cog '{0}'.").format(suitName)
 
 
@@ -963,18 +970,18 @@ class SpawnFO(MagicWord):
          's', 'l']
         if track not in tracks:
             return "Invalid Field Office type! Supported types are 's' and 'l'"
-        if not 0 <= difficulty < len(SuitBuildingGlobals.SuitBuildingInfo):
-            return 'Difficulty out of bounds!'
-        try:
-            building = invoker.findClosestDoor()
-        except KeyError:
-            return "You're not on a street!"
         else:
+            if not 0 <= difficulty < len(SuitBuildingGlobals.SuitBuildingInfo):
+                return 'Difficulty out of bounds!'
+            try:
+                building = invoker.findClosestDoor()
+            except KeyError:
+                return "You're not on a street!"
+
             if building is None:
                 return 'Unable to spawn a %s Field Office with a difficulty of %d.' % (ToontownGlobals.Dept2Dept.get(track), difficulty)
-
-        building.cogdoTakeOver(track, difficulty, 2)
-        return 'Successfully spawned a %s Field Office with a difficulty of %d!' % (ToontownGlobals.Dept2Dept.get(track), difficulty)
+            building.cogdoTakeOver(track, difficulty, 2)
+            return 'Successfully spawned a %s Field Office with a difficulty of %d!' % (ToontownGlobals.Dept2Dept.get(track), difficulty)
 
 
 class SetCEIndex(MagicWord):
@@ -1169,38 +1176,36 @@ class SetInventory(MagicWord):
             if targetTrack == -1:
                 return 'Inventory cleared.'
             return ('Inventory cleared for target track index: {0}').format(targetTrack)
+        elif type == 'restock':
+            maxLevelIndex = level or 5
+            if not 0 <= maxLevelIndex < len(ToontownBattleGlobals.Levels[0]):
+                return ('Invalid max level index: {0}').format(maxLevelIndex)
+            targetTrack = -1 or track
+            if not -1 <= targetTrack < len(ToontownBattleGlobals.Tracks):
+                return ('Invalid target track index: {0}').format(targetTrack)
+            if targetTrack != -1 and not toon.hasTrackAccess(targetTrack):
+                return ("The target Toon doesn't have target track index: {0}").format(targetTrack)
+            inventory.NPCMaxOutInv(targetTrack=targetTrack, maxLevelIndex=maxLevelIndex)
+            toon.b_setInventory(inventory.makeNetString())
+            if targetTrack == -1:
+                return 'Inventory restocked.'
+            return ('Inventory restocked for target track index: {0}').format(targetTrack)
         else:
-            if type == 'restock':
-                maxLevelIndex = level or 5
-                if not 0 <= maxLevelIndex < len(ToontownBattleGlobals.Levels[0]):
-                    return ('Invalid max level index: {0}').format(maxLevelIndex)
-                targetTrack = -1 or track
-                if not -1 <= targetTrack < len(ToontownBattleGlobals.Tracks):
-                    return ('Invalid target track index: {0}').format(targetTrack)
-                if targetTrack != -1 and not toon.hasTrackAccess(targetTrack):
-                    return ("The target Toon doesn't have target track index: {0}").format(targetTrack)
-                inventory.NPCMaxOutInv(targetTrack=targetTrack, maxLevelIndex=maxLevelIndex)
+            try:
+                targetTrack = int(type)
+            except:
+                return 'Invalid first argument.'
+
+            if not toon.hasTrackAccess(targetTrack):
+                return ("The target Toon doesn't have target track index: {0}").format(targetTrack)
+            maxLevelIndex = level or 6
+            if not 0 <= maxLevelIndex < len(ToontownBattleGlobals.Levels[0]):
+                return ('Invalid max level index: {0}').format(maxLevelIndex)
+            for _ in xrange(track):
+                inventory.addItem(targetTrack, maxLevelIndex)
                 toon.b_setInventory(inventory.makeNetString())
-                if targetTrack == -1:
-                    return 'Inventory restocked.'
-                return ('Inventory restocked for target track index: {0}').format(targetTrack)
-            else:
-                try:
-                    targetTrack = int(type)
-                except:
-                    return 'Invalid first argument.'
-                else:
-                    if not toon.hasTrackAccess(targetTrack):
-                        return ("The target Toon doesn't have target track index: {0}").format(targetTrack)
-                    maxLevelIndex = level or 6
-                    if not 0 <= maxLevelIndex < len(ToontownBattleGlobals.Levels[0]):
-                        return ('Invalid max level index: {0}').format(maxLevelIndex)
 
-                for _ in xrange(track):
-                    inventory.addItem(targetTrack, maxLevelIndex)
-                    toon.b_setInventory(inventory.makeNetString())
-
-                return ('Restored {0} Gags to: {1}, {2}').format(track, targetTrack, maxLevelIndex)
+            return ('Restored {0} Gags to: {1}, {2}').format(track, targetTrack, maxLevelIndex)
 
 
 class ToggleGM(MagicWord):
@@ -1212,26 +1217,22 @@ class ToggleGM(MagicWord):
         if invoker.isGM():
             invoker.b_setGM(0)
             return 'You have disabled your GM icon.'
-        if access >= 800:
-            invoker.b_setGM(5)
         else:
-            if access >= 700:
+            if access >= 800:
+                invoker.b_setGM(5)
+            elif access >= 700:
                 invoker.b_setGM(6)
-            else:
-                if access >= 600:
-                    invoker.b_setGM(8)
-                    invoker.b_setGM(7)
-                    invoker.b_setGM(4)
-                else:
-                    if access >= 500:
-                        invoker.b_setGM(3)
-                    else:
-                        if access >= 400:
-                            invoker.b_setGM(2)
-                        else:
-                            if access >= 200:
-                                invoker.b_setGM(1)
-        return 'You have enabled your GM icon.'
+            elif access >= 600:
+                invoker.b_setGM(8)
+                invoker.b_setGM(7)
+                invoker.b_setGM(4)
+            elif access >= 500:
+                invoker.b_setGM(3)
+            elif access >= 400:
+                invoker.b_setGM(2)
+            elif access >= 200:
+                invoker.b_setGM(1)
+            return 'You have enabled your GM icon.'
 
 
 class ToggleGhost(MagicWord):
@@ -1268,9 +1269,8 @@ class SetGM(MagicWord):
             return 'Your access level is too low to use this GM icon.'
         if toon.isGM() and gmId != 0:
             toon.b_setGM(0, name)
-        else:
-            if toon.isGM and gmId == 0:
-                toon.b_setGM(0, True)
+        elif toon.isGM and gmId == 0:
+            toon.b_setGM(0, True)
         toon.b_setGM(gmId, name)
         toon.d_requestVerifyGM()
         return 'You have set %s to GM type %s' % (toon.getName(), gmId)
@@ -1338,207 +1338,178 @@ class SetDNA(MagicWord):
             if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
                 return 'DNA: Invalid color specified for head.'
             dna.headColor = colorInt
-        else:
-            if part == 'armcolor':
-                value = value.title()
-                if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
-                    return 'DNA: Invalid color specified for arms.'
-                dna.armColor = colorInt
+        elif part == 'armcolor':
+            value = value.title()
+            if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
+                return 'DNA: Invalid color specified for arms.'
+            dna.armColor = colorInt
+        elif part == 'legcolor':
+            value = value.title()
+            if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
+                return 'DNA: Invalid color specified for legs.'
+            dna.legColor = colorInt
+        elif part == 'color':
+            value = value.title()
+            if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
+                return 'DNA: Invalid color specified for toon.'
+            dna.headColor = colorInt
+            dna.armColor = colorInt
+            dna.legColor = colorInt
+        elif part == 'gloves':
+            value = value.title()
+            if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
+                return 'DNA: Color index out of range.'
+            dna.gloveColor = colorInt
+        elif part == 'gender':
+            if value.lower() == 'male' or value.lower() == 'm' or value == '0':
+                dna.gender = 'm'
+            elif value.lower() == 'female' or value.lower() == 'f' or value == '1':
+                dna.gender = 'f'
             else:
-                if part == 'legcolor':
-                    value = value.title()
-                    if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
-                        return 'DNA: Invalid color specified for legs.'
-                    dna.legColor = colorInt
-                else:
-                    if part == 'color':
-                        value = value.title()
-                        if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
-                            return 'DNA: Invalid color specified for toon.'
-                        dna.headColor = colorInt
-                        dna.armColor = colorInt
-                        dna.legColor = colorInt
-                    else:
-                        if part == 'gloves':
-                            value = value.title()
-                            if value not in ToonDNA.colorToInt.keys() and not isValidColor(colorInt):
-                                return 'DNA: Color index out of range.'
-                            dna.gloveColor = colorInt
-                        else:
-                            if part == 'gender':
-                                if value.lower() == 'male' or value.lower() == 'm' or value == '0':
-                                    dna.gender = 'm'
-                                elif value.lower() == 'female' or value.lower() == 'f' or value == '1':
-                                    dna.gender = 'f'
-                                else:
-                                    return "DNA: Invalid gender. Stick to 'male' or 'female'."
-                            else:
-                                if part == 'species':
-                                    species = [
-                                     'dog', 'cat', 'horse', 'mouse', 'rabbit', 'duck', 'monkey', 'bear', 'pig', 'gyro', 'scrooge']
-                                    if value.lower() not in species:
-                                        return 'DNA: Invalid head type specified.'
-                                    species = dict(map(None, species, ToonDNA.toonSpeciesTypes))
-                                    headSize = dna.head[1:3]
-                                    if value in ('gyro', 'scrooge'):
-                                        headSize = 'ss'
-                                    else:
-                                        if value == 'mouse':
-                                            if headSize in ('sl', 'll'):
-                                                headSize = 'ls'
-                                    dna.head = species.get(value) + headSize
-                                else:
-                                    if part == 'headsize':
-                                        sizes = [
-                                         'ls', 'ss', 'sl', 'll']
-                                        species = dna.head[0]
-                                        try:
-                                            value = int(value)
-                                        except ValueError:
-                                            return 'Invalid type of value!'
-                                        else:
-                                            print species
-                                            if species in ('i', 'o'):
-                                                return 'DNA: Cannot change the head size of this species.'
-                                            if species == 'm':
-                                                if not 0 <= value <= 1:
-                                                    return 'DNA: Invalid head size index.'
-                                            else:
-                                                if not 0 <= value <= 3:
-                                                    return 'DNA: Invalid head size index.'
+                return "DNA: Invalid gender. Stick to 'male' or 'female'."
+        elif part == 'species':
+            species = [
+             'dog', 'cat', 'horse', 'mouse', 'rabbit', 'duck', 'monkey', 'bear', 'pig', 'gyro', 'scrooge']
+            if value.lower() not in species:
+                return 'DNA: Invalid head type specified.'
+            species = dict(map(None, species, ToonDNA.toonSpeciesTypes))
+            headSize = dna.head[1:3]
+            if value in ('gyro', 'scrooge'):
+                headSize = 'ss'
+            elif value == 'mouse':
+                if headSize in ('sl', 'll'):
+                    headSize = 'ls'
+            dna.head = species.get(value) + headSize
+        elif part == 'headsize':
+            sizes = [
+             'ls', 'ss', 'sl', 'll']
+            species = dna.head[0]
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                        if species == 'g':
-                                            value == 2
-                                        else:
-                                            if species == 'o':
-                                                value == 3
-                                            else:
-                                                if species == 'i':
-                                                    value == 1
-                                        dna.head = species + sizes[value]
-                                    else:
-                                        if part == 'torso':
-                                            try:
-                                                value = int(value)
-                                            except ValueError:
-                                                return 'Invalid type of value!'
+            print species
+            if species in ('i', 'o'):
+                return 'DNA: Cannot change the head size of this species.'
+            if species == 'm':
+                if not 0 <= value <= 1:
+                    return 'DNA: Invalid head size index.'
+            elif not 0 <= value <= 3:
+                return 'DNA: Invalid head size index.'
+            if species == 'g':
+                value == 2
+            elif species == 'o':
+                value == 3
+            elif species == 'i':
+                value == 1
+            dna.head = species + sizes[value]
+        elif part == 'torso':
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                            if dna.gender == 'm':
-                                                if not 0 <= value <= 2:
-                                                    return 'DNA: Male torso index out of range (0-2).'
-                                            else:
-                                                if dna.gender == 'f':
-                                                    if not 3 <= value <= 8:
-                                                        return 'DNA: Female torso index out of range (3-8).'
-                                                    if 6 <= value <= 8:
-                                                        value = value - 6
-                                                else:
-                                                    return 'DNA: Unable to determine gender. Aborting DNA change.'
-                                            dna.torso = ToonDNA.toonTorsoTypes[value]
-                                        else:
-                                            if part == 'legs':
-                                                try:
-                                                    value = int(value)
-                                                except ValueError:
-                                                    return 'Invalid type of value!'
-                                                else:
-                                                    if not 0 <= value <= 2:
-                                                        return 'DNA: Legs index out of range.'
+            if dna.gender == 'm':
+                if not 0 <= value <= 2:
+                    return 'DNA: Male torso index out of range (0-2).'
+            elif dna.gender == 'f':
+                if not 3 <= value <= 8:
+                    return 'DNA: Female torso index out of range (3-8).'
+                if 6 <= value <= 8:
+                    value = value - 6
+            else:
+                return 'DNA: Unable to determine gender. Aborting DNA change.'
+            dna.torso = ToonDNA.toonTorsoTypes[value]
+        elif part == 'legs':
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                                dna.legs = ToonDNA.toonLegTypes[value]
-                                            else:
-                                                if part == 'toptex':
-                                                    if len(dna.torso) == 1:
-                                                        return 'What clothing?'
-                                                    try:
-                                                        value = int(value)
-                                                    except ValueError:
-                                                        return 'Invalid type of value!'
-                                                    else:
-                                                        if value == 160 and not 0:
-                                                            return 'Invalid top texture index.'
-                                                        if not 0 <= value <= len(ToonDNA.Shirts):
-                                                            return ('Top texture index out of range (0-{0}).').format(len(ToonDNA.Shirts))
+            if not 0 <= value <= 2:
+                return 'DNA: Legs index out of range.'
+            dna.legs = ToonDNA.toonLegTypes[value]
+        elif part == 'toptex':
+            if len(dna.torso) == 1:
+                return 'What clothing?'
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                                    dna.topTex = value
-                                                else:
-                                                    if part == 'toptexcolor':
-                                                        if len(dna.torso) == 1:
-                                                            return 'What clothing?'
-                                                        try:
-                                                            value = int(value)
-                                                        except ValueError:
-                                                            return 'Invalid type of value!'
-                                                        else:
-                                                            if not 0 <= value <= len(ToonDNA.ClothesColors):
-                                                                return ('Top texture color index out of range(0-{0}).').format(len(ToonDNA.ClothesColors))
+            if value == 160 and not 0:
+                return 'Invalid top texture index.'
+            if not 0 <= value <= len(ToonDNA.Shirts):
+                return ('Top texture index out of range (0-{0}).').format(len(ToonDNA.Shirts))
+            dna.topTex = value
+        elif part == 'toptexcolor':
+            if len(dna.torso) == 1:
+                return 'What clothing?'
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                                        dna.topTexColor = value
-                                                    else:
-                                                        if part == 'sleevetex':
-                                                            if len(dna.torso) == 1:
-                                                                return 'What clothing?'
-                                                            try:
-                                                                value = int(value)
-                                                            except ValueError:
-                                                                return 'Invalid type of value!'
-                                                            else:
-                                                                if value == 149 and not 0:
-                                                                    return 'Invalid sleeve texture index.'
-                                                                if not 0 <= value <= len(ToonDNA.Sleeves):
-                                                                    return ('Sleeve texture index out of range(0-{0}).').format(len(ToonDNA.Sleeves))
+            if not 0 <= value <= len(ToonDNA.ClothesColors):
+                return ('Top texture color index out of range(0-{0}).').format(len(ToonDNA.ClothesColors))
+            dna.topTexColor = value
+        elif part == 'sleevetex':
+            if len(dna.torso) == 1:
+                return 'What clothing?'
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                                            dna.sleeveTex = value
-                                                        else:
-                                                            if part == 'sleevetexcolor':
-                                                                if len(dna.torso) == 1:
-                                                                    return 'What clothing?'
-                                                                try:
-                                                                    value = int(value)
-                                                                except ValueError:
-                                                                    return 'Invalid type of value!'
-                                                                else:
-                                                                    if not 0 <= value <= len(ToonDNA.ClothesColors):
-                                                                        return ('Sleeve texture color index out of range(0-{0}).').format(len(ToonDNA.ClothesColors))
+            if value == 149 and not 0:
+                return 'Invalid sleeve texture index.'
+            if not 0 <= value <= len(ToonDNA.Sleeves):
+                return ('Sleeve texture index out of range(0-{0}).').format(len(ToonDNA.Sleeves))
+            dna.sleeveTex = value
+        elif part == 'sleevetexcolor':
+            if len(dna.torso) == 1:
+                return 'What clothing?'
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                                                dna.sleeveTexColor = value
-                                                            else:
-                                                                if part == 'bottex':
-                                                                    if len(dna.torso) == 1:
-                                                                        return 'What clothing?'
-                                                                    try:
-                                                                        value = int(value)
-                                                                    except ValueError:
-                                                                        return 'Invalid type of value!'
-                                                                    else:
-                                                                        if dna.gender not in ('m',
-                                                                                              'f'):
-                                                                            return 'Unknown gender.'
-                                                                        if dna.gender == 'm':
-                                                                            if value == 67 and not 0:
-                                                                                return 'Invalid bottom texture index.'
-                                                                            bottoms = ToonDNA.BoyShorts
-                                                                        else:
-                                                                            bottoms = ToonDNA.GirlBottoms
-                                                                        if not 0 <= value <= len(bottoms):
-                                                                            return ('Bottom texture index out of range (0-{0}).').format(len(bottoms))
+            if not 0 <= value <= len(ToonDNA.ClothesColors):
+                return ('Sleeve texture color index out of range(0-{0}).').format(len(ToonDNA.ClothesColors))
+            dna.sleeveTexColor = value
+        elif part == 'bottex':
+            if len(dna.torso) == 1:
+                return 'What clothing?'
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                                                    dna.botTex = value
-                                                                else:
-                                                                    if part == 'bottexcolor':
-                                                                        if len(dna.torso) == 1:
-                                                                            return 'What clothing?'
-                                                                        try:
-                                                                            value = int(value)
-                                                                        except ValueError:
-                                                                            return 'Invalid type of value!'
-                                                                        else:
-                                                                            if not 0 <= value <= len(ToonDNA.ClothesColors):
-                                                                                return ('Bottom texture color index out of range(0-{0}).').format(len(ToonDNA.ClothesColors))
+            if dna.gender not in ('m', 'f'):
+                return 'Unknown gender.'
+            if dna.gender == 'm':
+                if value == 67 and not 0:
+                    return 'Invalid bottom texture index.'
+                bottoms = ToonDNA.BoyShorts
+            else:
+                bottoms = ToonDNA.GirlBottoms
+            if not 0 <= value <= len(bottoms):
+                return ('Bottom texture index out of range (0-{0}).').format(len(bottoms))
+            dna.botTex = value
+        elif part == 'bottexcolor':
+            if len(dna.torso) == 1:
+                return 'What clothing?'
+            try:
+                value = int(value)
+            except ValueError:
+                return 'Invalid type of value!'
 
-                                                                        dna.botTexColor = value
-                                                                    else:
-                                                                        return 'DNA: Invalid part specified.'
+            if not 0 <= value <= len(ToonDNA.ClothesColors):
+                return ('Bottom texture color index out of range(0-{0}).').format(len(ToonDNA.ClothesColors))
+            dna.botTexColor = value
+        else:
+            return 'DNA: Invalid part specified.'
         toon.b_setDNAString(dna.makeNetString())
         return 'Completed DNA change successfully.'
 
@@ -1712,23 +1683,26 @@ class SkipCFO(MagicWord):
 
         if not boss:
             return "You aren't in a CFO!"
-        battle = battle.lower()
-        if battle == 'two':
-            if boss.state in ('PrepareBattleThree', 'BattleThree'):
-                return 'You can not return to previous rounds!'
-            boss.exitIntroduction()
-            boss.b_setState('PrepareBattleThree')
-            return 'Skipping to last round...'
-        if battle == 'next':
-            if boss.state in ('PrepareBattleOne', 'BattleOne'):
-                boss.exitIntroduction()
-                boss.b_setState('PrepareBattleThree')
-                return 'Skipping current round...'
-            if boss.state in ('PrepareBattleThree', 'BattleThree'):
-                boss.exitIntroduction()
-                boss.b_setState('Victory')
-                return 'Skipping final round...'
-        return
+        else:
+            battle = battle.lower()
+            if battle == 'two':
+                if boss.state in ('PrepareBattleThree', 'BattleThree'):
+                    return 'You can not return to previous rounds!'
+                else:
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping to last round...'
+
+            if battle == 'next':
+                if boss.state in ('PrepareBattleOne', 'BattleOne'):
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping current round...'
+                if boss.state in ('PrepareBattleThree', 'BattleThree'):
+                    boss.exitIntroduction()
+                    boss.b_setState('Victory')
+                    return 'Skipping final round...'
+            return
 
 
 class HitCFO(MagicWord):
@@ -1749,8 +1723,9 @@ class HitCFO(MagicWord):
 
         if not boss:
             return "You aren't in a CFO!"
-        boss.magicWordHit(dmg, invoker.doId)
-        return
+        else:
+            boss.magicWordHit(dmg, invoker.doId)
+            return
 
 
 class DisableGoons(MagicWord):
@@ -1783,35 +1758,40 @@ class SkipCJ(MagicWord):
 
         if not boss:
             return "You aren't in a CJ!"
-        battle = battle.lower()
-        if battle == 'two':
-            if boss.state in ('RollToBattleTwo', 'PrepareBattleTwo', 'BattleTwo', 'PrepareBattleThree',
-                              'BattleThree'):
-                return 'You can not return to previous rounds!'
-            boss.exitIntroduction()
-            boss.b_setState('RollToBattleTwo')
-            return 'Skipping to second round...'
-        if battle == 'three':
-            if boss.state in ('PrepareBattleThree', 'BattleThree'):
-                return 'You can not return to previous rounds!'
-            boss.exitIntroduction()
-            boss.b_setState('PrepareBattleThree')
-            return 'Skipping to final round...'
-        if battle == 'next':
-            if boss.state in ('PrepareBattleOne', 'BattleOne'):
-                boss.exitIntroduction()
-                boss.b_setState('RollToBattleTwo')
-                return 'Skipping current round...'
-            if boss.state in ('RollToBattleTwo', 'PrepareBattleTwo', 'BattleTwo'):
-                boss.exitIntroduction()
-                boss.b_setState('PrepareBattleThree')
-                return 'Skipping current round...'
-            if boss.state in ('PrepareBattleThree', 'BattleThree'):
-                boss.exitIntroduction()
-                boss.enterNearVictory()
-                boss.b_setState('Victory')
-                return 'Skipping final round...'
-        return
+        else:
+            battle = battle.lower()
+            if battle == 'two':
+                if boss.state in ('RollToBattleTwo', 'PrepareBattleTwo', 'BattleTwo',
+                                  'PrepareBattleThree', 'BattleThree'):
+                    return 'You can not return to previous rounds!'
+                else:
+                    boss.exitIntroduction()
+                    boss.b_setState('RollToBattleTwo')
+                    return 'Skipping to second round...'
+
+            if battle == 'three':
+                if boss.state in ('PrepareBattleThree', 'BattleThree'):
+                    return 'You can not return to previous rounds!'
+                else:
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping to final round...'
+
+            if battle == 'next':
+                if boss.state in ('PrepareBattleOne', 'BattleOne'):
+                    boss.exitIntroduction()
+                    boss.b_setState('RollToBattleTwo')
+                    return 'Skipping current round...'
+                if boss.state in ('RollToBattleTwo', 'PrepareBattleTwo', 'BattleTwo'):
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping current round...'
+                if boss.state in ('PrepareBattleThree', 'BattleThree'):
+                    boss.exitIntroduction()
+                    boss.enterNearVictory()
+                    boss.b_setState('Victory')
+                    return 'Skipping final round...'
+            return
 
 
 class FillJury(MagicWord):
@@ -1830,13 +1810,14 @@ class FillJury(MagicWord):
 
         if not boss:
             return "You aren't in a CJ!"
-        if not boss.state == 'BattleTwo':
-            return "You aren't in the cannon round."
-        for i in xrange(len(boss.chairs)):
-            boss.chairs[i].b_setToonJurorIndex(0)
-            boss.chairs[i].requestToonJuror()
+        else:
+            if not boss.state == 'BattleTwo':
+                return "You aren't in the cannon round."
+            for i in xrange(len(boss.chairs)):
+                boss.chairs[i].b_setToonJurorIndex(0)
+                boss.chairs[i].requestToonJuror()
 
-        return 'Filled chairs.'
+            return 'Filled chairs.'
 
 
 class SkipVP(MagicWord):
@@ -1857,23 +1838,26 @@ class SkipVP(MagicWord):
 
         if not boss:
             return "You aren't in a VP!"
-        battle = battle.lower()
-        if battle == 'three':
-            if boss.state in ('PrepareBattleThree', 'BattleThree'):
-                return 'You can not return to previous rounds!'
-            boss.exitIntroduction()
-            boss.b_setState('PrepareBattleThree')
-            return 'Skipping to final round...'
-        if battle == 'next':
-            if boss.state in ('PrepareBattleOne', 'BattleOne'):
-                boss.exitIntroduction()
-                boss.b_setState('PrepareBattleThree')
-                return 'Skipping current round...'
-            if boss.state in ('PrepareBattleThree', 'BattleThree'):
-                boss.exitIntroduction()
-                boss.b_setState('Victory')
-                return 'Skipping final round...'
-        return
+        else:
+            battle = battle.lower()
+            if battle == 'three':
+                if boss.state in ('PrepareBattleThree', 'BattleThree'):
+                    return 'You can not return to previous rounds!'
+                else:
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping to final round...'
+
+            if battle == 'next':
+                if boss.state in ('PrepareBattleOne', 'BattleOne'):
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping current round...'
+                if boss.state in ('PrepareBattleThree', 'BattleThree'):
+                    boss.exitIntroduction()
+                    boss.b_setState('Victory')
+                    return 'Skipping final round...'
+            return
 
 
 class StunVP(MagicWord):
@@ -1892,12 +1876,13 @@ class StunVP(MagicWord):
 
         if not boss:
             return "You aren't in a VP!"
-        currState = boss.getCurrentOrNextState()
-        if currState != 'BattleThree':
-            return "You aren't in the final round of a VP!"
-        boss.b_setAttackCode(ToontownGlobals.BossCogDizzyNow)
-        boss.b_setBossDamage(boss.getBossDamage(), 0, 0)
-        return
+        else:
+            currState = boss.getCurrentOrNextState()
+            if currState != 'BattleThree':
+                return "You aren't in the final round of a VP!"
+            boss.b_setAttackCode(ToontownGlobals.BossCogDizzyNow)
+            boss.b_setBossDamage(boss.getBossDamage(), 0, 0)
+            return
 
 
 class SkipCEO(MagicWord):
@@ -1918,45 +1903,52 @@ class SkipCEO(MagicWord):
 
         if not boss:
             return "You aren't in a CEO!"
-        battle = battle.lower()
-        if battle == 'two':
-            if boss.state in ('PrepareBattleFour', 'BattleFour', 'PrepareBattleThree',
-                              'BattleThree', 'PrepareBattleTwo', 'BattleTwo'):
-                return 'You can not return to previous rounds!'
-            boss.exitIntroduction()
-            boss.b_setState('PrepareBattleTwo')
-            return 'Skipping to second round...'
-        if battle == 'three':
-            if boss.state in ('PrepareBattleFour', 'BattleFour', 'PrepareBattleThree',
-                              'BattleThree'):
-                return 'You can not return to previous rounds!'
-            boss.exitIntroduction()
-            boss.b_setState('PrepareBattleThree')
-            return 'Skipping to third round...'
-        if battle == 'four':
-            if boss.state in ('PrepareBattleFour', 'BattleFour'):
-                return 'You can not return to previous rounds!'
-            boss.exitIntroduction()
-            boss.b_setState('PrepareBattleFour')
-            return 'Skipping to last round...'
-        if battle == 'next':
-            if boss.state in ('PrepareBattleOne', 'BattleOne'):
-                boss.exitIntroduction()
-                boss.b_setState('PrepareBattleTwo')
-                return 'Skipping current round...'
-            if boss.state in ('PrepareBattleTwo', 'BattleTwo'):
-                boss.exitIntroduction()
-                boss.b_setState('PrepareBattleThree')
-                return 'Skipping current round...'
-            if boss.state in ('PrepareBattleThree', 'BattleThree'):
-                boss.exitIntroduction()
-                boss.b_setState('PrepareBattleFour')
-                return 'Skipping current round...'
-            if boss.state in ('PrepareBattleFour', 'BattleFour'):
-                boss.exitIntroduction()
-                boss.b_setState('Victory')
-                return 'Skipping final round...'
-        return
+        else:
+            battle = battle.lower()
+            if battle == 'two':
+                if boss.state in ('PrepareBattleFour', 'BattleFour', 'PrepareBattleThree',
+                                  'BattleThree', 'PrepareBattleTwo', 'BattleTwo'):
+                    return 'You can not return to previous rounds!'
+                else:
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleTwo')
+                    return 'Skipping to second round...'
+
+            if battle == 'three':
+                if boss.state in ('PrepareBattleFour', 'BattleFour', 'PrepareBattleThree',
+                                  'BattleThree'):
+                    return 'You can not return to previous rounds!'
+                else:
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping to third round...'
+
+            if battle == 'four':
+                if boss.state in ('PrepareBattleFour', 'BattleFour'):
+                    return 'You can not return to previous rounds!'
+                else:
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleFour')
+                    return 'Skipping to last round...'
+
+            if battle == 'next':
+                if boss.state in ('PrepareBattleOne', 'BattleOne'):
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleTwo')
+                    return 'Skipping current round...'
+                if boss.state in ('PrepareBattleTwo', 'BattleTwo'):
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleThree')
+                    return 'Skipping current round...'
+                if boss.state in ('PrepareBattleThree', 'BattleThree'):
+                    boss.exitIntroduction()
+                    boss.b_setState('PrepareBattleFour')
+                    return 'Skipping current round...'
+                if boss.state in ('PrepareBattleFour', 'BattleFour'):
+                    boss.exitIntroduction()
+                    boss.b_setState('Victory')
+                    return 'Skipping final round...'
+            return
 
 
 class FeedDiners(MagicWord):
@@ -1974,15 +1966,16 @@ class FeedDiners(MagicWord):
 
         if not boss:
             return "You aren't in a CEO!"
-        if boss.state != 'BattleTwo':
-            return "You aren't in the waiter round!"
-        for table in boss.tables:
-            for chairIndex in table.dinerInfo.keys():
-                dinerStatus = table.getDinerStatus(chairIndex)
-                if dinerStatus in (table.HUNGRY, table.ANGRY):
-                    table.foodServed(chairIndex)
+        else:
+            if boss.state != 'BattleTwo':
+                return "You aren't in the waiter round!"
+            for table in boss.tables:
+                for chairIndex in table.dinerInfo.keys():
+                    dinerStatus = table.getDinerStatus(chairIndex)
+                    if dinerStatus in (table.HUNGRY, table.ANGRY):
+                        table.foodServed(chairIndex)
 
-        return 'All diners have been fed!'
+            return 'All diners have been fed!'
 
 
 class AbortGame(MagicWord):
@@ -2012,14 +2005,17 @@ class RequestGame(MagicWord):
             if invoker.doId in MinigameCreatorAI.RequestMinigame:
                 del MinigameCreatorAI.RequestMinigame[invoker.doId]
                 return 'Deleted minigame request.'
-            return 'You had no minigame requests!'
+            else:
+                return 'You had no minigame requests!'
+
         else:
             if minigameName not in ToontownGlobals.MinigameNames:
                 return 'Invalid minigame name!'
-            if minigameZone not in ToontownGlobals.HoodsWithMinigames:
-                return 'Invalid playground!'
-            MinigameCreatorAI.RequestMinigame[invoker.doId] = (ToontownGlobals.MinigameNames[minigameName], minigameKeep, minigameDiff, minigameZone)
-            return 'Your request for the ' + minigameName + ' minigame was added.'
+            else:
+                if minigameZone not in ToontownGlobals.HoodsWithMinigames:
+                    return 'Invalid playground!'
+                MinigameCreatorAI.RequestMinigame[invoker.doId] = (ToontownGlobals.MinigameNames[minigameName], minigameKeep, minigameDiff, minigameZone)
+                return 'Your request for the ' + minigameName + ' minigame was added.'
 
 
 class SpawnCog(MagicWord):
@@ -2068,13 +2064,12 @@ class SpawnInvasion(MagicWord):
             if name not in SuitDNA.suitHeadTypes:
                 return 'This cog does not exist!'
             invMgr.startInvasion(name, num, skeleton)
+        elif cmd == 'stop':
+            if not invMgr.getInvading():
+                return 'There is no invasion on the current AI!'
+            invMgr.stopInvasion()
         else:
-            if cmd == 'stop':
-                if not invMgr.getInvading():
-                    return 'There is no invasion on the current AI!'
-                invMgr.stopInvasion()
-            else:
-                return "You didn't enter a valid command! Commands are ~invasion start or stop."
+            return "You didn't enter a valid command! Commands are ~invasion start or stop."
 
 
 class SetTrophyScore(MagicWord):
@@ -2226,18 +2221,19 @@ class SetExp(MagicWord):
         maxed = ['max', 'maxxed']
         if track not in tracks + maxed:
             return 'Invalid gag track specified!'
-        if not 0 <= amt <= 10000:
-            return ("Can't set {0}'s jellybean count to {1}! Specify a value between 0 and 10,000.").format(toon.getName(), amt)
-        if track in maxed:
-            for track in tracks:
-                toon.experience.setExp(track, 10000)
+        else:
+            if not 0 <= amt <= 10000:
+                return ("Can't set {0}'s jellybean count to {1}! Specify a value between 0 and 10,000.").format(toon.getName(), amt)
+            if track in maxed:
+                for track in tracks:
+                    toon.experience.setExp(track, 10000)
 
+                toon.b_setExperience(toon.experience.makeNetString())
+                return ("Maxed all of {}'s gag tracks.").format(toon.getName())
+            trackIndex = TTLocalizer.BattleGlobalTracks.index(track)
+            toon.experience.setExp(trackIndex, amt)
             toon.b_setExperience(toon.experience.makeNetString())
-            return ("Maxed all of {}'s gag tracks.").format(toon.getName())
-        trackIndex = TTLocalizer.BattleGlobalTracks.index(track)
-        toon.experience.setExp(trackIndex, amt)
-        toon.b_setExperience(toon.experience.makeNetString())
-        return 'Set %s exp to %d successfully.' % (track, amt)
+            return 'Set %s exp to %d successfully.' % (track, amt)
 
 
 class TrackBonus(MagicWord):
@@ -2255,14 +2251,13 @@ class TrackBonus(MagicWord):
         if track == 8:
             bonusAccess = lambda x: trackLength if x > 0 else x
             trackBonusLevel = list(map(bonusAccess, gagAccess))
-        else:
-            if 0 <= track < numTracks:
-                if gagAccess[track]:
-                    trackBonusLevel[track] = trackLength
-                else:
-                    return "You don't have that track!"
+        elif 0 <= track < numTracks:
+            if gagAccess[track]:
+                trackBonusLevel[track] = trackLength
             else:
-                return 'Invalid track!'
+                return "You don't have that track!"
+        else:
+            return 'Invalid track!'
         invoker.b_setTrackBonusLevel(trackBonusLevel)
         return 'Track bonus set!'
 
@@ -2394,11 +2389,10 @@ class SetNametagStyle(MagicWord):
         styleName = styleName.lower()
         if styleName in nametag_list:
             index = nametag_list.index(styleName)
+        elif styleName == 'basic':
+            index = 100
         else:
-            if styleName == 'basic':
-                index = 100
-            else:
-                return 'Invalid nametag name entered.'
+            return 'Invalid nametag name entered.'
         toon.b_setNametagStyle(index)
         return "Set %s's nametag style successfully." % toon.getName()
 
@@ -2423,7 +2417,8 @@ class Phrase(MagicWord):
             toon.customMessages.append(id)
             toon.d_setCustomMessages(toon.customMessages)
             return "Added new phrase to %s's custom phrases." % toon.getName()
-        return 'Invalid phrase id!'
+        else:
+            return 'Invalid phrase id!'
 
 
 class SetSos(MagicWord):
@@ -2506,9 +2501,10 @@ class Nudify(MagicWord):
         dna.makeFromNetString(toon.getDNAString())
         if len(dna.torso) == 1:
             return "There isn't a skeleton under your Toon.  Use ~dna torso to put clothes back on."
-        dna.torso = dna.getTorsoSize()[0]
-        toon.b_setDNAString(dna.makeNetString())
-        return 'You are now a naked Toon!'
+        else:
+            dna.torso = dna.getTorsoSize()[0]
+            toon.b_setDNAString(dna.makeNetString())
+            return 'You are now a naked Toon!'
 
 
 class SetMuzzle(MagicWord):
@@ -2642,19 +2638,18 @@ class ToggleFireworks(MagicWord):
         else:
             if showName == 'newyears':
                 showType = ToontownGlobals.NEWYEARS_FIREWORKS
+            elif showName == 'summer':
+                showType = PartyGlobals.FireworkShows.Summer
             else:
-                if showName == 'summer':
-                    showType = PartyGlobals.FireworkShows.Summer
-                else:
-                    return '"Improper firework type specified. Refer to magic words page for acceptable types."'
-        numShows = len(FireworkShows.shows.get(showType, []))
-        showIndex = random.randint(0, numShows - 1)
-        for hood in simbase.air.hoods:
-            if hood.zoneId == ToontownGlobals.GolfZone:
-                continue
-            fireworksShow = DistributedFireworkShowAI(simbase.air)
-            fireworksShow.generateWithRequired(hood.zoneId)
-            fireworksShow.d_startShow(showType, showIndex)
+                return '"Improper firework type specified. Refer to magic words page for acceptable types."'
+            numShows = len(FireworkShows.shows.get(showType, []))
+            showIndex = random.randint(0, numShows - 1)
+            for hood in simbase.air.hoods:
+                if hood.zoneId == ToontownGlobals.GolfZone:
+                    continue
+                fireworksShow = DistributedFireworkShowAI(simbase.air)
+                fireworksShow.generateWithRequired(hood.zoneId)
+                fireworksShow.d_startShow(showType, showIndex)
 
         return 'Started fireworks in all playgrounds!'
 
@@ -2705,9 +2700,8 @@ class Green(MagicWord):
                 type = 1
             elif character == 'panda':
                 type = 2
-            else:
-                if character not in [TTLocalizer.SellbotP.lower(), TTLocalizer.CashbotP.lower(), TTLocalizer.LawbotP.lower(), TTLocalizer.BossbotP.lower()] and type != 1:
-                    return 'Invalid charcter name!'
+            elif character not in [TTLocalizer.SellbotP.lower(), TTLocalizer.CashbotP.lower(), TTLocalizer.LawbotP.lower(), TTLocalizer.BossbotP.lower()] and type != 1:
+                return 'Invalid charcter name!'
         if type == 1:
             toon.d_generateGreenEffect(character, toonId)
             if toonId == 2 and toon.isDisguised:
@@ -2715,13 +2709,12 @@ class Green(MagicWord):
             else:
                 landingDuration = 5.5
             seq = Sequence(Wait(landingDuration), Func(toon.b_setHp, -1))
+        elif type == 2:
+            toon.d_generateGreenEffect(character, 0)
+            seq = Sequence(Func(toon.b_setHp, -1))
         else:
-            if type == 2:
-                toon.d_generateGreenEffect(character, 0)
-                seq = Sequence(Func(toon.b_setHp, -1))
-            else:
-                toon.d_generateGreenEffect(character, 0)
-                seq = Sequence(Wait(10.0), Func(toon.b_setHp, -1))
+            toon.d_generateGreenEffect(character, 0)
+            seq = Sequence(Wait(10.0), Func(toon.b_setHp, -1))
         seq.start()
         return 'Time to make a new Toon!'
 
@@ -2742,7 +2735,8 @@ class EndFlying(MagicWord):
         if flyingGame:
             flyingGame._handleGameFinished()
             return 'Completed the flying game.'
-        return 'You are not in a flying game!'
+        else:
+            return 'You are not in a flying game!'
 
 
 class Ping(MagicWord):
@@ -2825,13 +2819,14 @@ class SetHouse(MagicWord):
         type = args[0]
         if not 0 <= type <= 5:
             return 'Invalid house type!'
-        if toon.getHouseId() in simbase.air.doId2do:
-            house = simbase.air.doId2do.get(toon.getHouseId())
-            if house is None:
-                return 'House not generated! Go to your estate to generate your house.'
-            house.b_setHouseType(type)
-            return 'House type set to %d.' % type
-        return 'House not generated! Go to your estate to generate your house.'
+        else:
+            if toon.getHouseId() in simbase.air.doId2do:
+                house = simbase.air.doId2do.get(toon.getHouseId())
+                if house is None:
+                    return 'House not generated! Go to your estate to generate your house.'
+                house.b_setHouseType(type)
+                return 'House type set to %d.' % type
+            return 'House not generated! Go to your estate to generate your house.'
 
 
 class GetZone(MagicWord):
@@ -2898,10 +2893,11 @@ class SetCharIndex(MagicWord):
         index = args[0]
         if not -1 <= index <= 17:
             return 'Invalid classic character index specified.'
-        toon.d_setCharIndex(index)
-        if index != -1:
-            return 'Transformed into %s!' % CharDNA.charTypes[index]
-        return 'Transformed back into a Toon!'
+        else:
+            toon.d_setCharIndex(index)
+            if index != -1:
+                return 'Transformed into %s!' % CharDNA.charTypes[index]
+            return 'Transformed back into a Toon!'
 
 
 class SetAccessLevel(MagicWord):

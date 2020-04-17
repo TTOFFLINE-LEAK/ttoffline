@@ -742,19 +742,17 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 instructions = TTLocalizer.ResistanceToonToonupAllInstructions
             else:
                 instructions = TTLocalizer.ResistanceToonToonupInstructions % value
-        else:
-            if menuIndex == ResistanceChat.RESISTANCE_MONEY:
-                if value == -1:
-                    instructions = TTLocalizer.ResistanceToonMoneyAllInstructions
-                else:
-                    instructions = TTLocalizer.ResistanceToonMoneyInstructions % value
+        elif menuIndex == ResistanceChat.RESISTANCE_MONEY:
+            if value == -1:
+                instructions = TTLocalizer.ResistanceToonMoneyAllInstructions
             else:
-                if menuIndex == ResistanceChat.RESISTANCE_RESTOCK:
-                    if value == -1:
-                        instructions = TTLocalizer.ResistanceToonRestockAllInstructions
-                    else:
-                        trackName = TTLocalizer.BattleGlobalTracks[value]
-                        instructions = TTLocalizer.ResistanceToonRestockInstructions % trackName
+                instructions = TTLocalizer.ResistanceToonMoneyInstructions % value
+        elif menuIndex == ResistanceChat.RESISTANCE_RESTOCK:
+            if value == -1:
+                instructions = TTLocalizer.ResistanceToonRestockAllInstructions
+            else:
+                trackName = TTLocalizer.BattleGlobalTracks[value]
+                instructions = TTLocalizer.ResistanceToonRestockInstructions % trackName
         speech = TTLocalizer.ResistanceToonCongratulations % (text, instructions)
         speech = self.__talkAboutPromotion(speech)
         self.resistanceToon.setLocalPageChat(speech, 0)
@@ -770,10 +768,9 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             intervalName = 'EpilogueMovieToonAnim'
             self.storeInterval(track, intervalName)
             track.start()
-        else:
-            if pageNumber == 3:
-                self.d_applyReward()
-                ResistanceChat.doEffect(self.rewardId, self.resistanceToon, self.involvedToons)
+        elif pageNumber == 3:
+            self.d_applyReward()
+            ResistanceChat.doEffect(self.rewardId, self.resistanceToon, self.involvedToons)
 
     def __epilogueChatDone(self, elapsed):
         self.resistanceToon.setChatAbsolute(TTLocalizer.CagedToonGoodbye, CFSpeech)

@@ -93,9 +93,8 @@ def formatTime(hour, minute):
     meridiemString = TTLocalizer.PartyTimeFormatMeridiemAM
     if hour == 0:
         hour = 12
-    else:
-        if hour > 11:
-            meridiemString = TTLocalizer.PartyTimeFormatMeridiemPM
+    elif hour > 11:
+        meridiemString = TTLocalizer.PartyTimeFormatMeridiemPM
     if hour > 12:
         hour -= 12
     return TTLocalizer.PartyTimeFormat % (hour, minute, meridiemString)
@@ -118,8 +117,9 @@ def formatDateTime(dateTimeToShow, inLocalTime=False):
         localDifference = getTimeDeltaInSeconds(newTimeDelta)
         dateTimeToShow = dateTimeToShow + datetime.timedelta(seconds=localDifference)
         return '%s %s' % (formatDate(dateTimeToShow.year, dateTimeToShow.month, dateTimeToShow.day), formatTime(dateTimeToShow.hour, dateTimeToShow.minute))
-    return '%s %s' % (formatDate(dateTimeToShow.year, dateTimeToShow.month, dateTimeToShow.day), formatTime(dateTimeToShow.hour, dateTimeToShow.minute))
-    return
+    else:
+        return '%s %s' % (formatDate(dateTimeToShow.year, dateTimeToShow.month, dateTimeToShow.day), formatTime(dateTimeToShow.hour, dateTimeToShow.minute))
+        return
 
 
 def convertDistanceToPartyGrid(d, index):
@@ -190,14 +190,15 @@ class LineSegment:
         bot = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
         if bot == 0.0:
             return False
-        u1 = top1 / bot
-        u2 = top2 / bot
-        if compare is None:
-            return 0 <= u1 and u1 <= 1 and 0 <= u2 and u2 <= 1
-        if compare == 'segment-ray':
-            return 0 <= u1 and u1 <= 1 and 0 <= u2
-        if compare == 'ray-ray':
-            return 0 <= u1 and 0 <= u2
-        if compare == 'ray-segment':
-            return 0 <= u1 and 0 <= u2 and u2 <= 1
-        return
+        else:
+            u1 = top1 / bot
+            u2 = top2 / bot
+            if compare is None:
+                return 0 <= u1 and u1 <= 1 and 0 <= u2 and u2 <= 1
+            if compare == 'segment-ray':
+                return 0 <= u1 and u1 <= 1 and 0 <= u2
+            if compare == 'ray-ray':
+                return 0 <= u1 and 0 <= u2
+            if compare == 'ray-segment':
+                return 0 <= u1 and 0 <= u2 and u2 <= 1
+            return

@@ -314,48 +314,49 @@ class DistributedPatternGame(DistributedMinigame):
     def setGameReady(self):
         if not self.hasLocalToon:
             return
-        self.notify.debug('setGameReady')
-        if DistributedMinigame.setGameReady(self):
-            return
-        for avId in self.remoteAvIdList:
-            toon = self.getAvatar(avId)
-            if toon:
-                self.arrowDict[avId] = [
-                 self.arrows.pop(), self.xs.pop(), self.statusBalls.pop()]
-                jj = toon.nametag3d
-                for k in xrange(0, 2):
-                    self.arrowDict[avId][k].setBillboardAxis()
-                    self.arrowDict[avId][k].setBin('fixed', 100)
-                    self.arrowDict[avId][k].reparentTo(jj)
-                    if k == 0:
-                        self.arrowDict[avId][k].setScale(2.5)
-                        self.arrowDict[avId][k].setColor(self.arrowColor)
-                    else:
-                        self.arrowDict[avId][k].setScale(4, 4, 4)
-                        self.arrowDict[avId][k].setColor(self.xColor)
-                    self.arrowDict[avId][k].setPos(0, 0, 1)
-
-                self.formatStatusBalls(self.arrowDict[avId][2], jj)
-                toon.reparentTo(render)
-                toon.useLOD(1000)
-                toon.setPos(self.getBackRowPos(avId))
-                toon.setScale(0.9)
-                self.makeToonLookatCamera(toon)
-                for anim in self.toonAnimNames:
-                    toon.pose(anim, 0)
-
-                toon.loop('neutral')
-
-        if self.isSinglePlayer():
-            self.waitingText['text'] = self.strPleaseWait
         else:
-            self.waitingText['text'] = self.strWaitingOtherPlayers
-        self.animTracks = {}
-        for avId in self.avIdList:
-            self.animTracks[avId] = None
+            self.notify.debug('setGameReady')
+            if DistributedMinigame.setGameReady(self):
+                return
+            for avId in self.remoteAvIdList:
+                toon = self.getAvatar(avId)
+                if toon:
+                    self.arrowDict[avId] = [
+                     self.arrows.pop(), self.xs.pop(), self.statusBalls.pop()]
+                    jj = toon.nametag3d
+                    for k in xrange(0, 2):
+                        self.arrowDict[avId][k].setBillboardAxis()
+                        self.arrowDict[avId][k].setBin('fixed', 100)
+                        self.arrowDict[avId][k].reparentTo(jj)
+                        if k == 0:
+                            self.arrowDict[avId][k].setScale(2.5)
+                            self.arrowDict[avId][k].setColor(self.arrowColor)
+                        else:
+                            self.arrowDict[avId][k].setScale(4, 4, 4)
+                            self.arrowDict[avId][k].setColor(self.xColor)
+                        self.arrowDict[avId][k].setPos(0, 0, 1)
 
-        self.__initGameVars()
-        return
+                    self.formatStatusBalls(self.arrowDict[avId][2], jj)
+                    toon.reparentTo(render)
+                    toon.useLOD(1000)
+                    toon.setPos(self.getBackRowPos(avId))
+                    toon.setScale(0.9)
+                    self.makeToonLookatCamera(toon)
+                    for anim in self.toonAnimNames:
+                        toon.pose(anim, 0)
+
+                    toon.loop('neutral')
+
+            if self.isSinglePlayer():
+                self.waitingText['text'] = self.strPleaseWait
+            else:
+                self.waitingText['text'] = self.strWaitingOtherPlayers
+            self.animTracks = {}
+            for avId in self.avIdList:
+                self.animTracks[avId] = None
+
+            self.__initGameVars()
+            return
 
     def setGameStart(self, timestamp):
         if not self.hasLocalToon:
@@ -405,9 +406,8 @@ class DistributedPatternGame(DistributedMinigame):
         curHeading = toon.getH()
         if endHeading - curHeading > 180.0:
             endHeading -= 360
-        else:
-            if endHeading - curHeading < -180.0:
-                endHeading += 360
+        elif endHeading - curHeading < -180.0:
+            endHeading += 360
         endHpr = Point3(endHeading, 0, 0)
         duration = abs(endHeading - curHeading) / 180.0 * 0.3
         track.extend([Func(toon.loop, 'walk'), LerpHprInterval(toon, duration, endHpr), Func(toon.loop, 'neutral')])
@@ -479,7 +479,8 @@ class DistributedPatternGame(DistributedMinigame):
 
         if len(self.remoteAvIdList) == 0:
             return ri
-        return Parallel(ri)
+        else:
+            return Parallel(ri)
 
     def formatStatusBalls(self, sb, jj):
         for x in xrange(0, self.totalMoves):
@@ -760,24 +761,23 @@ class DistributedPatternGame(DistributedMinigame):
                     self.roundText.setScale(0.1)
                     self.roundText['text'] = TTLocalizer.PatternGameYouCanDoIt
                 jumpTrack = Sequence(Wait(0.5), Wait(0.5))
+            elif self.fastestAvId == 1:
+                self.roundText.setScale(0.1)
+                self.roundText['text'] = TTLocalizer.PatternGameGreatJob
+                jumpTrack = Sequence(Wait(0.5), Wait(0.5))
             else:
-                if self.fastestAvId == 1:
-                    self.roundText.setScale(0.1)
-                    self.roundText['text'] = TTLocalizer.PatternGameGreatJob
-                    jumpTrack = Sequence(Wait(0.5), Wait(0.5))
+                self.roundText.setScale(0.08)
+                av = self.getAvatar(self.fastestAvId)
+                jumpTrack = Sequence(ActorInterval(actor=av, animName='jump', duration=1.7), Func(av.loop, 'neutral'))
+                if self.numPlayers != 2:
+                    rewardStr = TTLocalizer.PatternGameOtherFastest
                 else:
-                    self.roundText.setScale(0.08)
-                    av = self.getAvatar(self.fastestAvId)
-                    jumpTrack = Sequence(ActorInterval(actor=av, animName='jump', duration=1.7), Func(av.loop, 'neutral'))
-                    if self.numPlayers != 2:
-                        rewardStr = TTLocalizer.PatternGameOtherFastest
-                    else:
-                        rewardStr = TTLocalizer.PatternGameOtherFaster
-                    self.roundText['text'] = av.getName() + rewardStr
-        success = self.playerPatterns[self.localAvId] == self.__serverPattern
-        self.hideStatusBalls('lt')
-        for avId in self.remoteAvIdList:
-            self.hideStatusBalls(avId)
+                    rewardStr = TTLocalizer.PatternGameOtherFaster
+                self.roundText['text'] = av.getName() + rewardStr
+            success = self.playerPatterns[self.localAvId] == self.__serverPattern
+            self.hideStatusBalls('lt')
+            for avId in self.remoteAvIdList:
+                self.hideStatusBalls(avId)
 
         if success:
             sound = self.correctSound

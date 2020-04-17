@@ -15,7 +15,8 @@ class BattleManagerAI:
     def getBattle(self, cellId):
         if cellId in self.cellId2battle:
             return self.cellId2battle[cellId]
-        return
+        else:
+            return
 
     def newBattle(self, cellId, zoneId, pos, suit, toonId, finishCallback=None, maxSuits=4, interactivePropTrackBonus=-1):
         if cellId in self.cellId2battle:

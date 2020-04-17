@@ -75,19 +75,20 @@ def pickSuitAttack(attacks, suitLevel):
     configAttackName = simbase.config.GetString('attack-type', 'random')
     if configAttackName == 'random':
         return attackNum
-    if configAttackName == 'sequence':
+    else:
+        if configAttackName == 'sequence':
+            for i in xrange(len(attacks)):
+                if attacks[i] not in debugAttackSequence:
+                    debugAttackSequence[attacks[i]] = 1
+                    return i
+
+            return attackNum
         for i in xrange(len(attacks)):
-            if attacks[i] not in debugAttackSequence:
-                debugAttackSequence[attacks[i]] = 1
+            if attacks[i][0] == configAttackName:
                 return i
 
         return attackNum
-    for i in xrange(len(attacks)):
-        if attacks[i][0] == configAttackName:
-            return i
-
-    return attackNum
-    return
+        return
 
 
 def getSuitAttack(suitName, suitLevel, attackNum=-1):
@@ -1277,7 +1278,8 @@ def getAttackTauntIndex(attackName):
     if attackName in SuitAttackTaunts:
         taunts = SuitAttackTaunts[attackName]
         return random.randint(0, len(taunts) - 1)
-    return 1
+    else:
+        return 1
 
 
 def getAttackTaunt(attackName, index=None):
@@ -1290,8 +1292,9 @@ def getAttackTaunt(attackName, index=None):
             notify.warning('index exceeds length of taunts list in getAttackTaunt')
             return TTLocalizer.SuitAttackDefaultTaunts[0]
         return taunts[index]
-    return random.choice(taunts)
-    return
+    else:
+        return random.choice(taunts)
+        return
 
 
 SuitAttackTaunts = TTLocalizer.SuitAttackTaunts

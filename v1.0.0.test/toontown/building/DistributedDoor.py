@@ -93,20 +93,21 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
     def setupNametag(self):
         if not self.wantsNametag():
             return
-        if self.nametag == None:
-            self.nametag = NametagGroup()
-            self.nametag.setFont(ToontownGlobals.getBuildingNametagFont())
-            if TTLocalizer.BuildingNametagShadow:
-                self.nametag.setShadow(*TTLocalizer.BuildingNametagShadow)
-            self.nametag.setContents(Nametag.CName)
-            self.nametag.setColorCode(NametagGroup.CCToonBuilding)
-            self.nametag.setActive(0)
-            self.nametag.setAvatar(self.getDoorNodePath())
-            self.nametag.setObjectCode(self.block)
-            name = self.cr.playGame.dnaStore.getTitleFromBlockNumber(self.block)
-            self.nametag.setName(name)
-            self.nametag.manage(base.marginManager)
-        return
+        else:
+            if self.nametag == None:
+                self.nametag = NametagGroup()
+                self.nametag.setFont(ToontownGlobals.getBuildingNametagFont())
+                if TTLocalizer.BuildingNametagShadow:
+                    self.nametag.setShadow(*TTLocalizer.BuildingNametagShadow)
+                self.nametag.setContents(Nametag.CName)
+                self.nametag.setColorCode(NametagGroup.CCToonBuilding)
+                self.nametag.setActive(0)
+                self.nametag.setAvatar(self.getDoorNodePath())
+                self.nametag.setObjectCode(self.block)
+                name = self.cr.playGame.dnaStore.getTitleFromBlockNumber(self.block)
+                self.nametag.setName(name)
+                self.nametag.manage(base.marginManager)
+            return
 
     def clearNametag(self):
         if self.nametag != None:
@@ -118,7 +119,8 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
     def getTriggerName(self):
         if self.doorType == DoorTypes.INT_HQ or self.doorType in self.specialDoorTypes:
             return 'door_trigger_' + str(self.block) + '_' + str(self.doorIndex)
-        return 'door_trigger_' + str(self.block)
+        else:
+            return 'door_trigger_' + str(self.block)
 
     def getTriggerName_wip(self):
         name = 'door_trigger_%d' % (self.doId,)
@@ -266,7 +268,8 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         isSuit = isinstance(avatar, Suit.Suit)
         if isSuit:
             return Func(avatar.loop, animName, 0)
-        return Func(avatar.setAnimState, animName)
+        else:
+            return Func(avatar.setAnimState, animName)
 
     def isDoorHit(self):
         vec = base.localAvatar.getRelativeVector(self.currentDoorNp, self.currentDoorVec)
@@ -389,24 +392,21 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
     def getDoorNodePath(self):
         if self.doorType == DoorTypes.INT_STANDARD:
             otherNP = render.find('**/door_origin')
+        elif self.doorType == DoorTypes.EXT_STANDARD:
+            if hasattr(self, 'tempDoorNodePath'):
+                return self.tempDoorNodePath
+            posHpr = self.cr.playGame.dnaStore.getDoorPosHprFromBlockNumber(self.block)
+            otherNP = NodePath('doorOrigin')
+            otherNP.setPos(posHpr.getPos())
+            otherNP.setHpr(posHpr.getHpr())
+            self.tempDoorNodePath = otherNP
+        elif self.doorType in self.specialDoorTypes:
+            building = self.getBuilding()
+            otherNP = building.find('**/door_origin_' + str(self.doorIndex))
+        elif self.doorType == DoorTypes.INT_HQ:
+            otherNP = render.find('**/door_origin_' + str(self.doorIndex))
         else:
-            if self.doorType == DoorTypes.EXT_STANDARD:
-                if hasattr(self, 'tempDoorNodePath'):
-                    return self.tempDoorNodePath
-                posHpr = self.cr.playGame.dnaStore.getDoorPosHprFromBlockNumber(self.block)
-                otherNP = NodePath('doorOrigin')
-                otherNP.setPos(posHpr.getPos())
-                otherNP.setHpr(posHpr.getHpr())
-                self.tempDoorNodePath = otherNP
-            else:
-                if self.doorType in self.specialDoorTypes:
-                    building = self.getBuilding()
-                    otherNP = building.find('**/door_origin_' + str(self.doorIndex))
-                else:
-                    if self.doorType == DoorTypes.INT_HQ:
-                        otherNP = render.find('**/door_origin_' + str(self.doorIndex))
-                    else:
-                        self.notify.error('No such door type as ' + str(self.doorType))
+            self.notify.error('No such door type as ' + str(self.doorType))
         return otherNP
 
     def avatarExitTrack(self, avatar, duration):
@@ -644,9 +644,10 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             foundNode = building.find('**/door_' + str(self.doorIndex) + '/**/' + string + '*;+s+i')
             if foundNode.isEmpty():
                 foundNode = building.find('**/' + string + '*;+s+i')
-            if allowEmpty:
-                return foundNode
-        return foundNode
+        if allowEmpty:
+            return foundNode
+        else:
+            return foundNode
 
     def hideIfHasFlat(self, node):
         if self.bHasFlat:

@@ -68,19 +68,20 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
             self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.fishSold busy with %s' % self.busy)
             self.notify.warning('somebody called fishSold that I was not busy with! avId: %s' % avId)
             return
-        av = simbase.air.doId2do.get(avId)
-        if av:
-            trophyResult = self.air.fishManager.creditFishTank(av)
-            if trophyResult:
-                movieType = NPCToons.SELL_MOVIE_TROPHY
-                extraArgs = [len(av.fishCollection), FishGlobals.getTotalNumFish()]
-            else:
-                movieType = NPCToons.SELL_MOVIE_COMPLETE
-                extraArgs = []
-            self.d_setMovie(avId, movieType, extraArgs)
-            self.transactionType = 'fish'
-        self.sendClearMovie(None)
-        return
+        else:
+            av = simbase.air.doId2do.get(avId)
+            if av:
+                trophyResult = self.air.fishManager.creditFishTank(av)
+                if trophyResult:
+                    movieType = NPCToons.SELL_MOVIE_TROPHY
+                    extraArgs = [len(av.fishCollection), FishGlobals.getTotalNumFish()]
+                else:
+                    movieType = NPCToons.SELL_MOVIE_COMPLETE
+                    extraArgs = []
+                self.d_setMovie(avId, movieType, extraArgs)
+                self.transactionType = 'fish'
+            self.sendClearMovie(None)
+            return
 
     def petAdopted(self, petNum, nameIndex):
         avId = self.air.getAvatarIdFromSender()
@@ -132,16 +133,17 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
             self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.transactionDone busy with %s' % self.busy)
             self.notify.warning('somebody called transactionDone that I was not busy with! avId: %s' % avId)
             return
-        av = simbase.air.doId2do.get(avId)
-        if av:
-            if self.transactionType == 'adopt':
-                self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETADOPTED)
-            elif self.transactionType == 'return':
-                self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETRETURNED)
-            elif self.transactionType == '':
-                self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETCANCELED)
-        self.sendClearMovie(None)
-        return
+        else:
+            av = simbase.air.doId2do.get(avId)
+            if av:
+                if self.transactionType == 'adopt':
+                    self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETADOPTED)
+                elif self.transactionType == 'return':
+                    self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETRETURNED)
+                elif self.transactionType == '':
+                    self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETCANCELED)
+            self.sendClearMovie(None)
+            return
 
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar:' + str(avId) + ' has exited unexpectedly')

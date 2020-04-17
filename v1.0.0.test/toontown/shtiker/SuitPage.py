@@ -221,16 +221,17 @@ class SuitPage(ShtikerPage.ShtikerPage):
         if panel != self.bigPanel:
             self.nextPanel = None
             return
-        print 'shrink panel - ' + str(panel)
-        self.bigPanel = None
-        panel.setScale(panel.scale)
-        panel.reparentTo(self.panelNode)
-        if panel.summonButton:
-            panel.summonButton.hide()
-            panel.summonButton['state'] = DGG.DISABLED
-        if self.nextPanel:
-            self.grow(self.nextPanel, self.nextPanelPos)
-        return
+        else:
+            print 'shrink panel - ' + str(panel)
+            self.bigPanel = None
+            panel.setScale(panel.scale)
+            panel.reparentTo(self.panelNode)
+            if panel.summonButton:
+                panel.summonButton.hide()
+                panel.summonButton['state'] = DGG.DISABLED
+            if self.nextPanel:
+                self.grow(self.nextPanel, self.nextPanelPos)
+            return
 
     def toggleRadar(self, deptNum):
         messenger.send('wakeup')
@@ -401,39 +402,35 @@ class SuitPage(ShtikerPage.ShtikerPage):
         index = self.panels.index(panel)
         if status == COG_UNSEEN:
             panel['text'] = TTLocalizer.SuitPageMystery
-        else:
-            if status == COG_BATTLED:
-                suitName = SuitDNA.suitHeadTypes[index]
-                suitFullName = SuitBattleGlobals.SuitAttributes[suitName]['name']
-                panel['text'] = suitFullName
-                if panel.quotaLabel:
-                    panel.quotaLabel.show()
-                else:
-                    self.addQuotaLabel(panel)
-                if panel.head and panel.shadow:
-                    panel.head.show()
-                    panel.shadow.show()
-                else:
-                    self.addSuitHead(panel, suitName)
-                if base.localAvatar.hasCogSummons(index):
-                    if panel.summonButton:
-                        panel.summonButton.show()
-                    else:
-                        self.addSummonButton(panel)
+        elif status == COG_BATTLED:
+            suitName = SuitDNA.suitHeadTypes[index]
+            suitFullName = SuitBattleGlobals.SuitAttributes[suitName]['name']
+            panel['text'] = suitFullName
+            if panel.quotaLabel:
+                panel.quotaLabel.show()
             else:
-                if status == COG_DEFEATED:
-                    count = str(base.localAvatar.cogCounts[index])
-                    if base.localAvatar.cogs[index] < COG_COMPLETE1:
-                        quota = str(COG_QUOTAS[0][(index % SuitDNA.suitsPerDept)])
-                    else:
-                        quota = str(COG_QUOTAS[1][(index % SuitDNA.suitsPerDept)])
-                    panel.quotaLabel['text'] = TTLocalizer.SuitPageQuota % (count, quota)
+                self.addQuotaLabel(panel)
+            if panel.head and panel.shadow:
+                panel.head.show()
+                panel.shadow.show()
+            else:
+                self.addSuitHead(panel, suitName)
+            if base.localAvatar.hasCogSummons(index):
+                if panel.summonButton:
+                    panel.summonButton.show()
                 else:
-                    if status == COG_COMPLETE1:
-                        panel['image_color'] = PANEL_COLORS_COMPLETE1[(index / SuitDNA.suitsPerDept)]
-                    else:
-                        if status == COG_COMPLETE2:
-                            panel['image_color'] = PANEL_COLORS_COMPLETE2[(index / SuitDNA.suitsPerDept)]
+                    self.addSummonButton(panel)
+        elif status == COG_DEFEATED:
+            count = str(base.localAvatar.cogCounts[index])
+            if base.localAvatar.cogs[index] < COG_COMPLETE1:
+                quota = str(COG_QUOTAS[0][(index % SuitDNA.suitsPerDept)])
+            else:
+                quota = str(COG_QUOTAS[1][(index % SuitDNA.suitsPerDept)])
+            panel.quotaLabel['text'] = TTLocalizer.SuitPageQuota % (count, quota)
+        elif status == COG_COMPLETE1:
+            panel['image_color'] = PANEL_COLORS_COMPLETE1[(index / SuitDNA.suitsPerDept)]
+        elif status == COG_COMPLETE2:
+            panel['image_color'] = PANEL_COLORS_COMPLETE2[(index / SuitDNA.suitsPerDept)]
 
     def updateAllCogs(self, status):
         for index in xrange(0, len(base.localAvatar.cogs)):
@@ -455,34 +452,28 @@ class SuitPage(ShtikerPage.ShtikerPage):
     def updateCogStatus(self, dept, type, status):
         if dept < 0 or dept > len(SuitDNA.suitDepts):
             print 'ucs: bad cog dept: ', dept
+        elif type < 0 or type > SuitDNA.suitsPerDept:
+            print 'ucs: bad cog type: ', type
+        elif status < COG_UNSEEN or status > COG_COMPLETE2:
+            print 'ucs: bad status: ', status
         else:
-            if type < 0 or type > SuitDNA.suitsPerDept:
-                print 'ucs: bad cog type: ', type
-            else:
-                if status < COG_UNSEEN or status > COG_COMPLETE2:
-                    print 'ucs: bad status: ', status
-                else:
-                    self.resetPanel(dept, type)
-                    panel = self.panels[(dept * SuitDNA.suitsPerDept + type)]
-                    if status == COG_UNSEEN:
-                        self.setPanelStatus(panel, COG_UNSEEN)
-                    else:
-                        if status == COG_BATTLED:
-                            self.setPanelStatus(panel, COG_BATTLED)
-                        else:
-                            if status == COG_DEFEATED:
-                                self.setPanelStatus(panel, COG_BATTLED)
-                                self.setPanelStatus(panel, COG_DEFEATED)
-                            else:
-                                if status == COG_COMPLETE1:
-                                    self.setPanelStatus(panel, COG_BATTLED)
-                                    self.setPanelStatus(panel, COG_DEFEATED)
-                                    self.setPanelStatus(panel, COG_COMPLETE1)
-                                else:
-                                    if status == COG_COMPLETE2:
-                                        self.setPanelStatus(panel, COG_BATTLED)
-                                        self.setPanelStatus(panel, COG_DEFEATED)
-                                        self.setPanelStatus(panel, COG_COMPLETE2)
+            self.resetPanel(dept, type)
+            panel = self.panels[(dept * SuitDNA.suitsPerDept + type)]
+            if status == COG_UNSEEN:
+                self.setPanelStatus(panel, COG_UNSEEN)
+            elif status == COG_BATTLED:
+                self.setPanelStatus(panel, COG_BATTLED)
+            elif status == COG_DEFEATED:
+                self.setPanelStatus(panel, COG_BATTLED)
+                self.setPanelStatus(panel, COG_DEFEATED)
+            elif status == COG_COMPLETE1:
+                self.setPanelStatus(panel, COG_BATTLED)
+                self.setPanelStatus(panel, COG_DEFEATED)
+                self.setPanelStatus(panel, COG_COMPLETE1)
+            elif status == COG_COMPLETE2:
+                self.setPanelStatus(panel, COG_BATTLED)
+                self.setPanelStatus(panel, COG_DEFEATED)
+                self.setPanelStatus(panel, COG_COMPLETE2)
 
     def updateCogRadarButtons(self, radars):
         for index in xrange(0, len(radars)):

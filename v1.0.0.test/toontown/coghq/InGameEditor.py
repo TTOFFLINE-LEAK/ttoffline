@@ -461,17 +461,16 @@ class InGameEditor(AppShell):
             floaterLabels = [
              'x', 'y', 'z']
             floaterType = 'floater'
+        elif datatype == 'hpr':
+            floaterLabels = [
+             'h', 'p', 'r']
+            floaterType = 'angledial'
         else:
-            if datatype == 'hpr':
-                floaterLabels = [
-                 'h', 'p', 'r']
-                floaterType = 'angledial'
-            else:
-                floaterLabels = [
-                 'sx', 'sy', 'sz']
-                floaterType = 'slider'
-                minVal = 0
-                maxVal = 1000
+            floaterLabels = [
+             'sx', 'sy', 'sz']
+            floaterType = 'slider'
+            minVal = 0
+            maxVal = 1000
         widg = VectorWidgets.VectorEntry(self.pageOneFrame.interior(), text=attribName, value=value, type=floaterType, bd=0, relief=None, min=minVal, max=maxVal, label_justify=LEFT, label_anchor=W, label_width=14, label_bd=0, labelIpadx=0, floaterGroup_labels=floaterLabels)
         widg['command'] = veCommand
         widg.pack(fill=X, expand=1)
@@ -660,54 +659,53 @@ class InGameEditor(AppShell):
                 for eType in entTypeReg.getDerivedTypeNames('nodepath'):
                     idDict[eType] = self.level.entType2ids.get(eType, [])
 
+            elif entOutput == 'bool':
+                for eType in entTypeReg.getTypeNamesFromOutputType('bool'):
+                    idDict[eType] = self.level.entType2ids.get(eType, [])
+
             else:
-                if entOutput == 'bool':
-                    for eType in entTypeReg.getTypeNamesFromOutputType('bool'):
-                        idDict[eType] = self.level.entType2ids.get(eType, [])
+                for eType in self.level.entType2ids.keys():
+                    idDict[eType] = self.level.entType2ids.get(eType, [])
 
-                else:
-                    for eType in self.level.entType2ids.keys():
-                        idDict[eType] = self.level.entType2ids.get(eType, [])
+            typeKeys = idDict.keys()
+            typeKeys.sort()
 
-        typeKeys = idDict.keys()
-        typeKeys.sort()
+            def getChildEntIds(entity):
+                entIds = []
+                for child in entity.getChildren():
+                    entIds.append(child.entId)
+                    entIds.extend(getChildEntIds(child))
 
-        def getChildEntIds(entity):
-            entIds = []
-            for child in entity.getChildren():
-                entIds.append(child.entId)
-                entIds.extend(getChildEntIds(child))
+                return entIds
 
-            return entIds
+            thisEntity = self.level.getEntity(entId)
+            forbiddenEntIds = [entId, thisEntity.parentEntId]
+            forbiddenEntIds.extend(getChildEntIds(thisEntity))
+            for eType in typeKeys:
+                idList = list(idDict[eType])
+                for forbiddenId in forbiddenEntIds:
+                    if forbiddenId in idList:
+                        idList.remove(forbiddenId)
 
-        thisEntity = self.level.getEntity(entId)
-        forbiddenEntIds = [entId, thisEntity.parentEntId]
-        forbiddenEntIds.extend(getChildEntIds(thisEntity))
-        for eType in typeKeys:
-            idList = list(idDict[eType])
-            for forbiddenId in forbiddenEntIds:
-                if forbiddenId in idList:
-                    idList.remove(forbiddenId)
-
-            if len(idList) == 0:
-                continue
-            subMenu = Menu(entMenu, tearoff=0)
-            entMenu.add_cascade(label=eType, menu=subMenu)
-            idList.sort()
-            numIds = len(idList)
-            idIndex = 0
-            for id in idList:
-                if idIndex % 10 == 0:
-                    if numIds > 10:
-                        m = Menu(subMenu, tearoff=0)
-                        firstId = idList[idIndex]
-                        lastIndex = min(idIndex + 9, numIds - 1)
-                        lastId = idList[lastIndex]
-                        subMenu.add_cascade(label='Ids %d-%d' % (firstId, lastId), menu=m)
-                    else:
-                        m = subMenu
-                m.add_command(label='%d: %s' % (id, self.getEntityName(id)), command=lambda id=id, h=handleMenu: h(id))
-                idIndex += 1
+                if len(idList) == 0:
+                    continue
+                subMenu = Menu(entMenu, tearoff=0)
+                entMenu.add_cascade(label=eType, menu=subMenu)
+                idList.sort()
+                numIds = len(idList)
+                idIndex = 0
+                for id in idList:
+                    if idIndex % 10 == 0:
+                        if numIds > 10:
+                            m = Menu(subMenu, tearoff=0)
+                            firstId = idList[idIndex]
+                            lastIndex = min(idIndex + 9, numIds - 1)
+                            lastId = idList[lastIndex]
+                            subMenu.add_cascade(label='Ids %d-%d' % (firstId, lastId), menu=m)
+                        else:
+                            m = subMenu
+                    m.add_command(label='%d: %s' % (id, self.getEntityName(id)), command=lambda id=id, h=handleMenu: h(id))
+                    idIndex += 1
 
         frame.pack(fill=X, expand=1)
         self.attribWidgets.append(frame)
@@ -905,10 +903,9 @@ class LevelVisZonesEditor(Pmw.MegaToplevel):
         if state == 0:
             if zoneNum in self.visible:
                 self.visible.remove(zoneNum)
-        else:
-            if zoneNum not in self.visible:
-                self.visible.append(zoneNum)
-                self.visible.sort()
+        elif zoneNum not in self.visible:
+            self.visible.append(zoneNum)
+            self.visible.sort()
         if self.updateCommand:
             self.updateCommand(self.visible)
 

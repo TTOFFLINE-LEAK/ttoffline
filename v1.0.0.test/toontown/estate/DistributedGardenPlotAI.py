@@ -34,66 +34,68 @@ class DistributedGardenPlotAI(DistributedLawnDecorAI):
     def __initialSanityCheck(self, wantedType=None, forceOwner=False):
         if self.__plantingAvId:
             return
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if not av:
-            self.air.writeServerEvent('suspicious', avId, 'called DistributedGardenPlotAI method outside shard!')
-            return
-        if wantedType is not None and self.plotType != wantedType:
-            self.air.writeServerEvent('suspicious', avId, 'called incorrect DistributedGardenPlotAI method!', plotType=self.plotType, wantedType=wantedType)
-            return self.d_interactionDenied()
-        if avId != self.ownerDoId and not forceOwner:
-            self.air.writeServerEvent('suspicious', avId, "called someone else's DistributedGardenPlotAI plant method!", ownerDoId=self.ownerDoId)
-            return self.d_interactionDenied()
-        return av
+        else:
+            avId = self.air.getAvatarIdFromSender()
+            av = self.air.doId2do.get(avId)
+            if not av:
+                self.air.writeServerEvent('suspicious', avId, 'called DistributedGardenPlotAI method outside shard!')
+                return
+            if wantedType is not None and self.plotType != wantedType:
+                self.air.writeServerEvent('suspicious', avId, 'called incorrect DistributedGardenPlotAI method!', plotType=self.plotType, wantedType=wantedType)
+                return self.d_interactionDenied()
+            if avId != self.ownerDoId and not forceOwner:
+                self.air.writeServerEvent('suspicious', avId, "called someone else's DistributedGardenPlotAI plant method!", ownerDoId=self.ownerDoId)
+                return self.d_interactionDenied()
+            return av
 
     def plantFlower(self, species, variety, usingFlowerAll=False):
         av = self.__initialSanityCheck(GardenGlobals.FLOWER_TYPE if not usingFlowerAll else None, usingFlowerAll)
         if not av:
             return
-
-        def invalid(problem):
-            msg = 'tried to plant flower but something went wrong: %s' % problem
-            self.notify.warning('%d %s' % (av.doId, msg))
-            self.air.writeServerEvent('suspicious', av.doId, msg)
-            if not usingFlowerAll:
-                return self.d_setMovie(GardenGlobals.MOVIE_PLANT_REJECTED)
-
-        plantAttributes = GardenGlobals.PlantAttributes.get(species, {})
-        if plantAttributes.get('plantType') != GardenGlobals.FLOWER_TYPE:
-            return invalid('invalid species: %d' % species)
-        if variety >= len(plantAttributes['varieties']):
-            return invalid('invalid variety: %d' % variety)
-        if not usingFlowerAll:
-            cost = len(GardenGlobals.Recipes[plantAttributes['varieties'][variety][0]]['beans'])
-            av.takeMoney(cost)
-            self.d_setMovie(GardenGlobals.MOVIE_PLANT)
-
-        def handlePlantFlower(task):
-            flower = self.mgr.plantFlower(self.getFlowerIndex(), species, variety, plot=self, ownerIndex=self.ownerIndex, plotId=self.plot, waterLevel=0, generate=False)
-            index = (0, 1, 2, 2, 2, 3, 3, 3, 4, 4)[self.getFlowerIndex()]
-            idx = (0, 0, 0, 1, 2, 0, 1, 2, 0, 1)[self.getFlowerIndex()]
-            zOffset = 1.5
-            gardenBox = self.mgr._estateBoxes[index]
-            xOffset = FLOWER_X_OFFSETS[gardenBox.getTypeIndex()][idx]
-            flower.setPos(gardenBox, 0, 0, 0)
-            flower.setZ(gardenBox, zOffset)
-            flower.setX(gardenBox, xOffset)
-            flower.setH(gardenBox, 0)
-            flower.generateWithRequired(self.mgr.estate.zoneId)
-            if not usingFlowerAll:
-                flower.d_setMovie(GardenGlobals.MOVIE_FINISHPLANTING, self.__plantingAvId)
-                flower.d_setMovie(GardenGlobals.MOVIE_CLEAR, self.__plantingAvId)
-            self.air.writeServerEvent('plant-flower', self.__plantingAvId, species=species, variety=variety, plot=self.plot, name=plantAttributes.get('name', 'unknown flower'))
-            if task:
-                return task.done
-
-        if usingFlowerAll:
-            handlePlantFlower(None)
         else:
-            taskMgr.doMethodLater(7, handlePlantFlower, self.uniqueName('handle-plant-flower'))
-        self.__plantingAvId = av.doId
-        return 1
+
+            def invalid(problem):
+                msg = 'tried to plant flower but something went wrong: %s' % problem
+                self.notify.warning('%d %s' % (av.doId, msg))
+                self.air.writeServerEvent('suspicious', av.doId, msg)
+                if not usingFlowerAll:
+                    return self.d_setMovie(GardenGlobals.MOVIE_PLANT_REJECTED)
+
+            plantAttributes = GardenGlobals.PlantAttributes.get(species, {})
+            if plantAttributes.get('plantType') != GardenGlobals.FLOWER_TYPE:
+                return invalid('invalid species: %d' % species)
+            if variety >= len(plantAttributes['varieties']):
+                return invalid('invalid variety: %d' % variety)
+            if not usingFlowerAll:
+                cost = len(GardenGlobals.Recipes[plantAttributes['varieties'][variety][0]]['beans'])
+                av.takeMoney(cost)
+                self.d_setMovie(GardenGlobals.MOVIE_PLANT)
+
+            def handlePlantFlower(task):
+                flower = self.mgr.plantFlower(self.getFlowerIndex(), species, variety, plot=self, ownerIndex=self.ownerIndex, plotId=self.plot, waterLevel=0, generate=False)
+                index = (0, 1, 2, 2, 2, 3, 3, 3, 4, 4)[self.getFlowerIndex()]
+                idx = (0, 0, 0, 1, 2, 0, 1, 2, 0, 1)[self.getFlowerIndex()]
+                zOffset = 1.5
+                gardenBox = self.mgr._estateBoxes[index]
+                xOffset = FLOWER_X_OFFSETS[gardenBox.getTypeIndex()][idx]
+                flower.setPos(gardenBox, 0, 0, 0)
+                flower.setZ(gardenBox, zOffset)
+                flower.setX(gardenBox, xOffset)
+                flower.setH(gardenBox, 0)
+                flower.generateWithRequired(self.mgr.estate.zoneId)
+                if not usingFlowerAll:
+                    flower.d_setMovie(GardenGlobals.MOVIE_FINISHPLANTING, self.__plantingAvId)
+                    flower.d_setMovie(GardenGlobals.MOVIE_CLEAR, self.__plantingAvId)
+                self.air.writeServerEvent('plant-flower', self.__plantingAvId, species=species, variety=variety, plot=self.plot, name=plantAttributes.get('name', 'unknown flower'))
+                if task:
+                    return task.done
+
+            if usingFlowerAll:
+                handlePlantFlower(None)
+            else:
+                taskMgr.doMethodLater(7, handlePlantFlower, self.uniqueName('handle-plant-flower'))
+            self.__plantingAvId = av.doId
+            return 1
 
     def plantGagTree(self, track, index):
         av = self.__initialSanityCheck(GardenGlobals.GAG_TREE_TYPE)

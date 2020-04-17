@@ -38,7 +38,9 @@ class DateObject:
                 if year % 100 == 0:
                     if year % 400 == 0:
                         return 1
-                    return 0
+                    else:
+                        return 0
+
                 else:
                     return 1
             else:
@@ -55,9 +57,13 @@ class DateObject:
         if m == 2:
             if isLeapYear(y):
                 return 29
-            return 28
+            else:
+                return 28
+
         else:
             if m in (1, 3, 5, 7, 8, 10, 12):
                 return 31
-            return 30
+            else:
+                return 30
+
         return

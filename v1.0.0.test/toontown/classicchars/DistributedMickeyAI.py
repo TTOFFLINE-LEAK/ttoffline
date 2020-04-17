@@ -71,15 +71,13 @@ class DistributedMickeyAI(DistributedCCharBaseAI.DistributedCCharBaseAI):
                 self.notify.warning('transitionToCostume == 1 but no holiday Manager')
         if doneStatus['state'] == 'lonely' and doneStatus['status'] == 'done':
             self.fsm.request('Walk')
-        else:
-            if doneStatus['state'] == 'chatty' and doneStatus['status'] == 'done':
-                self.fsm.request('Walk')
+        elif doneStatus['state'] == 'chatty' and doneStatus['status'] == 'done':
+            self.fsm.request('Walk')
+        elif doneStatus['state'] == 'walk' and doneStatus['status'] == 'done':
+            if len(self.nearbyAvatars) > 0:
+                self.fsm.request('Chatty')
             else:
-                if doneStatus['state'] == 'walk' and doneStatus['status'] == 'done':
-                    if len(self.nearbyAvatars) > 0:
-                        self.fsm.request('Chatty')
-                    else:
-                        self.fsm.request('Lonely')
+                self.fsm.request('Lonely')
 
     def enterOff(self):
         pass
@@ -147,4 +145,5 @@ class DistributedMickeyAI(DistributedCCharBaseAI.DistributedCCharBaseAI):
     def getCCLocation(self):
         if self.zoneId == ToontownGlobals.ToontownCentral:
             return 1
-        return 0
+        else:
+            return 0

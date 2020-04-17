@@ -65,11 +65,10 @@ class DistributedToonInterior(DistributedObject.DistributedObject):
                 c.stash()
                 if key2 == 'r':
                     self.replaceRandomInModel(newNP)
-            else:
-                if key1 == 't':
-                    texture = self.randomDNAItem(category, self.dnaStore.findTexture)
-                    np.setTexture(texture, 100)
-                    newNP = np
+            elif key1 == 't':
+                texture = self.randomDNAItem(category, self.dnaStore.findTexture)
+                np.setTexture(texture, 100)
+                newNP = np
             if key2 == 'c':
                 if category == 'TI_wallpaper' or category == 'TI_wallpaper_border':
                     self.randomGenerator.seed(self.zoneId)
@@ -141,16 +140,17 @@ class DistributedToonInterior(DistributedObject.DistributedObject):
     def buildTrophy(self):
         if self.savedBy == None:
             return
-        numToons = len(self.savedBy)
-        pos = 1.25 - 1.25 * numToons
-        trophy = hidden.attachNewNode('trophy')
-        for avId, name, dnaNetString, isGM in self.savedBy:
-            frame = self.buildFrame(name, dnaNetString)
-            frame.reparentTo(trophy)
-            frame.setPos(pos, 0, 0)
-            pos += 2.5
+        else:
+            numToons = len(self.savedBy)
+            pos = 1.25 - 1.25 * numToons
+            trophy = hidden.attachNewNode('trophy')
+            for avId, name, dnaNetString, isGM in self.savedBy:
+                frame = self.buildFrame(name, dnaNetString)
+                frame.reparentTo(trophy)
+                frame.setPos(pos, 0, 0)
+                pos += 2.5
 
-        return trophy
+            return trophy
 
     def buildFrame(self, name, dnaNetString):
         frame = loader.loadModel('phase_3.5/models/modules/trophy_frame')
@@ -160,12 +160,10 @@ class DistributedToonInterior(DistributedObject.DistributedObject):
         head.setPosHprScale(0, -0.05, -0.05, 180, 0, 0, 0.55, 0.02, 0.55)
         if dna.head[0] == 'r':
             head.setZ(-0.15)
-        else:
-            if dna.head[0] == 'h':
-                head.setZ(0.05)
-            else:
-                if dna.head[0] == 'm':
-                    head.setScale(0.45, 0.02, 0.45)
+        elif dna.head[0] == 'h':
+            head.setZ(0.05)
+        elif dna.head[0] == 'm':
+            head.setScale(0.45, 0.02, 0.45)
         head.reparentTo(frame)
         nameText = TextNode('trophy')
         nameText.setFont(ToontownGlobals.getToonFont())

@@ -447,27 +447,23 @@ class MakeAToon(StateData.StateData):
         self.progressing = 1
         if self.shop == GENDERSHOP:
             self.fsm.request('BodyShop')
+        elif self.shop == BODYSHOP:
+            self.fsm.request('ColorShop')
+        elif self.shop == COLORSHOP:
+            self.fsm.request('ClothesShop')
         else:
-            if self.shop == BODYSHOP:
-                self.fsm.request('ColorShop')
-            else:
-                if self.shop == COLORSHOP:
-                    self.fsm.request('ClothesShop')
-                else:
-                    self.fsm.request('NameShop')
+            self.fsm.request('NameShop')
 
     def goToLastShop(self):
         self.progressing = 0
         if self.shop == BODYSHOP:
             self.fsm.request('GenderShop')
+        elif self.shop == COLORSHOP:
+            self.fsm.request('BodyShop')
+        elif self.shop == CLOTHESSHOP:
+            self.fsm.request('ColorShop')
         else:
-            if self.shop == COLORSHOP:
-                self.fsm.request('BodyShop')
-            else:
-                if self.shop == CLOTHESSHOP:
-                    self.fsm.request('ColorShop')
-                else:
-                    self.fsm.request('ClothesShop')
+            self.fsm.request('ClothesShop')
 
     def charSez(self, char, statement, dialogue=None):
         import pdb
@@ -677,13 +673,12 @@ class MakeAToon(StateData.StateData):
         if self.ns.getDoneStatus() == 'last':
             self.ns.hideAll()
             self.goToLastShop()
+        elif self.ns.getDoneStatus() == 'paynow':
+            self.doneStatus = 'paynow'
+            base.transitions.fadeOut(finishIval=EventInterval(self.doneEvent))
         else:
-            if self.ns.getDoneStatus() == 'paynow':
-                self.doneStatus = 'paynow'
-                base.transitions.fadeOut(finishIval=EventInterval(self.doneEvent))
-            else:
-                self.doneStatus = 'created'
-                base.transitions.fadeOut(finishIval=EventInterval(self.doneEvent))
+            self.doneStatus = 'created'
+            base.transitions.fadeOut(finishIval=EventInterval(self.doneEvent))
 
     def __handleNext(self):
         messenger.send('next')

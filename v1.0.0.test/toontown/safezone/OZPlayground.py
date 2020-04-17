@@ -110,14 +110,12 @@ class OZPlayground(Playground.Playground):
         if reason == RaceGlobals.Exit_Barrier:
             requestStatus['nextState'] = 'popup'
             self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RaceTimeout, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
-        else:
-            if reason == RaceGlobals.Exit_Slow:
-                requestStatus['nextState'] = 'popup'
-                self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RacerTooSlow, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
-            else:
-                if reason == RaceGlobals.Exit_BarrierNoRefund:
-                    requestStatus['nextState'] = 'popup'
-                    self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RaceTimeoutNoRefund, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
+        elif reason == RaceGlobals.Exit_Slow:
+            requestStatus['nextState'] = 'popup'
+            self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RacerTooSlow, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
+        elif reason == RaceGlobals.Exit_BarrierNoRefund:
+            requestStatus['nextState'] = 'popup'
+            self.dialog = TTDialog.TTDialog(text=TTLocalizer.KartRace_RaceTimeoutNoRefund, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
         self.toonSubmerged = -1
         taskMgr.remove('oz-check-toon-underwater')
         Playground.Playground.enterTeleportIn(self, requestStatus)
@@ -168,26 +166,23 @@ class OZPlayground(Playground.Playground):
         where = doneStatus['where']
         if where == 'reject':
             self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where == 'racetrack':
+            self.doneStatus = doneStatus
+            messenger.send(self.doneEvent)
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where == 'racetrack':
-                    self.doneStatus = doneStatus
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + where + ' in handleStartingBlockDone')
+            self.notify.error('Unknown mode: ' + where + ' in handleStartingBlockDone')
 
     def handlePicnicBasketDone(self, doneStatus):
         self.notify.debug('handling picnic basket done event')
         mode = doneStatus['mode']
         if mode == 'reject':
             self.fsm.request('walk')
+        elif mode == 'exit':
+            self.fsm.request('walk')
         else:
-            if mode == 'exit':
-                self.fsm.request('walk')
-            else:
-                self.notify.error('Unknown mode: ' + mode + ' in handlePicnicBasketDone')
+            self.notify.error('Unknown mode: ' + mode + ' in handlePicnicBasketDone')
 
     def showPaths(self):
         from toontown.classicchars import CCharPaths

@@ -65,17 +65,15 @@ class MultiPageTextFrame(DirectFrame):
             self.nextButton.hide()
             self.prevButton.hide()
             self.curPage = 0
+        elif self.curPage == self.numPages - 1:
+            self.nextButton.hide()
+            self.prevButton.show()
+        elif self.curPage == 0:
+            self.nextButton.show()
+            self.prevButton.hide()
         else:
-            if self.curPage == self.numPages - 1:
-                self.nextButton.hide()
-                self.prevButton.show()
-            else:
-                if self.curPage == 0:
-                    self.nextButton.show()
-                    self.prevButton.hide()
-                else:
-                    self.nextButton.show()
-                    self.prevButton.show()
+            self.nextButton.show()
+            self.prevButton.show()
         self.pageNum['text'] = OTPLocalizer.MultiPageTextFramePage % (self.curPage + 1, self.numPages)
         self['text'] = self.textList[self.curPage]
         if self.pageChangeCallback:

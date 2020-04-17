@@ -46,12 +46,10 @@ class BRPlayground(Playground.Playground):
         wind = int(randNum * 100) % 3 + 1
         if wind == 1:
             base.playSfx(self.loader.wind1Sound)
-        else:
-            if wind == 2:
-                base.playSfx(self.loader.wind2Sound)
-            else:
-                if wind == 3:
-                    base.playSfx(self.loader.wind3Sound)
+        elif wind == 2:
+            base.playSfx(self.loader.wind2Sound)
+        elif wind == 3:
+            base.playSfx(self.loader.wind3Sound)
         self.nextWindTime = now + randNum * 8.0
         return Task.cont
 

@@ -330,25 +330,27 @@ class DistributedEstateAI(DistributedObjectAI):
     def getAvHouse(self, avId):
         if not avId:
             return
-        resp = None
-        for house in self.houses:
-            if house is not None:
-                if house.getAvatarId() == avId:
-                    return house
+        else:
+            resp = None
+            for house in self.houses:
+                if house is not None:
+                    if house.getAvatarId() == avId:
+                        return house
 
-        return
+            return
 
     def placeStarterGarden(self, avId):
         if not avId:
             return
-        for house in self.houses:
-            if house is not None:
-                if house.getAvatarId() == avId:
-                    house.placeStarterGarden()
-                    return
+        else:
+            for house in self.houses:
+                if house is not None:
+                    if house.getAvatarId() == avId:
+                        house.placeStarterGarden()
+                        return
 
-        self.notify.warning("Avatar %s tried to place a starter garden when they didn't own a house!" % avId)
-        return
+            self.notify.warning("Avatar %s tried to place a starter garden when they didn't own a house!" % avId)
+            return
 
     def delete(self):
         if self.treasurePlanner:

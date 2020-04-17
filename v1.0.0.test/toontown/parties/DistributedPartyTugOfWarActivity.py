@@ -422,13 +422,13 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
                 if self.getAvatar(toonId):
                     self.getAvatar(toonId).loop('neutral')
 
-        for toonId in self.toonIds[(1 - losingTeam)]:
-            if self.getAvatar(toonId):
-                self.getAvatar(toonId).loop('victory')
+            for toonId in self.toonIds[(1 - losingTeam)]:
+                if self.getAvatar(toonId):
+                    self.getAvatar(toonId).loop('victory')
 
-        for ival in self.toonIdsToAnimIntervals.values():
-            if ival is not None:
-                ival.finish()
+            for ival in self.toonIdsToAnimIntervals.values():
+                if ival is not None:
+                    ival.finish()
 
         return
 
@@ -576,27 +576,28 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
     def setAnimState(self, toonId, keyRate):
         if self.activityFSM.state != 'Active':
             return
-        toon = self.getAvatar(toonId)
-        if toonId not in self.toonIdsToIsPullingFlags:
-            if self.getTeam(toonId) == None:
-                self.notify.warning("setAnimState called with toonId (%d) that wasn't in self.toonIds" % toonId)
-                return
-            self.notify.warning('setAnimState called with toonId (%d) that was in self.toonIds but not in self.toonIdsToIsPullingFlags. Adding it.' % toonId)
-            self.toonIdsToIsPullingFlags[toonId] = False
-        if keyRate > 0 and not self.toonIdsToIsPullingFlags[toonId]:
-            if toon:
-                toon.loop('tug-o-war')
-            else:
-                self.notify.warning('toon %d is None, skipping toon.loop(tugowar)' % toonId)
-            self.toonIdsToIsPullingFlags[toonId] = True
-        if keyRate <= 0 and self.toonIdsToIsPullingFlags[toonId]:
-            if toon:
-                toon.pose('tug-o-war', 3)
-                toon.startLookAround()
-            else:
-                self.notify.warning('toon %d is None, skipping toon.startLookAround' % toonId)
-            self.toonIdsToIsPullingFlags[toonId] = False
-        return
+        else:
+            toon = self.getAvatar(toonId)
+            if toonId not in self.toonIdsToIsPullingFlags:
+                if self.getTeam(toonId) == None:
+                    self.notify.warning("setAnimState called with toonId (%d) that wasn't in self.toonIds" % toonId)
+                    return
+                self.notify.warning('setAnimState called with toonId (%d) that was in self.toonIds but not in self.toonIdsToIsPullingFlags. Adding it.' % toonId)
+                self.toonIdsToIsPullingFlags[toonId] = False
+            if keyRate > 0 and not self.toonIdsToIsPullingFlags[toonId]:
+                if toon:
+                    toon.loop('tug-o-war')
+                else:
+                    self.notify.warning('toon %d is None, skipping toon.loop(tugowar)' % toonId)
+                self.toonIdsToIsPullingFlags[toonId] = True
+            if keyRate <= 0 and self.toonIdsToIsPullingFlags[toonId]:
+                if toon:
+                    toon.pose('tug-o-war', 3)
+                    toon.startLookAround()
+                else:
+                    self.notify.warning('toon %d is None, skipping toon.startLookAround' % toonId)
+                self.toonIdsToIsPullingFlags[toonId] = False
+            return
 
     def enableKeys(self):
         self.notify.debug('enableKeys')
@@ -628,24 +629,25 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
     def updateToonPositions(self, offset):
         if self.activityFSM.state != 'Active':
             return
-        if self.isLocalToonPlaying:
-            camera.lookAt(self.root, offset, 0.0, PartyGlobals.TugOfWarCameraLookAtHeightOffset)
-        for toonId in self.getToonIdsAsList():
-            if hasattr(self, 'fallenToons') and toonId not in self.fallenToons:
-                toon = self.getAvatar(toonId)
-                if toon is not None:
-                    origPos = self.toonIdsToStartPositions[toonId]
-                    curPos = toon.getPos(self.root)
-                    newPos = Point3(origPos[0] + offset, curPos[1], curPos[2])
-                    if self.toonIdsToAnimIntervals[toonId] != None:
-                        if self.toonIdsToAnimIntervals[toonId].isPlaying():
-                            self.toonIdsToAnimIntervals[toonId].finish()
-                            self.checkIfFallen(toonId)
-                    if toonId not in self.fallenToons:
-                        self.toonIdsToAnimIntervals[toonId] = Sequence(LerpPosInterval(toon, duration=PartyGlobals.TugOfWarKeyPressReportRate, pos=newPos, other=self.root), Func(self.checkIfFallen, toonId))
-                        self.toonIdsToAnimIntervals[toonId].start()
+        else:
+            if self.isLocalToonPlaying:
+                camera.lookAt(self.root, offset, 0.0, PartyGlobals.TugOfWarCameraLookAtHeightOffset)
+            for toonId in self.getToonIdsAsList():
+                if hasattr(self, 'fallenToons') and toonId not in self.fallenToons:
+                    toon = self.getAvatar(toonId)
+                    if toon is not None:
+                        origPos = self.toonIdsToStartPositions[toonId]
+                        curPos = toon.getPos(self.root)
+                        newPos = Point3(origPos[0] + offset, curPos[1], curPos[2])
+                        if self.toonIdsToAnimIntervals[toonId] != None:
+                            if self.toonIdsToAnimIntervals[toonId].isPlaying():
+                                self.toonIdsToAnimIntervals[toonId].finish()
+                                self.checkIfFallen(toonId)
+                        if toonId not in self.fallenToons:
+                            self.toonIdsToAnimIntervals[toonId] = Sequence(LerpPosInterval(toon, duration=PartyGlobals.TugOfWarKeyPressReportRate, pos=newPos, other=self.root), Func(self.checkIfFallen, toonId))
+                            self.toonIdsToAnimIntervals[toonId].start()
 
-        return
+            return
 
     def checkIfFallen(self, toonId):
         if hasattr(self, 'fallenToons') and toonId not in self.fallenToons:

@@ -8,7 +8,8 @@ SCEmoteNoAccessEvent = 'SCEmoteNoAccess'
 def decodeSCEmoteWhisperMsg(emoteId, avName):
     if emoteId >= len(EmoteWhispers):
         return None
-    return EmoteWhispers[emoteId] % avName
+    else:
+        return EmoteWhispers[emoteId] % avName
 
 
 class SCEmoteTerminal(SCTerminal):
@@ -36,45 +37,46 @@ class SCEmoteTerminal(SCTerminal):
     def finalize(self, dbArgs={}):
         if not self.isDirty():
             return
-        args = {}
-        if not self.__ltHasAccess() or not self.__emoteEnabled():
-            args.update({'rolloverColor': (0, 0, 0, 0), 'pressedColor': (0, 0, 0, 0), 
-               'rolloverSound': None, 
-               'text_fg': self.getColorScheme().getTextDisabledColor() + (1, )})
-        if not self.__ltHasAccess():
-            args.update({'text_align': TextNode.ACenter})
         else:
-            if not self.__emoteEnabled():
+            args = {}
+            if not self.__ltHasAccess() or not self.__emoteEnabled():
+                args.update({'rolloverColor': (0, 0, 0, 0), 'pressedColor': (0, 0, 0, 0), 
+                   'rolloverSound': None, 
+                   'text_fg': self.getColorScheme().getTextDisabledColor() + (1, )})
+            if not self.__ltHasAccess():
+                args.update({'text_align': TextNode.ACenter})
+            elif not self.__emoteEnabled():
                 args.update({'clickSound': None})
-        self.lastEmoteEnableState = self.__emoteEnabled()
-        args.update(dbArgs)
-        SCTerminal.finalize(self, dbArgs=args)
-        return
+            self.lastEmoteEnableState = self.__emoteEnabled()
+            args.update(dbArgs)
+            SCTerminal.finalize(self, dbArgs=args)
+            return
 
     def __emoteEnableStateChanged(self):
         if self.isDirty():
             self.notify.info("skipping __emoteEnableStateChanged; we're marked as dirty")
             return
-        if not hasattr(self, 'button'):
-            self.notify.error('SCEmoteTerminal is not marked as dirty, but has no button!')
-        btn = self.button
-        if self.__emoteEnabled():
-            rolloverColor = self.getColorScheme().getRolloverColor() + (1, )
-            pressedColor = self.getColorScheme().getPressedColor() + (1, )
-            btn.frameStyle[DGG.BUTTON_ROLLOVER_STATE].setColor(*rolloverColor)
-            btn.frameStyle[DGG.BUTTON_DEPRESSED_STATE].setColor(*pressedColor)
-            btn.updateFrameStyle()
-            btn['text_fg'] = self.getColorScheme().getTextColor() + (1, )
-            btn['rolloverSound'] = DGG.getDefaultRolloverSound()
-            btn['clickSound'] = DGG.getDefaultClickSound()
         else:
-            btn.frameStyle[DGG.BUTTON_ROLLOVER_STATE].setColor(0, 0, 0, 0)
-            btn.frameStyle[DGG.BUTTON_DEPRESSED_STATE].setColor(0, 0, 0, 0)
-            btn.updateFrameStyle()
-            btn['text_fg'] = self.getColorScheme().getTextDisabledColor() + (1, )
-            btn['rolloverSound'] = None
-            btn['clickSound'] = None
-        return
+            if not hasattr(self, 'button'):
+                self.notify.error('SCEmoteTerminal is not marked as dirty, but has no button!')
+            btn = self.button
+            if self.__emoteEnabled():
+                rolloverColor = self.getColorScheme().getRolloverColor() + (1, )
+                pressedColor = self.getColorScheme().getPressedColor() + (1, )
+                btn.frameStyle[DGG.BUTTON_ROLLOVER_STATE].setColor(*rolloverColor)
+                btn.frameStyle[DGG.BUTTON_DEPRESSED_STATE].setColor(*pressedColor)
+                btn.updateFrameStyle()
+                btn['text_fg'] = self.getColorScheme().getTextColor() + (1, )
+                btn['rolloverSound'] = DGG.getDefaultRolloverSound()
+                btn['clickSound'] = DGG.getDefaultClickSound()
+            else:
+                btn.frameStyle[DGG.BUTTON_ROLLOVER_STATE].setColor(0, 0, 0, 0)
+                btn.frameStyle[DGG.BUTTON_DEPRESSED_STATE].setColor(0, 0, 0, 0)
+                btn.updateFrameStyle()
+                btn['text_fg'] = self.getColorScheme().getTextDisabledColor() + (1, )
+                btn['rolloverSound'] = None
+                btn['clickSound'] = None
+            return
 
     def enterVisible(self):
         SCTerminal.enterVisible(self)
@@ -92,7 +94,6 @@ class SCEmoteTerminal(SCTerminal):
     def handleSelect(self, displayType=0):
         if not self.__ltHasAccess():
             messenger.send(self.getEventName(SCEmoteNoAccessEvent))
-        else:
-            if self.__emoteEnabled():
-                SCTerminal.handleSelect(self, displayType)
-                messenger.send(self.getEventName(SCEmoteMsgEvent), [self.emoteId])
+        elif self.__emoteEnabled():
+            SCTerminal.handleSelect(self, displayType)
+            messenger.send(self.getEventName(SCEmoteMsgEvent), [self.emoteId])

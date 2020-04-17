@@ -55,34 +55,34 @@ class PartyEditorListElement(DirectButton):
             else:
                 if self.id == PartyGlobals.ActivityIds.PartyDance20:
                     iconString = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyDance)
-            geom = getPartyActivityIcon(self.partyEditor.activityIconsModel, iconString)
-            scale = 0.35
-            geom3_color = (0.5, 0.5, 0.5, 1.0)
-            geom_pos = (0.0, 0.0, 0.0)
-            self.comingSoonTextScale = 0.25
-        optiondefs = (
-         (
-          'geom', geom, None),
-         (
-          'geom3_color', geom3_color, None),
-         (
-          'geom_pos', geom_pos, None),
-         ('relief', None, None))
-        self.defineoptions(kw, optiondefs)
-        DirectButton.__init__(self, self.partyEditor.elementList)
-        self.initialiseoptions(PartyEditorListElement)
-        self.setName('%sListElement' % self.name)
-        self.setScale(scale)
-        self.bind(DirectGuiGlobals.B1PRESS, self.clicked)
-        self.bind(DirectGuiGlobals.B1RELEASE, self.released)
-        self.partyEditorGridElements = []
-        if self.isDecoration:
-            for i in xrange(PartyGlobals.DecorationInformationDict[self.id]['limitPerParty']):
-                self.partyEditorGridElements.append(PartyEditorGridElement(self.partyEditor, self.id, self.isDecoration, self.checkSoldOutAndPaidStatusAndAffordability))
+                geom = getPartyActivityIcon(self.partyEditor.activityIconsModel, iconString)
+                scale = 0.35
+                geom3_color = (0.5, 0.5, 0.5, 1.0)
+                geom_pos = (0.0, 0.0, 0.0)
+                self.comingSoonTextScale = 0.25
+            optiondefs = (
+             (
+              'geom', geom, None),
+             (
+              'geom3_color', geom3_color, None),
+             (
+              'geom_pos', geom_pos, None),
+             ('relief', None, None))
+            self.defineoptions(kw, optiondefs)
+            DirectButton.__init__(self, self.partyEditor.elementList)
+            self.initialiseoptions(PartyEditorListElement)
+            self.setName('%sListElement' % self.name)
+            self.setScale(scale)
+            self.bind(DirectGuiGlobals.B1PRESS, self.clicked)
+            self.bind(DirectGuiGlobals.B1RELEASE, self.released)
+            self.partyEditorGridElements = []
+            if self.isDecoration:
+                for i in xrange(PartyGlobals.DecorationInformationDict[self.id]['limitPerParty']):
+                    self.partyEditorGridElements.append(PartyEditorGridElement(self.partyEditor, self.id, self.isDecoration, self.checkSoldOutAndPaidStatusAndAffordability))
 
-        else:
-            for i in xrange(PartyGlobals.ActivityInformationDict[self.id]['limitPerParty']):
-                self.partyEditorGridElements.append(PartyEditorGridElement(self.partyEditor, self.id, self.isDecoration, self.checkSoldOutAndPaidStatusAndAffordability))
+            else:
+                for i in xrange(PartyGlobals.ActivityInformationDict[self.id]['limitPerParty']):
+                    self.partyEditorGridElements.append(PartyEditorGridElement(self.partyEditor, self.id, self.isDecoration, self.checkSoldOutAndPaidStatusAndAffordability))
 
         self.activeGridElementIndex = -1
         self.adjustForUnreleased()
@@ -91,11 +91,10 @@ class PartyEditorListElement(DirectButton):
     def calcUnreleased(self, id):
         if base.cr.partyManager.allowUnreleasedClient():
             self.unreleased = False
+        elif self.isDecoration:
+            self.unreleased = id in PartyGlobals.UnreleasedDecorationIds
         else:
-            if self.isDecoration:
-                self.unreleased = id in PartyGlobals.UnreleasedDecorationIds
-            else:
-                self.unreleased = id in PartyGlobals.UnreleasedActivityIds
+            self.unreleased = id in PartyGlobals.UnreleasedActivityIds
         return self.unreleased
 
     def adjustForUnreleased(self):
@@ -139,20 +138,21 @@ class PartyEditorListElement(DirectButton):
         if not base.cr.isPaid() and infoDict[self.id]['paidOnly']:
             self.setOffLimits()
             return
-        if infoDict[self.id]['cost'] > self.partyEditor.partyPlanner.totalMoney - self.partyEditor.partyPlanner.totalCost:
-            self.setTooExpensive(True)
-            tooExpensive = True
         else:
-            self.setTooExpensive(False)
-            tooExpensive = False
-        for i in xrange(len(self.partyEditorGridElements)):
-            if not self.partyEditorGridElements[i].overValidSquare:
-                if not tooExpensive:
-                    self.setSoldOut(False)
-                return
+            if infoDict[self.id]['cost'] > self.partyEditor.partyPlanner.totalMoney - self.partyEditor.partyPlanner.totalCost:
+                self.setTooExpensive(True)
+                tooExpensive = True
+            else:
+                self.setTooExpensive(False)
+                tooExpensive = False
+            for i in xrange(len(self.partyEditorGridElements)):
+                if not self.partyEditorGridElements[i].overValidSquare:
+                    if not tooExpensive:
+                        self.setSoldOut(False)
+                    return
 
-        self.setSoldOut(True)
-        return
+            self.setSoldOut(True)
+            return
 
     def setOffLimits(self):
         self['state'] = DirectGuiGlobals.DISABLED
@@ -198,8 +198,9 @@ class PartyEditorListElement(DirectButton):
                 if self.partyEditorGridElements[i].placeInPartyGrounds(desiredXY):
                     self.activeGridElementIndex = i
                     return True
-                self.checkSoldOutAndPaidStatusAndAffordability()
-                return False
+                else:
+                    self.checkSoldOutAndPaidStatusAndAffordability()
+                    return False
 
     def released(self, mouseEvent):
         PartyEditorListElement.notify.debug("Element %s's icon was released" % self.name)

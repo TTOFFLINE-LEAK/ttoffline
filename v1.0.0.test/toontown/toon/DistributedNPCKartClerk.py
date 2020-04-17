@@ -80,21 +80,21 @@ class DistributedNPCKartClerk(DistributedNPCToonBase):
         self.isLocalToon = avId == base.localAvatar.doId
         if mode == NPCToons.SELL_MOVIE_CLEAR:
             return
-        if mode == NPCToons.SELL_MOVIE_TIMEOUT:
-            if self.cameraLerp:
-                self.cameraLerp.finish()
-                self.cameraLerp = None
-            if self.isLocalToon:
-                self.ignoreEventDict()
-                if self.popupInfo:
-                    self.popupInfo.reparentTo(hidden)
-                if self.kartShopGui:
-                    self.kartShopGui.destroy()
-                    self.kartShopGui = None
-            self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
-            self.resetKartShopClerk()
         else:
-            if mode == NPCToons.SELL_MOVIE_START:
+            if mode == NPCToons.SELL_MOVIE_TIMEOUT:
+                if self.cameraLerp:
+                    self.cameraLerp.finish()
+                    self.cameraLerp = None
+                if self.isLocalToon:
+                    self.ignoreEventDict()
+                    if self.popupInfo:
+                        self.popupInfo.reparentTo(hidden)
+                    if self.kartShopGui:
+                        self.kartShopGui.destroy()
+                        self.kartShopGui = None
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
+                self.resetKartShopClerk()
+            elif mode == NPCToons.SELL_MOVIE_START:
                 self.av = base.cr.doId2do.get(avId)
                 if self.av is None:
                     self.notify.warning('Avatar %d not found in doId' % avId)
@@ -107,19 +107,16 @@ class DistributedNPCKartClerk(DistributedNPCToonBase):
                     self.cameraLerp.start()
                 if self.isLocalToon:
                     taskMgr.doMethodLater(1.0, self.popupKartShopGUI, self.uniqueName('popupKartShopGUI'))
-            else:
-                if mode == NPCToons.SELL_MOVIE_COMPLETE:
-                    self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
-                    self.resetKartShopClerk()
-                else:
-                    if mode == NPCToons.SELL_MOVIE_PETCANCELED:
-                        self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
-                        self.resetKartShopClerk()
-                    else:
-                        if mode == NPCToons.SELL_MOVIE_NO_MONEY:
-                            self.notify.warning('SELL_MOVIE_NO_MONEY should not be called')
-                            self.resetKartShopClerk()
-        return
+            elif mode == NPCToons.SELL_MOVIE_COMPLETE:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
+                self.resetKartShopClerk()
+            elif mode == NPCToons.SELL_MOVIE_PETCANCELED:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_GOODBYE, CFSpeech | CFTimeout)
+                self.resetKartShopClerk()
+            elif mode == NPCToons.SELL_MOVIE_NO_MONEY:
+                self.notify.warning('SELL_MOVIE_NO_MONEY should not be called')
+                self.resetKartShopClerk()
+            return
 
     def __handleBuyKart(self, kartID):
         self.sendUpdate('buyKart', [kartID])

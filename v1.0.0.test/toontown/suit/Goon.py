@@ -99,12 +99,11 @@ class Goon(Avatar.Avatar):
         self.hat.reparentTo(self.head)
         if self.type == 'pg':
             self.hat.find('**/security_hat').hide()
+        elif self.type == 'sg':
+            self.hat.find('**/hard_hat').hide()
         else:
-            if self.type == 'sg':
-                self.hat.find('**/hard_hat').hide()
-            else:
-                self.hat.find('**/security_hat').hide()
-                self.hat.find('**/hard_hat').hide()
+            self.hat.find('**/security_hat').hide()
+            self.hat.find('**/hard_hat').hide()
         self.eye = self.find('**/eye')
         self.eye.setColorScale(1, 1, 1, 1)
         self.eye.setColor(1, 1, 0, 1)
@@ -137,15 +136,13 @@ class Goon(Avatar.Avatar):
     def colorHat(self):
         if self.type == 'pg':
             colorList = GoonGlobals.PG_COLORS
+        elif self.type == 'sg':
+            colorList = GoonGlobals.SG_COLORS
         else:
-            if self.type == 'sg':
-                colorList = GoonGlobals.SG_COLORS
-            else:
-                return
+            return
         if self.strength >= 20:
             self.hat.setColorScale(colorList[0])
+        elif self.strength >= 15:
+            self.hat.setColorScale(colorList[1])
         else:
-            if self.strength >= 15:
-                self.hat.setColorScale(colorList[1])
-            else:
-                self.hat.clearColorScale()
+            self.hat.clearColorScale()

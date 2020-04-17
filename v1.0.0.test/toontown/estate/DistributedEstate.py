@@ -390,7 +390,8 @@ class DistributedEstate(DistributedObject.DistributedObject):
     def getClouds(self):
         if hasattr(self, 'clouds'):
             return self.clouds
-        return 0
+        else:
+            return 0
 
     def cannonsOver(self, arg=None):
         base.localAvatar.setSystemMessage(0, TTLocalizer.EstateCannonGameEnd)

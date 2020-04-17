@@ -145,15 +145,16 @@ class DistributedPatternGameAI(DistributedMinigameAI):
         index = self.avIdList.index(avId)
         if self.results[index] != None:
             return
-        self.results[index] = pattern
-        if totalTime < self.fastestTime and pattern == self.pattern:
-            self.fastestTime = totalTime
-            self.fastestAvId = avId
-            if self.numPlayers == 1:
-                self.fastestAvId = 1
-            else:
-                self.scoreDict[self.fastestAvId] += 2
-        return
+        else:
+            self.results[index] = pattern
+            if totalTime < self.fastestTime and pattern == self.pattern:
+                self.fastestTime = totalTime
+                self.fastestAvId = avId
+                if self.numPlayers == 1:
+                    self.fastestAvId = 1
+                else:
+                    self.scoreDict[self.fastestAvId] += 2
+            return
 
     def __gotAllPatterns(self):
         patterns = [[]] * 4

@@ -28,84 +28,85 @@ def addHit(dict, suitId, hitCount):
 def doThrows(throws):
     if len(throws) == 0:
         return (None, None)
-    suitThrowsDict = {}
-    for throw in throws:
-        if attackAffectsGroup(throw['track'], throw['level']):
-            pass
-        else:
-            suitId = throw['target']['suit'].doId
-            if suitId in suitThrowsDict:
-                suitThrowsDict[suitId].append(throw)
+    else:
+        suitThrowsDict = {}
+        for throw in throws:
+            if attackAffectsGroup(throw['track'], throw['level']):
+                pass
             else:
-                suitThrowsDict[suitId] = [
-                 throw]
+                suitId = throw['target']['suit'].doId
+                if suitId in suitThrowsDict:
+                    suitThrowsDict[suitId].append(throw)
+                else:
+                    suitThrowsDict[suitId] = [
+                     throw]
 
-    suitThrows = suitThrowsDict.values()
+        suitThrows = suitThrowsDict.values()
 
-    def compFunc(a, b):
-        if len(a) > len(b):
-            return 1
-        if len(a) < len(b):
-            return -1
-        return 0
+        def compFunc(a, b):
+            if len(a) > len(b):
+                return 1
+            if len(a) < len(b):
+                return -1
+            return 0
 
-    suitThrows.sort(compFunc)
-    totalHitDict = {}
-    singleHitDict = {}
-    groupHitDict = {}
-    for throw in throws:
-        if attackAffectsGroup(throw['track'], throw['level']):
-            for i in xrange(len(throw['target'])):
-                target = throw['target'][i]
-                suitId = target['suit'].doId
-                if target['hp'] > 0:
-                    addHit(groupHitDict, suitId, 1)
+        suitThrows.sort(compFunc)
+        totalHitDict = {}
+        singleHitDict = {}
+        groupHitDict = {}
+        for throw in throws:
+            if attackAffectsGroup(throw['track'], throw['level']):
+                for i in xrange(len(throw['target'])):
+                    target = throw['target'][i]
+                    suitId = target['suit'].doId
+                    if target['hp'] > 0:
+                        addHit(groupHitDict, suitId, 1)
+                        addHit(totalHitDict, suitId, 1)
+                    else:
+                        addHit(groupHitDict, suitId, 0)
+                        addHit(totalHitDict, suitId, 0)
+
+            else:
+                suitId = throw['target']['suit'].doId
+                if throw['target']['hp'] > 0:
+                    addHit(singleHitDict, suitId, 1)
                     addHit(totalHitDict, suitId, 1)
                 else:
-                    addHit(groupHitDict, suitId, 0)
+                    addHit(singleHitDict, suitId, 0)
                     addHit(totalHitDict, suitId, 0)
 
-        else:
-            suitId = throw['target']['suit'].doId
-            if throw['target']['hp'] > 0:
-                addHit(singleHitDict, suitId, 1)
-                addHit(totalHitDict, suitId, 1)
-            else:
-                addHit(singleHitDict, suitId, 0)
-                addHit(totalHitDict, suitId, 0)
+        notify.debug('singleHitDict = %s' % singleHitDict)
+        notify.debug('groupHitDict = %s' % groupHitDict)
+        notify.debug('totalHitDict = %s' % totalHitDict)
+        delay = 0.0
+        mtrack = Parallel()
+        for st in suitThrows:
+            if len(st) > 0:
+                ival = __doSuitThrows(st)
+                if ival:
+                    mtrack.append(Sequence(Wait(delay), ival))
+                delay = delay + TOON_THROW_SUIT_DELAY
 
-    notify.debug('singleHitDict = %s' % singleHitDict)
-    notify.debug('groupHitDict = %s' % groupHitDict)
-    notify.debug('totalHitDict = %s' % totalHitDict)
-    delay = 0.0
-    mtrack = Parallel()
-    for st in suitThrows:
-        if len(st) > 0:
-            ival = __doSuitThrows(st)
-            if ival:
-                mtrack.append(Sequence(Wait(delay), ival))
-            delay = delay + TOON_THROW_SUIT_DELAY
+        retTrack = Sequence()
+        retTrack.append(mtrack)
+        groupThrowIvals = Parallel()
+        groupThrows = []
+        for throw in throws:
+            if attackAffectsGroup(throw['track'], throw['level']):
+                groupThrows.append(throw)
 
-    retTrack = Sequence()
-    retTrack.append(mtrack)
-    groupThrowIvals = Parallel()
-    groupThrows = []
-    for throw in throws:
-        if attackAffectsGroup(throw['track'], throw['level']):
-            groupThrows.append(throw)
+        for throw in groupThrows:
+            tracks = None
+            tracks = __throwGroupPie(throw, 0, groupHitDict)
+            if tracks:
+                for track in tracks:
+                    groupThrowIvals.append(track)
 
-    for throw in groupThrows:
-        tracks = None
-        tracks = __throwGroupPie(throw, 0, groupHitDict)
-        if tracks:
-            for track in tracks:
-                groupThrowIvals.append(track)
-
-    retTrack.append(groupThrowIvals)
-    camDuration = retTrack.getDuration()
-    camTrack = MovieCamera.chooseThrowShot(throws, suitThrowsDict, camDuration)
-    return (
-     retTrack, camTrack)
+        retTrack.append(groupThrowIvals)
+        camDuration = retTrack.getDuration()
+        camTrack = MovieCamera.chooseThrowShot(throws, suitThrowsDict, camDuration)
+        return (
+         retTrack, camTrack)
 
 
 def __doSuitThrows(throws):
@@ -139,11 +140,10 @@ def __animProp(props, propName, propType):
         for prop in props:
             prop.play(propName)
 
+    elif 'model' == propType:
+        pass
     else:
-        if 'model' == propType:
-            pass
-        else:
-            notify.error('No such propType as: %s' % propType)
+        notify.error('No such propType as: %s' % propType)
 
 
 def __billboardProp(prop):
@@ -254,13 +254,14 @@ def __getWeddingCakeSoundTrack(level, hitSuit, node=None):
 def __getSoundTrack(level, hitSuit, node=None):
     if level == UBER_GAG_LEVEL_INDEX:
         return __getWeddingCakeSoundTrack(level, hitSuit, node)
-    throwSound = globalBattleSoundCache.getSound('AA_pie_throw_only.ogg')
-    throwTrack = Sequence(Wait(2.6), SoundInterval(throwSound, node=node))
-    if hitSuit:
-        hitSound = globalBattleSoundCache.getSound(hitSoundFiles[level])
-        hitTrack = Sequence(Wait(tPieLeavesHand), SoundInterval(hitSound, node=node))
-        return Parallel(throwTrack, hitTrack)
-    return throwTrack
+    else:
+        throwSound = globalBattleSoundCache.getSound('AA_pie_throw_only.ogg')
+        throwTrack = Sequence(Wait(2.6), SoundInterval(throwSound, node=node))
+        if hitSuit:
+            hitSound = globalBattleSoundCache.getSound(hitSoundFiles[level])
+            hitTrack = Sequence(Wait(tPieLeavesHand), SoundInterval(hitSound, node=node))
+            return Parallel(throwTrack, hitTrack)
+        return throwTrack
 
 
 def __throwPie(throw, delay, hitCount):
@@ -349,20 +350,17 @@ def __throwPie(throw, delay, hitCount):
             animTrack.append(ActorInterval(suit, 'pie-small-react', duration=0.2))
             if suitType == 'a':
                 animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.43))
-            else:
-                if suitType == 'b':
-                    animTrack.append(ActorInterval(suit, 'slip-forward', startTime=1.94))
-                else:
-                    if suitType == 'c':
-                        animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.58))
+            elif suitType == 'b':
+                animTrack.append(ActorInterval(suit, 'slip-forward', startTime=1.94))
+            elif suitType == 'c':
+                animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.58))
             animTrack.append(Func(battle.unlureSuit, suit))
             moveTrack = Sequence(Wait(0.2), LerpPosInterval(suit, 0.6, pos=suitPos, other=battle))
             sival = Parallel(animTrack, moveTrack)
+        elif hitCount == 1:
+            sival = Parallel(ActorInterval(suit, 'pie-small-react'), MovieUtil.createSuitStunInterval(suit, 0.3, 1.3))
         else:
-            if hitCount == 1:
-                sival = Parallel(ActorInterval(suit, 'pie-small-react'), MovieUtil.createSuitStunInterval(suit, 0.3, 1.3))
-            else:
-                sival = ActorInterval(suit, 'pie-small-react')
+            sival = ActorInterval(suit, 'pie-small-react')
         suitResponseTrack.append(Wait(delay + tPieHitsSuit))
         suitResponseTrack.append(showDamage)
         suitResponseTrack.append(updateHealthBar)
@@ -376,21 +374,21 @@ def __throwPie(throw, delay, hitCount):
             bonusTrack.append(Func(suit.showHpText, -hpbonus, 1, openEnded=0, attackTrack=THROW_TRACK))
         if revived != 0:
             suitResponseTrack.append(MovieUtil.createSuitReviveTrack(suit, toon, battle))
+        elif died != 0:
+            suitResponseTrack.append(MovieUtil.createSuitDeathTrack(suit, toon, battle))
         else:
-            if died != 0:
-                suitResponseTrack.append(MovieUtil.createSuitDeathTrack(suit, toon, battle))
-            else:
-                suitResponseTrack.append(Func(suit.loop, 'neutral'))
+            suitResponseTrack.append(Func(suit.loop, 'neutral'))
         suitResponseTrack = Parallel(suitResponseTrack, bonusTrack)
     else:
         suitResponseTrack = MovieUtil.createSuitDodgeMultitrack(delay + tSuitDodges, suit, leftSuits, rightSuits)
     if not hitSuit and delay > 0:
         return [toonTrack, soundTrack, pieTrack]
-    return [
-     toonTrack,
-     soundTrack,
-     pieTrack,
-     suitResponseTrack]
+    else:
+        return [
+         toonTrack,
+         soundTrack,
+         pieTrack,
+         suitResponseTrack]
 
 
 def __createWeddingCakeFlight(throw, groupHitDict, pie, pies):
@@ -553,20 +551,17 @@ def __throwGroupPie(throw, delay, groupHitDict):
                 animTrack.append(ActorInterval(suit, 'pie-small-react', duration=0.2))
                 if suitType == 'a':
                     animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.43))
-                else:
-                    if suitType == 'b':
-                        animTrack.append(ActorInterval(suit, 'slip-forward', startTime=1.94))
-                    else:
-                        if suitType == 'c':
-                            animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.58))
+                elif suitType == 'b':
+                    animTrack.append(ActorInterval(suit, 'slip-forward', startTime=1.94))
+                elif suitType == 'c':
+                    animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.58))
                 animTrack.append(Func(battle.unlureSuit, suit))
                 moveTrack = Sequence(Wait(0.2), LerpPosInterval(suit, 0.6, pos=suitPos, other=battle))
                 sival = Parallel(animTrack, moveTrack)
+            elif groupHitDict[suit.doId] == 1:
+                sival = Parallel(ActorInterval(suit, 'pie-small-react'), MovieUtil.createSuitStunInterval(suit, 0.3, 1.3))
             else:
-                if groupHitDict[suit.doId] == 1:
-                    sival = Parallel(ActorInterval(suit, 'pie-small-react'), MovieUtil.createSuitStunInterval(suit, 0.3, 1.3))
-                else:
-                    sival = ActorInterval(suit, 'pie-small-react')
+                sival = ActorInterval(suit, 'pie-small-react')
             singleSuitResponseTrack.append(Wait(delay + tPieHitsSuit))
             singleSuitResponseTrack.append(showDamage)
             singleSuitResponseTrack.append(updateHealthBar)
@@ -580,11 +575,10 @@ def __throwGroupPie(throw, delay, groupHitDict):
                 bonusTrack.append(Func(suit.showHpText, -hpbonus, 1, openEnded=0, attackTrack=THROW_TRACK))
             if revived != 0:
                 singleSuitResponseTrack.append(MovieUtil.createSuitReviveTrack(suit, toon, battle))
+            elif died != 0:
+                singleSuitResponseTrack.append(MovieUtil.createSuitDeathTrack(suit, toon, battle))
             else:
-                if died != 0:
-                    singleSuitResponseTrack.append(MovieUtil.createSuitDeathTrack(suit, toon, battle))
-                else:
-                    singleSuitResponseTrack.append(Func(suit.loop, 'neutral'))
+                singleSuitResponseTrack.append(Func(suit.loop, 'neutral'))
             singleSuitResponseTrack = Parallel(singleSuitResponseTrack, bonusTrack)
         else:
             groupHitValues = groupHitDict.values()

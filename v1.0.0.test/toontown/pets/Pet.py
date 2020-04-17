@@ -199,9 +199,8 @@ class Pet(Avatar.Avatar):
             if texName:
                 if BodyTypes[bodyType] == 'giraffe':
                     texName = GiraffeTail
-                else:
-                    if BodyTypes[bodyType] == 'leopard':
-                        texName = LeopardTail
+                elif BodyTypes[bodyType] == 'leopard':
+                    texName = LeopardTail
                 tex = loader.loadTexture(texName)
                 tex.setMinfilter(Texture.FTLinear)
                 tex.setMagfilter(Texture.FTLinear)
@@ -309,12 +308,13 @@ class Pet(Avatar.Avatar):
                 return
         if self.moodModel == moodModel:
             return
-        if self.moodModel:
-            self.moodModel.hide()
-        self.moodModel = moodModel
-        if self.moodModel:
-            self.moodModel.show()
-        return
+        else:
+            if self.moodModel:
+                self.moodModel.hide()
+            self.moodModel = moodModel
+            if self.moodModel:
+                self.moodModel.show()
+            return
 
     def speakMood(self, mood):
         if self.moodModel:
@@ -328,7 +328,8 @@ class Pet(Avatar.Avatar):
         if self.style:
             if self.style[8]:
                 return TTLocalizer.GenderShopBoyButtonText
-            return TTLocalizer.GenderShopGirlButtonText
+            else:
+                return TTLocalizer.GenderShopGirlButtonText
 
     def getShadowJoint(self):
         if hasattr(self, 'shadowJoint'):
@@ -522,18 +523,16 @@ class Pet(Avatar.Avatar):
         action = 'neutral'
         if self.isInWater():
             action = 'swim'
-        else:
-            if forwardVel > 0.1 or abs(rotVel) > 0.1:
-                action = 'walk'
+        elif forwardVel > 0.1 or abs(rotVel) > 0.1:
+            action = 'walk'
         self.setAnimWithMood(action)
 
     def setAnimWithMood(self, action):
         how = ''
         if self.isExcited():
             how = 'Happy'
-        else:
-            if self.isSad():
-                how = 'Sad'
+        elif self.isSad():
+            how = 'Sad'
         if action == 'swim':
             anim = action
         else:

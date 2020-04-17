@@ -29,52 +29,53 @@ WaterSprayColor = Point4(0.75, 0.75, 1.0, 0.8)
 def doSquirts(squirts):
     if len(squirts) == 0:
         return (None, None)
-    suitSquirtsDict = {}
-    doneUber = 0
-    skip = 0
-    for squirt in squirts:
+    else:
+        suitSquirtsDict = {}
+        doneUber = 0
         skip = 0
-        if skip:
-            pass
-        elif type(squirt['target']) == type([]):
-            target = squirt['target'][0]
-            suitId = target['suit'].doId
-            if suitId in suitSquirtsDict:
-                suitSquirtsDict[suitId].append(squirt)
+        for squirt in squirts:
+            skip = 0
+            if skip:
+                pass
+            elif type(squirt['target']) == type([]):
+                target = squirt['target'][0]
+                suitId = target['suit'].doId
+                if suitId in suitSquirtsDict:
+                    suitSquirtsDict[suitId].append(squirt)
+                else:
+                    suitSquirtsDict[suitId] = [
+                     squirt]
             else:
-                suitSquirtsDict[suitId] = [
-                 squirt]
-        else:
-            suitId = squirt['target']['suit'].doId
-            if suitId in suitSquirtsDict:
-                suitSquirtsDict[suitId].append(squirt)
-            else:
-                suitSquirtsDict[suitId] = [
-                 squirt]
+                suitId = squirt['target']['suit'].doId
+                if suitId in suitSquirtsDict:
+                    suitSquirtsDict[suitId].append(squirt)
+                else:
+                    suitSquirtsDict[suitId] = [
+                     squirt]
 
-    suitSquirts = suitSquirtsDict.values()
+        suitSquirts = suitSquirtsDict.values()
 
-    def compFunc(a, b):
-        if len(a) > len(b):
-            return 1
-        if len(a) < len(b):
-            return -1
-        return 0
+        def compFunc(a, b):
+            if len(a) > len(b):
+                return 1
+            if len(a) < len(b):
+                return -1
+            return 0
 
-    suitSquirts.sort(compFunc)
-    delay = 0.0
-    mtrack = Parallel()
-    for st in suitSquirts:
-        if len(st) > 0:
-            ival = __doSuitSquirts(st)
-            if ival:
-                mtrack.append(Sequence(Wait(delay), ival))
-            delay = delay + TOON_SQUIRT_SUIT_DELAY
+        suitSquirts.sort(compFunc)
+        delay = 0.0
+        mtrack = Parallel()
+        for st in suitSquirts:
+            if len(st) > 0:
+                ival = __doSuitSquirts(st)
+                if ival:
+                    mtrack.append(Sequence(Wait(delay), ival))
+                delay = delay + TOON_SQUIRT_SUIT_DELAY
 
-    camDuration = mtrack.getDuration()
-    camTrack = MovieCamera.chooseSquirtShot(squirts, suitSquirtsDict, camDuration)
-    return (
-     mtrack, camTrack)
+        camDuration = mtrack.getDuration()
+        camTrack = MovieCamera.chooseSquirtShot(squirts, suitSquirtsDict, camDuration)
+        return (
+         mtrack, camTrack)
 
 
 def __doSuitSquirts(squirts):
@@ -93,15 +94,15 @@ def __doSuitSquirts(squirts):
             fShowStun = 1
         else:
             fShowStun = 0
-    for s in squirts:
-        tracks = __doSquirt(s, delay, fShowStun, uberClone)
-        if s['level'] >= ToontownBattleGlobals.UBER_GAG_LEVEL_INDEX:
-            uberClone = 1
-        if tracks:
-            for track in tracks:
-                toonTracks.append(track)
+        for s in squirts:
+            tracks = __doSquirt(s, delay, fShowStun, uberClone)
+            if s['level'] >= ToontownBattleGlobals.UBER_GAG_LEVEL_INDEX:
+                uberClone = 1
+            if tracks:
+                for track in tracks:
+                    toonTracks.append(track)
 
-        delay = delay + TOON_SQUIRT_DELAY
+            delay = delay + TOON_SQUIRT_DELAY
 
     return toonTracks
 
@@ -166,39 +167,34 @@ def __getSuitTrack(suit, tContact, tDodge, hp, hpbonus, kbbonus, anim, died, lef
             animTrack.append(ActorInterval(suit, anim, duration=0.2))
             if suitType == 'a':
                 animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.43))
-            else:
-                if suitType == 'b':
-                    animTrack.append(ActorInterval(suit, 'slip-forward', startTime=1.94))
-                else:
-                    if suitType == 'c':
-                        animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.58))
+            elif suitType == 'b':
+                animTrack.append(ActorInterval(suit, 'slip-forward', startTime=1.94))
+            elif suitType == 'c':
+                animTrack.append(ActorInterval(suit, 'slip-forward', startTime=2.58))
             animTrack.append(Func(battle.unlureSuit, suit))
             moveTrack = Sequence(Wait(0.2), LerpPosInterval(suit, 0.6, pos=suitPos, other=battle))
             sival = Parallel(animTrack, moveTrack)
-        else:
-            if geyser:
-                suitStartPos = suit.getPos()
-                suitFloat = Point3(0, 0, 14)
-                suitEndPos = Point3(suitStartPos[0] + suitFloat[0], suitStartPos[1] + suitFloat[1], suitStartPos[2] + suitFloat[2])
-                suitType = getSuitBodyType(suit.getStyleName())
-                if suitType == 'a':
-                    startFlailFrame = 16
-                    endFlailFrame = 16
-                else:
-                    if suitType == 'b':
-                        startFlailFrame = 15
-                        endFlailFrame = 15
-                    else:
-                        startFlailFrame = 15
-                        endFlailFrame = 15
-                sival = Sequence(ActorInterval(suit, 'slip-backward', playRate=0.5, startFrame=0, endFrame=startFlailFrame - 1), Func(suit.pingpong, 'slip-backward', fromFrame=startFlailFrame, toFrame=endFlailFrame), Wait(0.5), ActorInterval(suit, 'slip-backward', playRate=1.0, startFrame=endFlailFrame))
-                sUp = LerpPosInterval(suit, 1.1, suitEndPos, startPos=suitStartPos, fluid=1)
-                sDown = LerpPosInterval(suit, 0.6, suitStartPos, startPos=suitEndPos, fluid=1)
+        elif geyser:
+            suitStartPos = suit.getPos()
+            suitFloat = Point3(0, 0, 14)
+            suitEndPos = Point3(suitStartPos[0] + suitFloat[0], suitStartPos[1] + suitFloat[1], suitStartPos[2] + suitFloat[2])
+            suitType = getSuitBodyType(suit.getStyleName())
+            if suitType == 'a':
+                startFlailFrame = 16
+                endFlailFrame = 16
+            elif suitType == 'b':
+                startFlailFrame = 15
+                endFlailFrame = 15
             else:
-                if fShowStun == 1:
-                    sival = Parallel(ActorInterval(suit, anim), MovieUtil.createSuitStunInterval(suit, beforeStun, afterStun))
-                else:
-                    sival = ActorInterval(suit, anim)
+                startFlailFrame = 15
+                endFlailFrame = 15
+            sival = Sequence(ActorInterval(suit, 'slip-backward', playRate=0.5, startFrame=0, endFrame=startFlailFrame - 1), Func(suit.pingpong, 'slip-backward', fromFrame=startFlailFrame, toFrame=endFlailFrame), Wait(0.5), ActorInterval(suit, 'slip-backward', playRate=1.0, startFrame=endFlailFrame))
+            sUp = LerpPosInterval(suit, 1.1, suitEndPos, startPos=suitStartPos, fluid=1)
+            sDown = LerpPosInterval(suit, 0.6, suitStartPos, startPos=suitEndPos, fluid=1)
+        elif fShowStun == 1:
+            sival = Parallel(ActorInterval(suit, anim), MovieUtil.createSuitStunInterval(suit, beforeStun, afterStun))
+        else:
+            sival = ActorInterval(suit, anim)
         showDamage = Func(suit.showHpText, -hp, openEnded=0, attackTrack=SQUIRT_TRACK)
         updateHealthBar = Func(suit.updateHealthBar, hp)
         suitTrack.append(Wait(tContact))
@@ -206,13 +202,12 @@ def __getSuitTrack(suit, tContact, tDodge, hp, hpbonus, kbbonus, anim, died, lef
         suitTrack.append(updateHealthBar)
         if not geyser:
             suitTrack.append(sival)
+        elif not uberRepeat:
+            geyserMotion = Sequence(sUp, Wait(0.0), sDown)
+            suitLaunch = Parallel(sival, geyserMotion)
+            suitTrack.append(suitLaunch)
         else:
-            if not uberRepeat:
-                geyserMotion = Sequence(sUp, Wait(0.0), sDown)
-                suitLaunch = Parallel(sival, geyserMotion)
-                suitTrack.append(suitLaunch)
-            else:
-                suitTrack.append(Wait(5.5))
+            suitTrack.append(Wait(5.5))
         bonusTrack = Sequence(Wait(tContact))
         if kbbonus > 0:
             bonusTrack.append(Wait(0.75))
@@ -227,7 +222,8 @@ def __getSuitTrack(suit, tContact, tDodge, hp, hpbonus, kbbonus, anim, died, lef
         if revived != 0:
             suitTrack.append(MovieUtil.createSuitReviveTrack(suit, toon, battle))
         return Parallel(suitTrack, bonusTrack)
-    return MovieUtil.createSuitDodgeMultitrack(tDodge, suit, leftSuits, rightSuits)
+    else:
+        return MovieUtil.createSuitDodgeMultitrack(tDodge, suit, leftSuits, rightSuits)
 
 
 def say(statement):
@@ -565,7 +561,9 @@ def __doFireHose(squirt, delay, fShowStun):
         if hose.isEmpty() == 1:
             if callable(targetPoint):
                 return targetPoint()
-            return targetPoint
+            else:
+                return targetPoint
+
         joint = hose.find('**/joint_water_stream')
         n = hidden.attachNewNode('pointBehindSprayProp')
         n.reparentTo(toon)

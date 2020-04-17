@@ -29,15 +29,12 @@ class GameSprite:
                 self.setColor(GameSprite.colorGhostBlue)
             elif colorType == 2:
                 self.setColor(GameSprite.colorGhostGreen)
-        else:
-            if colorType == 0:
-                self.setColor(GameSprite.colorRed)
-            else:
-                if colorType == 1:
-                    self.setColor(GameSprite.colorBlue)
-                else:
-                    if colorType == 2:
-                        self.setColor(GameSprite.colorGreen)
+        elif colorType == 0:
+            self.setColor(GameSprite.colorRed)
+        elif colorType == 1:
+            self.setColor(GameSprite.colorBlue)
+        elif colorType == 2:
+            self.setColor(GameSprite.colorGreen)
         self.markedForDeath = 0
 
     def delete(self):

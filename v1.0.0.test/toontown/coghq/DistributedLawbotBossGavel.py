@@ -122,14 +122,12 @@ class DistributedLawbotBossGavel(DistributedObject.DistributedObject, FSM.FSM):
         avId = 0
         if state == 'C':
             self.demand('Controlled', avId)
+        elif state == 'F':
+            self.demand('Free')
+        elif state == 'N':
+            self.demand('On')
         else:
-            if state == 'F':
-                self.demand('Free')
-            else:
-                if state == 'N':
-                    self.demand('On')
-                else:
-                    self.notify.error('Invalid state from AI: %s' % state)
+            self.notify.error('Invalid state from AI: %s' % state)
 
     def enterOn(self):
         self.notify.debug('enterOn for gavel %d' % self.index)

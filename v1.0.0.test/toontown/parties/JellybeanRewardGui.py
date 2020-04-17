@@ -87,9 +87,8 @@ class JellybeanRewardGui(DirectFrame):
         self.jarCount += 1
         if self.jarCount <= self.jarMax:
             self.jarLabel['text'] = str(self.jarCount)
-        else:
-            if self.jarCount > self.jarMax:
-                self.jarLabel['text_fg'] = JellybeanRewardGui.JarLabelMaxedTextColor
+        elif self.jarCount > self.jarMax:
+            self.jarLabel['text_fg'] = JellybeanRewardGui.JarLabelMaxedTextColor
         if self.jarCount <= self.jarMax:
             base.playSfx(self.countSound)
         else:

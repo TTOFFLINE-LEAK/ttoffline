@@ -376,11 +376,10 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def returnToWalk(self, task):
         if self.sleepFlag:
             state = 'Sleep'
+        elif self.hp > 0:
+            state = 'Happy'
         else:
-            if self.hp > 0:
-                state = 'Happy'
-            else:
-                state = 'Sad'
+            state = 'Sad'
         self.b_setAnimState(state, 1.0)
         return Task.done
 
@@ -730,16 +729,14 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         if self.isPageUp and self.isPageDown or not self.isPageUp and not self.isPageDown:
             self.__cameraHasBeenMoved = 1
             self.setLookAtPoint(camSettings[1])
+        elif self.isPageUp:
+            self.__cameraHasBeenMoved = 1
+            self.setLookAtPoint(camSettings[2])
+        elif self.isPageDown:
+            self.__cameraHasBeenMoved = 1
+            self.setLookAtPoint(camSettings[3])
         else:
-            if self.isPageUp:
-                self.__cameraHasBeenMoved = 1
-                self.setLookAtPoint(camSettings[2])
-            else:
-                if self.isPageDown:
-                    self.__cameraHasBeenMoved = 1
-                    self.setLookAtPoint(camSettings[3])
-                else:
-                    self.notify.error('This case should be impossible.')
+            self.notify.error('This case should be impossible.')
         self.__disableSmartCam = camSettings[4]
         if self.__disableSmartCam:
             self.putCameraFloorRayOnAvatar()
@@ -1003,15 +1000,16 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         playerInfo = base.cr.playerFriendsManager.playerId2Info.get(fromId, None)
         if playerInfo == None:
             return
-        senderName = playerInfo.playerName
-        if whisperType == WhisperPopup.WTNormal or whisperType == WhisperPopup.WTQuickTalker:
-            chatString = senderName + ': ' + chatString
-        whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
-        if sender != None:
-            whisper.setClickable(senderName, fromId)
-        whisper.manage(base.marginManager)
-        base.playSfx(sfx)
-        return
+        else:
+            senderName = playerInfo.playerName
+            if whisperType == WhisperPopup.WTNormal or whisperType == WhisperPopup.WTQuickTalker:
+                chatString = senderName + ': ' + chatString
+            whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
+            if sender != None:
+                whisper.setClickable(senderName, fromId)
+            whisper.manage(base.marginManager)
+            base.playSfx(sfx)
+            return
 
     def setAnimMultiplier(self, value):
         self.animMultiplier = value
@@ -1073,13 +1071,14 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def wakeUp(self):
         if self.neverSleep:
             return
-        if self.sleepCallback != None:
-            taskMgr.remove(self.uniqueName('sleepwatch'))
-            self.startSleepWatch(self.sleepCallback)
-        self.lastMoved = globalClock.getFrameTime()
-        if self.sleepFlag:
-            self.sleepFlag = 0
-        return
+        else:
+            if self.sleepCallback != None:
+                taskMgr.remove(self.uniqueName('sleepwatch'))
+                self.startSleepWatch(self.sleepCallback)
+            self.lastMoved = globalClock.getFrameTime()
+            if self.sleepFlag:
+                self.sleepFlag = 0
+            return
 
     def gotoSleep(self):
         if self.neverSleep:
@@ -1097,9 +1096,8 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.preventSleepWatch = preventSleepWatch
         if self.preventSleepWatch:
             taskMgr.remove(self.uniqueName('sleepwatch'))
-        else:
-            if self.sleepCallback:
-                self.startSleepWatch(self.sleepCallback)
+        elif self.sleepCallback:
+            self.startSleepWatch(self.sleepCallback)
 
     def startSleepWatch(self, callback):
         if self.preventSleepWatch:
@@ -1134,17 +1132,15 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         if speed != 0.0 or rotSpeed != 0.0 or inputState.isSet('jump'):
             if not self.swimmingFlag:
                 self.swimmingFlag = 1
-        else:
-            if self.swimmingFlag:
-                self.swimmingFlag = 0
+        elif self.swimmingFlag:
+            self.swimmingFlag = 0
         if self.swimmingFlag or self.hp <= 0:
             self.wakeUp()
-        else:
-            if not self.sleepFlag:
-                now = globalClock.getFrameTime()
-                if now - self.lastMoved > self.swimTimeout:
-                    self.swimTimeoutAction()
-                    return Task.done
+        elif not self.sleepFlag:
+            now = globalClock.getFrameTime()
+            if now - self.lastMoved > self.swimTimeout:
+                self.swimTimeoutAction()
+                return Task.done
         return Task.cont
 
     def swimTimeoutAction(self):
@@ -1156,25 +1152,22 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
             if not self.movingFlag:
                 self.movingFlag = 1
                 self.stopLookAround()
-        else:
-            if self.movingFlag:
-                self.movingFlag = 0
-                self.startLookAround()
+        elif self.movingFlag:
+            self.movingFlag = 0
+            self.startLookAround()
         if self.movingFlag or self.hp <= 0:
             self.wakeUp()
-        else:
-            if not self.sleepFlag:
-                now = globalClock.getFrameTime()
-                if now - self.lastMoved > self.sleepTimeout:
-                    self.gotoSleep()
+        elif not self.sleepFlag:
+            now = globalClock.getFrameTime()
+            if now - self.lastMoved > self.sleepTimeout:
+                self.gotoSleep()
         state = None
         if self.sleepFlag:
             state = 'Sleep'
+        elif self.hp > 0:
+            state = 'Happy'
         else:
-            if self.hp > 0:
-                state = 'Happy'
-            else:
-                state = 'Sad'
+            state = 'Sad'
         if state != self.lastState:
             self.lastState = state
             self.b_setAnimState(state, self.animMultiplier)
@@ -1186,12 +1179,10 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
             needH = None
             if rotSpeed > 0.0:
                 needH = -10
-            else:
-                if rotSpeed < 0.0:
-                    needH = 10
-                else:
-                    if speed != 0.0:
-                        needH = 0
+            elif rotSpeed < 0.0:
+                needH = 10
+            elif speed != 0.0:
+                needH = 0
             if needH != None and self.lastNeedH != needH:
                 node = self.getGeomNode().getChild(0)
                 lerp = Sequence(LerpHprInterval(node, 0.5, Vec3(needH, 0, 0), blendType='easeInOut'), name='cheesy-lerp-hpr', autoPause=1)

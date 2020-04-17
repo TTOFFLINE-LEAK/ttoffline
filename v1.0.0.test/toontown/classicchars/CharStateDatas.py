@@ -155,10 +155,9 @@ class CharFollowChipState(CharWalkState):
         self.orbitDistance = ToontownGlobals.DaleOrbitDistance
         if (srcNode, destNode) in CCharPaths.DaleOrbitDistanceOverride:
             self.orbitDistance = CCharPaths.DaleOrbitDistanceOverride[(srcNode, destNode)]
-        else:
-            if (
-             destNode, srcNode) in CCharPaths.DaleOrbitDistanceOverride:
-                self.orbitDistance = CCharPaths.DaleOrbitDistanceOverride[(destNode, srcNode)]
+        elif (
+         destNode, srcNode) in CCharPaths.DaleOrbitDistanceOverride:
+            self.orbitDistance = CCharPaths.DaleOrbitDistanceOverride[(destNode, srcNode)]
         CharWalkState.setWalk(self, srcNode, destNode, timestamp, offsetX, offsetY)
 
     def makePathTrack(self, nodePath, posPoints, velocity, raycast=0):

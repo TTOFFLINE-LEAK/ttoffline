@@ -135,40 +135,42 @@ class PathMasterEntity(PathEntity.PathEntity):
         if self.path is None or len(self.path) < 1:
             track.append(WaitInterval(1.0))
             return track
-        path = self.path + [self.path[0]]
-        for pointIndex in xrange(len(path) - 1):
-            startPoint = Point3(path[pointIndex]) * self.pathScale
-            endPoint = Point3(path[(pointIndex + 1)]) * self.pathScale
-            v = startPoint - endPoint
-            node.setPos(startPoint[0], startPoint[1], startPoint[2])
-            node.headsUp(endPoint[0], endPoint[1], endPoint[2])
-            theta = node.getH() % 360
-            track.append(LerpHprInterval(node, turnTime, Vec3(theta, 0, 0)))
-            distance = Vec3(v).length()
-            duration = distance / velocity
-            track.append(LerpPosInterval(node, duration=duration, pos=endPoint, startPos=startPoint))
+        else:
+            path = self.path + [self.path[0]]
+            for pointIndex in xrange(len(path) - 1):
+                startPoint = Point3(path[pointIndex]) * self.pathScale
+                endPoint = Point3(path[(pointIndex + 1)]) * self.pathScale
+                v = startPoint - endPoint
+                node.setPos(startPoint[0], startPoint[1], startPoint[2])
+                node.headsUp(endPoint[0], endPoint[1], endPoint[2])
+                theta = node.getH() % 360
+                track.append(LerpHprInterval(node, turnTime, Vec3(theta, 0, 0)))
+                distance = Vec3(v).length()
+                duration = distance / velocity
+                track.append(LerpPosInterval(node, duration=duration, pos=endPoint, startPos=startPoint))
 
-        return track
+            return track
 
     def makePathTrackBak(self, node, velocity, name, turnTime=1, lookAroundNode=None):
         track = Sequence(name=name)
         if self.path is None:
             track.append(WaitInterval(1.0))
             return track
-        path = self.path + [self.path[0]]
-        for pointIndex in xrange(len(path) - 1):
-            startPoint = Point3(path[pointIndex]) * self.pathScale
-            endPoint = Point3(path[(pointIndex + 1)]) * self.pathScale
-            v = startPoint - endPoint
-            node.setPos(startPoint[0], startPoint[1], startPoint[2])
-            node.headsUp(endPoint[0], endPoint[1], endPoint[2])
-            theta = node.getH() % 360
-            track.append(LerpHprInterval(node, turnTime, Vec3(theta, 0, 0)))
-            distance = Vec3(v).length()
-            duration = distance / velocity
-            track.append(LerpPosInterval(node, duration=duration, pos=endPoint, startPos=startPoint))
+        else:
+            path = self.path + [self.path[0]]
+            for pointIndex in xrange(len(path) - 1):
+                startPoint = Point3(path[pointIndex]) * self.pathScale
+                endPoint = Point3(path[(pointIndex + 1)]) * self.pathScale
+                v = startPoint - endPoint
+                node.setPos(startPoint[0], startPoint[1], startPoint[2])
+                node.headsUp(endPoint[0], endPoint[1], endPoint[2])
+                theta = node.getH() % 360
+                track.append(LerpHprInterval(node, turnTime, Vec3(theta, 0, 0)))
+                distance = Vec3(v).length()
+                duration = distance / velocity
+                track.append(LerpPosInterval(node, duration=duration, pos=endPoint, startPos=startPoint))
 
-        return track
+            return track
 
     if __dev__:
 

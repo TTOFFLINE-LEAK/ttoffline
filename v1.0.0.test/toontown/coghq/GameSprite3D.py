@@ -148,65 +148,53 @@ class GameSprite:
                 myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_unknown'
                 self.giftId = 8
                 self.colorType = 1
-        else:
-            if colorType == 0:
-                myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_red'
-            else:
-                if colorType == 1:
-                    myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_blue'
-                else:
-                    if colorType == 2:
-                        myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_green'
-                    else:
-                        if colorType == 3:
-                            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_cog'
-                        else:
-                            if colorType == 4:
-                                myColor = GameSprite.colorBlack
-                            else:
-                                if colorType == 5:
-                                    myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_purple'
-                                else:
-                                    if colorType == 6:
-                                        myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_yello'
-                                    else:
-                                        if colorType == 7:
-                                            myColor = GameSprite.colorOrange
-                                            self.multiColor = 1
-                                            self.multiColorList = [7, 4]
-                                            self.multiColorIndex = 0
-                                            self.multiColorNext = 1
-                                            self.multiColorLevel = 0.0
-                                            self.multiColorStep = 0.15
-                                        else:
-                                            if colorType == 8:
-                                                myColor = GameSprite.colorAqua
-                                                self.multiColor = 1
-                                                self.multiColorList = [0,
-                                                 1,
-                                                 2,
-                                                 6]
-                                                self.multiColorIndex = 0
-                                                self.multiColorNext = 1
-                                                self.multiColorLevel = 0.0
-                                                self.multiColorStep = 0.1
-                                            else:
-                                                if colorType == 9:
-                                                    myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_steel'
-                                                    if not myModel:
-                                                        import pdb
-                                                        pdb.set_trace()
-                                                    self.breakable = 0
-                                                else:
-                                                    if colorType == 10:
-                                                        myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_fire'
-                                                        self.giftId = 7
-                                                        self.colorType = 0
-                                                    else:
-                                                        if colorType == 11:
-                                                            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_unknown'
-                                                            self.giftId = 8
-                                                            self.colorType = 1
+        elif colorType == 0:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_red'
+        elif colorType == 1:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_blue'
+        elif colorType == 2:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_green'
+        elif colorType == 3:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_cog'
+        elif colorType == 4:
+            myColor = GameSprite.colorBlack
+        elif colorType == 5:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_purple'
+        elif colorType == 6:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_yello'
+        elif colorType == 7:
+            myColor = GameSprite.colorOrange
+            self.multiColor = 1
+            self.multiColorList = [7, 4]
+            self.multiColorIndex = 0
+            self.multiColorNext = 1
+            self.multiColorLevel = 0.0
+            self.multiColorStep = 0.15
+        elif colorType == 8:
+            myColor = GameSprite.colorAqua
+            self.multiColor = 1
+            self.multiColorList = [0,
+             1,
+             2,
+             6]
+            self.multiColorIndex = 0
+            self.multiColorNext = 1
+            self.multiColorLevel = 0.0
+            self.multiColorStep = 0.1
+        elif colorType == 9:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_steel'
+            if not myModel:
+                import pdb
+                pdb.set_trace()
+            self.breakable = 0
+        elif colorType == 10:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_fire'
+            self.giftId = 7
+            self.colorType = 0
+        elif colorType == 11:
+            myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_unknown'
+            self.giftId = 8
+            self.colorType = 1
         self.nodeObj = loader.loadModel(myModel)
         self.nodeObj.setScale(self.inputSize)
         self.nodeObj.reparentTo(self.spriteBase)
@@ -331,26 +319,30 @@ class GameSprite:
     def getX(self):
         if self.nodeObj.isEmpty():
             return None
-        return self.spriteBase.getX()
+        else:
+            return self.spriteBase.getX()
 
     def getZ(self):
         if self.nodeObj.isEmpty():
             return None
-        return self.spriteBase.getZ()
+        else:
+            return self.spriteBase.getZ()
 
     def setX(self, x):
         if self.nodeObj.isEmpty():
             return
-        self.prevX = self.spriteBase.getX()
-        self.spriteBase.setX(x)
-        return
+        else:
+            self.prevX = self.spriteBase.getX()
+            self.spriteBase.setX(x)
+            return
 
     def setZ(self, z):
         if self.nodeObj.isEmpty():
             return
-        self.prevZ = self.spriteBase.getZ()
-        self.spriteBase.setZ(z)
-        return
+        else:
+            self.prevZ = self.spriteBase.getZ()
+            self.spriteBase.setZ(z)
+            return
 
     def addForce(self, force, direction):
         if self.isActive:

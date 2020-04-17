@@ -215,32 +215,31 @@ class FactoryInterior(BattlePlace.BattlePlace):
                 pass
             else:
                 self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where == 'factoryInterior' or where == 'suitInterior':
+            self.doneStatus = doneStatus
+            self.doneEvent = 'lawOfficeFloorDone'
+            messenger.send(self.doneEvent)
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where == 'factoryInterior' or where == 'suitInterior':
-                    self.doneStatus = doneStatus
-                    self.doneEvent = 'lawOfficeFloorDone'
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
+            self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
 
     def handleFactoryWinEvent(self):
         FactoryInterior.notify.info('handleFactoryWinEvent')
         if base.cr.playGame.getPlace().fsm.getCurrentState().getName() == 'died':
             return
-        self.factoryDefeated = 1
-        zoneId = ZoneUtil.getHoodId(self.zoneId)
-        self.fsm.request('teleportOut', [
-         {'loader': ZoneUtil.getLoaderName(zoneId), 
-            'where': ZoneUtil.getToonWhereName(zoneId), 
-            'how': 'teleportIn', 
-            'hoodId': zoneId, 
-            'zoneId': zoneId, 
-            'shardId': None, 
-            'avId': -1}])
-        return
+        else:
+            self.factoryDefeated = 1
+            zoneId = ZoneUtil.getHoodId(self.zoneId)
+            self.fsm.request('teleportOut', [
+             {'loader': ZoneUtil.getLoaderName(zoneId), 
+                'where': ZoneUtil.getToonWhereName(zoneId), 
+                'how': 'teleportIn', 
+                'hoodId': zoneId, 
+                'zoneId': zoneId, 
+                'shardId': None, 
+                'avId': -1}])
+            return
 
     def enterDied(self, requestStatus, callback=None):
         FactoryInterior.notify.info('enterDied')

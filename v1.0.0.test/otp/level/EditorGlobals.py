@@ -18,9 +18,10 @@ editUsername = config.GetString(usernameConfigVar, undefinedUsername)
 def checkNotReadyToEdit():
     if editUsername == undefinedUsername:
         return "you must config '%s'; see %s.py" % (usernameConfigVar, __name__)
-    if editUsername not in username2entIdBase:
-        return "unknown editor username '%s'; see %s.py" % (editUsername, __name__)
-    return
+    else:
+        if editUsername not in username2entIdBase:
+            return "unknown editor username '%s'; see %s.py" % (editUsername, __name__)
+        return
 
 
 def assertReadyToEdit():

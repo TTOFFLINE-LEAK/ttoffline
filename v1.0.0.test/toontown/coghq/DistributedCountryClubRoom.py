@@ -215,7 +215,8 @@ class DistributedCountryClubRoom(DistributedLevel.DistributedLevel, CountryClubR
     def __str__(self):
         if hasattr(self, 'roomId'):
             return '%s %s: %s' % (self.__class__.__name__, self.roomId, CountryClubRoomSpecs.BossbotCountryClubRoomId2RoomName[self.roomId])
-        return 'DistributedCountryClubRoom'
+        else:
+            return 'DistributedCountryClubRoom'
 
     def __repr__(self):
         return str(self)

@@ -431,11 +431,12 @@ class CogdoMazeGame(DirectObject):
     def handleLocalToonMeetsGagPickup(self, collEntry):
         if self.localPlayer.equippedGag != None:
             return
-        into = collEntry.getIntoNodePath()
-        if into.hasPythonTag('id'):
-            id = into.getPythonTag('id')
-            self.distGame.d_sendRequestGagPickUp(id)
-        return
+        else:
+            into = collEntry.getIntoNodePath()
+            if into.hasPythonTag('id'):
+                id = into.getPythonTag('id')
+                self.distGame.d_sendRequestGagPickUp(id)
+            return
 
     def hasGag(self, toonId, elapsedTime=0.0):
         player = self.toonId2Player[toonId]
@@ -444,13 +445,14 @@ class CogdoMazeGame(DirectObject):
     def handleLocalToonMeetsWaterCooler(self, collEntry):
         if self.localPlayer.equippedGag != None:
             return
-        if self.lastBalloonTimestamp and globalClock.getFrameTime() - self.lastBalloonTimestamp < Globals.BalloonDelay:
+        else:
+            if self.lastBalloonTimestamp and globalClock.getFrameTime() - self.lastBalloonTimestamp < Globals.BalloonDelay:
+                return
+            collNode = collEntry.getIntoNode()
+            waterCooler = self._collNode2waterCooler[collNode]
+            self.lastBalloonTimestamp = globalClock.getFrameTime()
+            self.distGame.d_sendRequestGag(waterCooler.serialNum)
             return
-        collNode = collEntry.getIntoNode()
-        waterCooler = self._collNode2waterCooler[collNode]
-        self.lastBalloonTimestamp = globalClock.getFrameTime()
-        self.distGame.d_sendRequestGag(waterCooler.serialNum)
-        return
 
     def requestUseGag(self, x, y, h):
         self.distGame.b_toonUsedGag(x, y, h)
@@ -567,15 +569,13 @@ class CogdoMazeGame(DirectObject):
             for player in self.players:
                 player.removeGag()
 
-        else:
-            if toonId in self.toonId2Player.keys():
-                player = self.toonId2Player[toonId]
-                player.removeGag()
+        elif toonId in self.toonId2Player.keys():
+            player = self.toonId2Player[toonId]
+            player.removeGag()
 
     def handleToonDisconnected(self, toonId):
         if toonId == self.localPlayer.toon.doId:
             pass
-        else:
-            if toonId in self.toonId2Player.keys():
-                player = self.toonId2Player[toonId]
-                self._removePlayer(player)
+        elif toonId in self.toonId2Player.keys():
+            player = self.toonId2Player[toonId]
+            self._removePlayer(player)

@@ -37,22 +37,23 @@ class RocketExplosion(NodePath):
         if not found:
             notify.warning('loadParticleFile() - no path: %s' % pfile)
             return
-        notify.debug('Loading particle file: %s' % pfile)
-        self.effect.loadConfig(pfile)
-        ren = self.effect.getParticlesNamed('particles-1').getRenderer()
-        ren.setTextureFromNode('phase_4/models/props/tt_m_efx_fireball', '**/*')
-        pfile = Filename('tt_p_efx_rocketLaunchSmoke.ptf')
-        found = vfs.resolveFilename(pfile, particleSearchPath)
-        if not found:
-            notify.warning('loadParticleFile() - no path: %s' % pfile)
+        else:
+            notify.debug('Loading particle file: %s' % pfile)
+            self.effect.loadConfig(pfile)
+            ren = self.effect.getParticlesNamed('particles-1').getRenderer()
+            ren.setTextureFromNode('phase_4/models/props/tt_m_efx_fireball', '**/*')
+            pfile = Filename('tt_p_efx_rocketLaunchSmoke.ptf')
+            found = vfs.resolveFilename(pfile, particleSearchPath)
+            if not found:
+                notify.warning('loadParticleFile() - no path: %s' % pfile)
+                return
+            notify.debug('Loading particle file: %s' % pfile)
+            self.smokeEffect.loadConfig(pfile)
+            ren = self.smokeEffect.getParticlesNamed('particles-1').getRenderer()
+            ren.setTextureFromNode('phase_4/models/props/tt_m_efx_smoke', '**/*')
+            self.endSeq = None
+            self.cleanupCompleted = 0
             return
-        notify.debug('Loading particle file: %s' % pfile)
-        self.smokeEffect.loadConfig(pfile)
-        ren = self.smokeEffect.getParticlesNamed('particles-1').getRenderer()
-        ren.setTextureFromNode('phase_4/models/props/tt_m_efx_smoke', '**/*')
-        self.endSeq = None
-        self.cleanupCompleted = 0
-        return
 
     def start(self):
         self.effect.start(parent=self.effectNode)

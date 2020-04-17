@@ -78,51 +78,51 @@ class DistributedTrunkAI(DistributedClosetAI):
         if not av:
             self.air.writeServerEvent('suspicious', avId, 'av not in same shard as trunk!')
             return
-        if av.getLocation() != self.getLocation():
-            self.air.writeServerEvent('suspicious', avId, 'av not in same zone as trunk!')
-            return
-        if avId != self.customerId:
-            if self.customerId:
-                self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA customer is %s' % self.customerId)
-                self.notify.warning('customerId: %s, but got setDNA for: %s' % (self.customerId, avId))
-            return
-        hat = (
-         hatIdx, hatTexture, hatColor)
-        glasses = (glassesIdx, glassesTexture, glassesColor)
-        backpack = (backpackIdx, backpackTexture, backpackColor)
-        shoes = (shoesIdx, shoesTexture, shoesColor)
-        accessories = (hat, glasses, backpack, shoes)
-        if avId != self.customerId:
-            if self.customerId:
-                self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA customer is %s' % self.customerId)
-                self.notify.warning('customerId: %s, but got setDNA for: %s' % (self.customerId, avId))
-            return
-        types = (
-         ToonDNA.HAT, ToonDNA.GLASSES, ToonDNA.BACKPACK, ToonDNA.SHOES)
-        for i, accessory in enumerate(accessories):
-            if not av.checkAccessorySanity(types[i], *accessory):
-                return
-
-        if finished == 0:
-            self.sendUpdate('setCustomerDNA', [
-             avId, hatIdx, hatTexture, hatColor, glassesIdx, glassesTexture, glassesColor, backpackIdx,
-             backpackTexture, backpackColor, shoesIdx, shoesTexture, shoesColor, which])
-            return
-        if finished == 1:
-            av.b_setHat(*self.customerDNA[0])
-            av.b_setGlasses(*self.customerDNA[1])
-            av.b_setBackpack(*self.customerDNA[2])
-            av.b_setShoes(*self.customerDNA[3])
-            self.customerId = 0
-            self.customerDNA = None
-            self.gender = ''
-            self.__resetItemLists()
-            self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_COMPLETE, avId)
-            self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
-            self.sendUpdate('setCustomerDNA', [ 0 for _ in xrange(14) ])
-            self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.hatList, self.glassesList, self.backpackList, self.shoesList)
         else:
-            if finished == 2:
+            if av.getLocation() != self.getLocation():
+                self.air.writeServerEvent('suspicious', avId, 'av not in same zone as trunk!')
+                return
+            if avId != self.customerId:
+                if self.customerId:
+                    self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA customer is %s' % self.customerId)
+                    self.notify.warning('customerId: %s, but got setDNA for: %s' % (self.customerId, avId))
+                return
+            hat = (
+             hatIdx, hatTexture, hatColor)
+            glasses = (glassesIdx, glassesTexture, glassesColor)
+            backpack = (backpackIdx, backpackTexture, backpackColor)
+            shoes = (shoesIdx, shoesTexture, shoesColor)
+            accessories = (hat, glasses, backpack, shoes)
+            if avId != self.customerId:
+                if self.customerId:
+                    self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA customer is %s' % self.customerId)
+                    self.notify.warning('customerId: %s, but got setDNA for: %s' % (self.customerId, avId))
+                return
+            types = (
+             ToonDNA.HAT, ToonDNA.GLASSES, ToonDNA.BACKPACK, ToonDNA.SHOES)
+            for i, accessory in enumerate(accessories):
+                if not av.checkAccessorySanity(types[i], *accessory):
+                    return
+
+            if finished == 0:
+                self.sendUpdate('setCustomerDNA', [
+                 avId, hatIdx, hatTexture, hatColor, glassesIdx, glassesTexture, glassesColor, backpackIdx,
+                 backpackTexture, backpackColor, shoesIdx, shoesTexture, shoesColor, which])
+                return
+            if finished == 1:
+                av.b_setHat(*self.customerDNA[0])
+                av.b_setGlasses(*self.customerDNA[1])
+                av.b_setBackpack(*self.customerDNA[2])
+                av.b_setShoes(*self.customerDNA[3])
+                self.customerId = 0
+                self.customerDNA = None
+                self.gender = ''
+                self.__resetItemLists()
+                self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_COMPLETE, avId)
+                self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
+                self.sendUpdate('setCustomerDNA', [ 0 for _ in xrange(14) ])
+                self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.hatList, self.glassesList, self.backpackList, self.shoesList)
+            elif finished == 2:
                 if avId != self.ownerId:
                     self.air.writeServerEvent('suspicious', avId, 'av tried to steal accessories!')
                     return
@@ -156,9 +156,9 @@ class DistributedTrunkAI(DistributedClosetAI):
                 self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
                 self.sendUpdate('setCustomerDNA', [ 0 for _ in xrange(14) ])
                 self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.hatList, self.glassesList, self.backpackList, self.shoesList)
-        taskMgr.remove('closet-timeout-%d' % avId)
-        self.ignore(self.air.getAvatarExitEvent(avId))
-        return
+            taskMgr.remove('closet-timeout-%d' % avId)
+            self.ignore(self.air.getAvatarExitEvent(avId))
+            return
 
     def __resetItemLists(self):
         self.hatList = []
@@ -171,11 +171,12 @@ class DistributedTrunkAI(DistributedClosetAI):
         if avId != self.customerId:
             self.notify.warning('received unexpected exit for av %s that is not using the trunk!' % avId)
             return
-        self.customerId = 0
-        self.customerDNA = None
-        self.gender = ''
-        self.__resetItemLists()
-        self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
-        self.sendUpdate('setCustomerDNA', [ 0 for _ in xrange(14) ])
-        self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.hatList, self.glassesList, self.backpackList, self.shoesList)
-        return
+        else:
+            self.customerId = 0
+            self.customerDNA = None
+            self.gender = ''
+            self.__resetItemLists()
+            self.d_setMovie(ClosetGlobals.CLOSET_MOVIE_CLEAR, 0)
+            self.sendUpdate('setCustomerDNA', [ 0 for _ in xrange(14) ])
+            self.d_setState(ClosetGlobals.CLOSED, 0, self.ownerId, self.gender, self.hatList, self.glassesList, self.backpackList, self.shoesList)
+            return

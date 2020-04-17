@@ -91,98 +91,99 @@ class DistributedLevelBattle(DistributedBattle.DistributedBattle):
         if len(self.suits) == 0:
             self.notify.warning('__faceOff(): no suits.')
             return
-        if len(self.toons) == 0:
-            self.notify.warning('__faceOff(): no toons.')
-            return
-        toon = self.toons[0]
-        point = self.toonPoints[0][0]
-        toonPos = point[0]
-        toonHpr = VBase3(point[1], 0.0, 0.0)
-        p = toon.getPos(self)
-        toon.setPos(self, p[0], p[1], 0.0)
-        toon.setShadowHeight(0)
-        if len(self.suits) == 1:
-            leaderIndex = 0
         else:
-            if self.bossBattle == 1:
-                for suit in self.suits:
-                    if suit.boss:
-                        leaderIndex = self.suits.index(suit)
-                        break
-
+            if len(self.toons) == 0:
+                self.notify.warning('__faceOff(): no toons.')
+                return
+            toon = self.toons[0]
+            point = self.toonPoints[0][0]
+            toonPos = point[0]
+            toonHpr = VBase3(point[1], 0.0, 0.0)
+            p = toon.getPos(self)
+            toon.setPos(self, p[0], p[1], 0.0)
+            toon.setShadowHeight(0)
+            if len(self.suits) == 1:
+                leaderIndex = 0
             else:
-                maxTypeNum = -1
-                for suit in self.suits:
-                    suitTypeNum = SuitDNA.getSuitType(suit.dna.name)
-                    if maxTypeNum < suitTypeNum:
-                        maxTypeNum = suitTypeNum
-                        leaderIndex = self.suits.index(suit)
+                if self.bossBattle == 1:
+                    for suit in self.suits:
+                        if suit.boss:
+                            leaderIndex = self.suits.index(suit)
+                            break
 
-        delay = FACEOFF_TAUNT_T
-        suitTrack = Parallel()
-        suitLeader = None
-        for suit in self.suits:
-            suit.setState('Battle')
-            suitIsLeader = 0
-            oneSuitTrack = Sequence()
-            oneSuitTrack.append(Func(suit.loop, 'neutral'))
-            oneSuitTrack.append(Func(suit.headsUp, toonPos))
-            if self.suits.index(suit) == leaderIndex:
-                suitLeader = suit
-                suitIsLeader = 1
-                if self.bossBattle == 1 and self.levelDoId in base.cr.doId2do:
-                    level = base.cr.doId2do[self.levelDoId]
-                    if suit.boss:
-                        taunt = level.getBossTaunt()
-                    else:
-                        taunt = level.getBossBattleTaunt()
                 else:
-                    taunt = SuitBattleGlobals.getFaceoffTaunt(suit.getStyleName(), suit.doId)
-                oneSuitTrack.append(Func(suit.setChatAbsolute, taunt, CFSpeech | CFTimeout))
-            destPos, destHpr = self.getActorPosHpr(suit, self.suits)
-            oneSuitTrack.append(Wait(delay))
-            if suitIsLeader == 1:
-                oneSuitTrack.append(Func(suit.clearChat))
-            oneSuitTrack.append(self.createAdjustInterval(suit, destPos, destHpr))
-            suitTrack.append(oneSuitTrack)
+                    maxTypeNum = -1
+                    for suit in self.suits:
+                        suitTypeNum = SuitDNA.getSuitType(suit.dna.name)
+                        if maxTypeNum < suitTypeNum:
+                            maxTypeNum = suitTypeNum
+                            leaderIndex = self.suits.index(suit)
 
-        suitHeight = suitLeader.getHeight()
-        suitOffsetPnt = Point3(0, 0, suitHeight)
-        toonTrack = Parallel()
-        for toon in self.toons:
-            oneToonTrack = Sequence()
-            destPos, destHpr = self.getActorPosHpr(toon, self.toons)
-            oneToonTrack.append(Wait(delay))
-            oneToonTrack.append(self.createAdjustInterval(toon, destPos, destHpr, toon=1, run=1))
-            toonTrack.append(oneToonTrack)
+                    delay = FACEOFF_TAUNT_T
+                    suitTrack = Parallel()
+                    suitLeader = None
+                    for suit in self.suits:
+                        suit.setState('Battle')
+                        suitIsLeader = 0
+                        oneSuitTrack = Sequence()
+                        oneSuitTrack.append(Func(suit.loop, 'neutral'))
+                        oneSuitTrack.append(Func(suit.headsUp, toonPos))
+                        if self.suits.index(suit) == leaderIndex:
+                            suitLeader = suit
+                            suitIsLeader = 1
+                            if self.bossBattle == 1 and self.levelDoId in base.cr.doId2do:
+                                level = base.cr.doId2do[self.levelDoId]
+                                if suit.boss:
+                                    taunt = level.getBossTaunt()
+                                else:
+                                    taunt = level.getBossBattleTaunt()
+                            else:
+                                taunt = SuitBattleGlobals.getFaceoffTaunt(suit.getStyleName(), suit.doId)
+                            oneSuitTrack.append(Func(suit.setChatAbsolute, taunt, CFSpeech | CFTimeout))
+                        destPos, destHpr = self.getActorPosHpr(suit, self.suits)
+                        oneSuitTrack.append(Wait(delay))
+                        if suitIsLeader == 1:
+                            oneSuitTrack.append(Func(suit.clearChat))
+                        oneSuitTrack.append(self.createAdjustInterval(suit, destPos, destHpr))
+                        suitTrack.append(oneSuitTrack)
 
-        if self.hasLocalToon():
-            MidTauntCamHeight = suitHeight * 0.66
-            MidTauntCamHeightLim = suitHeight - 1.8
-            if MidTauntCamHeight < MidTauntCamHeightLim:
-                MidTauntCamHeight = MidTauntCamHeightLim
-            TauntCamY = 18
-            TauntCamX = 0
-            TauntCamHeight = random.choice((MidTauntCamHeight, 1, 11))
-            camTrack = Sequence()
-            camTrack.append(Func(camera.reparentTo, suitLeader))
-            camTrack.append(Func(base.camLens.setMinFov, self.camFOFov / (4.0 / 3.0)))
-            camTrack.append(Func(camera.setPos, TauntCamX, TauntCamY, TauntCamHeight))
-            camTrack.append(Func(camera.lookAt, suitLeader, suitOffsetPnt))
-            camTrack.append(Wait(delay))
-            camTrack.append(Func(base.camLens.setMinFov, self.camFov / (4.0 / 3.0)))
-            camTrack.append(Func(camera.wrtReparentTo, self))
-            camTrack.append(Func(camera.setPos, self.camFOPos))
-            camTrack.append(Func(camera.lookAt, suit))
-        mtrack = Parallel(suitTrack, toonTrack)
-        if self.hasLocalToon():
-            NametagGlobals.setMasterArrowsOn(0)
-            mtrack = Parallel(mtrack, camTrack)
-        done = Func(callback)
-        track = Sequence(mtrack, done, name=name)
-        track.start(ts)
-        self.storeInterval(track, name)
-        return
+                suitHeight = suitLeader.getHeight()
+                suitOffsetPnt = Point3(0, 0, suitHeight)
+                toonTrack = Parallel()
+                for toon in self.toons:
+                    oneToonTrack = Sequence()
+                    destPos, destHpr = self.getActorPosHpr(toon, self.toons)
+                    oneToonTrack.append(Wait(delay))
+                    oneToonTrack.append(self.createAdjustInterval(toon, destPos, destHpr, toon=1, run=1))
+                    toonTrack.append(oneToonTrack)
+
+            if self.hasLocalToon():
+                MidTauntCamHeight = suitHeight * 0.66
+                MidTauntCamHeightLim = suitHeight - 1.8
+                if MidTauntCamHeight < MidTauntCamHeightLim:
+                    MidTauntCamHeight = MidTauntCamHeightLim
+                TauntCamY = 18
+                TauntCamX = 0
+                TauntCamHeight = random.choice((MidTauntCamHeight, 1, 11))
+                camTrack = Sequence()
+                camTrack.append(Func(camera.reparentTo, suitLeader))
+                camTrack.append(Func(base.camLens.setMinFov, self.camFOFov / (4.0 / 3.0)))
+                camTrack.append(Func(camera.setPos, TauntCamX, TauntCamY, TauntCamHeight))
+                camTrack.append(Func(camera.lookAt, suitLeader, suitOffsetPnt))
+                camTrack.append(Wait(delay))
+                camTrack.append(Func(base.camLens.setMinFov, self.camFov / (4.0 / 3.0)))
+                camTrack.append(Func(camera.wrtReparentTo, self))
+                camTrack.append(Func(camera.setPos, self.camFOPos))
+                camTrack.append(Func(camera.lookAt, suit))
+            mtrack = Parallel(suitTrack, toonTrack)
+            if self.hasLocalToon():
+                NametagGlobals.setMasterArrowsOn(0)
+                mtrack = Parallel(mtrack, camTrack)
+            done = Func(callback)
+            track = Sequence(mtrack, done, name=name)
+            track.start(ts)
+            self.storeInterval(track, name)
+            return
 
     def enterFaceOff(self, ts):
         if len(self.toons) > 0 and base.localAvatar == self.toons[0]:

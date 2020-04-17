@@ -28,11 +28,10 @@ class DistributedFactoryElevatorExt(DistributedElevatorExt.DistributedElevatorEx
         self.entranceId = entranceId
         if self.entranceId == 0:
             self.elevatorModel.setPosHpr(62.74, -85.31, 0.0, 2.0, 0.0, 0.0)
+        elif self.entranceId == 1:
+            self.elevatorModel.setPosHpr(-162.25, 26.43, 0.0, 269.0, 0.0, 0.0)
         else:
-            if self.entranceId == 1:
-                self.elevatorModel.setPosHpr(-162.25, 26.43, 0.0, 269.0, 0.0, 0.0)
-            else:
-                self.notify.error('Invalid entranceId: %s' % entranceId)
+            self.notify.error('Invalid entranceId: %s' % entranceId)
 
     def setupElevator(self):
         self.elevatorModel = loader.loadModel('phase_4/models/modules/elevator')

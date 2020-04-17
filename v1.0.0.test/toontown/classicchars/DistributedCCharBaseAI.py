@@ -73,9 +73,10 @@ class DistributedCCharBaseAI(DistributedAvatarAI.DistributedAvatarAI):
             tsB = nAvIDict[b]['enterTime']
             if tsA == tsB:
                 return 0
-            if tsA < tsB:
-                return -1
-            return 1
+            else:
+                if tsA < tsB:
+                    return -1
+                return 1
 
         self.nearbyAvatars.sort(nAv_compare)
 

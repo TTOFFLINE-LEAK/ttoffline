@@ -145,9 +145,8 @@ class DistributedTugOfWarGameAI(DistributedMinigameAI):
         if not self.switched:
             self.switched = 1
             self.avIdList = newAvIdList
-        else:
-            if self.avIdList != newAvIdList:
-                self.notify.debug('Big trouble in little TugOWar Town')
+        elif self.avIdList != newAvIdList:
+            self.notify.debug('Big trouble in little TugOWar Town')
 
     def enterSendGoSignal(self):
         self.notify.debug('enterSendGoSignal')
@@ -201,9 +200,8 @@ class DistributedTugOfWarGameAI(DistributedMinigameAI):
             if self.side[avId] == 0:
                 if deltaX < 0:
                     offset = deltaX / 2.0
-            else:
-                if deltaX > 0:
-                    offset = deltaX / 2.0
+            elif deltaX > 0:
+                offset = deltaX / 2.0
             self.offsetDict[avId] += offset
 
         if deltaX < 0:
@@ -264,33 +262,32 @@ class DistributedTugOfWarGameAI(DistributedMinigameAI):
                         self.scoreDict[avId] = TugOfWarGameGlobals.LOSS_JELLYBEANS
                         self.losers.append(avId)
 
-        else:
-            if self.gameType == TugOfWarGameGlobals.TOON_VS_COG:
-                for i in xrange(0, self.numPlayers):
-                    avId = self.avIdList[i]
-                    if -self.offsetDict[avId] > self.suitOffset:
-                        self.scoreDict[avId] = self.suitJellybeanReward / 2 + TugOfWarGameGlobals.TIE_WIN_JELLYBEANS
-                        self.winners.append(avId)
-                    else:
-                        self.scoreDict[avId] = self.suitJellybeanReward / 2 + TugOfWarGameGlobals.TIE_LOSS_JELLYBEANS
-                        self.losers.append(avId)
-                        self.winners.append(self.suitId)
+        elif self.gameType == TugOfWarGameGlobals.TOON_VS_COG:
+            for i in xrange(0, self.numPlayers):
+                avId = self.avIdList[i]
+                if -self.offsetDict[avId] > self.suitOffset:
+                    self.scoreDict[avId] = self.suitJellybeanReward / 2 + TugOfWarGameGlobals.TIE_WIN_JELLYBEANS
+                    self.winners.append(avId)
+                else:
+                    self.scoreDict[avId] = self.suitJellybeanReward / 2 + TugOfWarGameGlobals.TIE_LOSS_JELLYBEANS
+                    self.losers.append(avId)
+                    self.winners.append(self.suitId)
 
-            else:
-                maxOffset = -100
-                minOffset = 100
-                for i in xrange(0, self.numPlayers):
-                    avId = self.avIdList[i]
-                    if self.side[avId] == 0:
-                        if -self.offsetDict[avId] > maxOffset:
-                            maxOffset = -self.offsetDict[avId]
-                        elif -self.offsetDict[avId] < minOffset:
-                            minOffset = -self.offsetDict[avId]
-                    elif self.side[avId] == 1:
-                        if self.offsetDict[avId] > maxOffset:
-                            maxOffset = self.offsetDict[avId]
-                        elif self.offsetDict[avId] < minOffset:
-                            minOffset = self.offsetDict[avId]
+        else:
+            maxOffset = -100
+            minOffset = 100
+            for i in xrange(0, self.numPlayers):
+                avId = self.avIdList[i]
+                if self.side[avId] == 0:
+                    if -self.offsetDict[avId] > maxOffset:
+                        maxOffset = -self.offsetDict[avId]
+                    elif -self.offsetDict[avId] < minOffset:
+                        minOffset = -self.offsetDict[avId]
+                elif self.side[avId] == 1:
+                    if self.offsetDict[avId] > maxOffset:
+                        maxOffset = self.offsetDict[avId]
+                    elif self.offsetDict[avId] < minOffset:
+                        minOffset = self.offsetDict[avId]
 
             for i in xrange(0, self.numPlayers):
                 avId = self.avIdList[i]

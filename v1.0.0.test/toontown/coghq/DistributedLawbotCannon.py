@@ -217,38 +217,35 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
         self.avId = avId
         if mode == CannonGlobals.CANNON_MOVIE_CLEAR:
             self.setLanded()
-        else:
-            if mode == CannonGlobals.CANNON_MOVIE_LANDED:
-                self.setLanded()
+        elif mode == CannonGlobals.CANNON_MOVIE_LANDED:
+            self.setLanded()
+        elif mode == CannonGlobals.CANNON_MOVIE_FORCE_EXIT:
+            self.exitCannon(self.avId)
+            self.setLanded()
+        elif mode == CannonGlobals.CANNON_MOVIE_LOAD:
+            if self.avId == base.localAvatar.doId:
+                self.cannonBallsLeft = extraInfo
+                base.cr.playGame.getPlace().setState('crane')
+                base.localAvatar.setTeleportAvailable(0)
+                self.localToonShooting = 1
+                self.__makeGui()
+                camera.reparentTo(self.barrel)
+                camera.setPos(0.5, -2, 2.5)
+                camera.setHpr(0, 0, 0)
+                self.boss.toonEnteredCannon(self.avId, self.index)
+            if self.avId in self.cr.doId2do:
+                self.av = self.cr.doId2do[self.avId]
+                self.acceptOnce(self.av.uniqueName('disable'), self.__avatarGone)
+                self.av.loop('neutral')
+                self.av.stopSmooth()
+                self.__destroyToonModels()
+                self.__createToonModels()
+                self.av.setPosHpr(3, 0, 0, 90, 0, 0)
+                self.av.reparentTo(self.cannon)
             else:
-                if mode == CannonGlobals.CANNON_MOVIE_FORCE_EXIT:
-                    self.exitCannon(self.avId)
-                    self.setLanded()
-                else:
-                    if mode == CannonGlobals.CANNON_MOVIE_LOAD:
-                        if self.avId == base.localAvatar.doId:
-                            self.cannonBallsLeft = extraInfo
-                            base.cr.playGame.getPlace().setState('crane')
-                            base.localAvatar.setTeleportAvailable(0)
-                            self.localToonShooting = 1
-                            self.__makeGui()
-                            camera.reparentTo(self.barrel)
-                            camera.setPos(0.5, -2, 2.5)
-                            camera.setHpr(0, 0, 0)
-                            self.boss.toonEnteredCannon(self.avId, self.index)
-                        if self.avId in self.cr.doId2do:
-                            self.av = self.cr.doId2do[self.avId]
-                            self.acceptOnce(self.av.uniqueName('disable'), self.__avatarGone)
-                            self.av.loop('neutral')
-                            self.av.stopSmooth()
-                            self.__destroyToonModels()
-                            self.__createToonModels()
-                            self.av.setPosHpr(3, 0, 0, 90, 0, 0)
-                            self.av.reparentTo(self.cannon)
-                        else:
-                            self.notify.warning('Unknown avatar %d in cannon %d' % (self.avId, self.doId))
-                    else:
-                        self.notify.warning('unhandled case, mode = %d' % mode)
+                self.notify.warning('Unknown avatar %d in cannon %d' % (self.avId, self.doId))
+        else:
+            self.notify.warning('unhandled case, mode = %d' % mode)
 
     def __avatarGone(self):
         self.setMovie(CannonGlobals.CANNON_MOVIE_CLEAR, 0, 0)
@@ -256,89 +253,91 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
     def __makeGui(self):
         if self.madeGui:
             return
-        NametagGlobals.setMasterArrowsOn(0)
-        guiModel = 'phase_4/models/gui/cannon_game_gui'
-        cannonGui = loader.loadModel(guiModel)
-        self.aimPad = DirectFrame(image=cannonGui.find('**/CannonFire_PAD'), relief=None, pos=(0.7,
-                                                                                               0,
-                                                                                               -0.553333), scale=0.8)
-        cannonGui.removeNode()
-        self.fireButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Fire_Btn_UP'), (guiModel, '**/Fire_Btn_DN'), (guiModel, '**/Fire_Btn_RLVR')), relief=None, pos=(0.0115741,
-                                                                                                                                                                                 0,
-                                                                                                                                                                                 0.00505051), scale=1.0, command=self.__firePressed)
-        self.upButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0115741,
-                                                                                                                                                                                           0,
-                                                                                                                                                                                           0.221717))
-        self.downButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0136112,
-                                                                                                                                                                                             0,
-                                                                                                                                                                                             -0.210101), image_hpr=(0,
-                                                                                                                                                                                                                    0,
-                                                                                                                                                                                                                    180))
-        self.leftButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(-0.199352,
-                                                                                                                                                                                             0,
-                                                                                                                                                                                             -0.000505269), image_hpr=(0,
-                                                                                                                                                                                                                       0,
-                                                                                                                                                                                                                       -90))
-        self.rightButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.219167,
-                                                                                                                                                                                              0,
-                                                                                                                                                                                              -0.00101024), image_hpr=(0,
-                                                                                                                                                                                                                       0,
-                                                                                                                                                                                                                       90))
-        guiClose = loader.loadModel('phase_3.5/models/gui/avatar_panel_gui')
-        cannonBallText = '%d/%d' % (self.cannonBallsLeft, ToontownGlobals.LawbotBossCannonBallMax)
-        self.cannonBallLabel = DirectLabel(parent=self.aimPad, text=cannonBallText, text_fg=VBase4(1, 1, 1, 1), text_align=TextNode.ACenter, relief=None, pos=(0.475,
-                                                                                                                                                               0.0,
-                                                                                                                                                               -0.35), scale=0.25)
-        if self.cannonBallsLeft < 5:
-            if self.flashingLabel:
-                self.flashingLabel.stop()
-            flashingTrack = Sequence()
-            for i in xrange(10):
-                flashingTrack.append(LerpColorScaleInterval(self.cannonBallLabel, 0.5, VBase4(1, 0, 0, 1)))
-                flashingTrack.append(LerpColorScaleInterval(self.cannonBallLabel, 0.5, VBase4(1, 1, 1, 1)))
+        else:
+            NametagGlobals.setMasterArrowsOn(0)
+            guiModel = 'phase_4/models/gui/cannon_game_gui'
+            cannonGui = loader.loadModel(guiModel)
+            self.aimPad = DirectFrame(image=cannonGui.find('**/CannonFire_PAD'), relief=None, pos=(0.7,
+                                                                                                   0,
+                                                                                                   -0.553333), scale=0.8)
+            cannonGui.removeNode()
+            self.fireButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Fire_Btn_UP'), (guiModel, '**/Fire_Btn_DN'), (guiModel, '**/Fire_Btn_RLVR')), relief=None, pos=(0.0115741,
+                                                                                                                                                                                     0,
+                                                                                                                                                                                     0.00505051), scale=1.0, command=self.__firePressed)
+            self.upButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0115741,
+                                                                                                                                                                                               0,
+                                                                                                                                                                                               0.221717))
+            self.downButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.0136112,
+                                                                                                                                                                                                 0,
+                                                                                                                                                                                                 -0.210101), image_hpr=(0,
+                                                                                                                                                                                                                        0,
+                                                                                                                                                                                                                        180))
+            self.leftButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(-0.199352,
+                                                                                                                                                                                                 0,
+                                                                                                                                                                                                 -0.000505269), image_hpr=(0,
+                                                                                                                                                                                                                           0,
+                                                                                                                                                                                                                           -90))
+            self.rightButton = DirectButton(parent=self.aimPad, image=((guiModel, '**/Cannon_Arrow_UP'), (guiModel, '**/Cannon_Arrow_DN'), (guiModel, '**/Cannon_Arrow_RLVR')), relief=None, pos=(0.219167,
+                                                                                                                                                                                                  0,
+                                                                                                                                                                                                  -0.00101024), image_hpr=(0,
+                                                                                                                                                                                                                           0,
+                                                                                                                                                                                                                           90))
+            guiClose = loader.loadModel('phase_3.5/models/gui/avatar_panel_gui')
+            cannonBallText = '%d/%d' % (self.cannonBallsLeft, ToontownGlobals.LawbotBossCannonBallMax)
+            self.cannonBallLabel = DirectLabel(parent=self.aimPad, text=cannonBallText, text_fg=VBase4(1, 1, 1, 1), text_align=TextNode.ACenter, relief=None, pos=(0.475,
+                                                                                                                                                                   0.0,
+                                                                                                                                                                   -0.35), scale=0.25)
+            if self.cannonBallsLeft < 5:
+                if self.flashingLabel:
+                    self.flashingLabel.stop()
+                flashingTrack = Sequence()
+                for i in xrange(10):
+                    flashingTrack.append(LerpColorScaleInterval(self.cannonBallLabel, 0.5, VBase4(1, 0, 0, 1)))
+                    flashingTrack.append(LerpColorScaleInterval(self.cannonBallLabel, 0.5, VBase4(1, 1, 1, 1)))
 
-            self.flashingLabel = flashingTrack
-            self.flashingLabel.start()
-        self.aimPad.setColor(1, 1, 1, 0.9)
+                self.flashingLabel = flashingTrack
+                self.flashingLabel.start()
+            self.aimPad.setColor(1, 1, 1, 0.9)
 
-        def bindButton(button, upHandler, downHandler):
-            button.bind(DGG.B1PRESS, lambda x, handler=upHandler: handler())
-            button.bind(DGG.B1RELEASE, lambda x, handler=downHandler: handler())
+            def bindButton(button, upHandler, downHandler):
+                button.bind(DGG.B1PRESS, lambda x, handler=upHandler: handler())
+                button.bind(DGG.B1RELEASE, lambda x, handler=downHandler: handler())
 
-        bindButton(self.upButton, self.__upPressed, self.__upReleased)
-        bindButton(self.downButton, self.__downPressed, self.__downReleased)
-        bindButton(self.leftButton, self.__leftPressed, self.__leftReleased)
-        bindButton(self.rightButton, self.__rightPressed, self.__rightReleased)
-        self.__enableAimInterface()
-        self.madeGui = 1
-        return
+            bindButton(self.upButton, self.__upPressed, self.__upReleased)
+            bindButton(self.downButton, self.__downPressed, self.__downReleased)
+            bindButton(self.leftButton, self.__leftPressed, self.__leftReleased)
+            bindButton(self.rightButton, self.__rightPressed, self.__rightReleased)
+            self.__enableAimInterface()
+            self.madeGui = 1
+            return
 
     def __unmakeGui(self):
         self.notify.debug('__unmakeGui')
         if not self.madeGui:
             return
-        if self.flashingLabel:
-            self.flashingLabel.finish()
-            self.flashingLabel = None
-        NametagGlobals.setMasterArrowsOn(1)
-        self.__disableAimInterface()
-        self.upButton.unbind(DGG.B1PRESS)
-        self.upButton.unbind(DGG.B1RELEASE)
-        self.downButton.unbind(DGG.B1PRESS)
-        self.downButton.unbind(DGG.B1RELEASE)
-        self.leftButton.unbind(DGG.B1PRESS)
-        self.leftButton.unbind(DGG.B1RELEASE)
-        self.rightButton.unbind(DGG.B1PRESS)
-        self.rightButton.unbind(DGG.B1RELEASE)
-        self.aimPad.destroy()
-        del self.aimPad
-        del self.fireButton
-        del self.upButton
-        del self.downButton
-        del self.leftButton
-        del self.rightButton
-        self.madeGui = 0
-        return
+        else:
+            if self.flashingLabel:
+                self.flashingLabel.finish()
+                self.flashingLabel = None
+            NametagGlobals.setMasterArrowsOn(1)
+            self.__disableAimInterface()
+            self.upButton.unbind(DGG.B1PRESS)
+            self.upButton.unbind(DGG.B1RELEASE)
+            self.downButton.unbind(DGG.B1PRESS)
+            self.downButton.unbind(DGG.B1RELEASE)
+            self.leftButton.unbind(DGG.B1PRESS)
+            self.leftButton.unbind(DGG.B1RELEASE)
+            self.rightButton.unbind(DGG.B1PRESS)
+            self.rightButton.unbind(DGG.B1RELEASE)
+            self.aimPad.destroy()
+            del self.aimPad
+            del self.fireButton
+            del self.upButton
+            del self.downButton
+            del self.leftButton
+            del self.rightButton
+            self.madeGui = 0
+            return
 
     def __enableAimInterface(self):
         self.aimPad.show()
@@ -490,9 +489,8 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
         pos[0] += rotVel * globalClock.getDt()
         if pos[0] < CANNON_ROTATION_MIN:
             pos[0] = CANNON_ROTATION_MIN
-        else:
-            if pos[0] > CANNON_ROTATION_MAX:
-                pos[0] = CANNON_ROTATION_MAX
+        elif pos[0] > CANNON_ROTATION_MAX:
+            pos[0] = CANNON_ROTATION_MAX
         angVel = 0
         if self.upPressed:
             angVel += CANNON_ANGLE_VEL
@@ -501,9 +499,8 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
         pos[1] += angVel * globalClock.getDt()
         if pos[1] < CANNON_ANGLE_MIN:
             pos[1] = CANNON_ANGLE_MIN
-        else:
-            if pos[1] > CANNON_ANGLE_MAX:
-                pos[1] = CANNON_ANGLE_MAX
+        elif pos[1] > CANNON_ANGLE_MAX:
+            pos[1] = CANNON_ANGLE_MAX
         if oldRot != pos[0] or oldAng != pos[1]:
             if self.cannonMoving == 0:
                 self.cannonMoving = 1
@@ -512,11 +509,10 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
             if task.time - task.lastPositionBroadcastTime > CANNON_MOVE_UPDATE_FREQ:
                 task.lastPositionBroadcastTime = task.time
                 self.__broadcastLocalCannonPosition()
-        else:
-            if self.cannonMoving:
-                self.cannonMoving = 0
-                self.sndCannonMove.stop()
-                self.__broadcastLocalCannonPosition()
+        elif self.cannonMoving:
+            self.cannonMoving = 0
+            self.sndCannonMove.stop()
+            self.__broadcastLocalCannonPosition()
         return Task.cont
 
     def __broadcastLocalCannonPosition(self):
@@ -676,62 +672,63 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
         avId = task.avId
         if self.toonHead == None or not self.boss.state == 'BattleTwo':
             return Task.done
-        flightResults = self.__calcFlightResults(avId, launchTime)
-        if config.GetBool('isclient-check', False):
-            if not isClient():
-                print 'EXECWARNING DistributedLawbotCannon: %s' % flightResults
-                printStack()
-        for key in flightResults:
-            exec "%s = flightResults['%s']" % (key, key)
+        else:
+            flightResults = self.__calcFlightResults(avId, launchTime)
+            if config.GetBool('isclient-check', False):
+                if not isClient():
+                    print 'EXECWARNING DistributedLawbotCannon: %s' % flightResults
+                    printStack()
+            for key in flightResults:
+                exec "%s = flightResults['%s']" % (key, key)
 
-        self.notify.debug('start position: ' + str(startPos))
-        self.notify.debug('start velocity: ' + str(startVel))
-        self.notify.debug('time of launch: ' + str(launchTime))
-        self.notify.debug('time of impact: ' + str(timeOfImpact))
-        self.notify.debug('location of impact: ' + str(trajectory.getPos(timeOfImpact)))
-        head = self.toonHead
-        head.stopBlink()
-        head.stopLookAroundNow()
-        head.reparentTo(hidden)
-        juror = self.toonModel
-        juror.reparentTo(render)
-        juror.setPos(startPos)
-        barrelHpr = self.barrel.getHpr(render)
-        juror.setHpr(startHpr)
-        self.jurorToon.loop('swim')
-        self.jurorToon.setPosHpr(0, 0, -(self.jurorToon.getHeight() / 2.0), 0, 0, 0)
-        info = {}
-        info['avId'] = avId
-        info['trajectory'] = trajectory
-        info['launchTime'] = launchTime
-        info['timeOfImpact'] = timeOfImpact
-        info['hitWhat'] = hitWhat
-        info['toon'] = self.toonModel
-        info['hRot'] = self.cannonPosition[0]
-        info['haveWhistled'] = 0
-        info['maxCamPullback'] = CAMERA_PULLBACK_MIN
-        if self.localToonShooting:
-            camera.reparentTo(juror)
-            camera.setP(45.0)
-            camera.setZ(-10.0)
-        self.flyColSphere = CollisionSphere(0, 0, self.av.getHeight() / 2.0, 1.0)
-        self.flyColNode = CollisionNode(self.uniqueName('flySphere'))
-        self.flyColNode.setCollideMask(ToontownGlobals.WallBitmask | ToontownGlobals.FloorBitmask | ToontownGlobals.PieBitmask)
-        self.flyColNode.addSolid(self.flyColSphere)
-        self.flyColNodePath = self.jurorToon.attachNewNode(self.flyColNode)
-        self.flyColNodePath.setColor(1, 0, 0, 1)
-        self.handler = CollisionHandlerEvent()
-        self.handler.setInPattern(self.uniqueName('cannonHit'))
-        base.cTrav.addCollider(self.flyColNodePath, self.handler)
-        self.accept(self.uniqueName('cannonHit'), self.__handleCannonHit)
-        shootTask = Task(self.__shootTask, self.taskName('shootTask'))
-        flyTask = Task(self.__flyTask, self.taskName('flyTask'))
-        shootTask.info = info
-        flyTask.info = info
-        seqTask = Task.sequence(shootTask, flyTask)
-        taskMgr.add(seqTask, self.taskName('flyingToon') + '-' + str(avId))
-        self.acceptOnce(self.uniqueName('stopFlyTask'), self.__stopFlyTask)
-        return Task.done
+            self.notify.debug('start position: ' + str(startPos))
+            self.notify.debug('start velocity: ' + str(startVel))
+            self.notify.debug('time of launch: ' + str(launchTime))
+            self.notify.debug('time of impact: ' + str(timeOfImpact))
+            self.notify.debug('location of impact: ' + str(trajectory.getPos(timeOfImpact)))
+            head = self.toonHead
+            head.stopBlink()
+            head.stopLookAroundNow()
+            head.reparentTo(hidden)
+            juror = self.toonModel
+            juror.reparentTo(render)
+            juror.setPos(startPos)
+            barrelHpr = self.barrel.getHpr(render)
+            juror.setHpr(startHpr)
+            self.jurorToon.loop('swim')
+            self.jurorToon.setPosHpr(0, 0, -(self.jurorToon.getHeight() / 2.0), 0, 0, 0)
+            info = {}
+            info['avId'] = avId
+            info['trajectory'] = trajectory
+            info['launchTime'] = launchTime
+            info['timeOfImpact'] = timeOfImpact
+            info['hitWhat'] = hitWhat
+            info['toon'] = self.toonModel
+            info['hRot'] = self.cannonPosition[0]
+            info['haveWhistled'] = 0
+            info['maxCamPullback'] = CAMERA_PULLBACK_MIN
+            if self.localToonShooting:
+                camera.reparentTo(juror)
+                camera.setP(45.0)
+                camera.setZ(-10.0)
+            self.flyColSphere = CollisionSphere(0, 0, self.av.getHeight() / 2.0, 1.0)
+            self.flyColNode = CollisionNode(self.uniqueName('flySphere'))
+            self.flyColNode.setCollideMask(ToontownGlobals.WallBitmask | ToontownGlobals.FloorBitmask | ToontownGlobals.PieBitmask)
+            self.flyColNode.addSolid(self.flyColSphere)
+            self.flyColNodePath = self.jurorToon.attachNewNode(self.flyColNode)
+            self.flyColNodePath.setColor(1, 0, 0, 1)
+            self.handler = CollisionHandlerEvent()
+            self.handler.setInPattern(self.uniqueName('cannonHit'))
+            base.cTrav.addCollider(self.flyColNodePath, self.handler)
+            self.accept(self.uniqueName('cannonHit'), self.__handleCannonHit)
+            shootTask = Task(self.__shootTask, self.taskName('shootTask'))
+            flyTask = Task(self.__flyTask, self.taskName('flyTask'))
+            shootTask.info = info
+            flyTask.info = info
+            seqTask = Task.sequence(shootTask, flyTask)
+            taskMgr.add(seqTask, self.taskName('flyingToon') + '-' + str(avId))
+            self.acceptOnce(self.uniqueName('stopFlyTask'), self.__stopFlyTask)
+            return Task.done
 
     def __toRadians(self, angle):
         return angle * 2.0 * math.pi / 360.0
@@ -764,9 +761,10 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
         t_groundImpact = trajectory.checkCollisionWithGround(GROUND_PLANE_MIN)
         if t_groundImpact >= trajectory.getStartTime():
             return (t_groundImpact, self.HIT_GROUND)
-        self.notify.error('__calcToonImpact: toon never impacts ground?')
-        return (
-         0.0, self.HIT_GROUND)
+        else:
+            self.notify.error('__calcToonImpact: toon never impacts ground?')
+            return (
+             0.0, self.HIT_GROUND)
 
     def __handleCannonHit(self, collisionEntry):
         if self.av == None or self.flyColNode == None:

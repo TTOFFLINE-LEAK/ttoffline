@@ -153,46 +153,44 @@ class DistributedPhoneAI(DistributedFurnitureItemAI):
                 creationDate = datetime.fromtimestamp(time.mktime(time.strptime(creationDate)))
             except ValueError:
                 creationDate = ''
-            else:
-                accountDays = -1
-                if creationDate:
-                    now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())))
-                    accountDays = abs((now - creationDate).days)
-                if accountDays < 0 or accountDays > 4294967295L:
-                    accountDays = 100000
-                daysToGo = item.loyaltyRequirement() - accountDays
-                if daysToGo < 0:
-                    daysToGo = 0
-                if daysToGo and config.GetBool('want-loyalty-requirement', False):
-                    self.air.writeServerEvent('suspicious', avId, 'av tried to purchase a loyalty item before it is available!')
-                    return
-                if item in av.backCatalog:
-                    price = item.getPrice(CatalogItem.CatalogTypeBackorder)
-                else:
-                    price = item.getPrice(0)
-                if price == 0:
-                    self.air.writeServerEvent('suspicious', avId, 'av tried to purchase something but the price is invalid!')
-                    return
-                if price > av.getTotalMoney():
-                    self.air.writeServerEvent('suspicious', avId, 'Failed to take away the jellybeans from the avatar')
-                    self.sendUpdateToAvatarId(avId, 'requestPurchaseResponse', [context, ToontownGlobals.P_NotEnoughMoney])
-                    return
-                if len(av.mailboxContents) >= ToontownGlobals.MaxMailboxContents:
-                    self.sendUpdateToAvatarId(avId, 'requestPurchaseResponse', [context, ToontownGlobals.P_MailboxFull])
-                    return
-                if len(av.onOrder) + len(av.mailboxContents) + len(av.onGiftOrder) + 1 >= ToontownGlobals.MaxMailboxContents:
-                    self.sendUpdateToAvatarId(avId, 'requestPurchaseResponse', [context, ToontownGlobals.P_OnOrderListFull])
-                    return
 
+            accountDays = -1
+            if creationDate:
+                now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())))
+                accountDays = abs((now - creationDate).days)
+            if accountDays < 0 or accountDays > 4294967295L:
+                accountDays = 100000
+            daysToGo = item.loyaltyRequirement() - accountDays
+            if daysToGo < 0:
+                daysToGo = 0
+            if daysToGo and config.GetBool('want-loyalty-requirement', False):
+                self.air.writeServerEvent('suspicious', avId, 'av tried to purchase a loyalty item before it is available!')
+                return
+            if item in av.backCatalog:
+                price = item.getPrice(CatalogItem.CatalogTypeBackorder)
+            else:
+                price = item.getPrice(0)
+            if price == 0:
+                self.air.writeServerEvent('suspicious', avId, 'av tried to purchase something but the price is invalid!')
+                return
+            if price > av.getTotalMoney():
+                self.air.writeServerEvent('suspicious', avId, 'Failed to take away the jellybeans from the avatar')
+                self.sendUpdateToAvatarId(avId, 'requestPurchaseResponse', [context, ToontownGlobals.P_NotEnoughMoney])
+                return
+            if len(av.mailboxContents) >= ToontownGlobals.MaxMailboxContents:
+                self.sendUpdateToAvatarId(avId, 'requestPurchaseResponse', [context, ToontownGlobals.P_MailboxFull])
+                return
+            if len(av.onOrder) + len(av.mailboxContents) + len(av.onGiftOrder) + 1 >= ToontownGlobals.MaxMailboxContents:
+                self.sendUpdateToAvatarId(avId, 'requestPurchaseResponse', [context, ToontownGlobals.P_OnOrderListFull])
+                return
             retCode = ToontownGlobals.P_ItemOnOrder
             if not item.getDeliveryTime():
                 retCode = item.recordPurchase(av, optional)
                 deliveryTime = 0
+            elif av.instantDelivery:
+                deliveryTime = int(time.time() / 60)
             else:
-                if av.instantDelivery:
-                    deliveryTime = int(time.time() / 60)
-                else:
-                    deliveryTime = int(time.time() / 60) + item.getDeliveryTime()
+                deliveryTime = int(time.time() / 60) + item.getDeliveryTime()
             if deliveryTime:
                 item.deliveryDate = deliveryTime
                 av.onOrder.append(item)
@@ -232,33 +230,32 @@ class DistributedPhoneAI(DistributedFurnitureItemAI):
                 creationDate = datetime.fromtimestamp(time.mktime(time.strptime(creationDate)))
             except ValueError:
                 creationDate = ''
-            else:
-                accountDays = -1
-                if creationDate:
-                    now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())))
-                    accountDays = abs((now - creationDate).days)
-                if accountDays < 0 or accountDays > 4294967295L:
-                    accountDays = 100000
-                daysToGo = item.loyaltyRequirement() - accountDays
-                if daysToGo < 0:
-                    daysToGo = 0
-                if daysToGo and config.GetBool('want-loyalty-requirement', False):
-                    self.air.writeServerEvent('suspicious', avId, 'av tried to gift a loyalty item before it is available!')
-                    return
-                if not item.isGift():
-                    self.air.writeServerEvent('suspicious', avId, "av tried to gift an item that isn't a gift!")
-                    self.sendUpdateToAvatarId(avId, 'requestGiftPurchaseResponse', [context, ToontownGlobals.P_NotAGift])
-                    return
-                if item in av.backCatalog:
-                    price = item.getPrice(CatalogItem.CatalogTypeBackorder)
-                else:
-                    price = item.getPrice(0)
-                if price > av.getTotalMoney():
-                    self.air.writeServerEvent('suspicious', avId, 'Failed to take away the jellybeans from the avatar')
-                    self.sendUpdateToAvatarId(avId, 'requestGiftPurchaseResponse', [
-                     context, ToontownGlobals.P_NotEnoughMoney])
-                    return
 
+            accountDays = -1
+            if creationDate:
+                now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())))
+                accountDays = abs((now - creationDate).days)
+            if accountDays < 0 or accountDays > 4294967295L:
+                accountDays = 100000
+            daysToGo = item.loyaltyRequirement() - accountDays
+            if daysToGo < 0:
+                daysToGo = 0
+            if daysToGo and config.GetBool('want-loyalty-requirement', False):
+                self.air.writeServerEvent('suspicious', avId, 'av tried to gift a loyalty item before it is available!')
+                return
+            if not item.isGift():
+                self.air.writeServerEvent('suspicious', avId, "av tried to gift an item that isn't a gift!")
+                self.sendUpdateToAvatarId(avId, 'requestGiftPurchaseResponse', [context, ToontownGlobals.P_NotAGift])
+                return
+            if item in av.backCatalog:
+                price = item.getPrice(CatalogItem.CatalogTypeBackorder)
+            else:
+                price = item.getPrice(0)
+            if price > av.getTotalMoney():
+                self.air.writeServerEvent('suspicious', avId, 'Failed to take away the jellybeans from the avatar')
+                self.sendUpdateToAvatarId(avId, 'requestGiftPurchaseResponse', [
+                 context, ToontownGlobals.P_NotEnoughMoney])
+                return
             self.requestGiftAvatarOperation(avId, targetId, [context, item, price], self.attemptGiftPurchase)
 
         self.air.dbInterface.queryObject(self.air.dbId, accId, handleAccount)

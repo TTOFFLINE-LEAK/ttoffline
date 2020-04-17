@@ -41,7 +41,8 @@ class DistributedCrushableEntityAI(DistributedEntityAI.DistributedEntityAI):
                     self.b_setPosition(self.getPosition())
                     self.initGridDependents()
                     return 1
-                return 0
+                else:
+                    return 0
 
             self.level.setEntityCreateCallback(self.gridId, setGrid)
         return

@@ -81,9 +81,8 @@ class DistributedClubElevatorAI(DistributedElevatorFSMAI.DistributedElevatorFSMA
         if self.state == 'WaitEmpty' and self.countFullSeats() < self.countAvsInZone():
             self.request('WaitCountdown')
             self.bldg.elevatorAlert(avId)
-        else:
-            if self.state in ('WaitCountdown', 'WaitEmpty') and self.countFullSeats() >= self.countAvsInZone():
-                taskMgr.doMethodLater(ElevatorConstants.TOON_BOARD_ELEVATOR_TIME, self.goAllAboard, self.quickBoardTask)
+        elif self.state in ('WaitCountdown', 'WaitEmpty') and self.countFullSeats() >= self.countAvsInZone():
+            taskMgr.doMethodLater(ElevatorConstants.TOON_BOARD_ELEVATOR_TIME, self.goAllAboard, self.quickBoardTask)
 
     def countAvsInZone(self):
         matchingZones = 0
@@ -205,28 +204,29 @@ class DistributedClubElevatorAI(DistributedElevatorFSMAI.DistributedElevatorFSMA
         if self.isLocked:
             self.request('Closed')
             return
-        numPlayers = self.countFullSeats()
-        if numPlayers > 0:
-            players = []
-            for i in self.seats:
-                if i not in (None, 0):
-                    players.append(i)
-
-            sittingAvIds = []
-            for seatIndex in xrange(len(self.seats)):
-                avId = self.seats[seatIndex]
-                if avId:
-                    sittingAvIds.append(avId)
-
-            for avId in self.avIds:
-                if avId not in sittingAvIds:
-                    continue
-
-            self.bldg.startNextFloor()
         else:
-            self.notify.warning('The elevator left, but was empty.')
-        self.request('Closed')
-        return
+            numPlayers = self.countFullSeats()
+            if numPlayers > 0:
+                players = []
+                for i in self.seats:
+                    if i not in (None, 0):
+                        players.append(i)
+
+                sittingAvIds = []
+                for seatIndex in xrange(len(self.seats)):
+                    avId = self.seats[seatIndex]
+                    if avId:
+                        sittingAvIds.append(avId)
+
+                for avId in self.avIds:
+                    if avId not in sittingAvIds:
+                        continue
+
+                self.bldg.startNextFloor()
+            else:
+                self.notify.warning('The elevator left, but was empty.')
+            self.request('Closed')
+            return
 
     def setLocked(self, locked):
         self.isLocked = locked
@@ -277,9 +277,8 @@ class DistributedClubElevatorAI(DistributedElevatorFSMAI.DistributedElevatorFSMA
         self.lastState = self.state
         if self.wantState == 'closed':
             self.demand('Closing')
-        else:
-            if self.wantState == 'waitEmpty':
-                self.demand('WaitEmpty')
+        elif self.wantState == 'waitEmpty':
+            self.demand('WaitEmpty')
 
     def setPos(self, pointPos):
         self.sendUpdate('setPos', [pointPos[0], pointPos[1], pointPos[2]])

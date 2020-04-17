@@ -331,15 +331,16 @@ class SuitPlannerBase:
     def setupDNA(self):
         if self.dnaStore:
             return
-        self.dnaStore = DNAStorage()
-        dnaFileName = self.genDNAFileName()
-        try:
-            simbase.air.loadDNAFileAI(self.dnaStore, dnaFileName)
-        except:
-            loader.loadDNAFileAI(self.dnaStore, dnaFileName)
+        else:
+            self.dnaStore = DNAStorage()
+            dnaFileName = self.genDNAFileName()
+            try:
+                simbase.air.loadDNAFileAI(self.dnaStore, dnaFileName)
+            except:
+                loader.loadDNAFileAI(self.dnaStore, dnaFileName)
 
-        self.initDNAInfo()
-        return
+            self.initDNAInfo()
+            return
 
     def genDNAFileName(self):
         try:
@@ -376,10 +377,9 @@ class SuitPlannerBase:
             if vg.getNumBattleCells() == 1:
                 battleCell = vg.getBattleCell(0)
                 self.battlePosDict[zoneId] = vg.getBattleCell(0).getPos()
-            else:
-                if vg.getNumBattleCells() > 1:
-                    self.notify.warning('multiple battle cells for zone: %d' % zoneId)
-                    self.battlePosDict[zoneId] = vg.getBattleCell(0).getPos()
+            elif vg.getNumBattleCells() > 1:
+                self.notify.warning('multiple battle cells for zone: %d' % zoneId)
+                self.battlePosDict[zoneId] = vg.getBattleCell(0).getPos()
             if True:
                 for i in xrange(vg.getNumChildren()):
                     childDnaGroup = vg.at(i)
@@ -410,14 +410,12 @@ class SuitPlannerBase:
             point = self.dnaStore.getSuitPointAtIndex(i)
             if point.getPointType() == DNASuitPoint.FRONTDOORPOINT:
                 self.frontdoorPointList.append(point)
+            elif point.getPointType() == DNASuitPoint.SIDEDOORPOINT:
+                self.sidedoorPointList.append(point)
+            elif point.getPointType() == DNASuitPoint.COGHQINPOINT or point.getPointType() == DNASuitPoint.COGHQOUTPOINT:
+                self.cogHQDoorPointList.append(point)
             else:
-                if point.getPointType() == DNASuitPoint.SIDEDOORPOINT:
-                    self.sidedoorPointList.append(point)
-                else:
-                    if point.getPointType() == DNASuitPoint.COGHQINPOINT or point.getPointType() == DNASuitPoint.COGHQOUTPOINT:
-                        self.cogHQDoorPointList.append(point)
-                    else:
-                        self.streetPointList.append(point)
+                self.streetPointList.append(point)
             self.pointIndexes[point.getIndex()] = point
 
         return
@@ -425,19 +423,20 @@ class SuitPlannerBase:
     def performPathTest(self):
         if not self.notify.getDebug():
             return
-        startAndEnd = self.pickPath()
-        if not startAndEnd:
-            return
-        startPoint = startAndEnd[0]
-        endPoint = startAndEnd[1]
-        path = self.dnaStore.getSuitPath(startPoint, endPoint)
-        numPathPoints = path.getNumPoints()
-        for i in xrange(numPathPoints - 1):
-            zone = self.dnaStore.getSuitEdgeZone(path.getPointIndex(i), path.getPointIndex(i + 1))
-            travelTime = self.dnaStore.getSuitEdgeTravelTime(path.getPointIndex(i), path.getPointIndex(i + 1), self.suitWalkSpeed)
-            self.notify.debug('edge from point ' + `i` + ' to point ' + `(i + 1)` + ' is in zone: ' + `zone` + ' and will take ' + `travelTime` + ' seconds to walk.')
+        else:
+            startAndEnd = self.pickPath()
+            if not startAndEnd:
+                return
+            startPoint = startAndEnd[0]
+            endPoint = startAndEnd[1]
+            path = self.dnaStore.getSuitPath(startPoint, endPoint)
+            numPathPoints = path.getNumPoints()
+            for i in xrange(numPathPoints - 1):
+                zone = self.dnaStore.getSuitEdgeZone(path.getPointIndex(i), path.getPointIndex(i + 1))
+                travelTime = self.dnaStore.getSuitEdgeTravelTime(path.getPointIndex(i), path.getPointIndex(i + 1), self.suitWalkSpeed)
+                self.notify.debug('edge from point ' + `i` + ' to point ' + `(i + 1)` + ' is in zone: ' + `zone` + ' and will take ' + `travelTime` + ' seconds to walk.')
 
-        return
+            return
 
     def genPath(self, startPoint, endPoint, minPathLen, maxPathLen):
         return self.dnaStore.getSuitPath(startPoint, endPoint, minPathLen, maxPathLen)

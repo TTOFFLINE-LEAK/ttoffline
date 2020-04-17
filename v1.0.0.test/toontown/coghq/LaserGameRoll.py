@@ -38,9 +38,8 @@ class LaserGameRoll(LaserGameBase.LaserGameBase):
             return
         if self.gridData[hitX][hitY] == 10:
             self.gridData[hitX][hitY] = 13
-        else:
-            if self.gridData[hitX][hitY] == 13:
-                self.gridData[hitX][hitY] = 10
+        elif self.gridData[hitX][hitY] == 13:
+            self.gridData[hitX][hitY] = 10
         if self.checkForWin():
             self.win()
         else:
@@ -58,4 +57,5 @@ class LaserGameRoll(LaserGameBase.LaserGameBase):
 
         if count1 and count2:
             return 0
-        return 1
+        else:
+            return 1

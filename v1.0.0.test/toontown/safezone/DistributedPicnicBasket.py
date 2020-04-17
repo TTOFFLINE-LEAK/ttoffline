@@ -200,43 +200,42 @@ class DistributedPicnicBasket(DistributedObject.DistributedObject):
 
         if avId == 0:
             pass
+        elif avId == 1:
+            self.fullSeat[index] = self.seatState.Empty
+            track = Sequence(self.generateFoodDisappearTrack(index))
+            self.notify.debug('### empty slot - unexpetected: fullSeat = %s' % self.fullSeat)
+            if self.fullSeat.count(0) == 4:
+                self.notify.debug('### empty slot - unexpected: losing basket')
+                if self.picnicBasketTrack:
+                    self.picnicBasketTrack.finish()
+                waitDuration = track.getDuration()
+                self.picnicBasketTrack = Sequence(Wait(waitDuration), self.generateBasketDisappearTrack())
+                self.picnicBasketTrack.start()
+            track.start()
         else:
-            if avId == 1:
-                self.fullSeat[index] = self.seatState.Empty
-                track = Sequence(self.generateFoodDisappearTrack(index))
-                self.notify.debug('### empty slot - unexpetected: fullSeat = %s' % self.fullSeat)
+            self.fullSeat[index] = self.seatState.Empty
+            if avId in self.cr.doId2do:
+                if avId == base.localAvatar.getDoId():
+                    if self.clockNode:
+                        self.clockNode.hide()
+                toon = self.cr.doId2do[avId]
+                toon.stopSmooth()
+                sitStartDuration = toon.getDuration('sit-start')
+                jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
+                track = Sequence(jumpOutTrack)
+                track.append(self.generateFoodDisappearTrack(index))
+                self.notify.debug('### empty slot: fullSeat = %s' % self.fullSeat)
                 if self.fullSeat.count(0) == 4:
-                    self.notify.debug('### empty slot - unexpected: losing basket')
+                    self.notify.debug('### empty slot: losing basket')
                     if self.picnicBasketTrack:
                         self.picnicBasketTrack.finish()
                     waitDuration = track.getDuration()
                     self.picnicBasketTrack = Sequence(Wait(waitDuration), self.generateBasketDisappearTrack())
                     self.picnicBasketTrack.start()
+                track.append(Sequence(Func(self.notifyToonOffPicnic, toon), Func(self.clearToonTrack, avId), Func(self.doneExit, avId), Func(emptySeat, index), name=toon.uniqueName('emptyTrolley'), autoPause=1))
+                track.delayDelete = DelayDelete.DelayDelete(toon, 'PicnicBasket.emptySlot')
+                self.storeToonTrack(avId, track)
                 track.start()
-            else:
-                self.fullSeat[index] = self.seatState.Empty
-                if avId in self.cr.doId2do:
-                    if avId == base.localAvatar.getDoId():
-                        if self.clockNode:
-                            self.clockNode.hide()
-                    toon = self.cr.doId2do[avId]
-                    toon.stopSmooth()
-                    sitStartDuration = toon.getDuration('sit-start')
-                    jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
-                    track = Sequence(jumpOutTrack)
-                    track.append(self.generateFoodDisappearTrack(index))
-                    self.notify.debug('### empty slot: fullSeat = %s' % self.fullSeat)
-                    if self.fullSeat.count(0) == 4:
-                        self.notify.debug('### empty slot: losing basket')
-                        if self.picnicBasketTrack:
-                            self.picnicBasketTrack.finish()
-                        waitDuration = track.getDuration()
-                        self.picnicBasketTrack = Sequence(Wait(waitDuration), self.generateBasketDisappearTrack())
-                        self.picnicBasketTrack.start()
-                    track.append(Sequence(Func(self.notifyToonOffPicnic, toon), Func(self.clearToonTrack, avId), Func(self.doneExit, avId), Func(emptySeat, index), name=toon.uniqueName('emptyTrolley'), autoPause=1))
-                    track.delayDelete = DelayDelete.DelayDelete(toon, 'PicnicBasket.emptySlot')
-                    self.storeToonTrack(avId, track)
-                    track.start()
 
     def rejectBoard(self, avId):
         self.loader.place.trolley.handleRejectBoard()
@@ -345,13 +344,11 @@ class DistributedPicnicBasket(DistributedObject.DistributedObject):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(LerpHprInterval(av, hpr=getJumpHpr, duration=0.9), ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 
@@ -386,13 +383,11 @@ class DistributedPicnicBasket(DistributedObject.DistributedObject):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 
@@ -426,7 +421,8 @@ class DistributedPicnicBasket(DistributedObject.DistributedObject):
             self.food[seat].setPos(self.seats[seat].getPos(self.tablecloth)[0] / 2, self.seats[seat].getPos(self.tablecloth)[1] / 2, 0)
             foodTrack = Sequence(Func(self.food[seat].show), SoundInterval(globalBattleSoundCache.getSound('GUI_balloon_popup.ogg'), node=self.food[seat]), Func(self.food[seat].reparentTo, self.tablecloth), Func(self.food[seat].setHpr, 45, 0, 0), Func(self.food[seat].wrtReparentTo, render), Func(self.food[seat].setShear, 0, 0, 0), Sequence(LerpScaleInterval(self.food[seat], scale=Point3(1.1, 1.1, 0.1), duration=0.2), LerpScaleInterval(self.food[seat], scale=Point3(1.6, 1.6, 0.2), duration=0.1), LerpScaleInterval(self.food[seat], scale=Point3(1.0, 1.0, 0.4), duration=0.1), LerpScaleInterval(self.food[seat], scale=Point3(1.5, 1.5, 2.5), duration=0.2), LerpScaleInterval(self.food[seat], scale=Point3(2.5, 2.5, 1.5), duration=0.1), LerpScaleInterval(self.food[seat], scale=Point3(2.0, 2.0, 2.0), duration=0.1), Func(self.food[seat].wrtReparentTo, self.tablecloth)))
             return foodTrack
-        return Sequence()
+        else:
+            return Sequence()
 
     def generateFoodDisappearTrack(self, seat):
         if not self.food[seat]:

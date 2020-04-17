@@ -127,27 +127,30 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
         toon = base.cr.doId2do.get(toonId, None)
         if toon is None:
             return
-        if self.view is not None:
-            self.view.handleToonExited(toon)
-        DistributedPartyTeamActivity.handleToonExited(self, toonId)
-        return
+        else:
+            if self.view is not None:
+                self.view.handleToonExited(toon)
+            DistributedPartyTeamActivity.handleToonExited(self, toonId)
+            return
 
     def handleToonShifted(self, toonId):
         toon = base.cr.doId2do.get(toonId, None)
         if toon is None:
             return
-        if self.view is not None:
-            self.view.handleToonShifted(toon)
-        return
+        else:
+            if self.view is not None:
+                self.view.handleToonShifted(toon)
+            return
 
     def handleToonSwitchedTeams(self, toonId):
         DistributedPartyTeamActivity.handleToonSwitchedTeams(self, toonId)
         toon = base.cr.doId2do.get(toonId, None)
         if toon is None:
             return
-        if self.view is not None:
-            self.view.handleToonSwitchedTeams(toon)
-        return
+        else:
+            if self.view is not None:
+                self.view.handleToonSwitchedTeams(toon)
+            return
 
     def handleToonDisabled(self, toonId):
         if self.view is not None:
@@ -183,9 +186,8 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
             winner = 2
             if score[PartyGlobals.TeamActivityTeams.LeftTeam] > score[PartyGlobals.TeamActivityTeams.RightTeam]:
                 winner = PartyGlobals.TeamActivityTeams.LeftTeam
-            else:
-                if score[PartyGlobals.TeamActivityTeams.LeftTeam] < score[PartyGlobals.TeamActivityTeams.RightTeam]:
-                    winner = PartyGlobals.TeamActivityTeams.RightTeam
+            elif score[PartyGlobals.TeamActivityTeams.LeftTeam] < score[PartyGlobals.TeamActivityTeams.RightTeam]:
+                winner = PartyGlobals.TeamActivityTeams.RightTeam
             if winner < 2:
                 if self.getTeam(base.localAvatar.doId) == winner:
                     resultsText = TTLocalizer.PartyTeamActivityLocalAvatarTeamWins

@@ -217,12 +217,11 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
             self.air.writeServerEvent('suspicious', avId, 'av tried to delete nonexistent attic item')
             self.sendUpdateToAvatarId(avId, 'deleteItemFromAtticResponse', [ToontownGlobals.FM_InvalidIndex, context])
             return
-        else:
-            if not item.isDeletable():
-                self.sendUpdateToAvatarId(avId, 'deleteItemFromAtticResponse', [
-                 ToontownGlobals.FM_NondeletableItem, context])
-                return
 
+        if not item.isDeletable():
+            self.sendUpdateToAvatarId(avId, 'deleteItemFromAtticResponse', [
+             ToontownGlobals.FM_NondeletableItem, context])
+            return
         del self.atticItems[index]
         self.b_setAtticItems(self.getAtticItems())
         self._deleteItem(item)
@@ -292,13 +291,14 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
         owner = self._verifyOwner(avId, 'moveWindowFromAttic', context)
         if not owner:
             return
-        try:
-            item = self.atticWindows[index]
-        except KeyError:
-            self.air.writeServerEvent('suspicious', avId, 'av tried to move nonexistent window')
-            self.sendUpdateToAvatarId(avId, 'moveWindowFromAtticResponse', [ToontownGlobals.FM_InvalidIndex, context])
-            return
         else:
+            try:
+                item = self.atticWindows[index]
+            except KeyError:
+                self.air.writeServerEvent('suspicious', avId, 'av tried to move nonexistent window')
+                self.sendUpdateToAvatarId(avId, 'moveWindowFromAtticResponse', [ToontownGlobals.FM_InvalidIndex, context])
+                return
+
             if slot > 5:
                 self.air.writeServerEvent('suspicious', avId, 'av tried to put window in invalid slot!')
                 return
@@ -313,13 +313,12 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
             if not oldWindow:
                 self.sendUpdateToAvatarId(avId, 'moveWindowFromAtticResponse', [ToontownGlobals.FM_InvalidIndex, context])
                 return
-
-        self.atticWindows[index] = oldWindow
-        self.d_setAtticWindows(self.getAtticWindows())
-        self.windows[windowIndex] = item
-        self.house.interior.b_setWindows(self.windows.getBlob())
-        self.sendUpdateToAvatarId(avId, 'moveWindowFromAtticResponse', [ToontownGlobals.FM_SwappedItem, context])
-        return
+            self.atticWindows[index] = oldWindow
+            self.d_setAtticWindows(self.getAtticWindows())
+            self.windows[windowIndex] = item
+            self.house.interior.b_setWindows(self.windows.getBlob())
+            self.sendUpdateToAvatarId(avId, 'moveWindowFromAtticResponse', [ToontownGlobals.FM_SwappedItem, context])
+            return
 
     def moveWindowMessage(self, fromSlot, toSlot, context):
         pass
@@ -393,17 +392,14 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
         itemId = item.furnitureType
         if itemId == 1399:
             furnitureClass = DistributedPhoneAI
+        elif item.getFlags() & CatalogFurnitureItem.FLCloset:
+            furnitureClass = DistributedClosetAI
+        elif item.getFlags() & CatalogFurnitureItem.FLBank:
+            furnitureClass = DistributedBankAI
+        elif item.getFlags() & CatalogFurnitureItem.FLTrunk:
+            furnitureClass = DistributedTrunkAI
         else:
-            if item.getFlags() & CatalogFurnitureItem.FLCloset:
-                furnitureClass = DistributedClosetAI
-            else:
-                if item.getFlags() & CatalogFurnitureItem.FLBank:
-                    furnitureClass = DistributedBankAI
-                else:
-                    if item.getFlags() & CatalogFurnitureItem.FLTrunk:
-                        furnitureClass = DistributedTrunkAI
-                    else:
-                        furnitureClass = DistributedFurnitureItemAI
+            furnitureClass = DistributedFurnitureItemAI
         obj = furnitureClass(self.air, self.house, self, item)
         obj.generateWithRequired(self.interior.zoneId)
         self.items.append(obj)
@@ -487,22 +483,22 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
     def removeDeletedItemBlob(self, deletedItemBlob, dayId=None):
         if not self.day2deletedItems.keys():
             return
-        if dayId is None:
-            dayId = getDayId()
-        dayId = str(dayId)
-        if dayId not in self.day2deletedItems.keys():
-            dayId = min(self.day2deletedItems.keys())
         else:
-            if not self.day2deletedItems[dayId]:
+            if dayId is None:
+                dayId = getDayId()
+            dayId = str(dayId)
+            if dayId not in self.day2deletedItems.keys():
+                dayId = min(self.day2deletedItems.keys())
+            elif not self.day2deletedItems[dayId]:
                 del self.day2deletedItems[dayId]
                 dayId = min(self.day2deletedItems.keys())
-        dayId = str(dayId)
-        if dayId in self.day2deletedItems.keys() and deletedItemBlob in self.day2deletedItems[dayId]:
-            self.day2deletedItems[dayId].remove(deletedItemBlob)
-        if not self.day2deletedItems[dayId]:
-            del self.day2deletedItems[dayId]
-        self.updateDeletedItemsFile()
-        return
+            dayId = str(dayId)
+            if dayId in self.day2deletedItems.keys() and deletedItemBlob in self.day2deletedItems[dayId]:
+                self.day2deletedItems[dayId].remove(deletedItemBlob)
+            if not self.day2deletedItems[dayId]:
+                del self.day2deletedItems[dayId]
+            self.updateDeletedItemsFile()
+            return
 
     def __deletedItemsTask(self, task):
         changesMade = False
@@ -518,37 +514,37 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
                 del self.day2deletedItems[deletedItemDay]
                 changesMade = True
                 continue
-            else:
-                if deletedItemDayId + int(ToontownGlobals.DeletedItemLifetime / 60 / 24) <= dayId:
-                    for deletedItemBlob in deletedItemBlobs[:]:
-                        try:
-                            deletedItem = CatalogItem.getItem(deletedItemBlob.decode('base64'))
-                        except:
-                            self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
-                            if not self.day2deletedItems[deletedItemDay]:
-                                del self.day2deletedItems[deletedItemDay]
-                            changesMade = True
-                            continue
-                        else:
-                            if isinstance(deletedItem, CatalogInvalidItem.CatalogInvalidItem):
-                                self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
-                                if not self.day2deletedItems[deletedItemDay]:
-                                    del self.day2deletedItems[deletedItemDay]
-                                changesMade = True
-                                continue
-                            if deletedItem not in self.deletedItems:
-                                self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
-                                if not self.day2deletedItems[deletedItemDay]:
-                                    del self.day2deletedItems[deletedItemDay]
-                                changesMade = True
-                                continue
-                            index = self.deletedItems.index(deletedItem)
-                            del self.deletedItems[index]
-                            self.b_setDeletedItems(self.getDeletedItems())
-                            self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
-                            if not self.day2deletedItems[deletedItemDay]:
-                                del self.day2deletedItems[deletedItemDay]
-                            changesMade = True
+
+            if deletedItemDayId + int(ToontownGlobals.DeletedItemLifetime / 60 / 24) <= dayId:
+                for deletedItemBlob in deletedItemBlobs[:]:
+                    try:
+                        deletedItem = CatalogItem.getItem(deletedItemBlob.decode('base64'))
+                    except:
+                        self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
+                        if not self.day2deletedItems[deletedItemDay]:
+                            del self.day2deletedItems[deletedItemDay]
+                        changesMade = True
+                        continue
+
+                    if isinstance(deletedItem, CatalogInvalidItem.CatalogInvalidItem):
+                        self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
+                        if not self.day2deletedItems[deletedItemDay]:
+                            del self.day2deletedItems[deletedItemDay]
+                        changesMade = True
+                        continue
+                    if deletedItem not in self.deletedItems:
+                        self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
+                        if not self.day2deletedItems[deletedItemDay]:
+                            del self.day2deletedItems[deletedItemDay]
+                        changesMade = True
+                        continue
+                    index = self.deletedItems.index(deletedItem)
+                    del self.deletedItems[index]
+                    self.b_setDeletedItems(self.getDeletedItems())
+                    self.day2deletedItems[deletedItemDay].remove(deletedItemBlob)
+                    if not self.day2deletedItems[deletedItemDay]:
+                        del self.day2deletedItems[deletedItemDay]
+                    changesMade = True
 
         if changesMade:
             self.updateDeletedItemsFile()

@@ -99,7 +99,8 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
     def isLockedDoor(self):
         if simbase.config.GetBool('no-locked-doors', 0):
             return 0
-        return self.lockedDoor
+        else:
+            return self.lockedDoor
 
     def sendReject(self, avatarID, lockedVal):
         self.sendUpdateToAvatarId(avatarID, 'rejectEnter', [lockedVal])
@@ -123,9 +124,8 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         stateName = doorFsm.getCurrentState().getName()
         if stateName == 'open':
             doorFsm.request('open')
-        else:
-            if stateName != 'opening':
-                doorFsm.request('opening')
+        elif stateName != 'opening':
+            doorFsm.request('opening')
 
     def requestExit(self):
         avatarID = self.air.getAvatarIdFromSender()
@@ -135,10 +135,9 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
     def enqueueAvatarIdExit(self, avatarID):
         if avatarID in self.avatarsWhoAreEntering:
             del self.avatarsWhoAreEntering[avatarID]
-        else:
-            if avatarID not in self.avatarsWhoAreExiting:
-                self.avatarsWhoAreExiting[avatarID] = 1
-                self.openDoor(self.exitDoorFSM)
+        elif avatarID not in self.avatarsWhoAreExiting:
+            self.avatarsWhoAreExiting[avatarID] = 1
+            self.openDoor(self.exitDoorFSM)
 
     def requestSuitEnter(self, avatarID):
         self.enqueueAvatarIdEnter(avatarID)

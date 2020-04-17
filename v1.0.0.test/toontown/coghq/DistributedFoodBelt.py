@@ -67,17 +67,14 @@ class DistributedFoodBelt(DistributedObject.DistributedObject, FSM.FSM, FoodBelt
     def setState(self, state):
         if state == 'F':
             self.demand('Off')
+        elif state == 'N':
+            self.demand('On')
+        elif state == 'I':
+            self.demand('Inactive')
+        elif state == 'T':
+            self.demand('Toonup')
         else:
-            if state == 'N':
-                self.demand('On')
-            else:
-                if state == 'I':
-                    self.demand('Inactive')
-                else:
-                    if state == 'T':
-                        self.demand('Toonup')
-                    else:
-                        self.notify.error('Invalid state from AI: %s' % state)
+            self.notify.error('Invalid state from AI: %s' % state)
 
     def enterOn(self):
         self.beltSoundInterval.loop()
@@ -267,16 +264,16 @@ class DistributedFoodBelt(DistributedObject.DistributedObject, FSM.FSM, FoodBelt
             beltIndex = int(into.getTag('beltIndex'))
         except:
             beltIndex = 0
-        else:
-            try:
-                foodIndex = int(into.getTag('foodIndex'))
-            except:
-                foodIndex = 0
 
-            try:
-                foodNum = int(into.getTag('foodNum'))
-            except:
-                foodNum = 0
+        try:
+            foodIndex = int(into.getTag('foodIndex'))
+        except:
+            foodIndex = 0
+
+        try:
+            foodNum = int(into.getTag('foodNum'))
+        except:
+            foodNum = 0
 
         if self.boss:
             self.boss.localToonTouchedBeltFood(beltIndex, foodIndex, foodNum)
@@ -340,16 +337,16 @@ class DistributedFoodBelt(DistributedObject.DistributedObject, FSM.FSM, FoodBelt
             beltIndex = int(into.getTag('beltIndex'))
         except:
             beltIndex = 0
-        else:
-            try:
-                toonupIndex = int(into.getTag('toonupIndex'))
-            except:
-                toonupIndex = 0
 
-            try:
-                toonupNum = int(into.getTag('toonupNum'))
-            except:
-                toonupNum = 0
+        try:
+            toonupIndex = int(into.getTag('toonupIndex'))
+        except:
+            toonupIndex = 0
+
+        try:
+            toonupNum = int(into.getTag('toonupNum'))
+        except:
+            toonupNum = 0
 
         if self.boss:
             self.boss.localToonTouchedBeltToonup(beltIndex, toonupIndex, toonupNum)

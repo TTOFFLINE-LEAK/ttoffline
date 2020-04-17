@@ -350,21 +350,20 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
                 self.cameraParallel = None
             camera.reparentTo(toon)
             base.localAvatar.startUpdateSmartCamera()
-        else:
-            if mode == DanceViews.Dancing:
-                base.localAvatar.stopUpdateSmartCamera()
-                camera.wrtReparentTo(self.danceFloor)
-                node = NodePath('temp')
-                node.reparentTo(toon.getParent())
-                node.setPos(Point3(0, -40, 20))
-                node2 = NodePath('temp2')
-                node2.reparentTo(self.danceFloor)
-                node.reparentTo(node2)
-                node2.setH(render, toon.getParent().getH())
-                pos = node.getPos(self.danceFloor)
-                node2.removeNode()
-                node.removeNode()
-                self.cameraParallel = Parallel(camera.posInterval(0.5, pos, blendType='easeIn'), camera.hprInterval(0.5, Point3(0, -27, 0), other=toon.getParent(), blendType='easeIn'))
-                self.cameraParallel.start()
+        elif mode == DanceViews.Dancing:
+            base.localAvatar.stopUpdateSmartCamera()
+            camera.wrtReparentTo(self.danceFloor)
+            node = NodePath('temp')
+            node.reparentTo(toon.getParent())
+            node.setPos(Point3(0, -40, 20))
+            node2 = NodePath('temp2')
+            node2.reparentTo(self.danceFloor)
+            node.reparentTo(node2)
+            node2.setH(render, toon.getParent().getH())
+            pos = node.getPos(self.danceFloor)
+            node2.removeNode()
+            node.removeNode()
+            self.cameraParallel = Parallel(camera.posInterval(0.5, pos, blendType='easeIn'), camera.hprInterval(0.5, Point3(0, -27, 0), other=toon.getParent(), blendType='easeIn'))
+            self.cameraParallel.start()
         self.currentCameraMode = mode
         return

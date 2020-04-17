@@ -42,18 +42,15 @@ class DisguisePage(ShtikerPage.ShtikerPage):
             if dept == 'c':
                 tabIndex = 1
                 textPos = (1.57, 0.75)
-            else:
-                if dept == 'l':
-                    tabIndex = 2
-                    textPos = (1.57, 0.12)
-                else:
-                    if dept == 'm':
-                        tabIndex = 3
-                        textPos = (1.57, -0.47)
-                    else:
-                        if dept == 's':
-                            tabIndex = 4
-                            textPos = (1.57, -1.05)
+            elif dept == 'l':
+                tabIndex = 2
+                textPos = (1.57, 0.12)
+            elif dept == 'm':
+                tabIndex = 3
+                textPos = (1.57, -0.47)
+            elif dept == 's':
+                tabIndex = 4
+                textPos = (1.57, -1.05)
             pageGeom = gui.find('**/page%d' % tabIndex)
             tabGeom = gui.find('**/tab%d' % tabIndex)
             tab = DirectButton(parent=self.pageFrame, relief=None, geom=tabGeom, geom_color=DeptColors[(tabIndex - 1)], text=SuitDNA.suitDeptFullnames[dept], text_font=ToontownGlobals.getSuitFont(), text_pos=textPos, text_roll=-90, text_scale=TTLocalizer.DPtab, text_align=TextNode.ACenter, text1_fg=Vec4(1, 0, 0, 1), text2_fg=Vec4(0.5, 0.4, 0.4, 1), text3_fg=Vec4(0.4, 0.4, 0.4, 1), command=self.doTab, extraArgs=[len(self.tabs)], pressEffect=0)
@@ -150,14 +147,13 @@ class DisguisePage(ShtikerPage.ShtikerPage):
                 self.holes[self.parts.index(part)].hide()
                 if groupingBit:
                     previousPart = 1
+            elif not groupingBit and previousPart:
+                part.show()
+                self.holes[self.parts.index(part)].hide()
             else:
-                if not groupingBit and previousPart:
-                    part.show()
-                    self.holes[self.parts.index(part)].hide()
-                else:
-                    self.holes[self.parts.index(part)].show()
-                    part.hide()
-                    previousPart = 0
+                self.holes[self.parts.index(part)].show()
+                part.hide()
+                previousPart = 0
             partBitmask = partBitmask << 1
 
     def updateMeritBar(self, dept):
@@ -182,21 +178,20 @@ class DisguisePage(ShtikerPage.ShtikerPage):
             self.meterFaceHalf1.hide()
             self.meterFaceHalf2.hide()
             self.meterFace.setColor(self.meterColor)
+        elif progress == 1:
+            self.meterFaceHalf1.hide()
+            self.meterFaceHalf2.hide()
+            self.meterFace.setColor(self.meterActiveColor)
         else:
-            if progress == 1:
-                self.meterFaceHalf1.hide()
-                self.meterFaceHalf2.hide()
-                self.meterFace.setColor(self.meterActiveColor)
+            self.meterFaceHalf1.show()
+            self.meterFaceHalf2.show()
+            self.meterFace.setColor(self.meterColor)
+            if progress < 0.5:
+                self.meterFaceHalf2.setColor(self.meterColor)
             else:
-                self.meterFaceHalf1.show()
-                self.meterFaceHalf2.show()
-                self.meterFace.setColor(self.meterColor)
-                if progress < 0.5:
-                    self.meterFaceHalf2.setColor(self.meterColor)
-                else:
-                    self.meterFaceHalf2.setColor(self.meterActiveColor)
-                    progress = progress - 0.5
-                self.meterFaceHalf2.setR(180 * (progress / 0.5))
+                self.meterFaceHalf2.setColor(self.meterActiveColor)
+                progress = progress - 0.5
+            self.meterFaceHalf2.setR(180 * (progress / 0.5))
 
     def doTab(self, index):
         self.activeTab = index
@@ -217,14 +212,12 @@ class DisguisePage(ShtikerPage.ShtikerPage):
         self.progressTitle.hide()
         if SuitDNA.suitDepts[index] == 'm':
             self.progressTitle = self.cogbuckTitle
+        elif SuitDNA.suitDepts[index] == 'l':
+            self.progressTitle = self.juryNoticeTitle
+        elif SuitDNA.suitDepts[index] == 'c':
+            self.progressTitle = self.stockOptionTitle
         else:
-            if SuitDNA.suitDepts[index] == 'l':
-                self.progressTitle = self.juryNoticeTitle
-            else:
-                if SuitDNA.suitDepts[index] == 'c':
-                    self.progressTitle = self.stockOptionTitle
-                else:
-                    self.progressTitle = self.meritTitle
+            self.progressTitle = self.meritTitle
         self.progressTitle.show()
         self.cogName['text'] = SuitBattleGlobals.SuitAttributes[cog]['name']
         cogLevel = base.localAvatar.cogLevels[index]

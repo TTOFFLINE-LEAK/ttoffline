@@ -52,9 +52,8 @@ class DistributedSwitchAI(DistributedSwitchBase.DistributedSwitchBase, Distribut
             if isOn:
                 if stateName != 'playing':
                     self.fsm.request('playing')
-            else:
-                if stateName != 'attract':
-                    self.fsm.request('attract')
+            elif stateName != 'attract':
+                self.fsm.request('attract')
             messenger.send(self.getOutputEventName(), [isOn])
 
     def getIsOn(self):

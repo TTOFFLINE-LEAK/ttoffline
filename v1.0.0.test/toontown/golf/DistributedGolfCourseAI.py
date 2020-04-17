@@ -159,7 +159,8 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
     def checkGolferPlaying(self, avId):
         if self.avStateDict[avId] == ONHOLE:
             return 1
-        return 0
+        else:
+            return 0
 
     def b_setCourseReady(self):
         self.setCourseReady()
@@ -200,14 +201,13 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
             self.currentHole.avatarDropped(avId)
         if self.haveAllGolfersExited():
             self.setCourseAbort()
-        else:
-            if self.isCurHoleDone():
-                if self.isPlayingLastHole():
-                    if self.state not in ('WaitReward', 'WaitReadyHole'):
-                        self.safeDemand('WaitReward')
-                else:
-                    self.notify.debug('allBalls are in holes, calling holeOver')
-                    self.holeOver()
+        elif self.isCurHoleDone():
+            if self.isPlayingLastHole():
+                if self.state not in ('WaitReward', 'WaitReadyHole'):
+                    self.safeDemand('WaitReward')
+            else:
+                self.notify.debug('allBalls are in holes, calling holeOver')
+                self.holeOver()
         if hasattr(self, 'rewardBarrier'):
             if self.rewardBarrier:
                 self.rewardBarrier.clear(avId)
@@ -337,9 +337,8 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
             self.notify.debug("GOLF COURSE: Hole timed out waiting for clients %s to report 'ready'" % avIds)
             if self.haveAllGolfersExited():
                 self.setCourseAbort()
-            else:
-                if self.safeDemand('PlayHole'):
-                    self.d_setPlayHole()
+            elif self.safeDemand('PlayHole'):
+                self.d_setPlayHole()
 
         stillPlaying = self.getStillPlayingAvIds()
         self.__barrier = ToonBarrier('WaitReadyHole', self.uniqueName('WaitReadyHole'), stillPlaying, READY_TIMEOUT, allAvatarsInHole, handleTimeout)
@@ -548,31 +547,31 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
     def updateHistoryForBallIn(self, avId):
         if self.currentHole == None:
             return
-        holeId = self.currentHole.holeId
-        holeInfo = GolfGlobals.HoleInfo[holeId]
-        par = holeInfo['par']
-        holeIndex = self.numHolesPlayed
-        if holeIndex >= self.numHoles:
-            self.notify.warning('updateHistoryForBallIn invalid holeIndex %d' % holeIndex)
-            holeIndex = self.numHoles - 1
         else:
-            if holeIndex < 0:
+            holeId = self.currentHole.holeId
+            holeInfo = GolfGlobals.HoleInfo[holeId]
+            par = holeInfo['par']
+            holeIndex = self.numHolesPlayed
+            if holeIndex >= self.numHoles:
+                self.notify.warning('updateHistoryForBallIn invalid holeIndex %d' % holeIndex)
+                holeIndex = self.numHoles - 1
+            elif holeIndex < 0:
                 self.notify.warning('updateHistoryForBallIn invalid holeIndex %d' % holeIndex)
                 holeIndex = 0
-        strokes = self.scores[avId][holeIndex]
-        self.notify.debug('self.scores = %s' % self.scores)
-        diff = strokes - par
-        if strokes == 1:
-            self.incrementEndingHistory(avId, GolfGlobals.HoleInOneShots)
-        if diff <= -2:
-            self.incrementEndingHistory(avId, GolfGlobals.EagleOrBetterShots)
-        if diff <= -1:
-            self.incrementEndingHistory(avId, GolfGlobals.BirdieOrBetterShots)
-        if diff <= 0:
-            self.endingHistory[avId][GolfGlobals.ParOrBetterShots] += 1
-        if strokes < self.endingHoleBest[avId][holeId] or self.endingHoleBest[avId][holeId] == 0:
-            self.endingHoleBest[avId][holeId] = strokes
-        return
+            strokes = self.scores[avId][holeIndex]
+            self.notify.debug('self.scores = %s' % self.scores)
+            diff = strokes - par
+            if strokes == 1:
+                self.incrementEndingHistory(avId, GolfGlobals.HoleInOneShots)
+            if diff <= -2:
+                self.incrementEndingHistory(avId, GolfGlobals.EagleOrBetterShots)
+            if diff <= -1:
+                self.incrementEndingHistory(avId, GolfGlobals.BirdieOrBetterShots)
+            if diff <= 0:
+                self.endingHistory[avId][GolfGlobals.ParOrBetterShots] += 1
+            if strokes < self.endingHoleBest[avId][holeId] or self.endingHoleBest[avId][holeId] == 0:
+                self.endingHoleBest[avId][holeId] = strokes
+            return
 
     def incrementEndingHistory(self, avId, historyIndex):
         if avId in self.endingHistory and historyIndex in GolfGlobals.TrophyRequirements:
@@ -606,11 +605,10 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
                 for holeId in GolfGlobals.CourseInfo[self.courseId]['holeIds']:
                     if type(holeId) == type(0):
                         retval.append(holeId)
+                    elif type(holeId) == type(()):
+                        retval.append(holeId[0])
                     else:
-                        if type(holeId) == type(()):
-                            retval.append(holeId[0])
-                        else:
-                            self.notify.warning('cant handle %s' % self.holeId)
+                        self.notify.warning('cant handle %s' % self.holeId)
                     if len(retval) >= self.numHoles:
                         break
 
@@ -696,9 +694,10 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
         def scoreCompareNoTime(tupleA, tupleB):
             if tupleA[1] > tupleB[1]:
                 return 1
-            if tupleA[1] == tupleB[1]:
-                return 0
-            return -1
+            else:
+                if tupleA[1] == tupleB[1]:
+                    return 0
+                return -1
 
         def scoreCompareWithTime(tupleA, tupleB):
             if tupleA[1] > tupleB[1]:
@@ -706,9 +705,11 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
             if tupleA[1] == tupleB[1]:
                 if tupleA[2] > tupleB[2]:
                     return 1
-                if tupleA[2] == tupleB[2]:
-                    return 0
-                return -1
+                else:
+                    if tupleA[2] == tupleB[2]:
+                        return 0
+                    return -1
+
             else:
                 return -1
 
@@ -763,10 +764,9 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
                 if self.rankingsById[avId] > 0 and avId != winnerAvId:
                     self.rankingsById[avId] += 1
 
-        else:
-            if len(tiedForFirst) >= 2:
-                winnerAvId = totalScores[0][0]
-                self.winnerByTieBreak = winnerAvId
+        elif len(tiedForFirst) >= 2:
+            winnerAvId = totalScores[0][0]
+            self.winnerByTieBreak = winnerAvId
 
     def awardTrophies(self):
         stillPlaying = self.getStillPlayingAvIds()
@@ -917,10 +917,9 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
                 if newState in self.defaultTransitions[self.state]:
                     self.demand(newState)
                     doingDemand = True
-            else:
-                if self.state == None:
-                    self.demand(newState)
-                    doingDemand = True
+            elif self.state == None:
+                self.demand(newState)
+                doingDemand = True
             if not doingDemand:
                 self.notify.warning('doId=%d ignoring demand from %s to %s' % (self.doId, self.state, newState))
         return doingDemand
@@ -936,13 +935,12 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
             if type(holeOrTuple) == type(()):
                 holeId = holeOrTuple[0]
                 weight = holeOrTuple[1]
+            elif type(holeOrTuple) == type(0):
+                holeId = holeOrTuple
+                weight = 1
             else:
-                if type(holeOrTuple) == type(0):
-                    holeId = holeOrTuple
-                    weight = 1
-                else:
-                    self.notify.warning('cant handle %s' % holeOrTuple)
-                    continue
+                self.notify.warning('cant handle %s' % holeOrTuple)
+                continue
             if holeId in possibleHoles:
                 retval += [holeId] * weight
 

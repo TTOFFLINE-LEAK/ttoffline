@@ -81,12 +81,10 @@ class CashbotHQExterior(CogHQExterior.CogHQExterior):
                 pass
             else:
                 self.fsm.request('walk')
+        elif where == 'exit':
+            self.fsm.request('walk')
+        elif where == 'mintInterior':
+            self.doneStatus = doneStatus
+            messenger.send(self.doneEvent)
         else:
-            if where == 'exit':
-                self.fsm.request('walk')
-            else:
-                if where == 'mintInterior':
-                    self.doneStatus = doneStatus
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')
+            self.notify.error('Unknown mode: ' + where + ' in handleElevatorDone')

@@ -100,44 +100,45 @@ class DistributedRingGameAI(DistributedMinigameAI):
         if avId not in self.avIdList:
             self.air.writeServerEvent('suspicious', avId, 'RingGameAI.setToonGotRing: invalid avId')
             return
-        if self.gameFSM.getCurrentState() is None or self.gameFSM.getCurrentState().getName() != 'swimming':
-            self.air.writeServerEvent('suspicious', avId, 'RingGameAI.setToonGotRing: game not in swimming state')
-            return
-        ringGroupIndex = self.__nextRingGroup[avId]
-        if ringGroupIndex >= RingGameGlobals.NUM_RING_GROUPS:
-            self.notify.warning('warning: got extra ToonGotRing msg from av %s' % avId)
-            return
-        self.__nextRingGroup[avId] += 1
-        if not success:
-            self.__ringResultBitfield[ringGroupIndex] |= 1 << self.avIdList.index(avId)
-            self.perfectGames[avId] = 0
         else:
-            self.scoreDict[avId] += 1
-        self.__numRingsPassed[ringGroupIndex] += 1
-        if self.__numRingsPassed[ringGroupIndex] >= self.numPlayers:
-            if not self.isSinglePlayer():
-                bitfield = self.__ringResultBitfield[ringGroupIndex]
-                if bitfield == 0:
-                    for id in self.avIdList:
-                        self.scoreDict[id] += 0.5
+            if self.gameFSM.getCurrentState() is None or self.gameFSM.getCurrentState().getName() != 'swimming':
+                self.air.writeServerEvent('suspicious', avId, 'RingGameAI.setToonGotRing: game not in swimming state')
+                return
+            ringGroupIndex = self.__nextRingGroup[avId]
+            if ringGroupIndex >= RingGameGlobals.NUM_RING_GROUPS:
+                self.notify.warning('warning: got extra ToonGotRing msg from av %s' % avId)
+                return
+            self.__nextRingGroup[avId] += 1
+            if not success:
+                self.__ringResultBitfield[ringGroupIndex] |= 1 << self.avIdList.index(avId)
+                self.perfectGames[avId] = 0
+            else:
+                self.scoreDict[avId] += 1
+            self.__numRingsPassed[ringGroupIndex] += 1
+            if self.__numRingsPassed[ringGroupIndex] >= self.numPlayers:
+                if not self.isSinglePlayer():
+                    bitfield = self.__ringResultBitfield[ringGroupIndex]
+                    if bitfield == 0:
+                        for id in self.avIdList:
+                            self.scoreDict[id] += 0.5
 
-                self.sendUpdate('setRingGroupResults', [bitfield])
-            if ringGroupIndex >= RingGameGlobals.NUM_RING_GROUPS - 1:
-                perfectBonuses = {1: 5, 2: 5, 3: 10, 
-                   4: 18}
-                numPerfectToons = 0
-                for avId in self.avIdList:
-                    if self.perfectGames[avId]:
-                        numPerfectToons += 1
+                    self.sendUpdate('setRingGroupResults', [bitfield])
+                if ringGroupIndex >= RingGameGlobals.NUM_RING_GROUPS - 1:
+                    perfectBonuses = {1: 5, 2: 5, 3: 10, 
+                       4: 18}
+                    numPerfectToons = 0
+                    for avId in self.avIdList:
+                        if self.perfectGames[avId]:
+                            numPerfectToons += 1
 
-                for avId in self.avIdList:
-                    if self.perfectGames[avId]:
-                        self.scoreDict[avId] += perfectBonuses[numPerfectToons]
-                        self.logPerfectGame(avId)
+                    for avId in self.avIdList:
+                        if self.perfectGames[avId]:
+                            self.scoreDict[avId] += perfectBonuses[numPerfectToons]
+                            self.logPerfectGame(avId)
 
-                for avId in self.avIdList:
-                    self.scoreDict[avId] = max(1, self.scoreDict[avId])
+                    for avId in self.avIdList:
+                        self.scoreDict[avId] = max(1, self.scoreDict[avId])
 
-                if not RingGameGlobals.ENDLESS_GAME:
-                    self.gameOver()
-        return
+                    if not RingGameGlobals.ENDLESS_GAME:
+                        self.gameOver()
+            return

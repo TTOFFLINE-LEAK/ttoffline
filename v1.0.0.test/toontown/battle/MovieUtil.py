@@ -74,7 +74,8 @@ def copyProp(prop):
     from direct.actor import Actor
     if isinstance(prop, Actor.Actor):
         return Actor.Actor(other=prop)
-    return prop.copyTo(hidden)
+    else:
+        return prop.copyTo(hidden)
 
 
 def showProp(prop, hand, pos=None, hpr=None, scale=None):
@@ -494,68 +495,69 @@ def getSuitRakeOffset(suit):
     suitName = suit.getStyleName()
     if suitName == 'gh':
         return 1.4
-    if suitName == 'f':
-        return 1.0
-    if suitName == 'cc':
-        return 0.7
-    if suitName == 'tw':
-        return 1.3
-    if suitName == 'bf':
-        return 1.0
-    if suitName == 'sc':
-        return 0.8
-    if suitName == 'ym':
-        return 0.1
-    if suitName == 'mm':
-        return 0.05
-    if suitName == 'tm':
-        return 0.07
-    if suitName == 'nd':
-        return 0.07
-    if suitName == 'pp':
-        return 0.04
-    if suitName == 'bc':
-        return 0.36
-    if suitName == 'b':
-        return 0.41
-    if suitName == 'dt':
-        return 0.31
-    if suitName == 'ac':
-        return 0.39
-    if suitName == 'ds':
-        return 0.41
-    if suitName == 'hh':
-        return 0.8
-    if suitName == 'cr':
-        return 2.1
-    if suitName == 'tbc':
-        return 1.4
-    if suitName == 'bs':
-        return 0.4
-    if suitName == 'sd':
-        return 1.02
-    if suitName == 'le':
-        return 1.3
-    if suitName == 'bw':
-        return 1.4
-    if suitName == 'nc':
-        return 0.6
-    if suitName == 'mb':
-        return 1.85
-    if suitName == 'ls':
-        return 1.4
-    if suitName == 'rb':
-        return 1.6
-    if suitName == 'ms':
-        return 0.7
-    if suitName == 'tf':
-        return 0.75
-    if suitName == 'm':
-        return 0.9
-    if suitName == 'mh':
-        return 1.3
-    notify.warning('getSuitRakeOffset(suit) - Unknown suit name: %s' % suitName)
-    return 0
+    else:
+        if suitName == 'f':
+            return 1.0
+        if suitName == 'cc':
+            return 0.7
+        if suitName == 'tw':
+            return 1.3
+        if suitName == 'bf':
+            return 1.0
+        if suitName == 'sc':
+            return 0.8
+        if suitName == 'ym':
+            return 0.1
+        if suitName == 'mm':
+            return 0.05
+        if suitName == 'tm':
+            return 0.07
+        if suitName == 'nd':
+            return 0.07
+        if suitName == 'pp':
+            return 0.04
+        if suitName == 'bc':
+            return 0.36
+        if suitName == 'b':
+            return 0.41
+        if suitName == 'dt':
+            return 0.31
+        if suitName == 'ac':
+            return 0.39
+        if suitName == 'ds':
+            return 0.41
+        if suitName == 'hh':
+            return 0.8
+        if suitName == 'cr':
+            return 2.1
+        if suitName == 'tbc':
+            return 1.4
+        if suitName == 'bs':
+            return 0.4
+        if suitName == 'sd':
+            return 1.02
+        if suitName == 'le':
+            return 1.3
+        if suitName == 'bw':
+            return 1.4
+        if suitName == 'nc':
+            return 0.6
+        if suitName == 'mb':
+            return 1.85
+        if suitName == 'ls':
+            return 1.4
+        if suitName == 'rb':
+            return 1.6
+        if suitName == 'ms':
+            return 0.7
+        if suitName == 'tf':
+            return 0.75
+        if suitName == 'm':
+            return 0.9
+        if suitName == 'mh':
+            return 1.3
+        notify.warning('getSuitRakeOffset(suit) - Unknown suit name: %s' % suitName)
+        return 0
 
 
 def startSparksIval(tntProp):

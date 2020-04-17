@@ -115,31 +115,30 @@ class DistributedStomper(DistributedCrusherEntity.DistributedCrusherEntity):
                 for i in xrange(floorHead.getNumSolids()):
                     floorHead.modifySolid(i).setEffectiveNormal(Vec3(0.0, -1.0, 0.0))
 
-            floorShaft = model.find('**/shaft_collisions/**/collDownFloor').node()
-            for i in xrange(floorShaft.getNumSolids()):
-                floorShaft.modifySolid(i).setEffectiveNormal(Vec3(0.0, -1.0, 0.0))
+                floorShaft = model.find('**/shaft_collisions/**/collDownFloor').node()
+                for i in xrange(floorShaft.getNumSolids()):
+                    floorShaft.modifySolid(i).setEffectiveNormal(Vec3(0.0, -1.0, 0.0))
 
             self.accept(self.crushMsg, self.checkSquashedToon)
-        else:
-            if self.style == 'horizontal':
-                model = MovingPlatform.MovingPlatform()
-                model.setupCopyModel(self.getParentToken(), stomperModel, 'collSideFloor')
-                head = model.find('**/head')
-                head.node().setPreserveTransform(0)
-                head.setZ(1.0)
-                for child in head.findAllMatches('+ModelNode'):
-                    child.node().setPreserveTransform(ModelNode.PTNet)
+        elif self.style == 'horizontal':
+            model = MovingPlatform.MovingPlatform()
+            model.setupCopyModel(self.getParentToken(), stomperModel, 'collSideFloor')
+            head = model.find('**/head')
+            head.node().setPreserveTransform(0)
+            head.setZ(1.0)
+            for child in head.findAllMatches('+ModelNode'):
+                child.node().setPreserveTransform(ModelNode.PTNet)
 
-                model.flattenLight()
-                upList = model.findAllMatches('**/collUp')
-                for up in upList:
-                    up.stash()
+            model.flattenLight()
+            upList = model.findAllMatches('**/collUp')
+            for up in upList:
+                up.stash()
 
-                downList = model.findAllMatches('**/collDown')
-                for down in downList:
-                    down.stash()
+            downList = model.findAllMatches('**/collDown')
+            for down in downList:
+                down.stash()
 
-                self.crushSurface = model.find('**/head_collisions/**/collSideWalls')
+            self.crushSurface = model.find('**/head_collisions/**/collSideWalls')
         if self.removeCamBarrierCollisions:
             walls = model.findAllMatches('**/collDownWalls')
             for wall in walls:
@@ -214,11 +213,11 @@ class DistributedStomper(DistributedCrusherEntity.DistributedCrusherEntity):
     def getMotionIval(self, mode=STOMPER_START):
         if self.range == 0.0:
             return (None, 0)
-        wantSound = self.soundOn
-        if self.motion is MotionLinear:
-            motionIval = Sequence(LerpPosInterval(self.model, self.period / 2.0, Point3(0, -self.range, 0), startPos=Point3(0, 0, 0), fluid=1), WaitInterval(self.period / 4.0), LerpPosInterval(self.model, self.period / 4.0, Point3(0, 0, 0), startPos=Point3(0, -self.range, 0), fluid=1))
         else:
-            if self.motion is MotionSinus:
+            wantSound = self.soundOn
+            if self.motion is MotionLinear:
+                motionIval = Sequence(LerpPosInterval(self.model, self.period / 2.0, Point3(0, -self.range, 0), startPos=Point3(0, 0, 0), fluid=1), WaitInterval(self.period / 4.0), LerpPosInterval(self.model, self.period / 4.0, Point3(0, 0, 0), startPos=Point3(0, -self.range, 0), fluid=1))
+            elif self.motion is MotionSinus:
 
                 def sinusFunc(t, self=self):
                     theta = math.pi + t * 2.0 * math.pi
@@ -226,65 +225,56 @@ class DistributedStomper(DistributedCrusherEntity.DistributedCrusherEntity):
                     self.model.setFluidY((0.5 + c * 0.5) * -self.range)
 
                 motionIval = Sequence(LerpFunctionInterval(sinusFunc, duration=self.period))
-            else:
-                if self.motion is MotionSlowFast:
+            elif self.motion is MotionSlowFast:
 
-                    def motionFunc(t, self=self):
-                        stickTime = 0.2
-                        turnaround = 0.95
-                        t = t % 1
-                        if t < stickTime:
-                            self.model.setFluidY(0)
-                        else:
-                            if t < turnaround:
-                                self.model.setFluidY((t - stickTime) * -self.range / (turnaround - stickTime))
-                            else:
-                                if t > turnaround:
-                                    self.model.setFluidY(-self.range + (t - turnaround) * self.range / (1 - turnaround))
+                def motionFunc(t, self=self):
+                    stickTime = 0.2
+                    turnaround = 0.95
+                    t = t % 1
+                    if t < stickTime:
+                        self.model.setFluidY(0)
+                    elif t < turnaround:
+                        self.model.setFluidY((t - stickTime) * -self.range / (turnaround - stickTime))
+                    elif t > turnaround:
+                        self.model.setFluidY(-self.range + (t - turnaround) * self.range / (1 - turnaround))
 
-                    motionIval = Sequence(LerpFunctionInterval(motionFunc, duration=self.period))
+                motionIval = Sequence(LerpFunctionInterval(motionFunc, duration=self.period))
+            elif self.motion is MotionCrush:
+
+                def motionFunc(t, self=self):
+                    stickTime = 0.2
+                    pauseAtTopTime = 0.5
+                    turnaround = 0.85
+                    t = t % 1
+                    if t < stickTime:
+                        self.model.setFluidY(0)
+                    elif t <= turnaround - pauseAtTopTime:
+                        self.model.setFluidY((t - stickTime) * -self.range / (turnaround - pauseAtTopTime - stickTime))
+                    elif t > turnaround - pauseAtTopTime and t <= turnaround:
+                        self.model.setFluidY(-self.range)
+                    elif t > turnaround:
+                        self.model.setFluidY(-self.range + (t - turnaround) * self.range / (1 - turnaround))
+
+                tStick = 0.2 * self.period
+                tUp = 0.45 * self.period
+                tPause = 0.2 * self.period
+                tDown = 0.15 * self.period
+                motionIval = Sequence(Wait(tStick), LerpPosInterval(self.model, tUp, Vec3(0, -self.range, 0), blendType='easeInOut', fluid=1), Wait(tPause), Func(self.doCrush), LerpPosInterval(self.model, tDown, Vec3(0, 0, 0), blendType='easeInOut', fluid=1))
+            elif self.motion is MotionSwitched:
+                if mode == STOMPER_STOMP:
+                    motionIval = Sequence(Func(self.doCrush), LerpPosInterval(self.model, 0.35, Vec3(0, 0, 0), blendType='easeInOut', fluid=1))
+                elif mode == STOMPER_RISE:
+                    motionIval = Sequence(LerpPosInterval(self.model, 0.5, Vec3(0, -self.range, 0), blendType='easeInOut', fluid=1))
+                    wantSound = 0
                 else:
-                    if self.motion is MotionCrush:
+                    motionIval = None
+            else:
 
-                        def motionFunc(t, self=self):
-                            stickTime = 0.2
-                            pauseAtTopTime = 0.5
-                            turnaround = 0.85
-                            t = t % 1
-                            if t < stickTime:
-                                self.model.setFluidY(0)
-                            else:
-                                if t <= turnaround - pauseAtTopTime:
-                                    self.model.setFluidY((t - stickTime) * -self.range / (turnaround - pauseAtTopTime - stickTime))
-                                else:
-                                    if t > turnaround - pauseAtTopTime and t <= turnaround:
-                                        self.model.setFluidY(-self.range)
-                                    else:
-                                        if t > turnaround:
-                                            self.model.setFluidY(-self.range + (t - turnaround) * self.range / (1 - turnaround))
+                def halfSinusFunc(t, self=self):
+                    self.model.setFluidY(math.sin(t * math.pi) * -self.range)
 
-                        tStick = 0.2 * self.period
-                        tUp = 0.45 * self.period
-                        tPause = 0.2 * self.period
-                        tDown = 0.15 * self.period
-                        motionIval = Sequence(Wait(tStick), LerpPosInterval(self.model, tUp, Vec3(0, -self.range, 0), blendType='easeInOut', fluid=1), Wait(tPause), Func(self.doCrush), LerpPosInterval(self.model, tDown, Vec3(0, 0, 0), blendType='easeInOut', fluid=1))
-                    else:
-                        if self.motion is MotionSwitched:
-                            if mode == STOMPER_STOMP:
-                                motionIval = Sequence(Func(self.doCrush), LerpPosInterval(self.model, 0.35, Vec3(0, 0, 0), blendType='easeInOut', fluid=1))
-                            elif mode == STOMPER_RISE:
-                                motionIval = Sequence(LerpPosInterval(self.model, 0.5, Vec3(0, -self.range, 0), blendType='easeInOut', fluid=1))
-                                wantSound = 0
-                            else:
-                                motionIval = None
-                        else:
-
-                            def halfSinusFunc(t, self=self):
-                                self.model.setFluidY(math.sin(t * math.pi) * -self.range)
-
-                            motionIval = Sequence(LerpFunctionInterval(halfSinusFunc, duration=self.period))
-        return (
-         motionIval, wantSound)
+                motionIval = Sequence(LerpFunctionInterval(halfSinusFunc, duration=self.period))
+            return (motionIval, wantSound)
 
     def startStomper(self, startTime, mode=STOMPER_START):
         if self.ival:
@@ -294,26 +284,27 @@ class DistributedStomper(DistributedCrusherEntity.DistributedCrusherEntity):
         motionIval, wantSound = self.getMotionIval(mode)
         if motionIval == None:
             return
-        self.ival = Parallel(Sequence(motionIval, Func(self.__startSmokeTask), Func(self.sendStompToon)), name=self.uniqueName('Stomper'))
-        if wantSound:
-            sndDur = motionIval.getDuration()
-            self.ival.append(Sequence(Wait(sndDur), Func(base.playSfx, self.sound, node=self.model, volume=0.45)))
-        if self.shadow is not None and self.animateShadow:
-
-            def adjustShadowScale(t, self=self):
-                modelY = self.model.getY()
-                maxHeight = 10
-                a = min(-modelY / maxHeight, 1.0)
-                self.shadow.setScale(lerp(1, 0.2, a))
-                self.shadow.setAlphaScale(lerp(1, 0.2, a))
-
-            self.ival.append(LerpFunctionInterval(adjustShadowScale, duration=self.period))
-        if mode == STOMPER_START:
-            self.ival.loop()
-            self.ival.setT(globalClock.getFrameTime() - self.level.startTime + self.period * self.phaseShift)
         else:
-            self.ival.start(startTime)
-        return
+            self.ival = Parallel(Sequence(motionIval, Func(self.__startSmokeTask), Func(self.sendStompToon)), name=self.uniqueName('Stomper'))
+            if wantSound:
+                sndDur = motionIval.getDuration()
+                self.ival.append(Sequence(Wait(sndDur), Func(base.playSfx, self.sound, node=self.model, volume=0.45)))
+            if self.shadow is not None and self.animateShadow:
+
+                def adjustShadowScale(t, self=self):
+                    modelY = self.model.getY()
+                    maxHeight = 10
+                    a = min(-modelY / maxHeight, 1.0)
+                    self.shadow.setScale(lerp(1, 0.2, a))
+                    self.shadow.setAlphaScale(lerp(1, 0.2, a))
+
+                self.ival.append(LerpFunctionInterval(adjustShadowScale, duration=self.period))
+            if mode == STOMPER_START:
+                self.ival.loop()
+                self.ival.setT(globalClock.getFrameTime() - self.level.startTime + self.period * self.phaseShift)
+            else:
+                self.ival.start(startTime)
+            return
 
     def stopStomper(self):
         if self.ival:

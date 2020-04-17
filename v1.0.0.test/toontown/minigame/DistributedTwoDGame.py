@@ -335,21 +335,16 @@ class DistributedTwoDGame(DistributedMinigame):
                 self.headCollNP.setZ(-1.3)
             else:
                 self.headCollNP.setZ(-0.7)
-        else:
-            if animal == 'mouse' or animal == 'duck':
-                self.headCollNP.setZ(0.5)
-            else:
-                if animal == 'cat':
-                    self.headCollNP.setZ(-0.3)
-                else:
-                    if animal == 'rabbit':
-                        self.headCollNP.setZ(-0.5)
-                    else:
-                        if animal == 'monkey':
-                            self.headCollNP.setZ(0.3)
-                        else:
-                            if animal == 'pig':
-                                self.headCollNP.setZ(-0.7)
+        elif animal == 'mouse' or animal == 'duck':
+            self.headCollNP.setZ(0.5)
+        elif animal == 'cat':
+            self.headCollNP.setZ(-0.3)
+        elif animal == 'rabbit':
+            self.headCollNP.setZ(-0.5)
+        elif animal == 'monkey':
+            self.headCollNP.setZ(0.3)
+        elif animal == 'pig':
+            self.headCollNP.setZ(-0.7)
         self.headCollNP.hide()
         if self.showCollSpheres:
             self.headCollNP.show()
@@ -383,13 +378,14 @@ class DistributedTwoDGame(DistributedMinigame):
     def checkValidity(self, avId):
         if not self.hasLocalToon:
             return False
-        if self.gameFSM.getCurrentState() == None or self.gameFSM.getCurrentState().getName() != 'play':
-            self.notify.warning('ignoring msg: av %s performing some action.' % avId)
-            return False
-        toon = self.getAvatar(avId)
-        if toon == None:
-            return False
-        return True
+        else:
+            if self.gameFSM.getCurrentState() == None or self.gameFSM.getCurrentState().getName() != 'play':
+                self.notify.warning('ignoring msg: av %s performing some action.' % avId)
+                return False
+            toon = self.getAvatar(avId)
+            if toon == None:
+                return False
+            return True
 
     def shootKeyHandler(self):
         self.toonSDs[self.localAvId].shootGun()

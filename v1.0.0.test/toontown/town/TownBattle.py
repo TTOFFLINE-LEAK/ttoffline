@@ -199,32 +199,29 @@ class TownBattle(StateData.StateData):
         if num == 1:
             self.toonPanels[0].setX(self.oddPos[1])
             self.toonPanels[0].show()
+        elif num == 2:
+            self.toonPanels[0].setX(self.evenPos[1])
+            self.toonPanels[0].show()
+            self.toonPanels[1].setX(self.evenPos[2])
+            self.toonPanels[1].show()
+        elif num == 3:
+            self.toonPanels[0].setX(self.oddPos[0])
+            self.toonPanels[0].show()
+            self.toonPanels[1].setX(self.oddPos[1])
+            self.toonPanels[1].show()
+            self.toonPanels[2].setX(self.oddPos[2])
+            self.toonPanels[2].show()
+        elif num == 4:
+            self.toonPanels[0].setX(self.evenPos[0])
+            self.toonPanels[0].show()
+            self.toonPanels[1].setX(self.evenPos[1])
+            self.toonPanels[1].show()
+            self.toonPanels[2].setX(self.evenPos[2])
+            self.toonPanels[2].show()
+            self.toonPanels[3].setX(self.evenPos[3])
+            self.toonPanels[3].show()
         else:
-            if num == 2:
-                self.toonPanels[0].setX(self.evenPos[1])
-                self.toonPanels[0].show()
-                self.toonPanels[1].setX(self.evenPos[2])
-                self.toonPanels[1].show()
-            else:
-                if num == 3:
-                    self.toonPanels[0].setX(self.oddPos[0])
-                    self.toonPanels[0].show()
-                    self.toonPanels[1].setX(self.oddPos[1])
-                    self.toonPanels[1].show()
-                    self.toonPanels[2].setX(self.oddPos[2])
-                    self.toonPanels[2].show()
-                else:
-                    if num == 4:
-                        self.toonPanels[0].setX(self.evenPos[0])
-                        self.toonPanels[0].show()
-                        self.toonPanels[1].setX(self.evenPos[1])
-                        self.toonPanels[1].show()
-                        self.toonPanels[2].setX(self.evenPos[2])
-                        self.toonPanels[2].show()
-                        self.toonPanels[3].setX(self.evenPos[3])
-                        self.toonPanels[3].show()
-                    else:
-                        self.notify.error('Bad number of toons: %s' % num)
+            self.notify.error('Bad number of toons: %s' % num)
         return
 
     def updateChosenAttacks(self, battleIndices, tracks, levels, targets):
@@ -239,29 +236,26 @@ class TownBattle(StateData.StateData):
                 if tracks[i] == BattleBase.NO_ATTACK:
                     numTargets = 0
                     target = -2
-                else:
-                    if tracks[i] == BattleBase.PASS_ATTACK:
-                        numTargets = 0
+                elif tracks[i] == BattleBase.PASS_ATTACK:
+                    numTargets = 0
+                    target = -2
+                elif tracks[i] == BattleBase.SOS or tracks[i] == BattleBase.NPCSOS or tracks[i] == BattleBase.PETSOS:
+                    numTargets = 0
+                    target = -2
+                elif tracks[i] == HEAL_TRACK:
+                    numTargets = self.numToons
+                    if self.__isGroupHeal(levels[i]):
                         target = -2
                     else:
-                        if tracks[i] == BattleBase.SOS or tracks[i] == BattleBase.NPCSOS or tracks[i] == BattleBase.PETSOS:
-                            numTargets = 0
-                            target = -2
-                        else:
-                            if tracks[i] == HEAL_TRACK:
-                                numTargets = self.numToons
-                                if self.__isGroupHeal(levels[i]):
-                                    target = -2
-                                else:
-                                    target = targets[i]
-                            else:
-                                numTargets = self.numCogs
-                                if self.__isGroupAttack(tracks[i], levels[i]):
-                                    target = -1
-                                else:
-                                    target = targets[i]
-                                    if target == -1:
-                                        numTargets = None
+                        target = targets[i]
+                else:
+                    numTargets = self.numCogs
+                    if self.__isGroupAttack(tracks[i], levels[i]):
+                        target = -1
+                    else:
+                        target = targets[i]
+                        if target == -1:
+                            numTargets = None
                 self.toonPanels[battleIndices[i]].setValues(battleIndices[i], tracks[i], levels[i], numTargets, target, self.localNum)
 
         return
@@ -342,11 +336,10 @@ class TownBattle(StateData.StateData):
                     response['level'] = self.level
                     if self.localNum == 0:
                         response['target'] = 1
+                    elif self.localNum == 1:
+                        response['target'] = 0
                     else:
-                        if self.localNum == 1:
-                            response['target'] = 0
-                        else:
-                            self.notify.error('Bad localNum value: %s' % self.localNum)
+                        self.notify.error('Bad localNum value: %s' % self.localNum)
                     messenger.send(self.battleEvent, [response])
                     self.fsm.request('AttackWait')
                 else:
@@ -369,24 +362,20 @@ class TownBattle(StateData.StateData):
                 response['level'] = self.level
                 response['target'] = 0
                 messenger.send(self.battleEvent, [response])
+        elif mode == 'Run':
+            self.fsm.request('Run')
+        elif mode == 'SOS':
+            self.fsm.request('SOS')
+        elif mode == 'Fire':
+            self.fsm.request('Fire')
+        elif mode == 'Pass':
+            response = {}
+            response['mode'] = 'Pass'
+            response['id'] = -1
+            messenger.send(self.battleEvent, [response])
+            self.fsm.request('AttackWait')
         else:
-            if mode == 'Run':
-                self.fsm.request('Run')
-            else:
-                if mode == 'SOS':
-                    self.fsm.request('SOS')
-                else:
-                    if mode == 'Fire':
-                        self.fsm.request('Fire')
-                    else:
-                        if mode == 'Pass':
-                            response = {}
-                            response['mode'] = 'Pass'
-                            response['id'] = -1
-                            messenger.send(self.battleEvent, [response])
-                            self.fsm.request('AttackWait')
-                        else:
-                            self.notify.warning('unknown mode: %s' % mode)
+            self.notify.warning('unknown mode: %s' % mode)
 
     def checkHealTrapLure(self):
         self.notify.debug('numToons: %s, numCogs: %s, lured: %s, trapped: %s' % (self.numToons,
@@ -443,9 +432,8 @@ class TownBattle(StateData.StateData):
 
             if currStateName == 'ChooseCog':
                 self.chooseCogPanel.adjustCogs(self.numCogs, self.luredIndices, self.trappedIndices, self.track)
-            else:
-                if currStateName == 'ChooseToon':
-                    self.chooseToonPanel.adjustToons(self.numToons, self.localNum)
+            elif currStateName == 'ChooseToon':
+                self.chooseToonPanel.adjustToons(self.numToons, self.localNum)
             canHeal, canTrap, canLure = self.checkHealTrapLure()
             base.localAvatar.inventory.setBattleCreditMultiplier(self.creditMultiplier)
             base.localAvatar.inventory.setActivateMode('battle', heal=canHeal, trap=canTrap, lure=canLure, bldg=self.bldg, creditLevel=self.creditLevel, tutorialFlag=self.tutorialFlag)
@@ -465,19 +453,18 @@ class TownBattle(StateData.StateData):
         mode = doneStatus['mode']
         if mode == 'Back':
             self.fsm.request('Attack')
+        elif mode == 'Avatar':
+            self.cog = doneStatus['avatar']
+            self.target = self.cog
+            self.fsm.request('AttackWait')
+            response = {}
+            response['mode'] = 'Attack'
+            response['track'] = self.track
+            response['level'] = self.level
+            response['target'] = self.cog
+            messenger.send(self.battleEvent, [response])
         else:
-            if mode == 'Avatar':
-                self.cog = doneStatus['avatar']
-                self.target = self.cog
-                self.fsm.request('AttackWait')
-                response = {}
-                response['mode'] = 'Attack'
-                response['track'] = self.track
-                response['level'] = self.level
-                response['target'] = self.cog
-                messenger.send(self.battleEvent, [response])
-            else:
-                self.notify.warning('unknown mode: %s' % mode)
+            self.notify.warning('unknown mode: %s' % mode)
 
     def enterAttackWait(self, chosenToon=-1):
         self.accept(self.waitPanelDoneEvent, self.__handleAttackWaitBack)
@@ -492,14 +479,12 @@ class TownBattle(StateData.StateData):
         if mode == 'Back':
             if self.track == HEAL_TRACK:
                 self.fsm.request('Attack')
+            elif self.track == BattleBase.NO_ATTACK:
+                self.fsm.request('Attack')
+            elif self.__isCogChoiceNecessary():
+                self.fsm.request('ChooseCog')
             else:
-                if self.track == BattleBase.NO_ATTACK:
-                    self.fsm.request('Attack')
-                else:
-                    if self.__isCogChoiceNecessary():
-                        self.fsm.request('ChooseCog')
-                    else:
-                        self.fsm.request('Attack')
+                self.fsm.request('Attack')
             response = {}
             response['mode'] = 'UnAttack'
             messenger.send(self.battleEvent, [response])
@@ -521,19 +506,18 @@ class TownBattle(StateData.StateData):
         mode = doneStatus['mode']
         if mode == 'Back':
             self.fsm.request('Attack')
+        elif mode == 'Avatar':
+            self.toon = doneStatus['avatar']
+            self.target = self.toon
+            self.fsm.request('AttackWait', [self.toon])
+            response = {}
+            response['mode'] = 'Attack'
+            response['track'] = self.track
+            response['level'] = self.level
+            response['target'] = self.toon
+            messenger.send(self.battleEvent, [response])
         else:
-            if mode == 'Avatar':
-                self.toon = doneStatus['avatar']
-                self.target = self.toon
-                self.fsm.request('AttackWait', [self.toon])
-                response = {}
-                response['mode'] = 'Attack'
-                response['track'] = self.track
-                response['level'] = self.level
-                response['target'] = self.toon
-                messenger.send(self.battleEvent, [response])
-            else:
-                self.notify.warning('unknown mode: %s' % mode)
+            self.notify.warning('unknown mode: %s' % mode)
 
     def enterRun(self):
         self.runPanel.show()
@@ -564,17 +548,16 @@ class TownBattle(StateData.StateData):
         mode = doneStatus['mode']
         if mode == 'Back':
             self.fsm.request('Attack')
+        elif mode == 'Avatar':
+            self.cog = doneStatus['avatar']
+            self.target = self.cog
+            self.fsm.request('AttackWait')
+            response = {}
+            response['mode'] = 'Fire'
+            response['target'] = self.cog
+            messenger.send(self.battleEvent, [response])
         else:
-            if mode == 'Avatar':
-                self.cog = doneStatus['avatar']
-                self.target = self.cog
-                self.fsm.request('AttackWait')
-                response = {}
-                response['mode'] = 'Fire'
-                response['target'] = self.cog
-                messenger.send(self.battleEvent, [response])
-            else:
-                self.notify.warning('unknown mode: %s' % mode)
+            self.notify.warning('unknown mode: %s' % mode)
 
     def enterSOS(self):
         canHeal, canTrap, canLure = self.checkHealTrapLure()
@@ -596,22 +579,19 @@ class TownBattle(StateData.StateData):
             response['id'] = doId
             messenger.send(self.battleEvent, [response])
             self.fsm.request('AttackWait')
-        else:
-            if mode == 'Pet':
-                self.petId = doneStatus['petId']
-                self.petName = doneStatus['petName']
-                self.fsm.request('SOSPetSearch')
-            else:
-                if mode == 'NPCFriend':
-                    doId = doneStatus['friend']
-                    response = {}
-                    response['mode'] = 'NPCSOS'
-                    response['id'] = doId
-                    messenger.send(self.battleEvent, [response])
-                    self.fsm.request('AttackWait')
-                else:
-                    if mode == 'Back':
-                        self.fsm.request('Attack')
+        elif mode == 'Pet':
+            self.petId = doneStatus['petId']
+            self.petName = doneStatus['petName']
+            self.fsm.request('SOSPetSearch')
+        elif mode == 'NPCFriend':
+            doId = doneStatus['friend']
+            response = {}
+            response['mode'] = 'NPCSOS'
+            response['id'] = doId
+            messenger.send(self.battleEvent, [response])
+            self.fsm.request('AttackWait')
+        elif mode == 'Back':
+            self.fsm.request('Attack')
 
     def enterSOSPetSearch(self):
         response = {}
@@ -660,14 +640,14 @@ class TownBattle(StateData.StateData):
             messenger.send(self.battleEvent, [response])
             self.fsm.request('AttackWait')
             bboard.post(PetConstants.OurPetsMoodChangedKey, True)
-        else:
-            if mode == 'Back':
-                self.fsm.request('SOS')
+        elif mode == 'Back':
+            self.fsm.request('SOS')
 
     def __isCogChoiceNecessary(self):
         if self.numCogs > 1 and not self.__isGroupAttack(self.track, self.level):
             return 1
-        return 0
+        else:
+            return 0
 
     def __isGroupAttack(self, trackNum, levelNum):
         retval = BattleBase.attackAffectsGroup(trackNum, levelNum)

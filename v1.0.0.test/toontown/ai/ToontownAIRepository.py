@@ -82,9 +82,8 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.districtLimit = districtLimit
         if self.districtLimit < ToontownGlobals.MIN_POP:
             self.districtLimit = ToontownGlobals.MIN_POP
-        else:
-            if self.districtLimit > ToontownGlobals.HIGH_POP:
-                self.districtLimit = ToontownGlobals.HIGH_POP
+        elif self.districtLimit > ToontownGlobals.HIGH_POP:
+            self.districtLimit = ToontownGlobals.HIGH_POP
         self.districtDescription = districtDescription
         self.districtWebsiteId = districtWebsiteId
         self.eventId = eventId
@@ -429,13 +428,12 @@ class ToontownAIRepository(ToontownInternalRepository):
         else:
             if isinstance(dnaData, DNAVisGroup):
                 zoneId = ZoneUtil.getTrueZoneId(int(dnaData.getName().split(':')[0]), zoneId)
-        for i in xrange(dnaData.getNumChildren()):
-            foundFishingPonds, foundFishingPondGroups = self.findFishingPonds(dnaData.at(i), zoneId, area)
-            fishingPonds.extend(foundFishingPonds)
-            fishingPondGroups.extend(foundFishingPondGroups)
+            for i in xrange(dnaData.getNumChildren()):
+                foundFishingPonds, foundFishingPondGroups = self.findFishingPonds(dnaData.at(i), zoneId, area)
+                fishingPonds.extend(foundFishingPonds)
+                fishingPondGroups.extend(foundFishingPondGroups)
 
-        return (
-         fishingPonds, fishingPondGroups)
+        return (fishingPonds, fishingPondGroups)
 
     def findFishingSpots(self, dnaData, fishingPond):
         fishingSpots = []

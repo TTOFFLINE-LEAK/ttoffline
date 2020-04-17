@@ -59,11 +59,10 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
 
         if self.numRentalDiguises >= 4:
             self.cagedToonNpcId = random.choice(NPCToons.npcFriendsMinMaxStars(3, 3))
+        elif 1 <= self.numRentalDiguises <= 3:
+            self.cagedToonNpcId = random.choice(NPCToons.npcFriendsMinMaxStars(3, 4))
         else:
-            if 1 <= self.numRentalDiguises <= 3:
-                self.cagedToonNpcId = random.choice(NPCToons.npcFriendsMinMaxStars(3, 4))
-            else:
-                self.cagedToonNpcId = random.choice(NPCToons.npcFriendsMinMaxStars(3, 5))
+            self.cagedToonNpcId = random.choice(NPCToons.npcFriendsMinMaxStars(3, 5))
 
     def magicWordHit(self, damage, avId):
         if self.attackCode != ToontownGlobals.BossCogDizzyNow:
@@ -113,7 +112,8 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
     def getDamageMultiplier(self):
         if self.nerfed:
             return SellbotBossGlobals.AttackMultNerfed
-        return SellbotBossGlobals.AttackMult
+        else:
+            return SellbotBossGlobals.AttackMult
 
     def touchCage(self):
         avId = self.air.getAvatarIdFromSender()
@@ -140,11 +140,10 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
             attackCode = random.choice([ToontownGlobals.BossCogAreaAttack, ToontownGlobals.BossCogFrontAttack, ToontownGlobals.BossCogDirectedAttack, ToontownGlobals.BossCogDirectedAttack, ToontownGlobals.BossCogDirectedAttack, ToontownGlobals.BossCogDirectedAttack])
         if attackCode == ToontownGlobals.BossCogAreaAttack:
             self.__doAreaAttack()
+        elif attackCode == ToontownGlobals.BossCogDirectedAttack:
+            self.__doDirectedAttack()
         else:
-            if attackCode == ToontownGlobals.BossCogDirectedAttack:
-                self.__doDirectedAttack()
-            else:
-                self.b_setAttackCode(attackCode)
+            self.b_setAttackCode(attackCode)
 
     def __doAreaAttack(self):
         self.b_setAttackCode(ToontownGlobals.BossCogAreaAttack)
@@ -220,11 +219,14 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         if self.nerfed:
             if battleNumber == 1:
                 return self.invokeSuitPlanner(15, 0)
-            return self.invokeSuitPlanner(16, 1)
+            else:
+                return self.invokeSuitPlanner(16, 1)
+
         else:
             if battleNumber == 1:
                 return self.invokeSuitPlanner(9, 0)
-            return self.invokeSuitPlanner(10, 1)
+            else:
+                return self.invokeSuitPlanner(10, 1)
 
     def removeToon(self, avId):
         toon = simbase.air.doId2do.get(avId)
@@ -313,20 +315,21 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         avId = 0
         if len(self.involvedToons) == 0:
             return
-        avId = random.choice(self.involvedToons)
-        toon = simbase.air.doId2do.get(avId)
-        if toon.__touchedCage:
-            if self.cagedToonDialogIndex <= TTLocalizer.CagedToonBattleThreeMaxAdvice:
-                index = self.cagedToonDialogIndex
-                self.cagedToonDialogIndex += 1
-            elif random.random() < 0.2:
-                index = random.randrange(100, TTLocalizer.CagedToonBattleThreeMaxAdvice + 1)
         else:
-            index = random.randrange(20, TTLocalizer.CagedToonBattleThreeMaxTouchCage + 1)
-        if index:
-            self.d_cagedToonBattleThree(index, avId)
-        self.__saySomethingLater()
-        return
+            avId = random.choice(self.involvedToons)
+            toon = simbase.air.doId2do.get(avId)
+            if toon.__touchedCage:
+                if self.cagedToonDialogIndex <= TTLocalizer.CagedToonBattleThreeMaxAdvice:
+                    index = self.cagedToonDialogIndex
+                    self.cagedToonDialogIndex += 1
+                elif random.random() < 0.2:
+                    index = random.randrange(100, TTLocalizer.CagedToonBattleThreeMaxAdvice + 1)
+            else:
+                index = random.randrange(20, TTLocalizer.CagedToonBattleThreeMaxTouchCage + 1)
+            if index:
+                self.d_cagedToonBattleThree(index, avId)
+            self.__saySomethingLater()
+            return
 
     def __saySomethingLater(self, delayTime=15):
         taskName = self.uniqueName('CagedToonSaySomething')

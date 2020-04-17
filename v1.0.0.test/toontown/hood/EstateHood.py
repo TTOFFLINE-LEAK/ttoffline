@@ -78,28 +78,26 @@ class EstateHood(Hood.Hood):
         if retCode == 0:
             msg = TTLocalizer.EstateOwnerLeftMessage % HouseGlobals.BOOT_GRACE_PERIOD
             self.__popupKickoutMessage(msg)
+        elif retCode == 1:
+            zoneId = base.localAvatar.lastHood
+            self.doneStatus = {'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
+               'how': 'teleportIn', 
+               'hoodId': zoneId, 
+               'zoneId': zoneId, 
+               'shardId': None, 
+               'avId': -1}
+            messenger.send(self.doneEvent)
+        elif retCode == 2:
+            zoneId = base.localAvatar.lastHood
+            self.doneStatus = {'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
+               'how': 'teleportIn', 
+               'hoodId': zoneId, 
+               'zoneId': zoneId, 
+               'shardId': None, 
+               'avId': -1}
+            messenger.send(self.doneEvent)
         else:
-            if retCode == 1:
-                zoneId = base.localAvatar.lastHood
-                self.doneStatus = {'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
-                   'how': 'teleportIn', 
-                   'hoodId': zoneId, 
-                   'zoneId': zoneId, 
-                   'shardId': None, 
-                   'avId': -1}
-                messenger.send(self.doneEvent)
-            else:
-                if retCode == 2:
-                    zoneId = base.localAvatar.lastHood
-                    self.doneStatus = {'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
-                       'how': 'teleportIn', 
-                       'hoodId': zoneId, 
-                       'zoneId': zoneId, 
-                       'shardId': None, 
-                       'avId': -1}
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('unknown reason for exiting estate')
+            self.notify.error('unknown reason for exiting estate')
         return
 
     def __popupKickoutMessage(self, msg):

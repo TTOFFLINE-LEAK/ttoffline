@@ -29,21 +29,19 @@ class PropSpinner(Entity):
                 rate = int(nameParts[3])
             except:
                 print 'invalid prop rotate string: %s' % name
+
+            if neg:
+                rate = -rate
+            prop.setHpr(0, 0, 0)
+            if axis == 'X':
+                hpr = Vec3(0, rate * 360, 0)
+            elif axis == 'Y':
+                hpr = Vec3(rate * 360, 0, 0)
+            elif axis == 'Z':
+                hpr = Vec3(0, 0, rate * 360)
             else:
-                if neg:
-                    rate = -rate
-                prop.setHpr(0, 0, 0)
-                if axis == 'X':
-                    hpr = Vec3(0, rate * 360, 0)
-                else:
-                    if axis == 'Y':
-                        hpr = Vec3(rate * 360, 0, 0)
-                    else:
-                        if axis == 'Z':
-                            hpr = Vec3(0, 0, rate * 360)
-                        else:
-                            print 'error', axis
-                spinTracks.append(LerpHprInterval(prop, 60, hpr))
+                print 'error', axis
+            spinTracks.append(LerpHprInterval(prop, 60, hpr))
 
         spinTracks.loop()
         self.spinTracks = spinTracks

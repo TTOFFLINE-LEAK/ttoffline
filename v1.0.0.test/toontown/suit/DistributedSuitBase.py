@@ -170,9 +170,8 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
             if self.notify.getDebug():
                 self.notify.debug('enabling raycast')
             self.cTrav.addCollider(self.cRayNodePath, self.lifter)
-        else:
-            if self.notify.getDebug():
-                self.notify.debug('disabling raycast')
+        elif self.notify.getDebug():
+            self.notify.debug('disabling raycast')
 
     def b_setBrushOff(self, index):
         self.setBrushOff(index)
@@ -235,9 +234,10 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
     def setState(self, state):
         if self.fsm == None:
             return 0
-        if self.fsm.getCurrentState().getName() == state:
-            return 0
-        return self.fsm.request(state)
+        else:
+            if self.fsm.getCurrentState().getName() == state:
+                return 0
+            return self.fsm.request(state)
 
     def subclassManagesParent(self):
         return 0
@@ -328,28 +328,26 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
                     g = 1.0
                     b = 0
                     a = 1
-                else:
-                    if bonus == 2:
-                        r = 1.0
-                        g = 0.5
-                        b = 0
+                elif bonus == 2:
+                    r = 1.0
+                    g = 0.5
+                    b = 0
+                    a = 1
+                elif number < 0:
+                    r = 0.9
+                    g = 0
+                    b = 0
+                    a = 1
+                    if self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
+                        r = 0
+                        g = 0
+                        b = 1
                         a = 1
-                    else:
-                        if number < 0:
-                            r = 0.9
-                            g = 0
-                            b = 0
-                            a = 1
-                            if self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
-                                r = 0
-                                g = 0
-                                b = 1
-                                a = 1
-                        else:
-                            r = 0
-                            g = 0.9
-                            b = 0
-                            a = 1
+                else:
+                    r = 0
+                    g = 0.9
+                    b = 0
+                    a = 1
                 self.HpTextGenerator.setTextColor(r, g, b, a)
                 self.hpTextNode = self.HpTextGenerator.generate()
                 self.hpText = self.attachNewNode(self.hpTextNode)

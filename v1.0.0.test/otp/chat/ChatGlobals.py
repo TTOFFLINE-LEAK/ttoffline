@@ -42,26 +42,30 @@ ExclaimPrefix = '!'
 def isThought(message):
     if len(message) == 0:
         return 0
-    if string.find(message, ThoughtPrefix, 0, len(ThoughtPrefix)) >= 0:
-        return 1
-    return 0
+    else:
+        if string.find(message, ThoughtPrefix, 0, len(ThoughtPrefix)) >= 0:
+            return 1
+        return 0
 
 
 def removeThoughtPrefix(message):
     if isThought(message):
         return message[len(ThoughtPrefix):]
-    return message
+    else:
+        return message
 
 
 def isExclaim(message):
     if len(message) < 2:
         return 0
-    if message.find(ExclaimPrefix, 0, len(ExclaimPrefix)) >= 0:
-        return 1
-    return 0
+    else:
+        if message.find(ExclaimPrefix, 0, len(ExclaimPrefix)) >= 0:
+            return 1
+        return 0
 
 
 def removeExclaimPrefix(message):
     if isExclaim(message):
         return message[len(ExclaimPrefix):]
-    return message
+    else:
+        return message

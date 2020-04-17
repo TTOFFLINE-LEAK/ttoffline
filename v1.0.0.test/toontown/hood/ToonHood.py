@@ -57,10 +57,9 @@ class ToonHood(Hood.Hood):
         if loaderName == 'safeZoneLoader':
             self.loader = self.safeZoneLoaderClass(self, self.fsm.getStateNamed('safeZoneLoader'), self.loaderDoneEvent)
             self.loader.load()
-        else:
-            if loaderName == 'townLoader':
-                self.loader = self.townLoaderClass(self, self.fsm.getStateNamed('townLoader'), self.loaderDoneEvent)
-                self.loader.load(requestStatus['zoneId'])
+        elif loaderName == 'townLoader':
+            self.loader = self.townLoaderClass(self, self.fsm.getStateNamed('townLoader'), self.loaderDoneEvent)
+            self.loader.load(requestStatus['zoneId'])
 
     def enterTownLoader(self, requestStatus):
         teleportDebug(requestStatus, 'ToonHood.enterTownLoader, status=%s' % (requestStatus,))
@@ -116,11 +115,10 @@ class ToonHood(Hood.Hood):
                 'zoneId': self.hoodId, 
                 'shardId': None, 
                 'avId': -1}])
+        elif doneStatus['loader'] == 'minigame':
+            self.fsm.request('minigame')
         else:
-            if doneStatus['loader'] == 'minigame':
-                self.fsm.request('minigame')
-            else:
-                self.notify.error('handlePurchaseDone: unknown mode')
+            self.notify.error('handlePurchaseDone: unknown mode')
         return
 
     def enterSuitInterior(self, requestStatus=None):

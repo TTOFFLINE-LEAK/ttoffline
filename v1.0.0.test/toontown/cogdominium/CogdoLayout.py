@@ -15,7 +15,8 @@ class CogdoLayout:
     def getNumFloors(self):
         if self.hasBossBattle():
             return self._numFloors + 1
-        return self._numFloors
+        else:
+            return self._numFloors
 
     def getBossBattleFloor(self):
         if not self.hasBossBattle():

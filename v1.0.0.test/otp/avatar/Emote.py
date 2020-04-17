@@ -14,9 +14,10 @@ class Emote:
             index = OTPLocalizer.EmoteFuncDict[index]
         if self.emoteFunc == None:
             return 0
-        if self.emoteFunc[index][1] == 0:
-            return 1
-        return 0
+        else:
+            if self.emoteFunc[index][1] == 0:
+                return 1
+            return 0
 
 
 globalEmote = None

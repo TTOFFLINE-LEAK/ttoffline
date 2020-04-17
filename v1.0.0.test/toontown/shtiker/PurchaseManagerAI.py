@@ -142,68 +142,70 @@ class PurchaseManagerAI(DistributedObjectAI.DistributedObjectAI):
         if avIndex is None:
             self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit: unknown avatar: %s' % (avId,))
             return
-        if self.receivingButtons:
-            if avId in self.air.doId2do:
-                av = self.air.doId2do[avId]
-                if avIndex == None:
-                    self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit not on list')
-                    self.notify.warning('Avatar ' + str(avId) + ' requested Exit, but is not on the list!')
-                else:
-                    avState = self.playerStates[avIndex]
-                    if avState == PURCHASE_PLAYAGAIN_STATE or avState == PURCHASE_WAITING_STATE:
-                        self.playerStates[avIndex] = PURCHASE_EXIT_STATE
-                        self.handlePlayerLeaving(avId)
-                    else:
-                        self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit invalid transition to exit')
-                        self.notify.warning('Invalid transition to exit state.')
-            else:
-                self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit unknown avatar')
-                self.notify.warning('Avatar ' + str(avId) + ' requested Exit, but is not in doId2do.' + ' Assuming disconnected.')
-                self.playerStates[avIndex] = PURCHASE_DISCONNECTED_STATE
-                self.playersReported[avIndex] = PURCHASE_CANTREPORT_STATE
-                self.ignore(self.air.getAvatarExitEvent(avId))
-            self.d_setPlayerStates(self.playerStates)
-            if self.getNumUndecided() == 0:
-                self.timeIsUp()
         else:
-            self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit not receiving requests now')
-            self.notify.warning('Avatar ' + str(avId) + ' requested Exit, but I am not receiving button requests now.')
-        return
+            if self.receivingButtons:
+                if avId in self.air.doId2do:
+                    av = self.air.doId2do[avId]
+                    if avIndex == None:
+                        self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit not on list')
+                        self.notify.warning('Avatar ' + str(avId) + ' requested Exit, but is not on the list!')
+                    else:
+                        avState = self.playerStates[avIndex]
+                        if avState == PURCHASE_PLAYAGAIN_STATE or avState == PURCHASE_WAITING_STATE:
+                            self.playerStates[avIndex] = PURCHASE_EXIT_STATE
+                            self.handlePlayerLeaving(avId)
+                        else:
+                            self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit invalid transition to exit')
+                            self.notify.warning('Invalid transition to exit state.')
+                else:
+                    self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit unknown avatar')
+                    self.notify.warning('Avatar ' + str(avId) + ' requested Exit, but is not in doId2do.' + ' Assuming disconnected.')
+                    self.playerStates[avIndex] = PURCHASE_DISCONNECTED_STATE
+                    self.playersReported[avIndex] = PURCHASE_CANTREPORT_STATE
+                    self.ignore(self.air.getAvatarExitEvent(avId))
+                self.d_setPlayerStates(self.playerStates)
+                if self.getNumUndecided() == 0:
+                    self.timeIsUp()
+            else:
+                self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestExit not receiving requests now')
+                self.notify.warning('Avatar ' + str(avId) + ' requested Exit, but I am not receiving button requests now.')
+            return
 
     def requestPlayAgain(self):
         avId = self.air.getAvatarIdFromSender()
         if self.findAvIndex(avId) == None:
             self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain: unknown avatar')
             return
-        if self.receivingButtons:
-            if avId in self.air.doId2do:
-                av = self.air.doId2do[avId]
-                avIndex = self.findAvIndex(avId)
-                if avIndex == None:
-                    self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain not on list')
-                    self.notify.warning('Avatar ' + str(avId) + ' requested PlayAgain, but is not on the list!')
-                else:
-                    avState = self.playerStates[avIndex]
-                    if avState == PURCHASE_WAITING_STATE:
-                        self.notify.debug(str(avId) + ' wants to play again')
-                        self.playerStates[avIndex] = PURCHASE_PLAYAGAIN_STATE
-                    else:
-                        self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain invalid transition to PlayAgain')
-                        self.notify.warning('Invalid transition to PlayAgain state.')
-            else:
-                self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain unknown avatar')
-                self.notify.warning('Avatar ' + str(avId) + ' requested PlayAgain, but is not in doId2do.' + ' Assuming disconnected.')
-                avIndex = self.findAvIndex(avId)
-                self.playerStates[avIndex] = PURCHASE_DISCONNECTED_STATE
-                self.playersReported[avIndex] = PURCHASE_CANTREPORT_STATE
-                self.ignore(self.air.getAvatarExitEvent(avId))
-            self.d_setPlayerStates(self.playerStates)
-            if self.getNumUndecided() == 0:
-                self.timeIsUp()
         else:
-            self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain not receiving requests now')
-            self.notify.warning('Avatar ' + str(avId) + ' requested PlayAgain, but I am not receiving button ' + 'requests now.')
-        return
+            if self.receivingButtons:
+                if avId in self.air.doId2do:
+                    av = self.air.doId2do[avId]
+                    avIndex = self.findAvIndex(avId)
+                    if avIndex == None:
+                        self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain not on list')
+                        self.notify.warning('Avatar ' + str(avId) + ' requested PlayAgain, but is not on the list!')
+                    else:
+                        avState = self.playerStates[avIndex]
+                        if avState == PURCHASE_WAITING_STATE:
+                            self.notify.debug(str(avId) + ' wants to play again')
+                            self.playerStates[avIndex] = PURCHASE_PLAYAGAIN_STATE
+                        else:
+                            self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain invalid transition to PlayAgain')
+                            self.notify.warning('Invalid transition to PlayAgain state.')
+                else:
+                    self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain unknown avatar')
+                    self.notify.warning('Avatar ' + str(avId) + ' requested PlayAgain, but is not in doId2do.' + ' Assuming disconnected.')
+                    avIndex = self.findAvIndex(avId)
+                    self.playerStates[avIndex] = PURCHASE_DISCONNECTED_STATE
+                    self.playersReported[avIndex] = PURCHASE_CANTREPORT_STATE
+                    self.ignore(self.air.getAvatarExitEvent(avId))
+                self.d_setPlayerStates(self.playerStates)
+                if self.getNumUndecided() == 0:
+                    self.timeIsUp()
+            else:
+                self.air.writeServerEvent('suspicious', avId, 'PurchaseManager.requestPlayAgain not receiving requests now')
+                self.notify.warning('Avatar ' + str(avId) + ' requested PlayAgain, but I am not receiving button ' + 'requests now.')
+            return
 
     def setInventory(self, blob, newMoney, done):
         avId = self.air.getAvatarIdFromSender()
@@ -271,29 +273,30 @@ class PurchaseManagerAI(DistributedObjectAI.DistributedObjectAI):
         if self.isShutdown:
             self.notify.warning('Got shutDown twice')
             return
-        self.isShutdown = 1
-        from toontown.minigame import MinigameCreatorAI
-        playAgainNum = self.getNumPlayAgain()
-        if playAgainNum > 0:
-            playAgainList = self.getPlayAgainList()
-            newVotesArray = self.getVotesArrayMatchingPlayAgainList(playAgainList)
-            newRound = self.metagameRound
-            newbieIdsToPass = []
-            if newRound > -1:
-                newbieIdsToPass = self.newbieIds
-                if newRound < TravelGameGlobals.FinalMetagameRoundIndex:
-                    newRound += 1
-                else:
-                    newRound = 0
-                    newVotesArray = [TravelGameGlobals.DefaultStartingVotes] * len(playAgainList)
-            if len(playAgainList) == 1 and simbase.config.GetBool('metagame-min-2-players', 1):
-                newRound = -1
-            MinigameCreatorAI.createMinigame(self.air, playAgainList, self.trolleyZone, minigameZone=self.zoneId, previousGameId=self.previousMinigameId, newbieIds=newbieIdsToPass, startingVotes=newVotesArray, metagameRound=newRound, desiredNextGame=self.desiredNextGame)
         else:
-            MinigameCreatorAI.releaseMinigameZone(self.zoneId)
-        self.requestDelete()
-        self.ignoreAll()
-        return
+            self.isShutdown = 1
+            from toontown.minigame import MinigameCreatorAI
+            playAgainNum = self.getNumPlayAgain()
+            if playAgainNum > 0:
+                playAgainList = self.getPlayAgainList()
+                newVotesArray = self.getVotesArrayMatchingPlayAgainList(playAgainList)
+                newRound = self.metagameRound
+                newbieIdsToPass = []
+                if newRound > -1:
+                    newbieIdsToPass = self.newbieIds
+                    if newRound < TravelGameGlobals.FinalMetagameRoundIndex:
+                        newRound += 1
+                    else:
+                        newRound = 0
+                        newVotesArray = [TravelGameGlobals.DefaultStartingVotes] * len(playAgainList)
+                if len(playAgainList) == 1 and simbase.config.GetBool('metagame-min-2-players', 1):
+                    newRound = -1
+                MinigameCreatorAI.createMinigame(self.air, playAgainList, self.trolleyZone, minigameZone=self.zoneId, previousGameId=self.previousMinigameId, newbieIds=newbieIdsToPass, startingVotes=newVotesArray, metagameRound=newRound, desiredNextGame=self.desiredNextGame)
+            else:
+                MinigameCreatorAI.releaseMinigameZone(self.zoneId)
+            self.requestDelete()
+            self.ignoreAll()
+            return
 
     def findAvIndex(self, avId):
         for i in xrange(len(self.playerIds)):

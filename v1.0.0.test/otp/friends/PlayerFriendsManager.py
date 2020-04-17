@@ -54,9 +54,8 @@ class PlayerFriendsManager(DistributedObjectGlobal):
         friendInfo = self.getFriendInfo(toAc)
         if friendInfo:
             toName = friendInfo.playerName
-        else:
-            if toAc == localAvatar.DISLid:
-                toName = localAvatar.getName()
+        elif toAc == localAvatar.DISLid:
+            toName = localAvatar.getName()
         base.talkAssistant.receiveAccountTalk(None, None, fromAc, fromName, toAc, toName, message)
         return
 
@@ -87,9 +86,8 @@ class PlayerFriendsManager(DistributedObjectGlobal):
     def invitationResponse(self, playerId, respCode, context):
         if respCode == FriendResponseCodes.INVITATION_RESP_DECLINE:
             messenger.send(OTPGlobals.PlayerFriendRejectInviteEvent, [playerId, respCode])
-        else:
-            if respCode == FriendResponseCodes.INVITATION_RESP_NEW_FRIENDS:
-                pass
+        elif respCode == FriendResponseCodes.INVITATION_RESP_NEW_FRIENDS:
+            pass
 
     def updatePlayerFriend(self, id, info, isNewFriend):
         self.notify.warning('updatePlayerFriend: %s, %s, %s' % (id, info, isNewFriend))
@@ -100,16 +98,15 @@ class PlayerFriendsManager(DistributedObjectGlobal):
             self.playerFriendsList.add(id)
             self.playerId2Info[id] = info
             messenger.send(OTPGlobals.PlayerFriendAddEvent, [id, info, isNewFriend])
-        else:
-            if id in self.playerId2Info:
-                if not self.playerId2Info[id].onlineYesNo and info.onlineYesNo:
-                    self.playerId2Info[id] = info
-                    messenger.send('playerOnline', [id])
-                    base.talkAssistant.receiveFriendAccountUpdate(id, info.playerName, info.onlineYesNo)
-                elif self.playerId2Info[id].onlineYesNo and not info.onlineYesNo:
-                    self.playerId2Info[id] = info
-                    messenger.send('playerOffline', [id])
-                    base.talkAssistant.receiveFriendAccountUpdate(id, info.playerName, info.onlineYesNo)
+        elif id in self.playerId2Info:
+            if not self.playerId2Info[id].onlineYesNo and info.onlineYesNo:
+                self.playerId2Info[id] = info
+                messenger.send('playerOnline', [id])
+                base.talkAssistant.receiveFriendAccountUpdate(id, info.playerName, info.onlineYesNo)
+            elif self.playerId2Info[id].onlineYesNo and not info.onlineYesNo:
+                self.playerId2Info[id] = info
+                messenger.send('playerOffline', [id])
+                base.talkAssistant.receiveFriendAccountUpdate(id, info.playerName, info.onlineYesNo)
         if not self.askAvatarKnownHere(info.avatarId):
             self.requestAvatarInfo(info.avatarId)
         self.playerId2Info[id] = info
@@ -122,14 +119,15 @@ class PlayerFriendsManager(DistributedObjectGlobal):
     def removePlayerFriend(self, id):
         if id not in self.playerFriendsList:
             return
-        self.playerFriendsList.remove(id)
-        info = self.playerId2Info.pop(id, None)
-        if info is not None:
-            av = base.cr.doId2do.get(info.avatarId, None)
-            if av is not None:
-                av.considerUnderstandable()
-        messenger.send(OTPGlobals.PlayerFriendRemoveEvent, [id])
-        return
+        else:
+            self.playerFriendsList.remove(id)
+            info = self.playerId2Info.pop(id, None)
+            if info is not None:
+                av = base.cr.doId2do.get(info.avatarId, None)
+                if av is not None:
+                    av.considerUnderstandable()
+            messenger.send(OTPGlobals.PlayerFriendRemoveEvent, [id])
+            return
 
     def whisperSCFrom(self, playerId, msg):
         base.talkAssistant.receivePlayerWhisperSpeedChat(msg, playerId)
@@ -146,7 +144,8 @@ class PlayerFriendsManager(DistributedObjectGlobal):
         pId = self.findPlayerIdFromAvId(avId)
         if pId and self.isPlayerFriend(pId):
             return True
-        return False
+        else:
+            return False
 
     def getFriendInfo(self, pId):
         return self.playerId2Info.get(pId)
@@ -163,15 +162,17 @@ class PlayerFriendsManager(DistributedObjectGlobal):
         pInfo = self.playerId2Info.get(pId)
         if pInfo:
             return pInfo.avatarId
-        return
-        return
+        else:
+            return
+            return
 
     def findPlayerInfoFromAvId(self, avId):
         playerId = self.findPlayerIdFromAvId(avId)
         if playerId:
             return self.getFriendInfo(playerId)
-        return
-        return
+        else:
+            return
+            return
 
     def askAvatarOnline(self, avId):
         returnValue = 0
@@ -196,7 +197,8 @@ class PlayerFriendsManager(DistributedObjectGlobal):
     def askTransientFriend(self, avId):
         if avId in self.playerAvId2avInfo and not base.cr.isAvatarFriend(avId):
             return 1
-        return 0
+        else:
+            return 0
 
     def askAvatarKnown(self, avId):
         if self.askAvatarKnownElseWhere(avId) or self.askAvatarKnownHere(avId):
@@ -212,7 +214,8 @@ class PlayerFriendsManager(DistributedObjectGlobal):
     def askAvatarKnownHere(self, avId):
         if avId in self.playerAvId2avInfo:
             return 1
-        return 0
+        else:
+            return 0
 
     def requestAvatarInfo(self, avId):
         if hasattr(base, 'cr'):
@@ -227,8 +230,9 @@ class PlayerFriendsManager(DistributedObjectGlobal):
     def getAvHandleFromId(self, avId):
         if avId in self.playerAvId2avInfo:
             return self.playerAvId2avInfo[avId]
-        return
-        return
+        else:
+            return
+            return
 
     def identifyFriend(self, avId):
         handle = None
@@ -252,7 +256,8 @@ class PlayerFriendsManager(DistributedObjectGlobal):
     def identifyAvatar(self, doId):
         if doId in base.cr.doId2do:
             return base.cr.doId2do[doId]
-        return self.identifyFriend(doId)
+        else:
+            return self.identifyFriend(doId)
 
     def friendsListFull(self):
         return len(self.playerFriendsList) >= OTPGlobals.MaxPlayerFriends

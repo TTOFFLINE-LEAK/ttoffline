@@ -25,27 +25,29 @@ class ChatBalloon:
     def find_geom_node(node):
         if node.isGeomNode():
             return node
-        for i in xrange(node.getNumChildren()):
-            n = ChatBalloon.find_geom_node(node.getChild(i))
-            if n:
-                return n
+        else:
+            for i in xrange(node.getNumChildren()):
+                n = ChatBalloon.find_geom_node(node.getChild(i))
+                if n:
+                    return n
 
-        return
+            return
 
     @staticmethod
     def find_middle_geom(node):
         if not node.getNumChildren():
             return
-        child = None
-        for i in xrange(node.getNumChildren()):
-            child = node.getChild(i)
-            if child.getName() == 'middle':
-                return n
-            n = ChatBalloon.find_middle_geom(child)
-            if n:
-                return n
+        else:
+            child = None
+            for i in xrange(node.getNumChildren()):
+                child = node.getChild(i)
+                if child.getName() == 'middle':
+                    return n
+                n = ChatBalloon.find_middle_geom(child)
+                if n:
+                    return n
 
-        return ChatBalloon.find_geom_node(child)
+            return ChatBalloon.find_geom_node(child)
 
     def scan(self, node):
         if node.getName() == 'chatBalloon':
@@ -72,8 +74,9 @@ class ChatBalloon:
 
         if self.m_top_node and self.m_middle_node and self.m_bottom_node:
             return True
-        self.notify.warning('ChatBalloon geometry does not include top, middle, and bottom nodes.')
-        return False
+        else:
+            self.notify.warning('ChatBalloon geometry does not include top, middle, and bottom nodes.')
+            return False
 
     def generate(self, text, font, wordwrap, text_color, balloon_color, for_3d, has_draw_order, draw_order, page_button, space_for_button, reversed, new_button):
         chat_node = PandaNode('chat')
@@ -96,9 +99,8 @@ class ChatBalloon:
                 v116 = v29 + 4.5
             else:
                 v116 = v29 - 4.5
-        else:
-            if reversed:
-                self.m_hscale = -self.m_hscale
+        elif reversed:
+            self.m_hscale = -self.m_hscale
         self.m_text_frame = text_node.getCardActual()
         _space = 0.2 if space_for_button else 0.0
         num_rows = max(1, text_node.getNumRows())

@@ -181,22 +181,18 @@ class DistributedDivingGame(DistributedMinigame):
         if fish.name == 'clown':
             fish.moveLerp = Sequence(LerpPosInterval(fish, duration=8 * self.SPEEDMULT * self.LAG_COMP, startPos=self.spawners[spawnerId].position, pos=self.spawners[spawnerId].position + Point3(50 * self.spawners[spawnerId].direction, 0, (offset - 4) / 2.0), name=iName), func)
             fish.specialLerp = Sequence()
-        else:
-            if fish.name == 'piano':
-                fish.moveLerp = Sequence(LerpPosInterval(fish, duration=5 * self.SPEEDMULT * self.LAG_COMP, startPos=self.spawners[spawnerId].position, pos=self.spawners[spawnerId].position + Point3(50 * self.spawners[spawnerId].direction, 0, (offset - 4) / 2.0), name=iName), func)
-                fish.specialLerp = Sequence()
-            else:
-                if fish.name == 'pbj':
-                    fish.moveLerp = Sequence(LerpFunc(fish.setX, duration=12 * self.SPEEDMULT * self.LAG_COMP, fromData=self.spawners[spawnerId].position.getX(), toData=self.spawners[spawnerId].position.getX() + 50 * self.spawners[spawnerId].direction, name=iName), func)
-                    fish.specialLerp = LerpFunc(self.pbjMove, duration=5 * self.SPEEDMULT * self.LAG_COMP, fromData=0, toData=6.28318, extraArgs=[fish, self.spawners[spawnerId].position.getZ()], blendType='easeInOut')
-                else:
-                    if fish.name == 'balloon':
-                        fish.moveLerp = Sequence(LerpPosInterval(fish, duration=10 * self.SPEEDMULT * self.LAG_COMP, startPos=self.spawners[spawnerId].position, pos=self.spawners[spawnerId].position + Point3(50 * self.spawners[spawnerId].direction, 0, (offset - 4) / 2.0), name=iName), func)
-                        fish.specialLerp = Sequence(Wait(offset / 10.0 * 2 + 1.5), Parallel(LerpScaleInterval(fish, duration=0.3, startScale=Vec3(2, 2, 2), scale=Vec3(5, 3, 5), blendType='easeInOut')), Wait(1.0), Parallel(LerpScaleInterval(fish, duration=0.4, startScale=Vec3(5, 3, 5), scale=Vec3(2, 2, 2), blendType='easeInOut')))
-                    else:
-                        if fish.name == 'bear' or fish.name == 'nurse':
-                            fish.moveLerp = Sequence(LerpPosInterval(fish, duration=20 * self.LAG_COMP, startPos=self.spawners[spawnerId].position, pos=self.spawners[spawnerId].position + Point3(50 * self.spawners[spawnerId].direction, 0, 0), name=iName), func)
-                            fish.specialLerp = Sequence()
+        elif fish.name == 'piano':
+            fish.moveLerp = Sequence(LerpPosInterval(fish, duration=5 * self.SPEEDMULT * self.LAG_COMP, startPos=self.spawners[spawnerId].position, pos=self.spawners[spawnerId].position + Point3(50 * self.spawners[spawnerId].direction, 0, (offset - 4) / 2.0), name=iName), func)
+            fish.specialLerp = Sequence()
+        elif fish.name == 'pbj':
+            fish.moveLerp = Sequence(LerpFunc(fish.setX, duration=12 * self.SPEEDMULT * self.LAG_COMP, fromData=self.spawners[spawnerId].position.getX(), toData=self.spawners[spawnerId].position.getX() + 50 * self.spawners[spawnerId].direction, name=iName), func)
+            fish.specialLerp = LerpFunc(self.pbjMove, duration=5 * self.SPEEDMULT * self.LAG_COMP, fromData=0, toData=6.28318, extraArgs=[fish, self.spawners[spawnerId].position.getZ()], blendType='easeInOut')
+        elif fish.name == 'balloon':
+            fish.moveLerp = Sequence(LerpPosInterval(fish, duration=10 * self.SPEEDMULT * self.LAG_COMP, startPos=self.spawners[spawnerId].position, pos=self.spawners[spawnerId].position + Point3(50 * self.spawners[spawnerId].direction, 0, (offset - 4) / 2.0), name=iName), func)
+            fish.specialLerp = Sequence(Wait(offset / 10.0 * 2 + 1.5), Parallel(LerpScaleInterval(fish, duration=0.3, startScale=Vec3(2, 2, 2), scale=Vec3(5, 3, 5), blendType='easeInOut')), Wait(1.0), Parallel(LerpScaleInterval(fish, duration=0.4, startScale=Vec3(5, 3, 5), scale=Vec3(2, 2, 2), blendType='easeInOut')))
+        elif fish.name == 'bear' or fish.name == 'nurse':
+            fish.moveLerp = Sequence(LerpPosInterval(fish, duration=20 * self.LAG_COMP, startPos=self.spawners[spawnerId].position, pos=self.spawners[spawnerId].position + Point3(50 * self.spawners[spawnerId].direction, 0, 0), name=iName), func)
+            fish.specialLerp = Sequence()
         fish.moveLerp.start(ts)
         fish.specialLerp.loop(ts)
 
@@ -728,51 +724,45 @@ class DistributedDivingGame(DistributedMinigame):
                 else:
                     if fish.name == 'balloon':
                         fishSoundName = 'BalloonFish.ogg'
+                    elif fish.name == 'bear':
+                        fishSoundName = 'Bear_Acuda.ogg'
+                    elif fish.name == 'nurse':
+                        fishSoundName = 'Nurse_Shark.ogg'
+                    elif fish.name == 'piano':
+                        fishSoundName = 'Piano_Tuna.ogg'
                     else:
-                        if fish.name == 'bear':
-                            fishSoundName = 'Bear_Acuda.ogg'
-                        else:
-                            if fish.name == 'nurse':
-                                fishSoundName = 'Nurse_Shark.ogg'
-                            else:
-                                if fish.name == 'piano':
-                                    fishSoundName = 'Piano_Tuna.ogg'
-                                else:
-                                    fishSoundName = ' '
-            fishSoundPath = 'phase_4/audio/sfx/%s' % fishSoundName
-            fish.sound = loader.loadSfx(fishSoundPath)
-            if fish.sound:
-                fish.sound.play()
-                fish.sound.setVolume(volume)
-                self.hitSound.play()
-                self.hitSound.setVolume(volume)
-            if fish.name is 'bear' or fish.name is 'nurse':
-                return
-            colList = fish.findAllMatches('**/fc*')
-            for col in colList:
-                col.removeNode()
+                        fishSoundName = ' '
+                    fishSoundPath = 'phase_4/audio/sfx/%s' % fishSoundName
+                    fish.sound = loader.loadSfx(fishSoundPath)
+                    if fish.sound:
+                        fish.sound.play()
+                        fish.sound.setVolume(volume)
+                        self.hitSound.play()
+                        self.hitSound.setVolume(volume)
+                    if fish.name is 'bear' or fish.name is 'nurse':
+                        return
+                colList = fish.findAllMatches('**/fc*')
+                for col in colList:
+                    col.removeNode()
 
             fish.moveLerp.pause()
             if fish.name == 'clown' or fish.name == 'piano':
                 if fish.name != 'piano':
                     endHpr = Vec3(fish.getH() * -1, 0, 0)
+                elif fish.direction == -1:
+                    endHpr = Vec3(180, 0, 0)
                 else:
-                    if fish.direction == -1:
-                        endHpr = Vec3(180, 0, 0)
-                    else:
-                        endHpr = Vec3(0, 0, 0)
+                    endHpr = Vec3(0, 0, 0)
                 fish.moveLerp = Sequence(LerpHprInterval(fish, duration=0.4, startHpr=fish.getHpr(), hpr=endHpr), LerpFunc(fish.setX, duration=1.5, fromData=fish.getX(), toData=endX), Func(self.fishRemove, str(spawnerId) + str(spawnId)))
-            else:
-                if fish.name == 'pbj':
-                    fish.moveLerp = Sequence(LerpFunc(fish.setX, duration=2, fromData=fish.getX(), toData=endX), Func(self.fishRemove, str(spawnerId) + str(spawnId)))
-                else:
-                    if fish.name == 'balloon':
-                        fish.specialLerp.pause()
-                        anim = Func(fish.play, 'anim', fromFrame=110, toFrame=200)
-                        fish.setH(180)
-                        speed = Func(fish.setPlayRate, 3.0, 'anim')
-                        fish.moveLerp = Sequence(Func(fish.stop, 'anim'), speed, anim, Wait(1.0), LerpScaleInterval(fish, duration=0.8, startScale=fish.getScale, scale=0.001, blendType='easeIn'), Func(self.fishRemove, str(spawnerId) + str(spawnId)))
-                        fish.sound.setTime(11.5)
+            elif fish.name == 'pbj':
+                fish.moveLerp = Sequence(LerpFunc(fish.setX, duration=2, fromData=fish.getX(), toData=endX), Func(self.fishRemove, str(spawnerId) + str(spawnId)))
+            elif fish.name == 'balloon':
+                fish.specialLerp.pause()
+                anim = Func(fish.play, 'anim', fromFrame=110, toFrame=200)
+                fish.setH(180)
+                speed = Func(fish.setPlayRate, 3.0, 'anim')
+                fish.moveLerp = Sequence(Func(fish.stop, 'anim'), speed, anim, Wait(1.0), LerpScaleInterval(fish, duration=0.8, startScale=fish.getScale, scale=0.001, blendType='easeIn'), Func(self.fishRemove, str(spawnerId) + str(spawnId)))
+                fish.sound.setTime(11.5)
             fish.moveLerp.start(ts)
 
     def fishRemove(self, code):
@@ -848,9 +838,8 @@ class DistributedDivingGame(DistributedMinigame):
         crab.direction *= -1
         if goalX > 20:
             goalX = 20
-        else:
-            if goalX < -20:
-                goalX = 20
+        elif goalX < -20:
+            goalX = 20
         loc = crab.getPos(render)
         distance = base.localAvatar.getDistance(crab)
         crabVolume = 0
@@ -908,16 +897,14 @@ class DistributedDivingGame(DistributedMinigame):
                 r += 20
                 self.xVel = forVec[0] * 8
                 self.zVel = forVec[1] * 8
-            else:
-                if self.arrowKeys.downPressed():
-                    r -= 20
-                    self.xVel = bckVec[0] * 4
-                    self.zVel = bckVec[1] * 4
+            elif self.arrowKeys.downPressed():
+                r -= 20
+                self.xVel = bckVec[0] * 4
+                self.zVel = bckVec[1] * 4
             if self.xVel > 20:
                 self.xVel = 20
-            else:
-                if self.xVel < -20:
-                    self.xVel = -20
+            elif self.xVel < -20:
+                self.xVel = -20
             if self.zVel > 10:
                 self.zVel = 10
             elif self.zVel < -10:
@@ -938,24 +925,23 @@ class DistributedDivingGame(DistributedMinigame):
             pos[2] += 0.8 * dt
         if pos[2] < -38:
             pos[2] = -38
-        else:
-            if pos[2] > 36:
-                pos[2] = 36
+        elif pos[2] > 36:
+            pos[2] = 36
         if pos[0] < -20:
             pos[0] = -20
         else:
             if pos[0] > 20:
                 pos[0] = 20
-        base.localAvatar.setPos(pos[0], pos[1], pos[2])
-        base.localAvatar.setHpr(hpr[0], hpr[1], hpr[2])
-        posDiv = self.MAP_DIV
-        self.mapAvatars[self.localAvId].setPos(pos[0] / posDiv, pos[1] / posDiv, pos[2] / posDiv + self.MAP_OFF)
-        for avId in self.remoteAvIdList:
-            toon = self.getAvatar(avId)
-            if toon:
-                pos = toon.getPos()
-                self.mapAvatars[avId].setPos(pos / posDiv)
-                self.mapAvatars[avId].setZ(self.mapAvatars[avId].getZ() + self.MAP_OFF)
+            base.localAvatar.setPos(pos[0], pos[1], pos[2])
+            base.localAvatar.setHpr(hpr[0], hpr[1], hpr[2])
+            posDiv = self.MAP_DIV
+            self.mapAvatars[self.localAvId].setPos(pos[0] / posDiv, pos[1] / posDiv, pos[2] / posDiv + self.MAP_OFF)
+            for avId in self.remoteAvIdList:
+                toon = self.getAvatar(avId)
+                if toon:
+                    pos = toon.getPos()
+                    self.mapAvatars[avId].setPos(pos / posDiv)
+                    self.mapAvatars[avId].setZ(self.mapAvatars[avId].getZ() + self.MAP_OFF)
 
         self.cTrav.traverse(render)
         self.cTrav2.traverse(render)

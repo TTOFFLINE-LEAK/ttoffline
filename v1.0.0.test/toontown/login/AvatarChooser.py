@@ -86,19 +86,20 @@ class AvatarChooser(StateData.StateData):
     def exit(self):
         if self.isLoaded == 0:
             return
-        for panel in self.panelList:
-            panel.hide()
+        else:
+            for panel in self.panelList:
+                panel.hide()
 
-        self.ignoreAll()
-        self.title.reparentTo(hidden)
-        self.quitButton.hide()
-        self.logoutButton.hide()
-        if not self.num:
-            self.shine.reparentTo(hidden)
-        self.shadow.reparentTo(hidden)
-        self.pickAToonBG.reparentTo(hidden)
-        base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
-        return
+            self.ignoreAll()
+            self.title.reparentTo(hidden)
+            self.quitButton.hide()
+            self.logoutButton.hide()
+            if not self.num:
+                self.shine.reparentTo(hidden)
+            self.shadow.reparentTo(hidden)
+            self.pickAToonBG.reparentTo(hidden)
+            base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
+            return
 
     def load(self, isPaid):
         if self.isLoaded == 1:
@@ -220,42 +221,45 @@ class AvatarChooser(StateData.StateData):
         if lookAtChoice < lookFwdPercent:
             self.IsLookingAt[toonidx] = 'f'
             return Vec3(0, 1.5, 0)
-        if lookAtChoice < lookRandomPercent + lookFwdPercent or len(self.used_panel_indexs) == 1:
-            self.IsLookingAt[toonidx] = 'r'
-            return toonHead.getRandomForwardLookAtPoint()
-        other_toon_idxs = []
-        for i in xrange(len(self.IsLookingAt)):
-            if self.IsLookingAt[i] == toonidx:
-                other_toon_idxs.append(i)
-
-        if len(other_toon_idxs) == 1:
-            IgnoreStarersPercent = 0.4
         else:
-            IgnoreStarersPercent = 0.2
-        NoticeStarersPercent = 0.5
-        bStareTargetTurnsToMe = 0
-        if len(other_toon_idxs) == 0 or random.random() < IgnoreStarersPercent:
-            other_toon_idxs = []
-            for i in self.used_panel_indexs:
-                if i != toonidx:
-                    other_toon_idxs.append(i)
+            if lookAtChoice < lookRandomPercent + lookFwdPercent or len(self.used_panel_indexs) == 1:
+                self.IsLookingAt[toonidx] = 'r'
+                return toonHead.getRandomForwardLookAtPoint()
+            else:
+                other_toon_idxs = []
+                for i in xrange(len(self.IsLookingAt)):
+                    if self.IsLookingAt[i] == toonidx:
+                        other_toon_idxs.append(i)
 
-            if random.random() < NoticeStarersPercent:
-                bStareTargetTurnsToMe = 1
-        if len(other_toon_idxs) == 0:
-            return toonHead.getRandomForwardLookAtPoint()
-        lookingAtIdx = random.choice(other_toon_idxs)
-        if bStareTargetTurnsToMe:
-            self.IsLookingAt[lookingAtIdx] = toonidx
-            otherToonHead = None
-            for panel in self.panelList:
-                if panel.position == lookingAtIdx:
-                    otherToonHead = panel.headModel
+                if len(other_toon_idxs) == 1:
+                    IgnoreStarersPercent = 0.4
+                else:
+                    IgnoreStarersPercent = 0.2
+                NoticeStarersPercent = 0.5
+                bStareTargetTurnsToMe = 0
+                if len(other_toon_idxs) == 0 or random.random() < IgnoreStarersPercent:
+                    other_toon_idxs = []
+                    for i in self.used_panel_indexs:
+                        if i != toonidx:
+                            other_toon_idxs.append(i)
 
-            otherToonHead.doLookAroundToStareAt(otherToonHead, self.getLookAtToPosVec(lookingAtIdx, toonidx))
-        self.IsLookingAt[toonidx] = lookingAtIdx
-        return self.getLookAtToPosVec(toonidx, lookingAtIdx)
-        return
+                    if random.random() < NoticeStarersPercent:
+                        bStareTargetTurnsToMe = 1
+                if len(other_toon_idxs) == 0:
+                    return toonHead.getRandomForwardLookAtPoint()
+                lookingAtIdx = random.choice(other_toon_idxs)
+                if bStareTargetTurnsToMe:
+                    self.IsLookingAt[lookingAtIdx] = toonidx
+                    otherToonHead = None
+                    for panel in self.panelList:
+                        if panel.position == lookingAtIdx:
+                            otherToonHead = panel.headModel
+
+                    otherToonHead.doLookAroundToStareAt(otherToonHead, self.getLookAtToPosVec(lookingAtIdx, toonidx))
+                self.IsLookingAt[toonidx] = lookingAtIdx
+                return self.getLookAtToPosVec(toonidx, lookingAtIdx)
+
+            return
 
     def getLookAtToPosVec(self, fromIdx, toIdx):
         x = -(POSITIONS[toIdx][0] - POSITIONS[fromIdx][0])
@@ -271,47 +275,49 @@ class AvatarChooser(StateData.StateData):
 
         if len(self.used_panel_indexs) == 0:
             return
-        self.IsLookingAt = []
-        for i in xrange(MAX_AVATARS):
-            self.IsLookingAt.append('f')
+        else:
+            self.IsLookingAt = []
+            for i in xrange(MAX_AVATARS):
+                self.IsLookingAt.append('f')
 
-        for panel in self.panelList:
-            if panel.dna != None:
-                panel.headModel.setLookAtPositionCallbackArgs((self, panel.headModel, panel.position))
+            for panel in self.panelList:
+                if panel.dna != None:
+                    panel.headModel.setLookAtPositionCallbackArgs((self, panel.headModel, panel.position))
 
-        return
+            return
 
     def unload(self):
         if self.isLoaded == 0:
             return
-        cleanupDialog('globalDialog')
-        for panel in self.panelList:
-            panel.destroy()
+        else:
+            cleanupDialog('globalDialog')
+            for panel in self.panelList:
+                panel.destroy()
 
-        del self.panelList
-        self.title.removeNode()
-        del self.title
-        self.quitButton.destroy()
-        del self.quitButton
-        self.logoutButton.destroy()
-        del self.logoutButton
-        if not self.num:
-            self.shine.destroy()
-            del self.shine
-        self.shadow.destroy()
-        del self.shadow
-        self.pickAToonBG.removeNode()
-        del self.pickAToonBG
-        del self.avatarList
-        self.parentFSM.getCurrentState().removeChild(self.fsm)
-        del self.parentFSM
-        del self.fsm
-        self.ignoreAll()
-        self.isLoaded = 0
-        ModelPool.garbageCollect()
-        TexturePool.garbageCollect()
-        base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
-        return
+            del self.panelList
+            self.title.removeNode()
+            del self.title
+            self.quitButton.destroy()
+            del self.quitButton
+            self.logoutButton.destroy()
+            del self.logoutButton
+            if not self.num:
+                self.shine.destroy()
+                del self.shine
+            self.shadow.destroy()
+            del self.shadow
+            self.pickAToonBG.removeNode()
+            del self.pickAToonBG
+            del self.avatarList
+            self.parentFSM.getCurrentState().removeChild(self.fsm)
+            del self.parentFSM
+            del self.fsm
+            self.ignoreAll()
+            self.isLoaded = 0
+            ModelPool.garbageCollect()
+            TexturePool.garbageCollect()
+            base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
+            return
 
     def __handlePanelDone(self, panelDoneStatus, panelChoice=0):
         self.doneStatus = {}
@@ -319,15 +325,12 @@ class AvatarChooser(StateData.StateData):
         self.choice = panelChoice
         if panelDoneStatus == 'chose':
             self.__handleChoice()
-        else:
-            if panelDoneStatus == 'nameIt':
-                self.__handleCreate()
-            else:
-                if panelDoneStatus == 'delete':
-                    self.__handleDelete()
-                else:
-                    if panelDoneStatus == 'create':
-                        self.__handleCreate()
+        elif panelDoneStatus == 'nameIt':
+            self.__handleCreate()
+        elif panelDoneStatus == 'delete':
+            self.__handleDelete()
+        elif panelDoneStatus == 'create':
+            self.__handleCreate()
 
     def getChoice(self):
         return self.choice

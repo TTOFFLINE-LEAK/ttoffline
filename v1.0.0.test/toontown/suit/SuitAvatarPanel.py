@@ -69,14 +69,15 @@ class SuitAvatarPanel(AvatarPanel.AvatarPanel):
     def cleanup(self):
         if self.frame == None:
             return
-        self.frame.destroy()
-        del self.frame
-        self.frame = None
-        self.head.removeNode()
-        del self.head
-        base.localAvatar.obscureFriendsListButton(-1)
-        AvatarPanel.AvatarPanel.cleanup(self)
-        return
+        else:
+            self.frame.destroy()
+            del self.frame
+            self.frame = None
+            self.head.removeNode()
+            del self.head
+            base.localAvatar.obscureFriendsListButton(-1)
+            AvatarPanel.AvatarPanel.cleanup(self)
+            return
 
     def __handleClose(self):
         self.cleanup()

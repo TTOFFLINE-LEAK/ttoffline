@@ -282,12 +282,13 @@ class NametagGroup:
         if not nametag.m_group:
             print 'Attempt to removed %s twice from %s.' % (nametag.__class__.__name__, self.m_name)
             return
-        if self.m_manager:
-            nametag.unmanage(self.m_manager)
-        nametag.m_group = None
-        nametag.updateContents()
-        self.m_nametags.remove(nametag)
-        return
+        else:
+            if self.m_manager:
+                nametag.unmanage(self.m_manager)
+            nametag.m_group = None
+            nametag.updateContents()
+            self.m_nametags.remove(nametag)
+            return
 
     def setActive(self, active):
         self.m_is_active = active

@@ -178,13 +178,12 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         if goon.strength <= 10:
             style = ToontownGlobals.ToontownCentral
             healAmount = 3
+        elif goon.strength <= 15:
+            style = random.choice([ToontownGlobals.DonaldsDock, ToontownGlobals.DaisyGardens, ToontownGlobals.MinniesMelodyland])
+            healAmount = 10
         else:
-            if goon.strength <= 15:
-                style = random.choice([ToontownGlobals.DonaldsDock, ToontownGlobals.DaisyGardens, ToontownGlobals.MinniesMelodyland])
-                healAmount = 10
-            else:
-                style = random.choice([ToontownGlobals.TheBrrrgh, ToontownGlobals.DonaldsDreamland])
-                healAmount = 12
+            style = random.choice([ToontownGlobals.TheBrrrgh, ToontownGlobals.DonaldsDreamland])
+            healAmount = 12
         if self.recycledTreasures:
             treasure = self.recycledTreasures.pop(0)
             treasure.d_setGrab(0)
@@ -236,15 +235,16 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         t = self.getBattleThreeTime()
         if t <= 1.0:
             return self.maxGoons
-        if t <= 1.1:
-            return self.maxGoons + 1
-        if t <= 1.2:
-            return self.maxGoons + 2
-        if t <= 1.3:
-            return self.maxGoons + 3
-        if t <= 1.4:
-            return self.maxGoons + 4
-        return self.maxGoons + 8
+        else:
+            if t <= 1.1:
+                return self.maxGoons + 1
+            if t <= 1.2:
+                return self.maxGoons + 2
+            if t <= 1.3:
+                return self.maxGoons + 3
+            if t <= 1.4:
+                return self.maxGoons + 4
+            return self.maxGoons + 8
 
     def makeGoon(self, side=None):
         if side == None:
@@ -315,7 +315,8 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         if then == None or now - then > 300:
             self.avatarHelmets[avId] = now
             return 1
-        return 0
+        else:
+            return 0
 
     def magicWordHit(self, damage, avId):
         if self.heldObject:
@@ -351,15 +352,14 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         self.b_setBossDamage(self.bossDamage + damage)
         if self.bossDamage >= self.bossMaxDamage:
             self.b_setState('Victory')
-        else:
-            if self.attackCode != ToontownGlobals.BossCogDizzy:
-                if damage >= ToontownGlobals.CashbotBossKnockoutDamage:
-                    self.b_setAttackCode(ToontownGlobals.BossCogDizzy)
-                    self.stopHelmets()
-                else:
-                    self.b_setAttackCode(ToontownGlobals.BossCogNoAttack)
-                    self.stopHelmets()
-                    self.waitForNextHelmet()
+        elif self.attackCode != ToontownGlobals.BossCogDizzy:
+            if damage >= ToontownGlobals.CashbotBossKnockoutDamage:
+                self.b_setAttackCode(ToontownGlobals.BossCogDizzy)
+                self.stopHelmets()
+            else:
+                self.b_setAttackCode(ToontownGlobals.BossCogNoAttack)
+                self.stopHelmets()
+                self.waitForNextHelmet()
 
     def b_setBossDamage(self, bossDamage):
         self.d_setBossDamage(bossDamage)

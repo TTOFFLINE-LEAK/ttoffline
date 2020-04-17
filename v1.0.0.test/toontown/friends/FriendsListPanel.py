@@ -20,13 +20,11 @@ def determineFriendName(friendTuple):
         avId, flags = friendTuple
         playerId = None
         showType = 0
-    else:
-        if len(friendTuple) == 3:
-            avId, flags, playerId = friendTuple
-            showType = 0
-        else:
-            if len(friendTuple) == 4:
-                avId, flags, playerId, showType = friendTuple
+    elif len(friendTuple) == 3:
+        avId, flags, playerId = friendTuple
+        showType = 0
+    elif len(friendTuple) == 4:
+        avId, flags, playerId, showType = friendTuple
     if showType == 1 and playerId:
         playerInfo = base.cr.playerFriendsManager.playerId2Info.get(playerId)
         friendName = playerInfo.playerName
@@ -45,9 +43,10 @@ def compareFriends(f1, f2):
     name2 = determineFriendName(f2)
     if name1 > name2:
         return 1
-    if name1 == name2:
-        return 0
-    return -1
+    else:
+        if name1 == name2:
+            return 0
+        return -1
 
 
 def showFriendsList():
@@ -89,7 +88,8 @@ def hideFriendsListTutorial():
 def isFriendsListShown():
     if globalFriendsList != None:
         return globalFriendsList.isEntered
-    return 0
+    else:
+        return 0
 
 
 def unloadFriendsList():
@@ -136,88 +136,91 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
     def load(self):
         if self.isLoaded == 1:
             return
-        self.isLoaded = 1
-        gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
-        auxGui = loader.loadModel('phase_3.5/models/gui/avatar_panel_gui')
-        self.title = DirectLabel(parent=self, relief=None, text='', text_scale=TTLocalizer.FLPtitle, text_fg=(0,
-                                                                                                              0.1,
-                                                                                                              0.4,
-                                                                                                              1), pos=(0.007,
-                                                                                                                       0.0,
-                                                                                                                       0.2))
-        background_image = gui.find('**/FriendsBox_Open')
-        self['image'] = background_image
-        self.reparentTo(base.a2dTopRight)
-        self.setPos(-0.233, 0, -0.46)
-        self.scrollList = DirectScrolledList(parent=self, relief=None, incButton_image=(gui.find('**/FndsLst_ScrollUp'),
-         gui.find('**/FndsLst_ScrollDN'),
-         gui.find('**/FndsLst_ScrollUp_Rllvr'),
-         gui.find('**/FndsLst_ScrollUp')), incButton_relief=None, incButton_pos=(0.0,
-                                                                                 0.0,
-                                                                                 -0.316), incButton_image3_color=Vec4(0.6, 0.6, 0.6, 0.6), incButton_scale=(1.0,
-                                                                                                                                                            1.0,
-                                                                                                                                                            -1.0), decButton_image=(gui.find('**/FndsLst_ScrollUp'),
-         gui.find('**/FndsLst_ScrollDN'),
-         gui.find('**/FndsLst_ScrollUp_Rllvr'),
-         gui.find('**/FndsLst_ScrollUp')), decButton_relief=None, decButton_pos=(0.0,
-                                                                                 0.0,
-                                                                                 0.117), decButton_image3_color=Vec4(0.6, 0.6, 0.6, 0.6), itemFrame_pos=(-0.17,
-                                                                                                                                                         0.0,
-                                                                                                                                                         0.06), itemFrame_relief=None, numItemsVisible=8, items=[])
-        clipper = PlaneNode('clipper')
-        clipper.setPlane(Plane(Vec3(-1, 0, 0), Point3(0.2, 0, 0)))
-        clipNP = self.scrollList.attachNewNode(clipper)
-        self.scrollList.setClipPlane(clipNP)
-        self.close = DirectButton(parent=self, relief=None, image=(auxGui.find('**/CloseBtn_UP'), auxGui.find('**/CloseBtn_DN'), auxGui.find('**/CloseBtn_Rllvr')), pos=(0.01,
-                                                                                                                                                                         0,
-                                                                                                                                                                         -0.38), command=self.__close)
-        self.left = DirectButton(parent=self, relief=None, image=(gui.find('**/Horiz_Arrow_UP'),
-         gui.find('**/Horiz_Arrow_DN'),
-         gui.find('**/Horiz_Arrow_Rllvr'),
-         gui.find('**/Horiz_Arrow_UP')), image3_color=Vec4(0.6, 0.6, 0.6, 0.6), pos=(-0.15,
+        else:
+            self.isLoaded = 1
+            gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
+            auxGui = loader.loadModel('phase_3.5/models/gui/avatar_panel_gui')
+            self.title = DirectLabel(parent=self, relief=None, text='', text_scale=TTLocalizer.FLPtitle, text_fg=(0,
+                                                                                                                  0.1,
+                                                                                                                  0.4,
+                                                                                                                  1), pos=(0.007,
+                                                                                                                           0.0,
+                                                                                                                           0.2))
+            background_image = gui.find('**/FriendsBox_Open')
+            self['image'] = background_image
+            self.reparentTo(base.a2dTopRight)
+            self.setPos(-0.233, 0, -0.46)
+            self.scrollList = DirectScrolledList(parent=self, relief=None, incButton_image=(gui.find('**/FndsLst_ScrollUp'),
+             gui.find('**/FndsLst_ScrollDN'),
+             gui.find('**/FndsLst_ScrollUp_Rllvr'),
+             gui.find('**/FndsLst_ScrollUp')), incButton_relief=None, incButton_pos=(0.0,
                                                                                      0.0,
-                                                                                     -0.38), scale=(-1.0,
-                                                                                                    1.0,
-                                                                                                    1.0), command=self.__left)
-        self.right = DirectButton(parent=self, relief=None, image=(gui.find('**/Horiz_Arrow_UP'),
-         gui.find('**/Horiz_Arrow_DN'),
-         gui.find('**/Horiz_Arrow_Rllvr'),
-         gui.find('**/Horiz_Arrow_UP')), image3_color=Vec4(0.6, 0.6, 0.6, 0.6), pos=(0.17,
-                                                                                     0,
-                                                                                     -0.38), command=self.__right)
-        self.newFriend = DirectButton(parent=self, relief=None, pos=(-0.14, 0.0, 0.14), image=(auxGui.find('**/Frnds_Btn_UP'), auxGui.find('**/Frnds_Btn_DN'), auxGui.find('**/Frnds_Btn_RLVR')), text=('', TTLocalizer.FriendsListPanelNewFriend, TTLocalizer.FriendsListPanelNewFriend), text_scale=TTLocalizer.FLPnewFriend, text_fg=(0,
-                                                                                                                                                                                                                                                                                                                                         0,
-                                                                                                                                                                                                                                                                                                                                         0,
-                                                                                                                                                                                                                                                                                                                                         1), text_bg=(1,
-                                                                                                                                                                                                                                                                                                                                                      1,
-                                                                                                                                                                                                                                                                                                                                                      1,
-                                                                                                                                                                                                                                                                                                                                                      1), text_pos=(0.1,
-                                                                                                                                                                                                                                                                                                                                                                    -0.085), textMayChange=0, command=self.__newFriend)
-        self.secrets = DirectButton(parent=self, relief=None, pos=TTLocalizer.FLPsecretsPos, image=(auxGui.find('**/ChtBx_ChtBtn_UP'), auxGui.find('**/ChtBx_ChtBtn_DN'), auxGui.find('**/ChtBx_ChtBtn_RLVR')), text=('',
-         TTLocalizer.FriendsListPanelSecrets,
-         TTLocalizer.FriendsListPanelSecrets,
-         ''), text_scale=TTLocalizer.FLPsecrets, text_fg=(0, 0, 0, 1), text_bg=(1,
-                                                                                1,
-                                                                                1,
-                                                                                1), text_pos=(-0.04,
-                                                                                              -0.085), textMayChange=0, command=self.__secrets)
-        gui.removeNode()
-        auxGui.removeNode()
-        return
+                                                                                     -0.316), incButton_image3_color=Vec4(0.6, 0.6, 0.6, 0.6), incButton_scale=(1.0,
+                                                                                                                                                                1.0,
+                                                                                                                                                                -1.0), decButton_image=(gui.find('**/FndsLst_ScrollUp'),
+             gui.find('**/FndsLst_ScrollDN'),
+             gui.find('**/FndsLst_ScrollUp_Rllvr'),
+             gui.find('**/FndsLst_ScrollUp')), decButton_relief=None, decButton_pos=(0.0,
+                                                                                     0.0,
+                                                                                     0.117), decButton_image3_color=Vec4(0.6, 0.6, 0.6, 0.6), itemFrame_pos=(-0.17,
+                                                                                                                                                             0.0,
+                                                                                                                                                             0.06), itemFrame_relief=None, numItemsVisible=8, items=[])
+            clipper = PlaneNode('clipper')
+            clipper.setPlane(Plane(Vec3(-1, 0, 0), Point3(0.2, 0, 0)))
+            clipNP = self.scrollList.attachNewNode(clipper)
+            self.scrollList.setClipPlane(clipNP)
+            self.close = DirectButton(parent=self, relief=None, image=(auxGui.find('**/CloseBtn_UP'), auxGui.find('**/CloseBtn_DN'), auxGui.find('**/CloseBtn_Rllvr')), pos=(0.01,
+                                                                                                                                                                             0,
+                                                                                                                                                                             -0.38), command=self.__close)
+            self.left = DirectButton(parent=self, relief=None, image=(gui.find('**/Horiz_Arrow_UP'),
+             gui.find('**/Horiz_Arrow_DN'),
+             gui.find('**/Horiz_Arrow_Rllvr'),
+             gui.find('**/Horiz_Arrow_UP')), image3_color=Vec4(0.6, 0.6, 0.6, 0.6), pos=(-0.15,
+                                                                                         0.0,
+                                                                                         -0.38), scale=(-1.0,
+                                                                                                        1.0,
+                                                                                                        1.0), command=self.__left)
+            self.right = DirectButton(parent=self, relief=None, image=(gui.find('**/Horiz_Arrow_UP'),
+             gui.find('**/Horiz_Arrow_DN'),
+             gui.find('**/Horiz_Arrow_Rllvr'),
+             gui.find('**/Horiz_Arrow_UP')), image3_color=Vec4(0.6, 0.6, 0.6, 0.6), pos=(0.17,
+                                                                                         0,
+                                                                                         -0.38), command=self.__right)
+            self.newFriend = DirectButton(parent=self, relief=None, pos=(-0.14, 0.0,
+                                                                         0.14), image=(auxGui.find('**/Frnds_Btn_UP'), auxGui.find('**/Frnds_Btn_DN'), auxGui.find('**/Frnds_Btn_RLVR')), text=('', TTLocalizer.FriendsListPanelNewFriend, TTLocalizer.FriendsListPanelNewFriend), text_scale=TTLocalizer.FLPnewFriend, text_fg=(0,
+                                                                                                                                                                                                                                                                                                                                 0,
+                                                                                                                                                                                                                                                                                                                                 0,
+                                                                                                                                                                                                                                                                                                                                 1), text_bg=(1,
+                                                                                                                                                                                                                                                                                                                                              1,
+                                                                                                                                                                                                                                                                                                                                              1,
+                                                                                                                                                                                                                                                                                                                                              1), text_pos=(0.1,
+                                                                                                                                                                                                                                                                                                                                                            -0.085), textMayChange=0, command=self.__newFriend)
+            self.secrets = DirectButton(parent=self, relief=None, pos=TTLocalizer.FLPsecretsPos, image=(auxGui.find('**/ChtBx_ChtBtn_UP'), auxGui.find('**/ChtBx_ChtBtn_DN'), auxGui.find('**/ChtBx_ChtBtn_RLVR')), text=('',
+             TTLocalizer.FriendsListPanelSecrets,
+             TTLocalizer.FriendsListPanelSecrets,
+             ''), text_scale=TTLocalizer.FLPsecrets, text_fg=(0, 0, 0, 1), text_bg=(1,
+                                                                                    1,
+                                                                                    1,
+                                                                                    1), text_pos=(-0.04,
+                                                                                                  -0.085), textMayChange=0, command=self.__secrets)
+            gui.removeNode()
+            auxGui.removeNode()
+            return
 
     def unload(self):
         if self.isLoaded == 0:
             return
-        self.isLoaded = 0
-        self.exit()
-        del self.title
-        del self.scrollList
-        del self.close
-        del self.left
-        del self.right
-        del self.friends
-        DirectFrame.destroy(self)
-        return
+        else:
+            self.isLoaded = 0
+            self.exit()
+            del self.title
+            del self.scrollList
+            del self.close
+            del self.left
+            del self.right
+            del self.friends
+            DirectFrame.destroy(self)
+            return
 
     def makeFriendButton(self, friendTuple, colorChoice=None, bold=0):
         playerName = None
@@ -230,9 +233,8 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             if len(friendTuple) == 3:
                 avId, flags, playerId = friendTuple
                 showType = 0
-            else:
-                if len(friendTuple) == 4:
-                    avId, flags, playerId, showType = friendTuple
+            elif len(friendTuple) == 4:
+                avId, flags, playerId, showType = friendTuple
             command = self.__choseFriend
             playerName = None
             if playerId:
@@ -252,10 +254,9 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
                     print 'ABORTING!!!'
                 friendName = playerName
                 rolloverName = toonName
-            else:
-                if not toonName:
-                    base.cr.fillUpFriendsMap()
-                    return
+            elif not toonName:
+                base.cr.fillUpFriendsMap()
+                return
             friendName = toonName
             if playerName:
                 rolloverName = playerName
@@ -299,44 +300,46 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
     def enter(self):
         if self.isEntered == 1:
             return
-        self.isEntered = 1
-        if self.isLoaded == 0:
-            self.load()
-        base.localAvatar.obscureFriendsListButton(1)
-        if ToonAvatarPanel.ToonAvatarPanel.currentAvatarPanel:
-            ToonAvatarPanel.ToonAvatarPanel.currentAvatarPanel.cleanup()
-            ToonAvatarPanel.ToonAvatarPanel.currentAvatarPanel = None
-        self.__updateScrollList()
-        self.__updateTitle()
-        self.__updateArrows()
-        self.show()
-        self.accept('friendOnline', self.__friendOnline)
-        self.accept('friendPlayers', self.__friendPlayers)
-        self.accept('friendOffline', self.__friendOffline)
-        self.accept('friendsListChanged', self.__friendsListChanged)
-        self.accept('ignoreListChanged', self.__ignoreListChanged)
-        self.accept('friendsMapComplete', self.__friendsListChanged)
-        self.accept(OTPGlobals.PlayerFriendAddEvent, self.__friendsListChanged)
-        self.accept(OTPGlobals.PlayerFriendUpdateEvent, self.__friendsListChanged)
-        return
+        else:
+            self.isEntered = 1
+            if self.isLoaded == 0:
+                self.load()
+            base.localAvatar.obscureFriendsListButton(1)
+            if ToonAvatarPanel.ToonAvatarPanel.currentAvatarPanel:
+                ToonAvatarPanel.ToonAvatarPanel.currentAvatarPanel.cleanup()
+                ToonAvatarPanel.ToonAvatarPanel.currentAvatarPanel = None
+            self.__updateScrollList()
+            self.__updateTitle()
+            self.__updateArrows()
+            self.show()
+            self.accept('friendOnline', self.__friendOnline)
+            self.accept('friendPlayers', self.__friendPlayers)
+            self.accept('friendOffline', self.__friendOffline)
+            self.accept('friendsListChanged', self.__friendsListChanged)
+            self.accept('ignoreListChanged', self.__ignoreListChanged)
+            self.accept('friendsMapComplete', self.__friendsListChanged)
+            self.accept(OTPGlobals.PlayerFriendAddEvent, self.__friendsListChanged)
+            self.accept(OTPGlobals.PlayerFriendUpdateEvent, self.__friendsListChanged)
+            return
 
     def exit(self):
         if self.isEntered == 0:
             return
-        self.isEntered = 0
-        self.listScrollIndex[self.panelType] = self.scrollList.index
-        self.hide()
-        base.cr.cleanPetsFromFriendsMap()
-        self.ignore('friendOnline')
-        self.ignore('friendOffline')
-        self.ignore('friendsListChanged')
-        self.ignore('ignoreListChanged')
-        self.ignore('friendsMapComplete')
-        self.ignore(OTPGlobals.PlayerFriendAddEvent)
-        self.ignore(OTPGlobals.PlayerFriendUpdateEvent)
-        base.localAvatar.obscureFriendsListButton(-1)
-        messenger.send(self.doneEvent)
-        return
+        else:
+            self.isEntered = 0
+            self.listScrollIndex[self.panelType] = self.scrollList.index
+            self.hide()
+            base.cr.cleanPetsFromFriendsMap()
+            self.ignore('friendOnline')
+            self.ignore('friendOffline')
+            self.ignore('friendsListChanged')
+            self.ignore('ignoreListChanged')
+            self.ignore('friendsMapComplete')
+            self.ignore(OTPGlobals.PlayerFriendAddEvent)
+            self.ignore(OTPGlobals.PlayerFriendUpdateEvent)
+            base.localAvatar.obscureFriendsListButton(-1)
+            messenger.send(self.doneEvent)
+            return
 
     def __close(self):
         messenger.send('wakeup')
@@ -626,20 +629,16 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
     def __updateTitle(self):
         if self.panelType == FLPOnline:
             self.title['text'] = TTLocalizer.FriendsListPanelOnlineFriends
+        elif self.panelType == FLPAll:
+            self.title['text'] = TTLocalizer.FriendsListPanelAllFriends
+        elif self.panelType == FLPPets:
+            self.title['text'] = TTLocalizer.FriendsListPanelPets
+        elif self.panelType == FLTServer:
+            self.title['text'] = TTLocalizer.FriendsListPanelToonsServer
+        elif self.panelType == FLTZone:
+            self.title['text'] = TTLocalizer.FriendsListPanelToonsZone
         else:
-            if self.panelType == FLPAll:
-                self.title['text'] = TTLocalizer.FriendsListPanelAllFriends
-            else:
-                if self.panelType == FLPPets:
-                    self.title['text'] = TTLocalizer.FriendsListPanelPets
-                else:
-                    if self.panelType == FLTServer:
-                        self.title['text'] = TTLocalizer.FriendsListPanelToonsServer
-                    else:
-                        if self.panelType == FLTZone:
-                            self.title['text'] = TTLocalizer.FriendsListPanelToonsZone
-                        else:
-                            self.title['text'] = TTLocalizer.FriendsListPanelIgnoredFriends
+            self.title['text'] = TTLocalizer.FriendsListPanelIgnoredFriends
         self.title.resetFrameSize()
 
     def __updateArrows(self):

@@ -449,7 +449,9 @@ def getPaths(charName, location=0):
     if charName == TTLocalizer.Mickey:
         if location == 0:
             return __betaMickeyPaths
-        return __mickeyPaths
+        else:
+            return __mickeyPaths
+
     else:
         if charName == TTLocalizer.VampireMickey:
             return __mickeyPaths
@@ -462,7 +464,9 @@ def getPaths(charName, location=0):
         if charName == TTLocalizer.Goofy:
             if location == 0:
                 return __goofyPaths
-            return __goofySpeedwayPaths
+            else:
+                return __goofySpeedwayPaths
+
         else:
             if charName == TTLocalizer.SuperGoofy:
                 return __goofySpeedwayPaths

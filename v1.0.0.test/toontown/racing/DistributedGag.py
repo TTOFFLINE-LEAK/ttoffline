@@ -30,9 +30,8 @@ class DistributedGag(DistributedObject.DistributedObject):
         self.delta = -globalClockDelta.networkToLocalTime(self.initTime, globalClock.getFrameTime(), 16, 100) + globalClock.getFrameTime()
         if self.type == 0:
             self.name = self.uniqueName('banana')
-        else:
-            if self.type == 1:
-                self.name = self.uniqueName('pie')
+        elif self.type == 1:
+            self.name = self.uniqueName('pie')
         self.nodePath.reparentTo(self.race.geom)
         if self.ownerId == localAvatar.doId:
             base.race.thrownGags[0].removeNode()
@@ -60,9 +59,8 @@ class DistributedGag(DistributedObject.DistributedObject):
         self.sendUpdate('hitSomebody', [localAvatar.doId, globalClockDelta.getFrameNetworkTime(16, 100)])
         if self.type == 0:
             base.race.localKart.hitBanana()
-        else:
-            if self.type == 1:
-                base.race.localKart.hitPie()
+        elif self.type == 1:
+            base.race.localKart.hitPie()
         self.nodePath.hide()
         if hasattr(self, 'bnp'):
             self.bnp.removeNode()

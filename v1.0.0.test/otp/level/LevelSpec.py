@@ -20,15 +20,14 @@ class LevelSpec:
         else:
             if type(spec) is types.DictType:
                 self.specDict = spec
-            else:
-                if spec is None:
-                    if __dev__:
-                        newSpec = 1
-                        self.specDict = {'globalEntities': {}, 'scenarios': [{}]}
-        self.entId2specDict = {}
-        self.entId2specDict.update(list2dict(self.getGlobalEntIds(), value=self.privGetGlobalEntityDict()))
-        for i in xrange(self.getNumScenarios()):
-            self.entId2specDict.update(list2dict(self.getScenarioEntIds(i), value=self.privGetScenarioEntityDict(i)))
+            elif spec is None:
+                if __dev__:
+                    newSpec = 1
+                    self.specDict = {'globalEntities': {}, 'scenarios': [{}]}
+            self.entId2specDict = {}
+            self.entId2specDict.update(list2dict(self.getGlobalEntIds(), value=self.privGetGlobalEntityDict()))
+            for i in xrange(self.getNumScenarios()):
+                self.entId2specDict.update(list2dict(self.getScenarioEntIds(i), value=self.privGetScenarioEntityDict(i)))
 
         self.setScenario(scenario)
         if __dev__:
@@ -354,21 +353,22 @@ class LevelSpec:
             errorCount = 0
             if set(dict1.keys()) != set(dict2.keys()):
                 return 0
-            for key in dict1:
-                if type(dict1[key]) == type({}) and type(dict2[key]) == type({}):
-                    if not self._recurKeyTest(dict1[key], dict2[key]):
-                        return 0
-                else:
-                    strd1 = repr(dict1[key])
-                    strd2 = repr(dict2[key])
-                    if strd1 != strd2:
-                        s += '\nBAD VALUE(%s): %s != %s\n' % (key, strd1, strd2)
-                        errorCount += 1
+            else:
+                for key in dict1:
+                    if type(dict1[key]) == type({}) and type(dict2[key]) == type({}):
+                        if not self._recurKeyTest(dict1[key], dict2[key]):
+                            return 0
+                    else:
+                        strd1 = repr(dict1[key])
+                        strd2 = repr(dict2[key])
+                        if strd1 != strd2:
+                            s += '\nBAD VALUE(%s): %s != %s\n' % (key, strd1, strd2)
+                            errorCount += 1
 
-            print s
-            if errorCount == 0:
-                return 1
-            return 0
+                print s
+                if errorCount == 0:
+                    return 1
+                return 0
 
         def testPrettyString(self, prettyString=None):
             if prettyString is None:
@@ -380,7 +380,8 @@ class LevelSpec:
             exec prettyString
             if self._recurKeyTest(levelSpec, self.specDict):
                 return 1
-            return
+            else:
+                return
 
         def checkSpecIntegrity(self):
             entIds = self.getGlobalEntIds()

@@ -50,45 +50,46 @@ class DistributedBattleDiners(DistributedBattleFinal.DistributedBattleFinal):
     def showSuitsFalling(self, suits, ts, name, callback):
         if self.bossCog == None:
             return
-        suitTrack = Parallel()
-        delay = 0
-        for suit in suits:
-            suit.setState('Battle')
-            if suit.dna.dept == 'l':
-                suit.reparentTo(self.bossCog)
-                suit.setPos(0, 0, 0)
-            if suit in self.joiningSuits:
-                i = len(self.pendingSuits) + self.joiningSuits.index(suit)
-                destPos, h = self.suitPendingPoints[i]
-                destHpr = VBase3(h, 0, 0)
-            else:
-                destPos, destHpr = self.getActorPosHpr(suit, self.suits)
-            startPos = destPos + Point3(0, 0, SuitTimings.fromSky * ToontownGlobals.SuitWalkSpeed)
-            self.notify.debug('startPos for %s = %s' % (suit, startPos))
-            suit.reparentTo(self)
-            suit.setPos(startPos)
-            suit.headsUp(self)
-            moveIval = Sequence()
-            chairInfo = self.bossCog.claimOneChair()
-            if chairInfo:
-                moveIval = self.createDinerMoveIval(suit, destPos, chairInfo)
-            suitTrack.append(Track((delay, Sequence(moveIval, Func(suit.loop, 'neutral')))))
-            delay += 1
+        else:
+            suitTrack = Parallel()
+            delay = 0
+            for suit in suits:
+                suit.setState('Battle')
+                if suit.dna.dept == 'l':
+                    suit.reparentTo(self.bossCog)
+                    suit.setPos(0, 0, 0)
+                if suit in self.joiningSuits:
+                    i = len(self.pendingSuits) + self.joiningSuits.index(suit)
+                    destPos, h = self.suitPendingPoints[i]
+                    destHpr = VBase3(h, 0, 0)
+                else:
+                    destPos, destHpr = self.getActorPosHpr(suit, self.suits)
+                startPos = destPos + Point3(0, 0, SuitTimings.fromSky * ToontownGlobals.SuitWalkSpeed)
+                self.notify.debug('startPos for %s = %s' % (suit, startPos))
+                suit.reparentTo(self)
+                suit.setPos(startPos)
+                suit.headsUp(self)
+                moveIval = Sequence()
+                chairInfo = self.bossCog.claimOneChair()
+                if chairInfo:
+                    moveIval = self.createDinerMoveIval(suit, destPos, chairInfo)
+                suitTrack.append(Track((delay, Sequence(moveIval, Func(suit.loop, 'neutral')))))
+                delay += 1
 
-        if self.hasLocalToon():
-            camera.reparentTo(self)
-            self.notify.debug('self.battleSide =%s' % self.battleSide)
-            camHeading = -20
-            camX = -4
-            if self.battleSide == 0:
-                camHeading = 20
-                camX = 4
-            camera.setPosHpr(camX, -15, 7, camHeading, 0, 0)
-        done = Func(callback)
-        track = Sequence(suitTrack, done, name=name)
-        track.start(ts)
-        self.storeInterval(track, name)
-        return
+            if self.hasLocalToon():
+                camera.reparentTo(self)
+                self.notify.debug('self.battleSide =%s' % self.battleSide)
+                camHeading = -20
+                camX = -4
+                if self.battleSide == 0:
+                    camHeading = 20
+                    camX = 4
+                camera.setPosHpr(camX, -15, 7, camHeading, 0, 0)
+            done = Func(callback)
+            track = Sequence(suitTrack, done, name=name)
+            track.start(ts)
+            self.storeInterval(track, name)
+            return
 
     def createDinerMoveIval(self, suit, destPos, chairInfo):
         dur = suit.getDuration('landing')

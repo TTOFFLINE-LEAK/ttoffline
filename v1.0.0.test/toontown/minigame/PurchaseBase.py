@@ -88,17 +88,15 @@ class PurchaseBase(StateData.StateData):
         ret = self.toon.inventory.addItem(track, level)
         if ret == -2:
             text = TTLocalizer.GagShopTooManyProps
+        elif ret == -1:
+            text = TTLocalizer.GagShopTooManyOfThatGag % TTLocalizer.BattleGlobalAvPropStringsPlural[track][level]
+        elif ret == 0:
+            text = TTLocalizer.GagShopInsufficientSkill
         else:
-            if ret == -1:
-                text = TTLocalizer.GagShopTooManyOfThatGag % TTLocalizer.BattleGlobalAvPropStringsPlural[track][level]
-            else:
-                if ret == 0:
-                    text = TTLocalizer.GagShopInsufficientSkill
-                else:
-                    text = TTLocalizer.GagShopYouPurchased % TTLocalizer.BattleGlobalAvPropStringsSingular[track][level]
-                    self.toon.inventory.updateGUI(track, level)
-                    self.toon.setMoney(self.toon.getMoney() - 1)
-                    messenger.send('boughtGag')
+            text = TTLocalizer.GagShopYouPurchased % TTLocalizer.BattleGlobalAvPropStringsSingular[track][level]
+            self.toon.inventory.updateGUI(track, level)
+            self.toon.setMoney(self.toon.getMoney() - 1)
+            messenger.send('boughtGag')
         self.showStatusText(text)
 
     def showStatusText(self, text):

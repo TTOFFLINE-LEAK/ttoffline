@@ -111,9 +111,8 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
     def handleSleep(self, task=None):
         if self.fsm.getCurrentState().getName() == 'chooseMode':
             self.cancelButtonPushed()
-        else:
-            if self.fsm.getCurrentState().getName() == 'sitting':
-                self.sendUpdate('requestExit', [])
+        elif self.fsm.getCurrentState().getName() == 'sitting':
+            self.sendUpdate('requestExit', [])
         if self.gameMenu != None:
             self.gameMenu.removeButtons()
             self.gameMenu.picnicFunction = None
@@ -228,9 +227,8 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
     def setIsPlaying(self, isPlaying):
         if isPlaying == 0:
             self.isPlaying = False
-        else:
-            if isPlaying == 1:
-                self.isPlaying = True
+        elif isPlaying == 1:
+            self.isPlaying = True
 
     def announceWinner(self, winString, avId):
         if avId == base.localAvatar.getDoId():
@@ -243,18 +241,17 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
                 whisper = WhisperPopup(TTLocalizer.RegularCheckersYouWon, OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
             elif winString == 'Find Four':
                 whisper = WhisperPopup('You won a game of Find Four!', OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
-        else:
-            if avId in self.cr.doId2do:
-                stateString = self.fsm.getCurrentState().getName()
-                if stateString == 'sitting' or stateString == 'observing':
-                    base.cr.playGame.getPlace().setState('walk')
-                av = self.cr.doId2do[avId]
-                if winString == 'Chinese Checkers':
-                    whisper = WhisperPopup(av.getName() + TTLocalizer.ChineseCheckersGameOf + TTLocalizer.ChineseCheckers, OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
-                elif winString == 'Checkers':
-                    whisper = WhisperPopup(av.getName() + TTLocalizer.RegularCheckersGameOf + TTLocalizer.RegularCheckers, OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
-                elif winString == 'Find Four':
-                    whisper = WhisperPopup(av.getName() + ' has won a game of' + ' Find Four!', OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
+        elif avId in self.cr.doId2do:
+            stateString = self.fsm.getCurrentState().getName()
+            if stateString == 'sitting' or stateString == 'observing':
+                base.cr.playGame.getPlace().setState('walk')
+            av = self.cr.doId2do[avId]
+            if winString == 'Chinese Checkers':
+                whisper = WhisperPopup(av.getName() + TTLocalizer.ChineseCheckersGameOf + TTLocalizer.ChineseCheckers, OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
+            elif winString == 'Checkers':
+                whisper = WhisperPopup(av.getName() + TTLocalizer.RegularCheckersGameOf + TTLocalizer.RegularCheckers, OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
+            elif winString == 'Find Four':
+                whisper = WhisperPopup(av.getName() + ' has won a game of' + ' Find Four!', OTPGlobals.getInterfaceFont(), WhisperPopup.WTNormal)
         if avId in self.cr.doId2do:
             toon = self.cr.doId2do[avId]
             self.winTrack = Sequence(autoFinish=1)
@@ -338,9 +335,8 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
     def tutorialFunction(self, tutVal):
         if tutVal == 1:
             self.tutorial = ChineseTutorial(self.tutorialDone)
-        else:
-            if tutVal == 2:
-                self.tutorial = CheckersTutorial(self.tutorialDone)
+        elif tutVal == 2:
+            self.tutorial = CheckersTutorial(self.tutorialDone)
         self.gameMenu.picnicFunction = None
         self.gameMenu = None
         return
@@ -387,12 +383,10 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
     def pickFunction(self, gameNum):
         if gameNum == 1:
             self.sendUpdate('requestPickedGame', [gameNum])
-        else:
-            if gameNum == 2:
-                self.sendUpdate('requestPickedGame', [gameNum])
-            else:
-                if gameNum == 3:
-                    self.sendUpdate('requestPickedGame', [gameNum])
+        elif gameNum == 2:
+            self.sendUpdate('requestPickedGame', [gameNum])
+        elif gameNum == 3:
+            self.sendUpdate('requestPickedGame', [gameNum])
 
     def allowPick(self):
         self.gameMenu = GameMenu(self.pickFunction, 2)
@@ -439,30 +433,31 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
         if index == 255 and self.game != None:
             self.stopObserveButtonPushed()
             return
-        if avId in self.haveAnimated:
-            self.haveAnimated.remove(avId)
-        if avId in self.cr.doId2do:
-            if avId == base.localAvatar.getDoId():
-                if self.gameZone:
-                    base.cr.removeInterest(self.gameZone)
-                if self.inGame == True:
-                    self.inGame = False
-                else:
-                    return
-            toon = self.cr.doId2do[avId]
-            toon.stopSmooth()
-            sitStartDuration = toon.getDuration('sit-start')
-            jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
-            self.outTrack = Sequence(jumpOutTrack)
-            if base.localAvatar.getDoId() == avId:
-                self.outTrack.append(Func(self.__enableCollisions))
-                self.outTrack.append(Func(self.allowToWalk))
-                self.fsm.request('off')
-            val = self.jumpOffsets[index].getPos(render)
-            self.outTrack.append(Func(toon.setPos, val))
-            self.outTrack.append(Func(toon.startSmooth))
-            self.outTrack.start()
-        return
+        else:
+            if avId in self.haveAnimated:
+                self.haveAnimated.remove(avId)
+            if avId in self.cr.doId2do:
+                if avId == base.localAvatar.getDoId():
+                    if self.gameZone:
+                        base.cr.removeInterest(self.gameZone)
+                    if self.inGame == True:
+                        self.inGame = False
+                    else:
+                        return
+                toon = self.cr.doId2do[avId]
+                toon.stopSmooth()
+                sitStartDuration = toon.getDuration('sit-start')
+                jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
+                self.outTrack = Sequence(jumpOutTrack)
+                if base.localAvatar.getDoId() == avId:
+                    self.outTrack.append(Func(self.__enableCollisions))
+                    self.outTrack.append(Func(self.allowToWalk))
+                    self.fsm.request('off')
+                val = self.jumpOffsets[index].getPos(render)
+                self.outTrack.append(Func(toon.setPos, val))
+                self.outTrack.append(Func(toon.startSmooth))
+                self.outTrack.start()
+            return
 
     def stopToWalk(self):
         base.cr.playGame.getPlace().setState('stopped')
@@ -477,11 +472,10 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
         heading = PythonUtil.fitDestAngle2Src(camera.getH(), 90)
         if seatIndex < 3:
             self.cameraBoardTrack = LerpPosHprInterval(camera, 2.0, Point3(0, 0, 17), Point3(0, -90, 0))
+        elif camera.getH() < 0:
+            self.cameraBoardTrack = LerpPosHprInterval(camera, 2.0, Point3(0, 0, 17), Point3(-180, -90, 0))
         else:
-            if camera.getH() < 0:
-                self.cameraBoardTrack = LerpPosHprInterval(camera, 2.0, Point3(0, 0, 17), Point3(-180, -90, 0))
-            else:
-                self.cameraBoardTrack = LerpPosHprInterval(camera, 2.0, Point3(0, 0, 17), Point3(180, -90, 0))
+            self.cameraBoardTrack = LerpPosHprInterval(camera, 2.0, Point3(0, 0, 17), Point3(180, -90, 0))
         self.cameraBoardTrack.start()
 
     def moveCameraBack(self):
@@ -583,13 +577,11 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 
@@ -620,11 +612,10 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
                 hpr = self.seats[seatIndex].getHpr(av.getParent())
                 if seatIndex < 3:
                     hpr.setX(hpr.getX())
+                elif av.getH() < 0:
+                    hpr.setX(hpr.getX() - 180)
                 else:
-                    if av.getH() < 0:
-                        hpr.setX(hpr.getX() - 180)
-                    else:
-                        hpr.setX(hpr.getX() + 180)
+                    hpr.setX(hpr.getX() + 180)
                 return hpr
 
             toonJumpTrack = Parallel(ActorInterval(av, 'jump'), Sequence(Wait(0.43), Parallel(LerpHprInterval(av, hpr=getJumpHpr, duration=1), ProjectileInterval(av, endPos=getJumpDest, duration=1))))
@@ -632,13 +623,11 @@ class DistributedPicnicTable(DistributedNode.DistributedNode):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(LerpHprInterval(av, hpr=getJumpHpr, duration=0.9), ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 

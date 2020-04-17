@@ -66,20 +66,16 @@ class FriendHandle:
     def isUnderstandable(self):
         if self.commonChatFlags & base.localAvatar.commonChatFlags & ToontownGlobals.CommonChat:
             understandable = 1
+        elif self.commonChatFlags & ToontownGlobals.SuperChat:
+            understandable = 1
+        elif base.localAvatar.commonChatFlags & ToontownGlobals.SuperChat:
+            understandable = 1
+        elif base.cr.getFriendFlags(self.doId) & ToontownGlobals.FriendChat:
+            understandable = 1
+        elif self.whitelistChatFlags & base.localAvatar.whitelistChatFlags:
+            understandable = 1
         else:
-            if self.commonChatFlags & ToontownGlobals.SuperChat:
-                understandable = 1
-            else:
-                if base.localAvatar.commonChatFlags & ToontownGlobals.SuperChat:
-                    understandable = 1
-                else:
-                    if base.cr.getFriendFlags(self.doId) & ToontownGlobals.FriendChat:
-                        understandable = 1
-                    else:
-                        if self.whitelistChatFlags & base.localAvatar.whitelistChatFlags:
-                            understandable = 1
-                        else:
-                            understandable = 0
+            understandable = 0
         return understandable
 
     def scrubTalk(self, message, mods, raw):

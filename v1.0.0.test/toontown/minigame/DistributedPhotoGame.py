@@ -383,24 +383,21 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
             if not self.edgeRight and newRight:
                 self.edgeRight = 1
                 self.__rightPressed()
-            else:
-                if self.edgeRight and not newRight:
-                    self.edgeRight = 0
-                    self.__rightReleased()
+            elif self.edgeRight and not newRight:
+                self.edgeRight = 0
+                self.__rightReleased()
             if not self.edgeLeft and newLeft:
                 self.edgeLeft = 1
                 self.__leftPressed()
-            else:
-                if self.edgeLeft and not newLeft:
-                    self.edgeLeft = 0
-                    self.__leftReleased()
+            elif self.edgeLeft and not newLeft:
+                self.edgeLeft = 0
+                self.__leftReleased()
             if not self.edgeUp and newUp:
                 self.edgeUp = 1
                 self.__upPressed()
-            else:
-                if self.edgeUp and not newUp:
-                    self.edgeUp = 0
-                    self.__upReleased()
+            elif self.edgeUp and not newUp:
+                self.edgeUp = 0
+                self.__upReleased()
             if not self.edgeDown and newDown:
                 self.edgeDown = 1
                 self.__downPressed()
@@ -415,154 +412,151 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         if self.filmCount <= 0:
             self.notify.debug('No Film')
             return
-        for rayEntry in self.rayArray:
-            posX = (self.viewfinderNode.getX() + RAYSPREADX * rayEntry[0]) / self.screenSizeX
-            posY = (self.viewfinderNode.getZ() + RAYSPREADY * rayEntry[1]) / self.screenSizeZ
-            rayEntry[4].setFromLens(self.lensNode, posX, posY)
+        else:
+            for rayEntry in self.rayArray:
+                posX = (self.viewfinderNode.getX() + RAYSPREADX * rayEntry[0]) / self.screenSizeX
+                posY = (self.viewfinderNode.getZ() + RAYSPREADY * rayEntry[1]) / self.screenSizeZ
+                rayEntry[4].setFromLens(self.lensNode, posX, posY)
 
-        self.traverser.traverse(self.subjectNode)
-        distDict = {}
-        hitDict = {}
-        centerDict = {}
-        for i in xrange(self.queue.getNumEntries()):
-            entry = self.queue.getEntry(i)
-            object = None
-            objectIndex = None
-            subjectIndexString = entry.getIntoNodePath().getNetTag('subjectIndex')
-            sceneryIndexString = entry.getIntoNodePath().getNetTag('sceneryIndex')
-            if subjectIndexString:
-                objectIndex = int(subjectIndexString)
-                object = self.subjects[objectIndex]
-            else:
-                if sceneryIndexString:
+            self.traverser.traverse(self.subjectNode)
+            distDict = {}
+            hitDict = {}
+            centerDict = {}
+            for i in xrange(self.queue.getNumEntries()):
+                entry = self.queue.getEntry(i)
+                object = None
+                objectIndex = None
+                subjectIndexString = entry.getIntoNodePath().getNetTag('subjectIndex')
+                sceneryIndexString = entry.getIntoNodePath().getNetTag('sceneryIndex')
+                if subjectIndexString:
+                    objectIndex = int(subjectIndexString)
+                    object = self.subjects[objectIndex]
+                elif sceneryIndexString:
                     objectIndex = int(sceneryIndexString)
                     object = self.scenery[objectIndex]
-            marker = 'g'
-            if 'b' in entry.getFromNodePath().getName():
-                marker = 'b'
-            if 't' in entry.getFromNodePath().getName():
-                marker = 't'
-            if 'r' in entry.getFromNodePath().getName():
-                marker = 'r'
-            if 'l' in entry.getFromNodePath().getName():
-                marker = 'l'
-            if object:
-                newEntry = (
-                 entry.getFromNode(), object)
-                distance = Vec3(entry.getSurfacePoint(self.tripod)).lengthSquared()
-                name = entry.getFromNode().getName()
-                if name not in distDict:
-                    distDict[name] = distance
-                    hitDict[name] = (entry.getFromNode(), object, marker)
-                elif distance < distDict[name]:
-                    distDict[name] = distance
-                    hitDict[name] = (entry.getFromNode(), object, marker)
-
-        for key in hitDict:
-            hit = hitDict[key]
-            superParent = hit[1]
-            marker = hit[2]
-            onCenter = 0
-            overB = 0
-            overT = 0
-            overR = 0
-            overL = 0
-            quality = -1
-            if marker == 'b':
-                overB = 1
-            else:
-                if marker == 't':
-                    overT = 1
-                else:
-                    if marker == 'r':
-                        overR = 1
-                    else:
-                        if marker == 'l':
-                            overL = 1
-                        else:
-                            quality = 1
-                            onCenter = 1
-            if superParent not in centerDict:
-                centerDict[superParent] = (
-                 onCenter,
-                 overB,
-                 overT,
-                 overR,
-                 overL)
-            else:
-                centerDict[superParent] = (
-                 onCenter + centerDict[superParent][0],
-                 overB + centerDict[superParent][1],
-                 overT + centerDict[superParent][2],
-                 overR + centerDict[superParent][3],
-                 overL + centerDict[superParent][4])
-
-        if WANTDOTS:
-            for key in self.markerDict:
-                node = self.markerDict[key]
-                node.setColorScale(Vec4(1, 1, 1, 1))
+                marker = 'g'
+                if 'b' in entry.getFromNodePath().getName():
+                    marker = 'b'
+                if 't' in entry.getFromNodePath().getName():
+                    marker = 't'
+                if 'r' in entry.getFromNodePath().getName():
+                    marker = 'r'
+                if 'l' in entry.getFromNodePath().getName():
+                    marker = 'l'
+                if object:
+                    newEntry = (
+                     entry.getFromNode(), object)
+                    distance = Vec3(entry.getSurfacePoint(self.tripod)).lengthSquared()
+                    name = entry.getFromNode().getName()
+                    if name not in distDict:
+                        distDict[name] = distance
+                        hitDict[name] = (entry.getFromNode(), object, marker)
+                    elif distance < distDict[name]:
+                        distDict[name] = distance
+                        hitDict[name] = (entry.getFromNode(), object, marker)
 
             for key in hitDict:
-                entry = hitDict[key]
-                name = entry[0].getName()
-                xS = int(name[0:2])
-                yS = int(name[3:5])
-                node = self.markerDict[(xS, yS)]
-                node.setColorScale(Vec4(1.0, 0.0, 0.0, 1.0))
-
-        centerDictKeys = []
-        for key in centerDict:
-            centerDictKeys.append(key)
-
-        for subject in centerDictKeys:
-            score = self.judgePhoto(subject, centerDict)
-            self.notify.debug('Photo is %s / 5 stars' % score)
-            self.notify.debug('assignment compare %s %s' % (self.determinePhotoContent(subject), self.assignments[self.currentAssignment]))
-            content = self.determinePhotoContent(subject)
-            if content:
-                photoAnalysisZero = (
-                 content[0], content[1])
-                if score and photoAnalysisZero in self.assignments:
-                    index = self.assignments.index(photoAnalysisZero)
-                    assignment = self.assignments[index]
-                    self.notify.debug('assignment complete')
-                    if score >= self.assignmentDataDict[assignment][0]:
-                        subjectIndex = self.subjects.index(subject)
-                        texturePanel = self.assignmentDataDict[assignment][5]
-                        texture = self.assignmentDataDict[assignment][6]
-                        buffer = self.assignmentDataDict[assignment][4]
-                        panelToon = self.assignmentDataDict[assignment][7]
-                        panelToon.hide()
-                        buffer.setActive(1)
-                        texturePanel.show()
-                        texturePanel.setColorScale(1, 1, 1, 1)
-                        taskMgr.doMethodLater(0.2, buffer.setActive, 'capture Image', [0])
-                        if score > self.assignmentDataDict[assignment][0]:
-                            self.assignmentDataDict[assignment][0] = score
-                            self.updateAssignmentPanels()
-                            self.sendUpdate('newClientPhotoScore', [subjectIndex, content[1], score])
+                hit = hitDict[key]
+                superParent = hit[1]
+                marker = hit[2]
+                onCenter = 0
+                overB = 0
+                overT = 0
+                overR = 0
+                overL = 0
+                quality = -1
+                if marker == 'b':
+                    overB = 1
+                elif marker == 't':
+                    overT = 1
+                elif marker == 'r':
+                    overR = 1
+                elif marker == 'l':
+                    overL = 1
                 else:
-                    self.notify.debug('assignment not complete')
+                    quality = 1
+                    onCenter = 1
+                if superParent not in centerDict:
+                    centerDict[superParent] = (
+                     onCenter,
+                     overB,
+                     overT,
+                     overR,
+                     overL)
+                else:
+                    centerDict[superParent] = (
+                     onCenter + centerDict[superParent][0],
+                     overB + centerDict[superParent][1],
+                     overT + centerDict[superParent][2],
+                     overR + centerDict[superParent][3],
+                     overL + centerDict[superParent][4])
 
-        horzAngle = self.viewfinderNode.getX() / self.screenSizeX * 0.5 * base.camLens.getFov()[0]
-        vertAngle = self.viewfinderNode.getZ() / self.screenSizeZ * 0.5 * base.camLens.getFov()[1]
-        horzPointFlat = self.viewfinderNode.getX() / self.screenSizeX
-        vertPointFlat = self.viewfinderNode.getZ() / self.screenSizeZ
-        horzLength = base.camLens.getFov()[0] * 0.5
-        vertLength = base.camLens.getFov()[1] * 0.5
-        horzRadianLength = toRadians(horzLength)
-        vertRadianLength = toRadians(vertLength)
-        hMRadian = math.atan(horzPointFlat * math.tan(horzRadianLength))
-        vMRadian = math.atan(vertPointFlat * math.tan(vertRadianLength))
-        hMDegree = toDegrees(hMRadian)
-        vMDegree = toDegrees(vMRadian)
-        self.__decreaseFilmCount()
-        if self.filmCount == 0:
-            self.sendUpdate('filmOut', [])
-        self.notify.debug('Screen angles H:%s V:%s' % (self.swivel.getH(), self.swivel.getP()))
-        self.notify.debug('Viewfinder to screen angles H:%s V:%s' % (horzAngle, vertAngle))
-        self.notify.debug('Viewfinder to screen angles with math H:%s V:%s' % (hMDegree, vMDegree))
-        return
+            if WANTDOTS:
+                for key in self.markerDict:
+                    node = self.markerDict[key]
+                    node.setColorScale(Vec4(1, 1, 1, 1))
+
+                for key in hitDict:
+                    entry = hitDict[key]
+                    name = entry[0].getName()
+                    xS = int(name[0:2])
+                    yS = int(name[3:5])
+                    node = self.markerDict[(xS, yS)]
+                    node.setColorScale(Vec4(1.0, 0.0, 0.0, 1.0))
+
+            centerDictKeys = []
+            for key in centerDict:
+                centerDictKeys.append(key)
+
+            for subject in centerDictKeys:
+                score = self.judgePhoto(subject, centerDict)
+                self.notify.debug('Photo is %s / 5 stars' % score)
+                self.notify.debug('assignment compare %s %s' % (self.determinePhotoContent(subject), self.assignments[self.currentAssignment]))
+                content = self.determinePhotoContent(subject)
+                if content:
+                    photoAnalysisZero = (
+                     content[0], content[1])
+                    if score and photoAnalysisZero in self.assignments:
+                        index = self.assignments.index(photoAnalysisZero)
+                        assignment = self.assignments[index]
+                        self.notify.debug('assignment complete')
+                        if score >= self.assignmentDataDict[assignment][0]:
+                            subjectIndex = self.subjects.index(subject)
+                            texturePanel = self.assignmentDataDict[assignment][5]
+                            texture = self.assignmentDataDict[assignment][6]
+                            buffer = self.assignmentDataDict[assignment][4]
+                            panelToon = self.assignmentDataDict[assignment][7]
+                            panelToon.hide()
+                            buffer.setActive(1)
+                            texturePanel.show()
+                            texturePanel.setColorScale(1, 1, 1, 1)
+                            taskMgr.doMethodLater(0.2, buffer.setActive, 'capture Image', [0])
+                            if score > self.assignmentDataDict[assignment][0]:
+                                self.assignmentDataDict[assignment][0] = score
+                                self.updateAssignmentPanels()
+                                self.sendUpdate('newClientPhotoScore', [subjectIndex, content[1], score])
+                    else:
+                        self.notify.debug('assignment not complete')
+
+            horzAngle = self.viewfinderNode.getX() / self.screenSizeX * 0.5 * base.camLens.getFov()[0]
+            vertAngle = self.viewfinderNode.getZ() / self.screenSizeZ * 0.5 * base.camLens.getFov()[1]
+            horzPointFlat = self.viewfinderNode.getX() / self.screenSizeX
+            vertPointFlat = self.viewfinderNode.getZ() / self.screenSizeZ
+            horzLength = base.camLens.getFov()[0] * 0.5
+            vertLength = base.camLens.getFov()[1] * 0.5
+            horzRadianLength = toRadians(horzLength)
+            vertRadianLength = toRadians(vertLength)
+            hMRadian = math.atan(horzPointFlat * math.tan(horzRadianLength))
+            vMRadian = math.atan(vertPointFlat * math.tan(vertRadianLength))
+            hMDegree = toDegrees(hMRadian)
+            vMDegree = toDegrees(vMRadian)
+            self.__decreaseFilmCount()
+            if self.filmCount == 0:
+                self.sendUpdate('filmOut', [])
+            self.notify.debug('Screen angles H:%s V:%s' % (self.swivel.getH(), self.swivel.getP()))
+            self.notify.debug('Viewfinder to screen angles H:%s V:%s' % (horzAngle, vertAngle))
+            self.notify.debug('Viewfinder to screen angles with math H:%s V:%s' % (hMDegree, vMDegree))
+            return
 
     def newAIPhotoScore(self, playerId, assignmentIndex, score):
         if len(self.assignments) > assignmentIndex:
@@ -576,8 +570,9 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
     def determinePhotoContent(self, subject):
         if self.getSubjectTrackState(subject):
             return [subject, self.getSubjectTrackState(subject)[2]]
-        return
-        return
+        else:
+            return
+            return
 
     def judgePhoto(self, subject, centerDict):
         self.notify.debug('judgePhoto')
@@ -607,9 +602,8 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
             else:
                 if angle >= 90:
                     score += 1
-                else:
-                    if angle <= 60:
-                        score -= 1
+                elif angle <= 60:
+                    score -= 1
                 score += interest
                 if quality >= 5 and (not tooClose or portrait):
                     score += 1
@@ -735,8 +729,9 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
                     timelineIndex += 1
 
             return timeline[timelineIndex]
-        return
-        return
+        else:
+            return
+            return
 
     def __setupSubjects(self):
         self.__setupCollisions()
@@ -880,10 +875,11 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
 
         if not found:
             return None
-        nextPointIndex = loop + 1
-        if nextPointIndex >= length:
-            nextPointIndex = 0
-        return pointList[nextPointIndex]
+        else:
+            nextPointIndex = loop + 1
+            if nextPointIndex >= length:
+                nextPointIndex = 0
+            return pointList[nextPointIndex]
 
     def __createTripod(self):
         tripod = self.tripodModel.copyTo(hidden)
@@ -904,30 +900,31 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
     def setGameStart(self, timestamp):
         if not self.hasLocalToon:
             return
-        self.notify.debug('setGameStart')
-        DistributedMinigame.setGameStart(self, timestamp)
-        self.__stopIntro()
-        self.__putCameraOnTripod()
-        if not base.config.GetBool('endless-cannon-game', 0):
-            self.timer.show()
-            self.timer.countdown(self.data['TIME'], self.__gameTimerExpired)
-        self.filmPanel.reparentTo(aspect2d)
-        self.scoreMult = MinigameGlobals.getScoreMult(self.cr.playGame.hood.id)
-        self.clockStopTime = None
-        self.gameFSM.request('aim')
-        self.__putCameraOnTripod()
-        self.currentAssignment = 0
-        assignmentTemplates = self.generateAssignmentTemplates(PhotoGameGlobals.ONSCREENASSIGNMENTS)
-        self.generateAssignments(assignmentTemplates)
-        self.generateAssignmentPanels()
-        self.scorePanel = self.makeScoreFrame()
-        self.scorePanel.reparentTo(aspect2d)
-        self.scorePanel.setPos(1.05, 0.0, -0.725)
-        self.updateAssignmentPanels()
-        for subject in self.subjects:
-            subject.useLOD(1000)
+        else:
+            self.notify.debug('setGameStart')
+            DistributedMinigame.setGameStart(self, timestamp)
+            self.__stopIntro()
+            self.__putCameraOnTripod()
+            if not base.config.GetBool('endless-cannon-game', 0):
+                self.timer.show()
+                self.timer.countdown(self.data['TIME'], self.__gameTimerExpired)
+            self.filmPanel.reparentTo(aspect2d)
+            self.scoreMult = MinigameGlobals.getScoreMult(self.cr.playGame.hood.id)
+            self.clockStopTime = None
+            self.gameFSM.request('aim')
+            self.__putCameraOnTripod()
+            self.currentAssignment = 0
+            assignmentTemplates = self.generateAssignmentTemplates(PhotoGameGlobals.ONSCREENASSIGNMENTS)
+            self.generateAssignments(assignmentTemplates)
+            self.generateAssignmentPanels()
+            self.scorePanel = self.makeScoreFrame()
+            self.scorePanel.reparentTo(aspect2d)
+            self.scorePanel.setPos(1.05, 0.0, -0.725)
+            self.updateAssignmentPanels()
+            for subject in self.subjects:
+                subject.useLOD(1000)
 
-        return
+            return
 
     def setGameExit(self):
         DistributedMinigame.setGameExit(self)
@@ -1034,14 +1031,14 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
                 else:
                     leaderName = leader.getName()
                     data[1]['text'] = TTLocalizer.PhotoGameScoreOther % leaderName
-            starList = self.starDict[data[1]]
-            starParent = self.starParentDict[data[1]]
-            score = int(data[2])
-            for index in xrange(NUMSTARS):
-                if index < score:
-                    starList[index].show()
-                else:
-                    starList[index].hide()
+                starList = self.starDict[data[1]]
+                starParent = self.starParentDict[data[1]]
+                score = int(data[2])
+                for index in xrange(NUMSTARS):
+                    if index < score:
+                        starList[index].show()
+                    else:
+                        starList[index].hide()
 
             starParent.setX(float(NUMSTARS - score) * STARSIZE * 0.5)
 
@@ -1340,19 +1337,17 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         pos[1] += angVel * globalClock.getDt()
         if pos[1] < PhotoGameGlobals.PHOTO_ANGLE_MIN:
             pos[1] = PhotoGameGlobals.PHOTO_ANGLE_MIN
-        else:
-            if pos[1] > PhotoGameGlobals.PHOTO_ANGLE_MAX:
-                pos[1] = PhotoGameGlobals.PHOTO_ANGLE_MAX
+        elif pos[1] > PhotoGameGlobals.PHOTO_ANGLE_MAX:
+            pos[1] = PhotoGameGlobals.PHOTO_ANGLE_MAX
         if oldRot != pos[0] or oldAng != pos[1]:
             if self.photoMoving == 0:
                 self.photoMoving = 1
                 base.playSfx(self.sndPhotoMove, looping=1)
             posVec = Vec3(pos[0], pos[1], pos[2])
             self.swivel.setHpr(posVec)
-        else:
-            if self.photoMoving:
-                self.photoMoving = 0
-                self.sndPhotoMove.stop()
+        elif self.photoMoving:
+            self.photoMoving = 0
+            self.sndPhotoMove.stop()
         return Task.cont
 
     def __putCameraOnTripod(self):
@@ -1408,41 +1403,31 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         zone = self.getSafezoneId()
         if zone == ToontownGlobals.ToontownCentral:
             self.constructTTC()
-        else:
-            if zone == ToontownGlobals.DonaldsDock:
-                self.constructDD()
-            else:
-                if zone == ToontownGlobals.DaisyGardens:
-                    self.constructDG()
-                else:
-                    if zone == ToontownGlobals.MinniesMelodyland:
-                        self.constructMM()
-                    else:
-                        if zone == ToontownGlobals.TheBrrrgh:
-                            self.constructBR()
-                        else:
-                            if zone == ToontownGlobals.DonaldsDreamland:
-                                self.constructDL()
+        elif zone == ToontownGlobals.DonaldsDock:
+            self.constructDD()
+        elif zone == ToontownGlobals.DaisyGardens:
+            self.constructDG()
+        elif zone == ToontownGlobals.MinniesMelodyland:
+            self.constructMM()
+        elif zone == ToontownGlobals.TheBrrrgh:
+            self.constructBR()
+        elif zone == ToontownGlobals.DonaldsDreamland:
+            self.constructDL()
 
     def destruct(self):
         zone = self.getSafezoneId()
         if zone == ToontownGlobals.ToontownCentral:
             self.destructTTC()
-        else:
-            if zone == ToontownGlobals.DonaldsDock:
-                self.destructDD()
-            else:
-                if zone == ToontownGlobals.DaisyGardens:
-                    self.destructDG()
-                else:
-                    if zone == ToontownGlobals.MinniesMelodyland:
-                        self.destructMM()
-                    else:
-                        if zone == ToontownGlobals.TheBrrrgh:
-                            self.destructBR()
-                        else:
-                            if zone == ToontownGlobals.DonaldsDreamland:
-                                self.destructDL()
+        elif zone == ToontownGlobals.DonaldsDock:
+            self.destructDD()
+        elif zone == ToontownGlobals.DaisyGardens:
+            self.destructDG()
+        elif zone == ToontownGlobals.MinniesMelodyland:
+            self.destructMM()
+        elif zone == ToontownGlobals.TheBrrrgh:
+            self.destructBR()
+        elif zone == ToontownGlobals.DonaldsDreamland:
+            self.destructDL()
 
     def constructTTC(self):
         self.photoRoot = self.scene.find('**/prop_gazebo*')

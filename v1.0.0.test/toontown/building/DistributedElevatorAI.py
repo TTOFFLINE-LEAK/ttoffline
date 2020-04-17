@@ -121,12 +121,13 @@ class DistributedElevatorAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debug('acceptBoarder')
         if self.findAvatar(avId) != None:
             return
-        self.seats[seatIndex] = avId
-        self.timeOfBoarding = globalClock.getRealTime()
-        if wantBoardingShow:
-            self.timeOfGroupBoarding = globalClock.getRealTime()
-        self.sendUpdate('fillSlot' + str(seatIndex), [avId, wantBoardingShow])
-        return
+        else:
+            self.seats[seatIndex] = avId
+            self.timeOfBoarding = globalClock.getRealTime()
+            if wantBoardingShow:
+                self.timeOfGroupBoarding = globalClock.getRealTime()
+            self.sendUpdate('fillSlot' + str(seatIndex), [avId, wantBoardingShow])
+            return
 
     def rejectingExitersHandler(self, avId):
         self.rejectExiter(avId)
@@ -171,25 +172,26 @@ class DistributedElevatorAI(DistributedObjectAI.DistributedObjectAI):
         if self.findAvatar(avId) != None:
             self.notify.warning('Ignoring multiple requests from %s to board.' % avId)
             return
-        av = self.air.doId2do.get(avId)
-        if av:
-            boardResponse = self.checkBoard(av)
-            newArgs = (avId,) + args + (boardResponse,)
-            if not ToontownAccessAI.canAccess(avId, self.zoneId, 'DistributedElevatorAI.requestBoard'):
-                self.notify.warning('Toon %s does not have access to the eleavtor.' % avId)
-                self.rejectingBoardersHandler(*newArgs)
-                return
-            if self.boardingParty and self.boardingParty.hasActiveGroup(avId) and self.boardingParty.getGroupLeader(avId) != avId:
-                self.notify.warning('Rejecting %s from boarding the elevator because he is already part of a Boarding Group.' % avId)
-                self.rejectingBoardersHandler(*newArgs)
-                return
-            if boardResponse == 0:
-                self.acceptingBoardersHandler(*newArgs)
-            else:
-                self.rejectingBoardersHandler(*newArgs)
         else:
-            self.notify.warning('avid: %s does not exist, but tried to board an elevator' % avId)
-        return
+            av = self.air.doId2do.get(avId)
+            if av:
+                boardResponse = self.checkBoard(av)
+                newArgs = (avId,) + args + (boardResponse,)
+                if not ToontownAccessAI.canAccess(avId, self.zoneId, 'DistributedElevatorAI.requestBoard'):
+                    self.notify.warning('Toon %s does not have access to the eleavtor.' % avId)
+                    self.rejectingBoardersHandler(*newArgs)
+                    return
+                if self.boardingParty and self.boardingParty.hasActiveGroup(avId) and self.boardingParty.getGroupLeader(avId) != avId:
+                    self.notify.warning('Rejecting %s from boarding the elevator because he is already part of a Boarding Group.' % avId)
+                    self.rejectingBoardersHandler(*newArgs)
+                    return
+                if boardResponse == 0:
+                    self.acceptingBoardersHandler(*newArgs)
+                else:
+                    self.rejectingBoardersHandler(*newArgs)
+            else:
+                self.notify.warning('avid: %s does not exist, but tried to board an elevator' % avId)
+            return
 
     def partyAvatarBoard(self, avatar, wantBoardingShow=0):
         av = avatar
@@ -197,16 +199,17 @@ class DistributedElevatorAI(DistributedObjectAI.DistributedObjectAI):
         if self.findAvatar(avId) != None:
             self.notify.warning('Ignoring multiple requests from %s to board.' % avId)
             return
-        if av:
-            boardResponse = self.checkBoard(av)
-            newArgs = (avId,) + (boardResponse,) + (wantBoardingShow,)
-            if boardResponse == 0:
-                self.acceptingBoardersHandler(*newArgs)
-            else:
-                self.rejectingBoardersHandler(*newArgs)
         else:
-            self.notify.warning('avid: %s does not exist, but tried to board an elevator' % avId)
-        return
+            if av:
+                boardResponse = self.checkBoard(av)
+                newArgs = (avId,) + (boardResponse,) + (wantBoardingShow,)
+                if boardResponse == 0:
+                    self.acceptingBoardersHandler(*newArgs)
+                else:
+                    self.rejectingBoardersHandler(*newArgs)
+            else:
+                self.notify.warning('avid: %s does not exist, but tried to board an elevator' % avId)
+            return
 
     def requestExit(self, *args):
         self.notify.debug('requestExit')

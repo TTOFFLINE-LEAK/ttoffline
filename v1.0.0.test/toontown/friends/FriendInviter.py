@@ -205,22 +205,19 @@ class FriendInviter(DirectFrame):
         self.accept(self.avDisableName, self.__handleDisableAvatar)
         if self.avId == myId:
             self.fsm.request('self')
+        elif not self.playerFriend and base.cr.isFriend(self.avId):
+            self.fsm.request('already')
+        elif self.playerFriend and base.cr.playerFriendsManager.isPlayerFriend(self.avId):
+            self.fsm.request('already')
         else:
-            if not self.playerFriend and base.cr.isFriend(self.avId):
-                self.fsm.request('already')
+            if not self.playerFriend:
+                tooMany = len(base.localAvatar.friendsList) >= MaxFriends
+            elif self.playerFriend:
+                tooMany = base.cr.playerFriendsManager.friendsListFull()
+            if tooMany:
+                self.fsm.request('tooMany')
             else:
-                if self.playerFriend and base.cr.playerFriendsManager.isPlayerFriend(self.avId):
-                    self.fsm.request('already')
-                else:
-                    if not self.playerFriend:
-                        tooMany = len(base.localAvatar.friendsList) >= MaxFriends
-                    else:
-                        if self.playerFriend:
-                            tooMany = base.cr.playerFriendsManager.friendsListFull()
-                    if tooMany:
-                        self.fsm.request('tooMany')
-                    else:
-                        self.fsm.request('checkAvailability')
+                self.fsm.request('checkAvailability')
 
     def exitCheck(self):
         self.ignore(self.avDisableName)
@@ -518,30 +515,23 @@ class FriendInviter(DirectFrame):
         if yesNoAlready == 1:
             self.context = context
             self.fsm.request('asking')
+        elif yesNoAlready == 0:
+            self.fsm.request('notAvailable')
+        elif yesNoAlready == 2:
+            self.fsm.request('already')
+        elif yesNoAlready == 3:
+            self.fsm.request('self')
+        elif yesNoAlready == 4:
+            self.fsm.request('ignored')
+        elif yesNoAlready == 6:
+            self.fsm.request('notAcceptingFriends')
+        elif yesNoAlready == 10:
+            self.fsm.request('no')
+        elif yesNoAlready == 13:
+            self.fsm.request('otherTooMany')
         else:
-            if yesNoAlready == 0:
-                self.fsm.request('notAvailable')
-            else:
-                if yesNoAlready == 2:
-                    self.fsm.request('already')
-                else:
-                    if yesNoAlready == 3:
-                        self.fsm.request('self')
-                    else:
-                        if yesNoAlready == 4:
-                            self.fsm.request('ignored')
-                        else:
-                            if yesNoAlready == 6:
-                                self.fsm.request('notAcceptingFriends')
-                            else:
-                                if yesNoAlready == 10:
-                                    self.fsm.request('no')
-                                else:
-                                    if yesNoAlready == 13:
-                                        self.fsm.request('otherTooMany')
-                                    else:
-                                        self.notify.warning('Got unexpected response to friendConsidering: %s' % yesNoAlready)
-                                        self.fsm.request('maybe')
+            self.notify.warning('Got unexpected response to friendConsidering: %s' % yesNoAlready)
+            self.fsm.request('maybe')
 
     def __friendResponse(self, yesNoMaybe, context):
         if self.context != context:
@@ -549,26 +539,23 @@ class FriendInviter(DirectFrame):
             self.context = context
         if yesNoMaybe == 1:
             self.fsm.request('yes')
+        elif yesNoMaybe == 0:
+            self.fsm.request('no')
+        elif yesNoMaybe == 3:
+            self.fsm.request('otherTooMany')
         else:
-            if yesNoMaybe == 0:
-                self.fsm.request('no')
-            else:
-                if yesNoMaybe == 3:
-                    self.fsm.request('otherTooMany')
-                else:
-                    self.notify.warning('Got unexpected response to friendResponse: %s' % yesNoMaybe)
-                    self.fsm.request('maybe')
+            self.notify.warning('Got unexpected response to friendResponse: %s' % yesNoMaybe)
+            self.fsm.request('maybe')
 
     def __playerFriendRejectResponse(self, avId, reason):
         self.notify.debug('Got reject response to friendResponse: %s' % reason)
         if reason == RejectCode.RejectCode.INVITATION_DECLINED:
             self.fsm.request('no')
+        elif reason == RejectCode.RejectCode.FRIENDS_LIST_FULL:
+            self.fsm.request('otherTooMany')
         else:
-            if reason == RejectCode.RejectCode.FRIENDS_LIST_FULL:
-                self.fsm.request('otherTooMany')
-            else:
-                self.notify.warning('Got unexpected response to friendResponse: %s' % reason)
-                self.fsm.request('maybe')
+            self.notify.warning('Got unexpected response to friendResponse: %s' % reason)
+            self.fsm.request('maybe')
 
     def __playerFriendAcceptResponse(self):
         self.fsm.request('yes')

@@ -51,7 +51,8 @@ class BoardingGroupShow:
             if task.callback:
                 task.callback()
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def __boardingElevatorTimerExpired(self):
         self.notify.debug('__boardingElevatorTimerExpired')
@@ -162,7 +163,8 @@ class BoardingGroupShow:
         diff = Point3(offset) - self.toon.getPos()
         if diff.length() > thresholdDist:
             return False
-        return True
+        else:
+            return True
 
     def __isRunPathClear(self, elevatorModel, offsetWrtRender):
         pathClear = True

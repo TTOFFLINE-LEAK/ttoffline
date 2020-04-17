@@ -21,13 +21,15 @@ class Settings:
         value = self.getOption(category, attribute, default)
         if isinstance(value, bool):
             return value
-        return default
+        else:
+            return default
 
     def getFloat(self, category, attribute, default=1.0):
         value = self.getOption(category, attribute, default)
         if isinstance(value, float):
             return value
-        return default
+        else:
+            return default
 
     def getList(self, category, attribute, default=[], expectedLength=2):
         value = self.getOption(category, attribute, default)
@@ -42,13 +44,15 @@ class Settings:
         value = self.getOption(category, attribute, default)
         if isinstance(value, (int, long)):
             return int(value)
-        return default
+        else:
+            return default
 
     def getString(self, category, attribute, default=''):
         value = self.getOption(category, attribute, default)
         if isinstance(value, basestring):
             return str(value)
-        return default
+        else:
+            return default
 
     def doSavedSettingsExist(self):
         return os.path.exists(self.fileName)

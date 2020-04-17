@@ -54,11 +54,10 @@ class GSHoodDataAI(HoodDataAI.HoodDataAI):
                 else:
                     if distObj.getName().count('stadium'):
                         type = 'stadium'
-                    else:
-                        if distObj.getName().count('country'):
-                            type = 'country'
-                for subscription in LBSubscription[type]:
-                    distObj.subscribeTo(subscription)
+                    elif distObj.getName().count('country'):
+                        type = 'country'
+                    for subscription in LBSubscription[type]:
+                        distObj.subscribeTo(subscription)
 
                 self.addDistObj(distObj)
 

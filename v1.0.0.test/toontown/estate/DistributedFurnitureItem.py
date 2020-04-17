@@ -108,15 +108,13 @@ class DistributedFurnitureItem(DistributedHouseItem.DistributedHouseItem, Distri
         if mode == HouseGlobals.FURNITURE_MODE_START:
             if avId != base.localAvatar.getDoId():
                 self.startSmooth()
+        elif mode == HouseGlobals.FURNITURE_MODE_STOP:
+            if avId != base.localAvatar.getDoId():
+                self.stopSmooth()
+        elif mode == HouseGlobals.FURNITURE_MODE_OFF:
+            pass
         else:
-            if mode == HouseGlobals.FURNITURE_MODE_STOP:
-                if avId != base.localAvatar.getDoId():
-                    self.stopSmooth()
-            else:
-                if mode == HouseGlobals.FURNITURE_MODE_OFF:
-                    pass
-                else:
-                    self.notify.warning('setMode: unknown mode: %s avId: %s' % (mode, avId))
+            self.notify.warning('setMode: unknown mode: %s avId: %s' % (mode, avId))
 
     def __getPosHpr(self):
         if self.transmitRelativeTo == None:

@@ -63,47 +63,48 @@ class DistributedLift(BasicEntities.DistributedNodePathEntity):
         model = loader.loadModel(self.modelPath)
         if model is None:
             return
-        model.setScale(self.modelScale)
-        if self.floorName is None:
+        else:
+            model.setScale(self.modelScale)
+            if self.floorName is None:
+                return
+            self.platformModel = MovingPlatform.MovingPlatform()
+            self.platformModel.setupCopyModel(self.getParentToken(), model, self.floorName)
+            self.accept(self.platformModel.getEnterEvent(), self.localToonEntered)
+            self.accept(self.platformModel.getExitEvent(), self.localToonLeft)
+            self.startGuard = None
+            self.endGuard = None
+            zoneNp = self.getZoneNode()
+            if len(self.startGuardName):
+                self.startGuard = zoneNp.find('**/%s' % self.startGuardName)
+            if len(self.endGuardName):
+                self.endGuard = zoneNp.find('**/%s' % self.endGuardName)
+            side2srch = {'front': '**/wall_front', 'back': '**/wall_back', 'left': '**/wall_left', 
+               'right': '**/wall_right'}
+            for side in side2srch.values():
+                np = self.platformModel.find(side)
+                if not np.isEmpty():
+                    np.setScale(1.0, 1.0, 2.0)
+                    np.setZ(-10)
+                    np.flattenLight()
+
+            self.startBoardColl = NodePathCollection()
+            self.endBoardColl = NodePathCollection()
+            for side in self.startBoardSides:
+                np = self.platformModel.find(side2srch[side])
+                if np.isEmpty():
+                    DistributedLift.warning("couldn't find %s board collision" % side)
+                else:
+                    self.startBoardColl.addPath(np)
+
+            for side in self.endBoardSides:
+                np = self.platformModel.find(side2srch[side])
+                if np.isEmpty():
+                    DistributedLift.warning("couldn't find %s board collision" % side)
+                else:
+                    self.endBoardColl.addPath(np)
+
+            self.platformModel.reparentTo(self.platform)
             return
-        self.platformModel = MovingPlatform.MovingPlatform()
-        self.platformModel.setupCopyModel(self.getParentToken(), model, self.floorName)
-        self.accept(self.platformModel.getEnterEvent(), self.localToonEntered)
-        self.accept(self.platformModel.getExitEvent(), self.localToonLeft)
-        self.startGuard = None
-        self.endGuard = None
-        zoneNp = self.getZoneNode()
-        if len(self.startGuardName):
-            self.startGuard = zoneNp.find('**/%s' % self.startGuardName)
-        if len(self.endGuardName):
-            self.endGuard = zoneNp.find('**/%s' % self.endGuardName)
-        side2srch = {'front': '**/wall_front', 'back': '**/wall_back', 'left': '**/wall_left', 
-           'right': '**/wall_right'}
-        for side in side2srch.values():
-            np = self.platformModel.find(side)
-            if not np.isEmpty():
-                np.setScale(1.0, 1.0, 2.0)
-                np.setZ(-10)
-                np.flattenLight()
-
-        self.startBoardColl = NodePathCollection()
-        self.endBoardColl = NodePathCollection()
-        for side in self.startBoardSides:
-            np = self.platformModel.find(side2srch[side])
-            if np.isEmpty():
-                DistributedLift.warning("couldn't find %s board collision" % side)
-            else:
-                self.startBoardColl.addPath(np)
-
-        for side in self.endBoardSides:
-            np = self.platformModel.find(side2srch[side])
-            if np.isEmpty():
-                DistributedLift.warning("couldn't find %s board collision" % side)
-            else:
-                self.endBoardColl.addPath(np)
-
-        self.platformModel.reparentTo(self.platform)
-        return
 
     def destroyPlatform(self):
         if hasattr(self, 'platformModel'):
@@ -136,17 +137,20 @@ class DistributedLift(BasicEntities.DistributedNodePathEntity):
     def getPosition(self, state):
         if state is LiftConstants.Down:
             return self.startPos
-        return self.endPos
+        else:
+            return self.endPos
 
     def getGuard(self, state):
         if state is LiftConstants.Down:
             return self.startGuard
-        return self.endGuard
+        else:
+            return self.endGuard
 
     def getBoardColl(self, state):
         if state is LiftConstants.Down:
             return self.startBoardColl
-        return self.endBoardColl
+        else:
+            return self.endBoardColl
 
     def enterMoving(self, toState, fromState, arrivalTimestamp):
         self.notify.debug('enterMoving, %s->%s' % (fromState, toState))

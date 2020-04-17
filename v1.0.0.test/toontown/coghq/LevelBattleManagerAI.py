@@ -35,13 +35,14 @@ class LevelBattleManagerAI(BattleManagerAI.BattleManagerAI):
             self.notify.debug('battle already created by battle blocker, add toon %d' % toonId)
             battle.signupToon(toonId, pos[0], pos[1], pos[2])
             return battle
-        battle = self.battleCtor(self.air, self, pos, suit, toonId, zoneId, self.level, cellId, roundCallback, finishCallback, maxSuits)
-        self.battleExpAggreg.attachToBattle(battle)
-        battle.battleCalc.setSkillCreditMultiplier(self.level.getBattleCreditMultiplier())
-        battle.addToon(toonId)
-        battle.generateWithRequired(zoneId)
-        self.cellId2battle[cellId] = battle
-        return battle
+        else:
+            battle = self.battleCtor(self.air, self, pos, suit, toonId, zoneId, self.level, cellId, roundCallback, finishCallback, maxSuits)
+            self.battleExpAggreg.attachToBattle(battle)
+            battle.battleCalc.setSkillCreditMultiplier(self.level.getBattleCreditMultiplier())
+            battle.addToon(toonId)
+            battle.generateWithRequired(zoneId)
+            self.cellId2battle[cellId] = battle
+            return battle
 
     def addBattleBlocker(self, blocker, cellId):
         self.battleBlockers[cellId] = blocker

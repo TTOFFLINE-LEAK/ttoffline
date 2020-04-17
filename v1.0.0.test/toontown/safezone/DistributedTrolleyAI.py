@@ -78,12 +78,13 @@ class DistributedTrolleyAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debug('acceptBoarder')
         if self.findAvatar(avId) != None:
             return
-        self.seats[seatIndex] = avId
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
-        self.timeOfBoarding = globalClock.getRealTime()
-        self.sendUpdate('fillSlot' + str(seatIndex), [avId])
-        self.waitCountdown()
-        return
+        else:
+            self.seats[seatIndex] = avId
+            self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
+            self.timeOfBoarding = globalClock.getRealTime()
+            self.sendUpdate('fillSlot' + str(seatIndex), [avId])
+            self.waitCountdown()
+            return
 
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('Avatar: ' + str(avId) + ' has exited unexpectedly')
@@ -143,17 +144,18 @@ class DistributedTrolleyAI(DistributedObjectAI.DistributedObjectAI):
         if self.findAvatar(avId) != None:
             self.notify.warning('Ignoring multiple requests from %s to board.' % avId)
             return
-        av = self.air.doId2do.get(avId)
-        if av:
-            newArgs = (
-             avId,) + args
-            if av.hp > 0 and self.accepting:
-                self.acceptingBoardersHandler(*newArgs)
-            else:
-                self.rejectingBoardersHandler(*newArgs)
         else:
-            self.notify.warning('avid: %s does not exist, but tried to board a trolley' % avId)
-        return
+            av = self.air.doId2do.get(avId)
+            if av:
+                newArgs = (
+                 avId,) + args
+                if av.hp > 0 and self.accepting:
+                    self.acceptingBoardersHandler(*newArgs)
+                else:
+                    self.rejectingBoardersHandler(*newArgs)
+            else:
+                self.notify.warning('avid: %s does not exist, but tried to board a trolley' % avId)
+            return
 
     def requestExit(self, *args):
         self.notify.debug('requestExit')

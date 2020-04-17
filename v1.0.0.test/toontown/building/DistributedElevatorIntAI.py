@@ -43,11 +43,10 @@ class DistributedElevatorIntAI(DistributedElevatorAI.DistributedElevatorAI):
         avIdCount = self.avIds.count(avId)
         if avIdCount == 1:
             self.avIds.remove(avId)
+        elif avIdCount == 0:
+            self.notify.warning("Strange... %d exited unexpectedly, but I don't have them on my list." % avId)
         else:
-            if avIdCount == 0:
-                self.notify.warning("Strange... %d exited unexpectedly, but I don't have them on my list." % avId)
-            else:
-                self.notify.error('This list is screwed up! %s' % self.avIds)
+            self.notify.error('This list is screwed up! %s' % self.avIds)
         if seatIndex == None:
             self.notify.debug('%d is not boarded, but exited' % avId)
         else:

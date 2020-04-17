@@ -88,21 +88,19 @@ class DistributedCogdoBarrel(DistributedObject.DistributedObject):
                 self.model.unstash()
                 self.model.setTexture(self.availableTex, 100)
             self.accept(self.uniqueName('enterbarrelSphere'), self.handleEnterSphere)
+        elif self.state == CogdoBarrelRoomConsts.StateUsed:
+            if self.model:
+                self.model.unstash()
+                self.model.setTexture(self.usedTex, 100)
+            self.ignore(self.uniqueName('enterbarrelSphere'))
+        elif self.state == CogdoBarrelRoomConsts.StateHidden or self.state == CogdoBarrelRoomConsts.StateCrushed:
+            if self.model:
+                self.model.stash()
+            self.ignore(self.uniqueName('enterbarrelSphere'))
         else:
-            if self.state == CogdoBarrelRoomConsts.StateUsed:
-                if self.model:
-                    self.model.unstash()
-                    self.model.setTexture(self.usedTex, 100)
-                self.ignore(self.uniqueName('enterbarrelSphere'))
-            else:
-                if self.state == CogdoBarrelRoomConsts.StateHidden or self.state == CogdoBarrelRoomConsts.StateCrushed:
-                    if self.model:
-                        self.model.stash()
-                    self.ignore(self.uniqueName('enterbarrelSphere'))
-                else:
-                    if self.model:
-                        self.model.stash()
-                    self.ignore(self.uniqueName('enterbarrelSphere'))
+            if self.model:
+                self.model.stash()
+            self.ignore(self.uniqueName('enterbarrelSphere'))
 
     def handleEnterSphere(self, collEntry=None):
         base.playSfx(self.bumpSound, volume=0.35, node=self.model, listener=camera)

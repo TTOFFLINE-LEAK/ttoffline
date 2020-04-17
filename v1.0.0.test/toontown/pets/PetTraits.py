@@ -66,15 +66,15 @@ class TraitDistribution:
         gMin, gMax = self.getGlobalMinMax()
         if traitValue < gMin:
             gMin = traitValue
-        else:
-            if traitValue > gMax:
-                gMax = traitValue
+        elif traitValue > gMax:
+            gMax = traitValue
         return (traitValue - gMin) / (gMax - gMin)
 
     def getPercentile(self, traitValue):
         if self.TraitType is TraitDistribution.TraitTypes.INCREASING:
             return self._getTraitPercent(traitValue)
-        return 1.0 - self._getTraitPercent(traitValue)
+        else:
+            return 1.0 - self._getTraitPercent(traitValue)
 
     def getQuality(self, traitValue):
         TraitQuality = TraitDistribution.TraitQuality
@@ -83,23 +83,26 @@ class TraitDistribution:
         if self.TraitType is TraitDistribution.TraitTypes.INCREASING:
             if percent <= TraitCutoffs[TraitQuality.VERY_BAD]:
                 return TraitQuality.VERY_BAD
-            if percent <= TraitCutoffs[TraitQuality.BAD]:
-                return TraitQuality.BAD
-            if percent >= TraitCutoffs[TraitQuality.VERY_GOOD]:
-                return TraitQuality.VERY_GOOD
-            if percent >= TraitCutoffs[TraitQuality.GOOD]:
-                return TraitQuality.GOOD
-            return TraitQuality.AVERAGE
+            else:
+                if percent <= TraitCutoffs[TraitQuality.BAD]:
+                    return TraitQuality.BAD
+                if percent >= TraitCutoffs[TraitQuality.VERY_GOOD]:
+                    return TraitQuality.VERY_GOOD
+                if percent >= TraitCutoffs[TraitQuality.GOOD]:
+                    return TraitQuality.GOOD
+                return TraitQuality.AVERAGE
+
         else:
             if percent <= TraitCutoffs[TraitQuality.VERY_GOOD]:
                 return TraitQuality.VERY_GOOD
-            if percent <= TraitCutoffs[TraitQuality.GOOD]:
-                return TraitQuality.GOOD
-            if percent >= TraitCutoffs[TraitQuality.VERY_BAD]:
-                return TraitQuality.VERY_BAD
-            if percent >= TraitCutoffs[TraitQuality.BAD]:
-                return TraitQuality.BAD
-            return TraitQuality.AVERAGE
+            else:
+                if percent <= TraitCutoffs[TraitQuality.GOOD]:
+                    return TraitQuality.GOOD
+                if percent >= TraitCutoffs[TraitQuality.VERY_BAD]:
+                    return TraitQuality.VERY_BAD
+                if percent >= TraitCutoffs[TraitQuality.BAD]:
+                    return TraitQuality.BAD
+                return TraitQuality.AVERAGE
 
     def getExtremeness(self, traitValue):
         percent = self._getTraitPercent(traitValue)

@@ -88,19 +88,17 @@ class DistributedPartyFireworksActivity(DistributedPartyActivity, FireworkShowMi
         hostPulledLever = DistributedPartyActivity._leverPulled(self, collEntry)
         if self.activityFSM.getCurrentOrNextState() == 'Active':
             self.showMessage(TTLocalizer.PartyFireworksAlreadyActive)
-        else:
-            if self.activityFSM.getCurrentOrNextState() == 'Disabled':
-                self.showMessage(TTLocalizer.PartyFireworksAlreadyDone)
+        elif self.activityFSM.getCurrentOrNextState() == 'Disabled':
+            self.showMessage(TTLocalizer.PartyFireworksAlreadyDone)
+        elif self.activityFSM.getCurrentOrNextState() == 'Idle':
+            if hostPulledLever:
+                base.cr.playGame.getPlace().fsm.request('activity')
+                self.toonPullingLeverInterval = self.getToonPullingLeverInterval(base.localAvatar)
+                self.toonPullingLeverInterval.append(Func(self.d_toonJoinRequest))
+                self.toonPullingLeverInterval.append(Func(base.cr.playGame.getPlace().fsm.request, 'walk'))
+                self.toonPullingLeverInterval.start()
             else:
-                if self.activityFSM.getCurrentOrNextState() == 'Idle':
-                    if hostPulledLever:
-                        base.cr.playGame.getPlace().fsm.request('activity')
-                        self.toonPullingLeverInterval = self.getToonPullingLeverInterval(base.localAvatar)
-                        self.toonPullingLeverInterval.append(Func(self.d_toonJoinRequest))
-                        self.toonPullingLeverInterval.append(Func(base.cr.playGame.getPlace().fsm.request, 'walk'))
-                        self.toonPullingLeverInterval.start()
-                    else:
-                        self.showMessage(TTLocalizer.PartyOnlyHostLeverPull)
+                self.showMessage(TTLocalizer.PartyOnlyHostLeverPull)
 
     def setState(self, newState, timestamp):
         DistributedPartyFireworksActivity.notify.debug('setState( newState=%s, ... )' % newState)

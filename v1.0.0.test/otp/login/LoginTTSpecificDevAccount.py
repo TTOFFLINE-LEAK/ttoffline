@@ -36,17 +36,14 @@ class LoginTTSpecificDevAccount(LoginTTAccount.LoginTTAccount):
         access = base.config.GetString('force-paid-status', '')
         if access == '':
             access = 'FULL'
+        elif access == 'paid':
+            access = 'FULL'
+        elif access == 'unpaid':
+            access = 'VELVET_ROPE'
+        elif access == 'VELVET':
+            access = 'VELVET_ROPE'
         else:
-            if access == 'paid':
-                access = 'FULL'
-            else:
-                if access == 'unpaid':
-                    access = 'VELVET_ROPE'
-                else:
-                    if access == 'VELVET':
-                        access = 'VELVET_ROPE'
-                    else:
-                        self.notify.error("don't know what to do with force-paid-status %s" % access)
+            self.notify.error("don't know what to do with force-paid-status %s" % access)
         tokenString += 'TOONTOWN_ACCESS=%s&' % access
         tokenString += 'TOONTOWN_GAME_KEY=%s&' % self.loginName
         wlChatEnabled = 'YES'

@@ -93,17 +93,15 @@ class TwoDStomper(DirectObject):
                 self.head.setFluidZ(0 + self.headEndZ)
                 if self.stomperState != STUCK_DOWN:
                     self.stomperState = STUCK_DOWN
-            else:
-                if t < turnaround:
-                    self.head.setFluidZ((t - stickTime) * -self.range / (turnaround - stickTime) + self.headEndZ)
-                    if self.stomperState != GOING_UP:
-                        self.stomperState = GOING_UP
-                else:
-                    if t > turnaround:
-                        self.head.setFluidZ(-self.range + (t - turnaround) * self.range / (1 - turnaround) + self.headEndZ)
-                        if self.stomperState != GOING_DOWN:
-                            self.stomperState = GOING_DOWN
-                            self.checkSquashedToon()
+            elif t < turnaround:
+                self.head.setFluidZ((t - stickTime) * -self.range / (turnaround - stickTime) + self.headEndZ)
+                if self.stomperState != GOING_UP:
+                    self.stomperState = GOING_UP
+            elif t > turnaround:
+                self.head.setFluidZ(-self.range + (t - turnaround) * self.range / (1 - turnaround) + self.headEndZ)
+                if self.stomperState != GOING_DOWN:
+                    self.stomperState = GOING_DOWN
+                    self.checkSquashedToon()
 
         motionIval = Sequence(LerpFunctionInterval(motionFunc, duration=self.period))
         return motionIval

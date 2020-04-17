@@ -64,7 +64,8 @@ class MazeBase:
             EPSILON = 0.01
             if newTile > curTile:
                 return (newTile - centerTile) * self.cellWidth - EPSILON - WALL_OFFSET
-            return (curTile - centerTile) * self.cellWidth + WALL_OFFSET
+            else:
+                return (curTile - centerTile) * self.cellWidth + WALL_OFFSET
 
         offsetX = offset[0]
         offsetY = offset[1]

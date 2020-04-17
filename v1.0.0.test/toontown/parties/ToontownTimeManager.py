@@ -21,8 +21,9 @@ class ToontownTimeZone(tzinfo):
         ending = self.forwardToSunday(self.dstEnd.replace(year=dt.year))
         if beginning <= dt.replace(tzinfo=None) < ending:
             return timedelta(hours=1)
-        return timedelta(0)
-        return
+        else:
+            return timedelta(0)
+            return
 
     def utcoffset(self, dt):
         offset = timedelta(hours=self.offset)
@@ -33,7 +34,8 @@ class ToontownTimeZone(tzinfo):
         standardName, dstName = self.names
         if self.dst(dt):
             return dstName
-        return standardName
+        else:
+            return standardName
 
 
 class UTC(tzinfo):

@@ -78,10 +78,11 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         qzsd = self._getQZState()
         if qzsd:
             return qzsd.addLeftQuietZoneCallback(callback, priority)
-        token = self._leftQuietZoneLocalCallbacks.add(callback, priority=priority)
-        if not self._leftQuietZoneSubframeCall:
-            self._leftQuietZoneSubframeCall = SubframeCall(self._doLeftQuietZoneCallbacks, taskMgr.getCurrentTask().getPriority() - 1)
-        return token
+        else:
+            token = self._leftQuietZoneLocalCallbacks.add(callback, priority=priority)
+            if not self._leftQuietZoneSubframeCall:
+                self._leftQuietZoneSubframeCall = SubframeCall(self._doLeftQuietZoneCallbacks, taskMgr.getCurrentTask().getPriority() - 1)
+            return token
 
     def removeLeftQuietZoneCallback(self, token):
         if token is not None:
@@ -102,10 +103,11 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         qzsd = self._getQZState()
         if qzsd:
             return qzsd.addSetZoneCompleteCallback(callback, priority)
-        token = self._setZoneCompleteLocalCallbacks.add(callback, priority=priority)
-        if not self._setZoneCompleteSubframeCall:
-            self._setZoneCompleteSubframeCall = SubframeCall(self._doSetZoneCompleteLocalCallbacks, taskMgr.getCurrentTask().getPriority() - 1)
-        return token
+        else:
+            token = self._setZoneCompleteLocalCallbacks.add(callback, priority=priority)
+            if not self._setZoneCompleteSubframeCall:
+                self._setZoneCompleteSubframeCall = SubframeCall(self._doSetZoneCompleteLocalCallbacks, taskMgr.getCurrentTask().getPriority() - 1)
+            return token
 
     def removeSetZoneCompleteCallback(self, token):
         if token is not None:
@@ -246,16 +248,14 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         if mode == 'StickerBook':
             self.last = self.fsm.getCurrentState().getName()
             self.fsm.request('stickerBook')
+        elif mode == 'Options':
+            self.last = self.fsm.getCurrentState().getName()
+            self.fsm.request('stickerBook', [base.localAvatar.optionsPage])
+        elif mode == 'Sit':
+            self.last = self.fsm.getCurrentState().getName()
+            self.fsm.request('sit')
         else:
-            if mode == 'Options':
-                self.last = self.fsm.getCurrentState().getName()
-                self.fsm.request('stickerBook', [base.localAvatar.optionsPage])
-            else:
-                if mode == 'Sit':
-                    self.last = self.fsm.getCurrentState().getName()
-                    self.fsm.request('sit')
-                else:
-                    Place.notify.error('Invalid mode: %s' % mode)
+            Place.notify.error('Invalid mode: %s' % mode)
 
     def enterSit(self):
         self.enterFLM()
@@ -360,40 +360,37 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         bookStatus = base.localAvatar.book.getDoneStatus()
         if bookStatus['mode'] == 'close':
             base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.handleBookClose)
-        else:
-            if bookStatus['mode'] == 'teleport':
-                zoneId = bookStatus['hood']
-                base.localAvatar.collisionsOff()
-                base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.handleBookCloseTeleport, extraArgs=[zoneId, zoneId])
-            else:
-                if bookStatus['mode'] == 'exit':
-                    self.exitTo = bookStatus.get('exitTo')
-                    base.localAvatar.collisionsOff()
-                    base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.__handleBookCloseExit)
-                else:
-                    if bookStatus['mode'] == 'gohome':
-                        zoneId = bookStatus['hood']
-                        base.localAvatar.collisionsOff()
-                        base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.goHomeNow, extraArgs=[zoneId])
-                    else:
-                        if bookStatus['mode'] == 'startparty':
-                            firstStart = bookStatus['firstStart']
-                            hostId = bookStatus['hostId']
-                            base.localAvatar.collisionsOff()
-                            base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.startPartyNow, extraArgs=[firstStart, hostId])
+        elif bookStatus['mode'] == 'teleport':
+            zoneId = bookStatus['hood']
+            base.localAvatar.collisionsOff()
+            base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.handleBookCloseTeleport, extraArgs=[zoneId, zoneId])
+        elif bookStatus['mode'] == 'exit':
+            self.exitTo = bookStatus.get('exitTo')
+            base.localAvatar.collisionsOff()
+            base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.__handleBookCloseExit)
+        elif bookStatus['mode'] == 'gohome':
+            zoneId = bookStatus['hood']
+            base.localAvatar.collisionsOff()
+            base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.goHomeNow, extraArgs=[zoneId])
+        elif bookStatus['mode'] == 'startparty':
+            firstStart = bookStatus['firstStart']
+            hostId = bookStatus['hostId']
+            base.localAvatar.collisionsOff()
+            base.localAvatar.b_setAnimState('CloseBook', 1, callback=self.startPartyNow, extraArgs=[firstStart, hostId])
 
     def handleBookCloseTeleport(self, hoodId, zoneId):
         if localAvatar.hasActiveBoardingGroup():
             rejectText = TTLocalizer.BoardingCannotLeaveZone
             localAvatar.elevatorNotifier.showMe(rejectText)
             return
-        self.requestLeave({'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
-           'how': 'teleportIn', 
-           'hoodId': hoodId, 
-           'zoneId': zoneId, 
-           'shardId': None, 
-           'avId': -1})
-        return
+        else:
+            self.requestLeave({'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
+               'how': 'teleportIn', 
+               'hoodId': hoodId, 
+               'zoneId': zoneId, 
+               'shardId': None, 
+               'avId': -1})
+            return
 
     def __handleBookCloseExit(self):
         base.localAvatar.b_setAnimState('TeleportOut', 1, self.__handleBookExitTeleport, [0])
@@ -409,49 +406,51 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             rejectText = TTLocalizer.BoardingCannotLeaveZone
             localAvatar.elevatorNotifier.showMe(rejectText)
             return
-        hoodId = ToontownGlobals.MyEstate
-        self.requestLeave({'loader': 'safeZoneLoader', 'where': 'estate', 
-           'how': 'teleportIn', 
-           'hoodId': hoodId, 
-           'zoneId': -1, 
-           'shardId': None, 
-           'avId': -1})
-        return
+        else:
+            hoodId = ToontownGlobals.MyEstate
+            self.requestLeave({'loader': 'safeZoneLoader', 'where': 'estate', 
+               'how': 'teleportIn', 
+               'hoodId': hoodId, 
+               'zoneId': -1, 
+               'shardId': None, 
+               'avId': -1})
+            return
 
     def startPartyNow(self, firstStart, hostId):
         if localAvatar.hasActiveBoardingGroup():
             rejectText = TTLocalizer.BoardingCannotLeaveZone
             localAvatar.elevatorNotifier.showMe(rejectText)
             return
-        base.localAvatar.creatingNewPartyWithMagicWord = False
-        base.localAvatar.aboutToPlanParty = False
-        hoodId = ToontownGlobals.PartyHood
-        if firstStart:
-            zoneId = 0
-            ToontownDistrictStats.refresh('shardInfoUpdated')
-            curShardTuples = base.cr.listActiveShards()
-            lowestPop = 100000000000000000L
-            shardId = None
-            for shardInfo in curShardTuples:
-                pop = shardInfo[2]
-                if pop < lowestPop:
-                    lowestPop = pop
-                    shardId = shardInfo[0]
-
-            if shardId == base.localAvatar.defaultShard:
-                shardId = None
-            base.cr.playGame.getPlace().requestLeave({'loader': 'safeZoneLoader', 'where': 'party', 
-               'how': 'teleportIn', 
-               'hoodId': hoodId, 
-               'zoneId': zoneId, 
-               'shardId': shardId, 
-               'avId': -1})
         else:
-            if hostId is None:
-                hostId = base.localAvatar.doId
-            base.cr.partyManager.sendAvatarToParty(hostId)
+            base.localAvatar.creatingNewPartyWithMagicWord = False
+            base.localAvatar.aboutToPlanParty = False
+            hoodId = ToontownGlobals.PartyHood
+            if firstStart:
+                zoneId = 0
+                ToontownDistrictStats.refresh('shardInfoUpdated')
+                curShardTuples = base.cr.listActiveShards()
+                lowestPop = 100000000000000000L
+                shardId = None
+                for shardInfo in curShardTuples:
+                    pop = shardInfo[2]
+                    if pop < lowestPop:
+                        lowestPop = pop
+                        shardId = shardInfo[0]
+
+                if shardId == base.localAvatar.defaultShard:
+                    shardId = None
+                base.cr.playGame.getPlace().requestLeave({'loader': 'safeZoneLoader', 'where': 'party', 
+                   'how': 'teleportIn', 
+                   'hoodId': hoodId, 
+                   'zoneId': zoneId, 
+                   'shardId': shardId, 
+                   'avId': -1})
+            else:
+                if hostId is None:
+                    hostId = base.localAvatar.doId
+                base.cr.partyManager.sendAvatarToParty(hostId)
+                return
             return
-        return
 
     def handleBookClose(self):
         if hasattr(self, 'fsm'):
@@ -509,11 +508,10 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
                    'doorIn': 'doorOut'}
             teleportDebug(requestStatus, 'requesting %s, requestStatus=%s' % (out[requestStatus['how']], requestStatus))
             self.fsm.request(out[requestStatus['how']], [requestStatus])
+        elif doneStatus['mode'] == 'incomplete':
+            self.fsm.request('DFAReject')
         else:
-            if doneStatus['mode'] == 'incomplete':
-                self.fsm.request('DFAReject')
-            else:
-                Place.notify.error('Unknown done status for DownloadForceAcknowledge: ' + `doneStatus`)
+            Place.notify.error('Unknown done status for DownloadForceAcknowledge: ' + `doneStatus`)
 
     def enterDFAReject(self):
         self.fsm.request('walk')
@@ -533,11 +531,10 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
     def trialerFACallback(self, requestStatus, doneStatus):
         if doneStatus['mode'] == 'pass':
             self.fsm.request('DFA', [requestStatus])
+        elif doneStatus['mode'] == 'fail':
+            self.fsm.request('trialerFAReject')
         else:
-            if doneStatus['mode'] == 'fail':
-                self.fsm.request('trialerFAReject')
-            else:
-                Place.notify.error('Unknown done status for TrialerForceAcknowledge: %s' % doneStatus)
+            Place.notify.error('Unknown done status for TrialerForceAcknowledge: %s' % doneStatus)
 
     def enterTrialerFAReject(self):
         self.fsm.request('walk')
@@ -798,27 +795,29 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             self.doneStatus['failed'] = 1
             self.goHomeFailed(None)
             return
-        if ownerId == 0 and zoneId == 0:
-            if self.doneStatus['shardId'] is None or self.doneStatus['shardId'] is base.localAvatar.defaultShard:
-                self.doneStatus['failed'] = 1
-                self.goHomeFailed(None)
-                return
-            self.doneStatus['hood'] = ToontownGlobals.MyEstate
-            self.doneStatus['zone'] = base.localAvatar.lastHood
-            self.doneStatus['loaderId'] = 'safeZoneLoader'
-            self.doneStatus['whereId'] = 'estate'
-            self.doneStatus['how'] = 'teleportIn'
-            messenger.send(self.doneEvent)
-            return
-        if self.doneStatus['zoneId'] == -1:
-            self.doneStatus['zoneId'] = zoneId
         else:
-            if self.doneStatus['zoneId'] != zoneId:
+            if ownerId == 0 and zoneId == 0:
+                if self.doneStatus['shardId'] is None or self.doneStatus['shardId'] is base.localAvatar.defaultShard:
+                    self.doneStatus['failed'] = 1
+                    self.goHomeFailed(None)
+                    return
+                else:
+                    self.doneStatus['hood'] = ToontownGlobals.MyEstate
+                    self.doneStatus['zone'] = base.localAvatar.lastHood
+                    self.doneStatus['loaderId'] = 'safeZoneLoader'
+                    self.doneStatus['whereId'] = 'estate'
+                    self.doneStatus['how'] = 'teleportIn'
+                    messenger.send(self.doneEvent)
+                    return
+
+            if self.doneStatus['zoneId'] == -1:
+                self.doneStatus['zoneId'] = zoneId
+            elif self.doneStatus['zoneId'] != zoneId:
                 self.doneStatus['where'] = 'house'
-        self.doneStatus['ownerId'] = ownerId
-        messenger.send(self.doneEvent)
-        messenger.send('localToonLeft')
-        return
+            self.doneStatus['ownerId'] = ownerId
+            messenger.send(self.doneEvent)
+            messenger.send('localToonLeft')
+            return
 
     def goHomeFailed(self, task):
         self.notify.debug('goHomeFailed')
@@ -1049,10 +1048,11 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             rejectText = TTLocalizer.BoardingCannotLeaveZone
             localAvatar.elevatorNotifier.showMe(rejectText)
             return
-        self.requestLeave({'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
-           'how': 'portalIn', 
-           'hoodId': hoodId, 
-           'zoneId': zoneId, 
-           'shardId': None, 
-           'avId': -1})
-        return
+        else:
+            self.requestLeave({'loader': ZoneUtil.getBranchLoaderName(zoneId), 'where': ZoneUtil.getToonWhereName(zoneId), 
+               'how': 'portalIn', 
+               'hoodId': hoodId, 
+               'zoneId': zoneId, 
+               'shardId': None, 
+               'avId': -1})
+            return

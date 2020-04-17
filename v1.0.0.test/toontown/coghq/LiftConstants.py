@@ -4,4 +4,5 @@ Up = 1
 def oppositeState(state):
     if state is Down:
         return Up
-    return Down
+    else:
+        return Down

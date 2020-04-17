@@ -142,11 +142,10 @@ class ToontownLauncher(LauncherBase):
         t = type(value)
         if t == types.IntType:
             WindowsRegistry.setIntValue(self.toontownRegistryKey, name, value)
+        elif t == types.StringType:
+            WindowsRegistry.setStringValue(self.toontownRegistryKey, name, value)
         else:
-            if t == types.StringType:
-                WindowsRegistry.setStringValue(self.toontownRegistryKey, name, value)
-            else:
-                self.notify.warning('setRegistry: Invalid type for registry value: ' + `value`)
+            self.notify.warning('setRegistry: Invalid type for registry value: ' + `value`)
 
     def getRegistry(self, name, missingValue=None):
         self.notify.info('getRegistry%s' % ((name, missingValue),))
@@ -165,12 +164,15 @@ class ToontownLauncher(LauncherBase):
             if missingValue == None:
                 missingValue = 0
             return WindowsRegistry.getIntValue(self.toontownRegistryKey, name, missingValue)
-        if t == WindowsRegistry.TString:
-            if missingValue == None:
-                missingValue = ''
-            return WindowsRegistry.getStringValue(self.toontownRegistryKey, name, missingValue)
-        return missingValue
-        return
+        else:
+            if t == WindowsRegistry.TString:
+                if missingValue == None:
+                    missingValue = ''
+                return WindowsRegistry.getStringValue(self.toontownRegistryKey, name, missingValue)
+            else:
+                return missingValue
+
+            return
 
     def getCDDownloadPath(self, origPath, serverFilePath):
         return '%s/%s%s/CD_%d/%s' % (origPath, self.ServerVersion, self.ServerVersionSuffix, self.fromCD, serverFilePath)
@@ -181,7 +183,8 @@ class ToontownLauncher(LauncherBase):
     def getPercentPatchComplete(self, bytesWritten):
         if self.totalPatchDownload:
             return LauncherBase.getPercentPatchComplete(self, bytesWritten)
-        return 0
+        else:
+            return 0
 
     def hashIsValid(self, serverHash, hashStr):
         return serverHash.setFromDec(hashStr) or serverHash.setFromHex(hashStr)

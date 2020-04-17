@@ -145,14 +145,15 @@ class CogdoFlyingLevel(DirectObject):
     def update(self, dt=0.0):
         if self._camera is None:
             return
-        quadNum = clamp(self.getCameraActualQuadrant(), 0, self._numQuads - 1)
-        if quadNum < self._numQuads:
-            self.quadrants[quadNum].update(dt)
-            if quadNum + 1 < self._numQuads:
-                self.quadrants[(quadNum + 1)].update(dt)
-            if quadNum != self._currentQuadNum:
-                self._switchToQuadrant(quadNum)
-        return
+        else:
+            quadNum = clamp(self.getCameraActualQuadrant(), 0, self._numQuads - 1)
+            if quadNum < self._numQuads:
+                self.quadrants[quadNum].update(dt)
+                if quadNum + 1 < self._numQuads:
+                    self.quadrants[(quadNum + 1)].update(dt)
+                if quadNum != self._currentQuadNum:
+                    self._switchToQuadrant(quadNum)
+            return
 
     def _switchToQuadrant(self, quadNum):
         self.visibleQuadIndices = []
@@ -225,14 +226,14 @@ class CogdoFlyingLevelFactory:
                 quadList = Globals.Level.QuadsByDifficulty[difficulty]
                 quads.append(quadList[self._rng.randint(0, len(quadList) - 1)])
 
-        for i in quads:
-            ver = '_org' if self.isOrg else ''
-            filePath = CogdoUtil.getModelPath('quadrant%i%s' % (i, ver), 'flying')
-            quadModel = loader.loadModel(filePath)
-            for np in quadModel.findAllMatches('**/*lightCone*'):
-                CogdoUtil.initializeLightCone(np, 'fixed', 3)
+            for i in quads:
+                ver = '_org' if self.isOrg else ''
+                filePath = CogdoUtil.getModelPath('quadrant%i%s' % (i, ver), 'flying')
+                quadModel = loader.loadModel(filePath)
+                for np in quadModel.findAllMatches('**/*lightCone*'):
+                    CogdoUtil.initializeLightCone(np, 'fixed', 3)
 
-            self._level.appendQuadrant(quadModel)
+                self._level.appendQuadrant(quadModel)
 
         self._level.ready()
 
@@ -246,5 +247,6 @@ class CogdoFlyingLevelFactory:
             self.loadAndBuildLevel()
         if self.isOrg:
             return CogdoFlyingLevelFog(self._level, (0, 0, 0, 1))
-        return CogdoFlyingLevelFog(self._level)
-        return
+        else:
+            return CogdoFlyingLevelFog(self._level)
+            return

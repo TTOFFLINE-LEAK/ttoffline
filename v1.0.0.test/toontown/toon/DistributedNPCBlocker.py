@@ -62,9 +62,8 @@ class DistributedNPCBlocker(DistributedNPCToonBase):
         if mode == NPCToons.BLOCKER_MOVIE_START:
             self.movie = QuestParser.NPCMoviePlayer('tutorial_blocker', base.localAvatar, self)
             self.movie.play()
-        else:
-            if mode == NPCToons.BLOCKER_MOVIE_TIMEOUT:
-                return
+        elif mode == NPCToons.BLOCKER_MOVIE_TIMEOUT:
+            return
 
     def finishMovie(self, av, isLocalToon, elapsedTime):
         self.resetBlocker()

@@ -128,9 +128,8 @@ class CogdoFlyingCameraManager:
                 z = boundToonZ + d * INVERSE_E ** (dt * Globals.Camera.CatchUpRateZ)
             elif d > Globals.Camera.MaxLeewayZ:
                 z = boundToonZ + Globals.Camera.MaxLeewayZ
-        else:
-            if d < -Globals.Camera.MinLeewayZ:
-                z = boundToonZ - Globals.Camera.MinLeewayZ
+        elif d < -Globals.Camera.MinLeewayZ:
+            z = boundToonZ - Globals.Camera.MinLeewayZ
         if self._frozen:
             y = camPos[1]
         else:
@@ -140,9 +139,8 @@ class CogdoFlyingCameraManager:
             h = self._cameraLookAtNP.getH()
             if d >= Globals.Camera.MinLeewayZ:
                 self._cameraLookAtNP.lookAt(self._toon, 0, 0, self._lookAtZ)
-            else:
-                if d <= -Globals.Camera.MinLeewayZ:
-                    self._cameraLookAtNP.lookAt(self._camParent, 0, 0, self._lookAtZ)
+            elif d <= -Globals.Camera.MinLeewayZ:
+                self._cameraLookAtNP.lookAt(self._camParent, 0, 0, self._lookAtZ)
             self._cameraLookAtNP.setHpr(h, self._cameraLookAtNP.getP(), 0)
             self._camera.setHpr(smooth(self._camera.getHpr(), self._cameraLookAtNP.getHpr()))
         self._prevToonY = toonPos[1]

@@ -73,9 +73,11 @@ class PublicPartyGui(DirectFrame):
             if left[2] == right[2]:
                 if len(left[4]) < len(right[4]):
                     return -1
-                if len(left[4]) == len(right[4]):
-                    return 0
-                return 1
+                else:
+                    if len(left[4]) == len(right[4]):
+                        return 0
+                    return 1
+
             else:
                 return 1
 
@@ -193,9 +195,11 @@ class PublicPartyGui(DirectFrame):
         if self.selectedItem is None:
             self.partyStartButton['state'] = DirectGuiGlobals.DISABLED
             return
-        self.doneStatus = (self.selectedItem.getPythonTag('shardId'), self.selectedItem.getPythonTag('zoneId'))
-        messenger.send(self.doneEvent)
-        return
+        else:
+            self.doneStatus = (
+             self.selectedItem.getPythonTag('shardId'), self.selectedItem.getPythonTag('zoneId'))
+            messenger.send(self.doneEvent)
+            return
 
     def _close(self):
         self.doneStatus = None

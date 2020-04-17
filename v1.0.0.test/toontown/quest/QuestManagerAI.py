@@ -55,16 +55,14 @@ class QuestManagerAI:
                         if suit.get('isCFO'):
                             self.toonKilledCFO(toon, suitsKilled, zoneId, activeToons)
                             continue
-                        else:
-                            if suit.get('isCJ'):
-                                self.toonKilledCJ(toon, suitsKilled, zoneId, activeToons)
-                                continue
-                            else:
-                                if suit.get('isCEO'):
-                                    self.toonKilledCEO(toon, suitsKilled, zoneId, activeToons)
-                                    continue
-                    for _ in xrange(quest.doesCogCount(toon.getDoId(), suit, zoneId, activeToons)):
-                        self.__incrementQuestProgress(toon.quests[index])
+                        elif suit.get('isCJ'):
+                            self.toonKilledCJ(toon, suitsKilled, zoneId, activeToons)
+                            continue
+                        elif suit.get('isCEO'):
+                            self.toonKilledCEO(toon, suitsKilled, zoneId, activeToons)
+                            continue
+                        for _ in xrange(quest.doesCogCount(toon.getDoId(), suit, zoneId, activeToons)):
+                            self.__incrementQuestProgress(toon.quests[index])
 
         if toon.quests:
             toon.d_setQuests(toon.getQuests())

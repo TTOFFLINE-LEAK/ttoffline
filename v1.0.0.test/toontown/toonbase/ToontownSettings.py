@@ -26,9 +26,8 @@ class ToontownSettings(Settings):
         doStretch = True
         if stretchedScreen == 0 and judgeVisuals == 0:
             doStretch = False
-        else:
-            if stretchedScreen == 2:
-                doStretch = False
+        elif stretchedScreen == 2:
+            doStretch = False
         if doStretch:
             loadPrcFileData('toonBase Settings Stretched Screen', 'aspect-ratio 1.333')
         self.updateSetting('game', 'stretched-screen', stretchedScreen)

@@ -84,14 +84,15 @@ class FlowerPanel(DirectFrame):
         self.flower = flower
         if self.flower == None:
             return
-        self['text'] = self.flower.getFullName()
-        value = self.flower.getValue()
-        if value == 1:
-            self.value['text'] = TTLocalizer.GardenPageValueS % value
         else:
-            self.value['text'] = TTLocalizer.GardenPageValueP % value
-        self.photo.update(flower.getSpecies(), flower.getVariety())
-        return
+            self['text'] = self.flower.getFullName()
+            value = self.flower.getValue()
+            if value == 1:
+                self.value['text'] = TTLocalizer.GardenPageValueS % value
+            else:
+                self.value['text'] = TTLocalizer.GardenPageValueP % value
+            self.photo.update(flower.getSpecies(), flower.getVariety())
+            return
 
     def setSwimBounds(self, *bounds):
         self.swimBounds = bounds
@@ -110,12 +111,11 @@ class FlowerPanel(DirectFrame):
         apply(self.photo.setSwimColor, self.swimColor)
         if code == GardenGlobals.FlowerItem:
             self.extraLabel.hide()
-        else:
-            if code == GardenGlobals.FlowerItemNewEntry:
-                self.extraLabel.show()
-                self.extraLabel['text'] = TTLocalizer.FloweringNewEntry
-                self.extraLabel['text_scale'] = 0.08
-                self.extraLabel.setPos(0, 0, 0.26)
+        elif code == GardenGlobals.FlowerItemNewEntry:
+            self.extraLabel.show()
+            self.extraLabel['text'] = TTLocalizer.FloweringNewEntry
+            self.extraLabel['text_scale'] = 0.08
+            self.extraLabel.setPos(0, 0, 0.26)
         self.photo.show()
         DirectFrame.show(self)
 

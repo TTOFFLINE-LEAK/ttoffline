@@ -245,21 +245,20 @@ class ToonAvatarDetailPanel(DirectFrame):
     def __updateTrophyInfo(self):
         if self.createdAvatar:
             return
-        if self.avatar.trophyScore >= TrophyStarLevels[2]:
-            color = TrophyStarColors[2]
         else:
-            if self.avatar.trophyScore >= TrophyStarLevels[1]:
+            if self.avatar.trophyScore >= TrophyStarLevels[2]:
+                color = TrophyStarColors[2]
+            elif self.avatar.trophyScore >= TrophyStarLevels[1]:
                 color = TrophyStarColors[1]
+            elif self.avatar.trophyScore >= TrophyStarLevels[0]:
+                color = TrophyStarColors[0]
             else:
-                if self.avatar.trophyScore >= TrophyStarLevels[0]:
-                    color = TrophyStarColors[0]
-                else:
-                    color = None
-        if color:
-            gui = loader.loadModel('phase_3.5/models/gui/avatar_panel_gui')
-            star = gui.find('**/avatarStar')
-            self.star = DirectLabel(parent=self, image=star, image_color=color, pos=(0.610165,
-                                                                                     0,
-                                                                                     -0.760678), scale=0.9, relief=None)
-            gui.removeNode()
-        return
+                color = None
+            if color:
+                gui = loader.loadModel('phase_3.5/models/gui/avatar_panel_gui')
+                star = gui.find('**/avatarStar')
+                self.star = DirectLabel(parent=self, image=star, image_color=color, pos=(0.610165,
+                                                                                         0,
+                                                                                         -0.760678), scale=0.9, relief=None)
+                gui.removeNode()
+            return

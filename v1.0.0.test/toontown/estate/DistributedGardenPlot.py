@@ -38,25 +38,22 @@ class DistributedGardenPlot(DistributedLawnDecor.DistributedLawnDecor):
         self.stickUp = 0.0
         if self.getOwnerId() != localAvatar.doId:
             self.defaultModel = None
+        elif self.plotType == GardenGlobals.FLOWER_TYPE:
+            self.collSphereRadius = 2.0
+            self.collSphereOffset = 0.0
+            self.plotScale = 0.7
+            self.stickUp = 1.1
+        elif self.plotType == GardenGlobals.GAG_TREE_TYPE:
+            self.collSphereRadius = 3.0
+            self.plotScale = 1.5
+            self.colorScaler = Vec4(1.0, 1.0, 1.0, 1)
+        elif self.plotType == GardenGlobals.STATUARY_TYPE:
+            self.collSphereRadius = 3.0
+            self.plotScale = 0.075
+            self.stickUp = -0.0
+            self.defaultModel = 'phase_5.5/models/estate/garden_slab'
         else:
-            if self.plotType == GardenGlobals.FLOWER_TYPE:
-                self.collSphereRadius = 2.0
-                self.collSphereOffset = 0.0
-                self.plotScale = 0.7
-                self.stickUp = 1.1
-            else:
-                if self.plotType == GardenGlobals.GAG_TREE_TYPE:
-                    self.collSphereRadius = 3.0
-                    self.plotScale = 1.5
-                    self.colorScaler = Vec4(1.0, 1.0, 1.0, 1)
-                else:
-                    if self.plotType == GardenGlobals.STATUARY_TYPE:
-                        self.collSphereRadius = 3.0
-                        self.plotScale = 0.075
-                        self.stickUp = -0.0
-                        self.defaultModel = 'phase_5.5/models/estate/garden_slab'
-                    else:
-                        self.collSphereOffset = 0.0
+            self.collSphereOffset = 0.0
         self.notify.debug('announceGenerate')
         DistributedLawnDecor.DistributedLawnDecor.announceGenerate(self)
         return
@@ -118,18 +115,15 @@ class DistributedGardenPlot(DistributedLawnDecor.DistributedLawnDecor):
         whatCanBePlanted = GardenGlobals.whatCanBePlanted(self.ownerIndex, self.plot)
         if whatCanBePlanted == GardenGlobals.INVALID_TYPE:
             self.notify.warning('whatCanBePlanted returned INVALID_TYPE for %d %d' % (self.ownerIndex, self.plot))
-        else:
-            if whatCanBePlanted == GardenGlobals.FLOWER_TYPE:
-                self.popupFlowerPlantingGui()
-                self.startInteraction()
-            else:
-                if whatCanBePlanted == GardenGlobals.GAG_TREE_TYPE:
-                    self.popupTreePlantingGui()
-                    self.startInteraction()
-                else:
-                    if whatCanBePlanted == GardenGlobals.STATUARY_TYPE:
-                        self.popupItemPlantingGui()
-                        self.startInteraction()
+        elif whatCanBePlanted == GardenGlobals.FLOWER_TYPE:
+            self.popupFlowerPlantingGui()
+            self.startInteraction()
+        elif whatCanBePlanted == GardenGlobals.GAG_TREE_TYPE:
+            self.popupTreePlantingGui()
+            self.startInteraction()
+        elif whatCanBePlanted == GardenGlobals.STATUARY_TYPE:
+            self.popupItemPlantingGui()
+            self.startInteraction()
 
     def __handleFlowerPlantingDone(self, willPlant=0, recipeStr='', special=-1):
         self.ignore(self.plantingGuiDoneEvent)
@@ -153,11 +147,10 @@ class DistributedGardenPlot(DistributedLawnDecor.DistributedLawnDecor):
         if successPlanting:
             flowerName = GardenGlobals.getFlowerVarietyName(species, variety)
             stringToShow = TTLocalizer.getResultPlantedSomethingSentence(flowerName)
+        elif willPlant:
+            self.resultDialog = TTDialog.TTDialog(style=TTDialog.Acknowledge, text=TTLocalizer.ResultPlantedNothing, command=self.popupFlowerPlantingGuiAgain)
         else:
-            if willPlant:
-                self.resultDialog = TTDialog.TTDialog(style=TTDialog.Acknowledge, text=TTLocalizer.ResultPlantedNothing, command=self.popupFlowerPlantingGuiAgain)
-            else:
-                self.finishInteraction()
+            self.finishInteraction()
         return
 
     def popupFlowerPlantingGui(self):
@@ -218,11 +211,10 @@ class DistributedGardenPlot(DistributedLawnDecor.DistributedLawnDecor):
         if successPlanting:
             itemName = GardenGlobals.PlantAttributes[species]['name']
             stringToShow = TTLocalizer.getResultPlantedSomethingSentence(itemName)
+        elif willPlant:
+            self.resultDialog = TTDialog.TTDialog(style=TTDialog.Acknowledge, text=TTLocalizer.ResultPlantedNothing, command=self.popupItemPlantingGuiAgain)
         else:
-            if willPlant:
-                self.resultDialog = TTDialog.TTDialog(style=TTDialog.Acknowledge, text=TTLocalizer.ResultPlantedNothing, command=self.popupItemPlantingGuiAgain)
-            else:
-                self.finishInteraction()
+            self.finishInteraction()
         if successToonStatue:
             self.popupToonStatueSelectionGui(species)
         return
@@ -281,12 +273,10 @@ class DistributedGardenPlot(DistributedLawnDecor.DistributedLawnDecor):
     def setMovie(self, mode, avId):
         if mode == GardenGlobals.MOVIE_PLANT:
             self.doPlaceItemTrack(avId)
-        else:
-            if mode == GardenGlobals.MOVIE_FINISHREMOVING:
-                self.doFinishRemovingTrack(avId)
-            else:
-                if mode == GardenGlobals.MOVIE_PLANT_REJECTED:
-                    self.doPlantRejectedTrack(avId)
+        elif mode == GardenGlobals.MOVIE_FINISHREMOVING:
+            self.doFinishRemovingTrack(avId)
+        elif mode == GardenGlobals.MOVIE_PLANT_REJECTED:
+            self.doPlantRejectedTrack(avId)
 
     def doPlantRejectedTrack(self, avId):
         toon = base.cr.doId2do.get(avId)

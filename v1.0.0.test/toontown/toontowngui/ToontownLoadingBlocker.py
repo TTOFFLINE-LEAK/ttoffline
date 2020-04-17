@@ -16,27 +16,28 @@ class ToontownLoadingBlocker(TTDialog.TTDialog):
     def __init__(self, avList):
         if not self.__shouldShowBlocker(avList):
             return
-        TTDialog.TTDialog.__init__(self)
-        gui = loader.loadModel('phase_3/models/gui/tt_m_gui_pat_mainGui')
-        img = gui.find('**/tt_t_gui_pat_loadingPopup')
-        self['image'] = img
-        self['image_scale'] = (1, 0, 1)
-        self['image_pos'] = (0, 0, -0.4)
-        gui.removeNode()
-        self.loadingTextChangeTimer = 10.0
-        self.loadingTextTimerVariant = 3.0
-        self.loadingTextFreezeTime = 3.0
-        self.toonTipChangeTimer = 20.0
-        self.hideBlockerIval = None
-        self.canChangeLoadingText = True
-        self.__setupLoadingBar()
-        self.__createTitleText()
-        self.__createToonTip()
-        self.__createLoadingText()
-        self.__showBlocker()
-        self.accept('phaseComplete-4', self.__shrinkLoadingBar)
-        self.accept('launcherPercentPhaseComplete', self.__update)
-        return
+        else:
+            TTDialog.TTDialog.__init__(self)
+            gui = loader.loadModel('phase_3/models/gui/tt_m_gui_pat_mainGui')
+            img = gui.find('**/tt_t_gui_pat_loadingPopup')
+            self['image'] = img
+            self['image_scale'] = (1, 0, 1)
+            self['image_pos'] = (0, 0, -0.4)
+            gui.removeNode()
+            self.loadingTextChangeTimer = 10.0
+            self.loadingTextTimerVariant = 3.0
+            self.loadingTextFreezeTime = 3.0
+            self.toonTipChangeTimer = 20.0
+            self.hideBlockerIval = None
+            self.canChangeLoadingText = True
+            self.__setupLoadingBar()
+            self.__createTitleText()
+            self.__createToonTip()
+            self.__createLoadingText()
+            self.__showBlocker()
+            self.accept('phaseComplete-4', self.__shrinkLoadingBar)
+            self.accept('launcherPercentPhaseComplete', self.__update)
+            return
 
     def destroy(self):
         taskMgr.remove('changeLoadingTextTask')

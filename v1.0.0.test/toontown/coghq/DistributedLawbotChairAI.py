@@ -66,21 +66,16 @@ class DistributedLawbotChairAI(DistributedObjectAI.DistributedObjectAI, FSM.FSM)
         newState = state
         if state == 'On':
             newState = 'N'
-        else:
-            if state == 'Off':
-                newState = 'F'
-            else:
-                if state == 'ToonJuror':
-                    newState = 'T'
-                else:
-                    if state == 'SuitJuror':
-                        newState = 'S'
-                    else:
-                        if state == 'EmptyJuror':
-                            newState = 'E'
-                        else:
-                            if state == 'StopCogs':
-                                newState = 'C'
+        elif state == 'Off':
+            newState = 'F'
+        elif state == 'ToonJuror':
+            newState = 'T'
+        elif state == 'SuitJuror':
+            newState = 'S'
+        elif state == 'EmptyJuror':
+            newState = 'E'
+        elif state == 'StopCogs':
+            newState = 'C'
         self.sendUpdate('setState', [newState])
 
     def b_setState(self, state):

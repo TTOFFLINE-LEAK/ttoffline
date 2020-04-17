@@ -169,35 +169,36 @@ class CalendarGuiDay(DirectFrame):
     def addWeeklyHolidays(self):
         if not self.filter == ToontownGlobals.CalendarFilterShowAll and not self.filter == ToontownGlobals.CalendarFilterShowOnlyHolidays:
             return
-        if base.cr.newsManager:
-            holidays = base.cr.newsManager.getHolidaysForWeekday(self.myDate.weekday())
-            holidayName = ''
-            holidayDesc = ''
-            for holidayId in holidays:
-                if holidayId in TTLocalizer.HolidayNamesInCalendar:
-                    holidayName = TTLocalizer.HolidayNamesInCalendar[holidayId][0]
-                    holidayDesc = TTLocalizer.HolidayNamesInCalendar[holidayId][1]
-                else:
-                    holidayName = TTLocalizer.UnknownHoliday % holidayId
-                self.addTitleAndDescToScrollList(holidayName, holidayDesc)
+        else:
+            if base.cr.newsManager:
+                holidays = base.cr.newsManager.getHolidaysForWeekday(self.myDate.weekday())
+                holidayName = ''
+                holidayDesc = ''
+                for holidayId in holidays:
+                    if holidayId in TTLocalizer.HolidayNamesInCalendar:
+                        holidayName = TTLocalizer.HolidayNamesInCalendar[holidayId][0]
+                        holidayDesc = TTLocalizer.HolidayNamesInCalendar[holidayId][1]
+                    else:
+                        holidayName = TTLocalizer.UnknownHoliday % holidayId
+                    self.addTitleAndDescToScrollList(holidayName, holidayDesc)
 
-            self.scrollList.refresh()
-        if base.config.GetBool('calendar-test-items', 0):
-            if self.myDate.date() + datetime.timedelta(days=-1) == base.cr.toontownTimeManager.getCurServerDateTime().date():
-                testItems = ('1:00 AM Party', '2:00 AM CEO', '11:15 AM Party', '5:30 PM CJ',
-                             '11:00 PM Party', 'Really Really Long String')
-                for text in testItems:
-                    newItem = DirectLabel(relief=None, text=text, text_scale=self.ScrollListTextSize, text_align=TextNode.ALeft)
-                    self.scrollList.addItem(newItem)
+                self.scrollList.refresh()
+            if base.config.GetBool('calendar-test-items', 0):
+                if self.myDate.date() + datetime.timedelta(days=-1) == base.cr.toontownTimeManager.getCurServerDateTime().date():
+                    testItems = ('1:00 AM Party', '2:00 AM CEO', '11:15 AM Party',
+                                 '5:30 PM CJ', '11:00 PM Party', 'Really Really Long String')
+                    for text in testItems:
+                        newItem = DirectLabel(relief=None, text=text, text_scale=self.ScrollListTextSize, text_align=TextNode.ALeft)
+                        self.scrollList.addItem(newItem)
 
-            if self.myDate.date() + datetime.timedelta(days=-2) == base.cr.toontownTimeManager.getCurServerDateTime().date():
-                testItems = ('1:00 AM Party', '3:00 AM CFO', '11:00 AM Party')
-                textSize = self.ScrollListTextSize
-                for text in testItems:
-                    newItem = DirectLabel(relief=None, text=text, text_scale=textSize, text_align=TextNode.ALeft)
-                    self.scrollList.addItem(newItem)
+                if self.myDate.date() + datetime.timedelta(days=-2) == base.cr.toontownTimeManager.getCurServerDateTime().date():
+                    testItems = ('1:00 AM Party', '3:00 AM CFO', '11:00 AM Party')
+                    textSize = self.ScrollListTextSize
+                    for text in testItems:
+                        newItem = DirectLabel(relief=None, text=text, text_scale=textSize, text_align=TextNode.ALeft)
+                        self.scrollList.addItem(newItem)
 
-        return
+            return
 
     def updateArrowButtons(self):
         numItems = 0
@@ -235,11 +236,10 @@ class CalendarGuiDay(DirectFrame):
                 holidayType = holiday[0]
                 if holidayStart[0] == self.myDate.month and holidayStart[1] == self.myDate.day:
                     myTime = datetime.time(holidayStart[2], holidayStart[3])
+                elif holidayEnd[0] == self.myDate.month and holidayEnd[1] == self.myDate.day:
+                    myTime = datetime.time(holidayEnd[2], holidayEnd[3])
                 else:
-                    if holidayEnd[0] == self.myDate.month and holidayEnd[1] == self.myDate.day:
-                        myTime = datetime.time(holidayEnd[2], holidayEnd[3])
-                    else:
-                        self.notify.error('holiday is not today %s' % holiday)
+                    self.notify.error('holiday is not today %s' % holiday)
                 self.timedEvents.append((myTime, holiday))
 
             oncelyHolidays = base.cr.newsManager.getOncelyHolidaysForDate(self.myDate)
@@ -250,11 +250,10 @@ class CalendarGuiDay(DirectFrame):
                 holidayType = holiday[0]
                 if holidayStart[0] == self.myDate.year and holidayStart[1] == self.myDate.month and holidayStart[2] == self.myDate.day:
                     myTime = datetime.time(holidayStart[3], holidayStart[4])
+                elif holidayEnd[0] == self.myDate.year and holidayEnd[1] == self.myDate.month and holidayEnd[2] == self.myDate.day:
+                    myTime = datetime.time(holidayEnd[3], holidayEnd[4])
                 else:
-                    if holidayEnd[0] == self.myDate.year and holidayEnd[1] == self.myDate.month and holidayEnd[2] == self.myDate.day:
-                        myTime = datetime.time(holidayEnd[3], holidayEnd[4])
-                    else:
-                        self.notify.error('holiday is not today %s' % holiday)
+                    self.notify.error('holiday is not today %s' % holiday)
                 self.timedEvents.append((myTime, holiday))
 
             multipleStartHolidays = base.cr.newsManager.getMultipleStartHolidaysForDate(self.myDate)
@@ -265,11 +264,10 @@ class CalendarGuiDay(DirectFrame):
                 holidayType = holiday[0]
                 if holidayStart[0] == self.myDate.year and holidayStart[1] == self.myDate.month and holidayStart[2] == self.myDate.day:
                     myTime = datetime.time(holidayStart[3], holidayStart[4])
+                elif holidayEnd[0] == self.myDate.year and holidayEnd[1] == self.myDate.month and holidayEnd[2] == self.myDate.day:
+                    myTime = datetime.time(holidayEnd[3], holidayEnd[4])
                 else:
-                    if holidayEnd[0] == self.myDate.year and holidayEnd[1] == self.myDate.month and holidayEnd[2] == self.myDate.day:
-                        myTime = datetime.time(holidayEnd[3], holidayEnd[4])
-                    else:
-                        self.notify.error('holiday is not today %s' % holiday)
+                    self.notify.error('holiday is not today %s' % holiday)
                 self.timedEvents.append((myTime, holiday))
 
             relativelyHolidays = base.cr.newsManager.getRelativelyHolidaysForDate(self.myDate)
@@ -280,19 +278,19 @@ class CalendarGuiDay(DirectFrame):
                 holidayType = holiday[0]
                 if holidayStart[0] == self.myDate.month and holidayStart[1] == self.myDate.day:
                     myTime = datetime.time(holidayStart[2], holidayStart[3])
+                elif holidayEnd[0] == self.myDate.month and holidayEnd[1] == self.myDate.day:
+                    myTime = datetime.time(holidayEnd[2], holidayEnd[3])
                 else:
-                    if holidayEnd[0] == self.myDate.month and holidayEnd[1] == self.myDate.day:
-                        myTime = datetime.time(holidayEnd[2], holidayEnd[3])
-                    else:
-                        self.notify.error('holiday is not today %s' % holiday)
+                    self.notify.error('holiday is not today %s' % holiday)
                 self.timedEvents.append((myTime, holiday))
 
         def timedEventCompare(te1, te2):
             if te1[0] < te2[0]:
                 return -1
-            if te1[0] == te2[0]:
-                return 0
-            return 1
+            else:
+                if te1[0] == te2[0]:
+                    return 0
+                return 1
 
         self.timedEvents.sort(cmp=timedEventCompare)
         for timedEvent in self.timedEvents:
@@ -329,20 +327,18 @@ class CalendarGuiDay(DirectFrame):
             holidayText = myStrftime(startTime)
             holidayText += ' ' + holidayName
             holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + myStrftime(endTime)
+        elif self.myDate.month == holidayStart[0] and self.myDate.day == holidayStart[1]:
+            holidayText = myStrftime(startTime)
+            holidayText += ' ' + holidayName
+            holidayDesc = holidayName + '. ' + holidayDesc
+            holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + endDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(endTime)
+        elif self.myDate.month == holidayEnd[0] and self.myDate.day == holidayEnd[1]:
+            holidayText = myStrftime(endTime)
+            holidayText += ' ' + TTLocalizer.CalendarEndDash + holidayName
+            holidayDesc = TTLocalizer.CalendarEndOf + holidayName
+            holidayDesc += '. ' + TTLocalizer.CalendarStartedOn + startDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(startTime)
         else:
-            if self.myDate.month == holidayStart[0] and self.myDate.day == holidayStart[1]:
-                holidayText = myStrftime(startTime)
-                holidayText += ' ' + holidayName
-                holidayDesc = holidayName + '. ' + holidayDesc
-                holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + endDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(endTime)
-            else:
-                if self.myDate.month == holidayEnd[0] and self.myDate.day == holidayEnd[1]:
-                    holidayText = myStrftime(endTime)
-                    holidayText += ' ' + TTLocalizer.CalendarEndDash + holidayName
-                    holidayDesc = TTLocalizer.CalendarEndOf + holidayName
-                    holidayDesc += '. ' + TTLocalizer.CalendarStartedOn + startDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(startTime)
-                else:
-                    self.notify.error('unhandled case')
+            self.notify.error('unhandled case')
         self.addTitleAndDescToScrollList(holidayText, holidayDesc)
 
     def addOncelyHolidayToScrollList(self, holiday):
@@ -368,20 +364,18 @@ class CalendarGuiDay(DirectFrame):
             holidayText += ' ' + holidayName
             holidayDesc = holidayName + '. ' + holidayDesc
             holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + myStrftime(endTime)
+        elif self.myDate.year == holidayStart[0] and self.myDate.month == holidayStart[1] and self.myDate.day == holidayStart[2]:
+            holidayText = myStrftime(startTime)
+            holidayText += ' ' + holidayName
+            holidayDesc = holidayName + '. ' + holidayDesc
+            holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + endDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(endTime)
+        elif self.myDate.year == holidayEnd[0] and self.myDate.month == holidayEnd[1] and self.myDate.day == holidayEnd[2]:
+            holidayText = myStrftime(endTime)
+            holidayText += ' ' + TTLocalizer.CalendarEndDash + holidayName
+            holidayDesc = TTLocalizer.CalendarEndOf + holidayName
+            holidayDesc += '. ' + TTLocalizer.CalendarStartedOn + startDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(startTime)
         else:
-            if self.myDate.year == holidayStart[0] and self.myDate.month == holidayStart[1] and self.myDate.day == holidayStart[2]:
-                holidayText = myStrftime(startTime)
-                holidayText += ' ' + holidayName
-                holidayDesc = holidayName + '. ' + holidayDesc
-                holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + endDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(endTime)
-            else:
-                if self.myDate.year == holidayEnd[0] and self.myDate.month == holidayEnd[1] and self.myDate.day == holidayEnd[2]:
-                    holidayText = myStrftime(endTime)
-                    holidayText += ' ' + TTLocalizer.CalendarEndDash + holidayName
-                    holidayDesc = TTLocalizer.CalendarEndOf + holidayName
-                    holidayDesc += '. ' + TTLocalizer.CalendarStartedOn + startDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(startTime)
-                else:
-                    self.notify.error('unhandled case')
+            self.notify.error('unhandled case')
         self.addTitleAndDescToScrollList(holidayText, holidayDesc)
 
     def addOncelyMultipleStartHolidayToScrollList(self, holiday):
@@ -409,20 +403,18 @@ class CalendarGuiDay(DirectFrame):
             holidayText = myStrftime(startTime)
             holidayText += ' ' + holidayName
             holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + myStrftime(endTime)
+        elif self.myDate.month == holidayStart[0] and self.myDate.day == holidayStart[1]:
+            holidayText = myStrftime(startTime)
+            holidayText += ' ' + holidayName
+            holidayDesc = holidayName + '. ' + holidayDesc
+            holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + endDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(endTime)
+        elif self.myDate.month == holidayEnd[0] and self.myDate.day == holidayEnd[1]:
+            holidayText = myStrftime(endTime)
+            holidayText += ' ' + TTLocalizer.CalendarEndDash + holidayName
+            holidayDesc = TTLocalizer.CalendarEndOf + holidayName
+            holidayDesc += '. ' + TTLocalizer.CalendarStartedOn + startDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(startTime)
         else:
-            if self.myDate.month == holidayStart[0] and self.myDate.day == holidayStart[1]:
-                holidayText = myStrftime(startTime)
-                holidayText += ' ' + holidayName
-                holidayDesc = holidayName + '. ' + holidayDesc
-                holidayDesc += ' ' + TTLocalizer.CalendarEndsAt + endDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(endTime)
-            else:
-                if self.myDate.month == holidayEnd[0] and self.myDate.day == holidayEnd[1]:
-                    holidayText = myStrftime(endTime)
-                    holidayText += ' ' + TTLocalizer.CalendarEndDash + holidayName
-                    holidayDesc = TTLocalizer.CalendarEndOf + holidayName
-                    holidayDesc += '. ' + TTLocalizer.CalendarStartedOn + startDate.strftime(TTLocalizer.HolidayFormat) + myStrftime(startTime)
-                else:
-                    self.notify.error('unhandled case')
+            self.notify.error('unhandled case')
         self.addTitleAndDescToScrollList(holidayText, holidayDesc)
 
     def addTitleAndDescToScrollList(self, title, desc):

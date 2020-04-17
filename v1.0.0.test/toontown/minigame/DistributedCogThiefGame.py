@@ -98,23 +98,18 @@ class DistributedCogThiefGame(DistributedMinigame):
         zone = self.getSafezoneId()
         if zone == ToontownGlobals.ToontownCentral:
             self.gameBoard.find('**/floor_TT').show()
+        elif zone == ToontownGlobals.DonaldsDock:
+            self.gameBoard.find('**/floor_DD').show()
+        elif zone == ToontownGlobals.DaisyGardens:
+            self.gameBoard.find('**/floor_DG').show()
+        elif zone == ToontownGlobals.MinniesMelodyland:
+            self.gameBoard.find('**/floor_MM').show()
+        elif zone == ToontownGlobals.TheBrrrgh:
+            self.gameBoard.find('**/floor_BR').show()
+        elif zone == ToontownGlobals.DonaldsDreamland:
+            self.gameBoard.find('**/floor_DL').show()
         else:
-            if zone == ToontownGlobals.DonaldsDock:
-                self.gameBoard.find('**/floor_DD').show()
-            else:
-                if zone == ToontownGlobals.DaisyGardens:
-                    self.gameBoard.find('**/floor_DG').show()
-                else:
-                    if zone == ToontownGlobals.MinniesMelodyland:
-                        self.gameBoard.find('**/floor_MM').show()
-                    else:
-                        if zone == ToontownGlobals.TheBrrrgh:
-                            self.gameBoard.find('**/floor_BR').show()
-                        else:
-                            if zone == ToontownGlobals.DonaldsDreamland:
-                                self.gameBoard.find('**/floor_DL').show()
-                            else:
-                                self.gameBoard.find('**/floor_TT').show()
+            self.gameBoard.find('**/floor_TT').show()
         self.gameBoard.setPosHpr(0, 0, 0, 0, 0, 0)
         self.gameBoard.setScale(1.0)
         self.toonSDs = {}
@@ -264,19 +259,20 @@ class DistributedCogThiefGame(DistributedMinigame):
     def setGameStart(self, timestamp):
         if not self.hasLocalToon:
             return
-        self.notify.debug('setGameStart')
-        DistributedMinigame.setGameStart(self, timestamp)
-        if not base.config.GetBool('cog-thief-endless', 0):
-            self.timer.show()
-            self.timer.countdown(CTGG.GameTime, self.__gameTimerExpired)
-        self.clockStopTime = None
-        self.rewardPanel.reparentTo(base.a2dTopRight)
-        self.scoreMult = MinigameGlobals.getScoreMult(self.cr.playGame.hood.id)
-        self.__startRewardCountdown()
-        if self.introTrack.isPlaying():
-            self.introTrack.finish()
-        self.gameFSM.request('play')
-        return
+        else:
+            self.notify.debug('setGameStart')
+            DistributedMinigame.setGameStart(self, timestamp)
+            if not base.config.GetBool('cog-thief-endless', 0):
+                self.timer.show()
+                self.timer.countdown(CTGG.GameTime, self.__gameTimerExpired)
+            self.clockStopTime = None
+            self.rewardPanel.reparentTo(base.a2dTopRight)
+            self.scoreMult = MinigameGlobals.getScoreMult(self.cr.playGame.hood.id)
+            self.__startRewardCountdown()
+            if self.introTrack.isPlaying():
+                self.introTrack.finish()
+            self.gameFSM.request('play')
+            return
 
     def enterOff(self):
         self.notify.debug('enterOff')
@@ -430,106 +426,107 @@ class DistributedCogThiefGame(DistributedMinigame):
         toon = self.getAvatar(avId)
         if toon == None:
             return
-        rng = self.toonRNGs[self.avIdList.index(avId)]
-        curPos = toon.getPos(render)
-        oldTrack = self.toonHitTracks[avId]
-        if oldTrack.isPlaying():
-            oldTrack.finish()
-        toon.setPos(curPos)
-        toon.setZ(self.TOON_Z)
-        parentNode = render.attachNewNode('mazeFlyToonParent-' + `avId`)
-        parentNode.setPos(toon.getPos())
-        toon.reparentTo(parentNode)
-        toon.setPos(0, 0, 0)
-        startPos = parentNode.getPos()
-        dropShadow = toon.dropShadow.copyTo(parentNode)
-        dropShadow.setScale(toon.dropShadow.getScale(render))
-        trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=1.0)
-        oldFlyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
-        trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=0.55)
-        flyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
-        avIndex = self.avIdList.index(avId)
-        endPos = CTGG.ToonStartingPositions[avIndex]
+        else:
+            rng = self.toonRNGs[self.avIdList.index(avId)]
+            curPos = toon.getPos(render)
+            oldTrack = self.toonHitTracks[avId]
+            if oldTrack.isPlaying():
+                oldTrack.finish()
+            toon.setPos(curPos)
+            toon.setZ(self.TOON_Z)
+            parentNode = render.attachNewNode('mazeFlyToonParent-' + `avId`)
+            parentNode.setPos(toon.getPos())
+            toon.reparentTo(parentNode)
+            toon.setPos(0, 0, 0)
+            startPos = parentNode.getPos()
+            dropShadow = toon.dropShadow.copyTo(parentNode)
+            dropShadow.setScale(toon.dropShadow.getScale(render))
+            trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=1.0)
+            oldFlyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
+            trajectory = Trajectory.Trajectory(0, Point3(0, 0, 0), Point3(0, 0, 50), gravMult=0.55)
+            flyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
+            avIndex = self.avIdList.index(avId)
+            endPos = CTGG.ToonStartingPositions[avIndex]
 
-        def flyFunc(t, trajectory, startPos=startPos, endPos=endPos, dur=flyDur, moveNode=parentNode, flyNode=toon):
-            u = t / dur
-            moveNode.setX(startPos[0] + u * (endPos[0] - startPos[0]))
-            moveNode.setY(startPos[1] + u * (endPos[1] - startPos[1]))
-            flyNode.setPos(trajectory.getPos(t))
+            def flyFunc(t, trajectory, startPos=startPos, endPos=endPos, dur=flyDur, moveNode=parentNode, flyNode=toon):
+                u = t / dur
+                moveNode.setX(startPos[0] + u * (endPos[0] - startPos[0]))
+                moveNode.setY(startPos[1] + u * (endPos[1] - startPos[1]))
+                flyNode.setPos(trajectory.getPos(t))
 
-        flyTrack = Sequence(LerpFunctionInterval(flyFunc, fromData=0.0, toData=flyDur, duration=flyDur, extraArgs=[trajectory]), name=toon.uniqueName('hitBySuit-fly'))
-        geomNode = toon.getGeomNode()
-        startHpr = geomNode.getHpr()
-        destHpr = Point3(startHpr)
-        hRot = rng.randrange(1, 8)
-        if rng.choice([0, 1]):
-            hRot = -hRot
-        destHpr.setX(destHpr[0] + hRot * 360)
-        spinHTrack = Sequence(LerpHprInterval(geomNode, flyDur, destHpr, startHpr=startHpr), Func(geomNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinH'))
-        parent = geomNode.getParent()
-        rotNode = parent.attachNewNode('rotNode')
-        geomNode.reparentTo(rotNode)
-        rotNode.setZ(toon.getHeight() / 2.0)
-        oldGeomNodeZ = geomNode.getZ()
-        geomNode.setZ(-toon.getHeight() / 2.0)
-        startHpr = rotNode.getHpr()
-        destHpr = Point3(startHpr)
-        pRot = rng.randrange(1, 3)
-        if rng.choice([0, 1]):
-            pRot = -pRot
-        destHpr.setY(destHpr[1] + pRot * 360)
-        spinPTrack = Sequence(LerpHprInterval(rotNode, flyDur, destHpr, startHpr=startHpr), Func(rotNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinP'))
-        i = self.avIdList.index(avId)
-        soundTrack = Sequence(Func(base.playSfx, self.sndTable['hitBySuit'][i]), Wait(flyDur * (2.0 / 3.0)), SoundInterval(self.sndTable['falling'][i], duration=flyDur * (1.0 / 3.0)), name=toon.uniqueName('hitBySuit-soundTrack'))
+            flyTrack = Sequence(LerpFunctionInterval(flyFunc, fromData=0.0, toData=flyDur, duration=flyDur, extraArgs=[trajectory]), name=toon.uniqueName('hitBySuit-fly'))
+            geomNode = toon.getGeomNode()
+            startHpr = geomNode.getHpr()
+            destHpr = Point3(startHpr)
+            hRot = rng.randrange(1, 8)
+            if rng.choice([0, 1]):
+                hRot = -hRot
+            destHpr.setX(destHpr[0] + hRot * 360)
+            spinHTrack = Sequence(LerpHprInterval(geomNode, flyDur, destHpr, startHpr=startHpr), Func(geomNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinH'))
+            parent = geomNode.getParent()
+            rotNode = parent.attachNewNode('rotNode')
+            geomNode.reparentTo(rotNode)
+            rotNode.setZ(toon.getHeight() / 2.0)
+            oldGeomNodeZ = geomNode.getZ()
+            geomNode.setZ(-toon.getHeight() / 2.0)
+            startHpr = rotNode.getHpr()
+            destHpr = Point3(startHpr)
+            pRot = rng.randrange(1, 3)
+            if rng.choice([0, 1]):
+                pRot = -pRot
+            destHpr.setY(destHpr[1] + pRot * 360)
+            spinPTrack = Sequence(LerpHprInterval(rotNode, flyDur, destHpr, startHpr=startHpr), Func(rotNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinP'))
+            i = self.avIdList.index(avId)
+            soundTrack = Sequence(Func(base.playSfx, self.sndTable['hitBySuit'][i]), Wait(flyDur * (2.0 / 3.0)), SoundInterval(self.sndTable['falling'][i], duration=flyDur * (1.0 / 3.0)), name=toon.uniqueName('hitBySuit-soundTrack'))
 
-        def preFunc(self=self, avId=avId, toon=toon, dropShadow=dropShadow):
-            forwardSpeed = toon.forwardSpeed
-            rotateSpeed = toon.rotateSpeed
-            if avId == self.localAvId:
-                self.stopGameWalk()
-            else:
-                toon.stopSmooth()
-            if forwardSpeed or rotateSpeed:
-                toon.setSpeed(forwardSpeed, rotateSpeed)
-            toon.dropShadow.hide()
+            def preFunc(self=self, avId=avId, toon=toon, dropShadow=dropShadow):
+                forwardSpeed = toon.forwardSpeed
+                rotateSpeed = toon.rotateSpeed
+                if avId == self.localAvId:
+                    self.stopGameWalk()
+                else:
+                    toon.stopSmooth()
+                if forwardSpeed or rotateSpeed:
+                    toon.setSpeed(forwardSpeed, rotateSpeed)
+                toon.dropShadow.hide()
 
-        def postFunc(self=self, avId=avId, oldGeomNodeZ=oldGeomNodeZ, dropShadow=dropShadow, parentNode=parentNode):
-            if avId == self.localAvId:
-                base.localAvatar.setPos(endPos)
-                if hasattr(self, 'gameWalk'):
-                    toon = base.localAvatar
-                    toon.setSpeed(0, 0)
-                    self.startGameWalk()
-            dropShadow.removeNode()
-            del dropShadow
-            toon = self.getAvatar(avId)
-            if toon:
-                toon.dropShadow.show()
-                geomNode = toon.getGeomNode()
-                rotNode = geomNode.getParent()
-                baseNode = rotNode.getParent()
-                geomNode.reparentTo(baseNode)
-                rotNode.removeNode()
-                del rotNode
-                geomNode.setZ(oldGeomNodeZ)
-            if toon:
-                toon.reparentTo(render)
-                toon.setPos(endPos)
-            parentNode.removeNode()
-            del parentNode
-            if avId != self.localAvId:
+            def postFunc(self=self, avId=avId, oldGeomNodeZ=oldGeomNodeZ, dropShadow=dropShadow, parentNode=parentNode):
+                if avId == self.localAvId:
+                    base.localAvatar.setPos(endPos)
+                    if hasattr(self, 'gameWalk'):
+                        toon = base.localAvatar
+                        toon.setSpeed(0, 0)
+                        self.startGameWalk()
+                dropShadow.removeNode()
+                del dropShadow
+                toon = self.getAvatar(avId)
                 if toon:
-                    toon.startSmooth()
+                    toon.dropShadow.show()
+                    geomNode = toon.getGeomNode()
+                    rotNode = geomNode.getParent()
+                    baseNode = rotNode.getParent()
+                    geomNode.reparentTo(baseNode)
+                    rotNode.removeNode()
+                    del rotNode
+                    geomNode.setZ(oldGeomNodeZ)
+                if toon:
+                    toon.reparentTo(render)
+                    toon.setPos(endPos)
+                parentNode.removeNode()
+                del parentNode
+                if avId != self.localAvId:
+                    if toon:
+                        toon.startSmooth()
 
-        preFunc()
-        slipBack = Parallel(Sequence(ActorInterval(toon, 'slip-backward', endFrame=24), Wait(CTGG.LyingDownDuration - (flyDur - oldFlyDur)), ActorInterval(toon, 'slip-backward', startFrame=24)))
-        if toon.doId == self.localAvId:
-            slipBack.append(SoundInterval(self.sndOof))
-        hitTrack = Sequence(Parallel(flyTrack, spinHTrack, spinPTrack, soundTrack), slipBack, Func(postFunc), name=toon.uniqueName('hitBySuit'))
-        self.notify.debug('hitTrack duration = %s' % hitTrack.getDuration())
-        self.toonHitTracks[avId] = hitTrack
-        hitTrack.start(globalClockDelta.localElapsedTime(timestamp))
-        return
+            preFunc()
+            slipBack = Parallel(Sequence(ActorInterval(toon, 'slip-backward', endFrame=24), Wait(CTGG.LyingDownDuration - (flyDur - oldFlyDur)), ActorInterval(toon, 'slip-backward', startFrame=24)))
+            if toon.doId == self.localAvId:
+                slipBack.append(SoundInterval(self.sndOof))
+            hitTrack = Sequence(Parallel(flyTrack, spinHTrack, spinPTrack, soundTrack), slipBack, Func(postFunc), name=toon.uniqueName('hitBySuit'))
+            self.notify.debug('hitTrack duration = %s' % hitTrack.getDuration())
+            self.toonHitTracks[avId] = hitTrack
+            hitTrack.start(globalClockDelta.localElapsedTime(timestamp))
+            return
 
     def updateSuitGoal(self, timestamp, inResponseToClientStamp, suitNum, goalType, goalId, x, y, z):
         if not self.hasLocalToon:
@@ -884,14 +881,12 @@ class DistributedCogThiefGame(DistributedMinigame):
             resultStr = ''
             if numBarrelsSaved == len(self.barrels):
                 resultStr = TTLocalizer.CogThiefPerfect
+            elif numBarrelsSaved > 1:
+                resultStr = TTLocalizer.CogThiefBarrelsSaved % {'num': numBarrelsSaved}
+            elif numBarrelsSaved == 1:
+                resultStr = TTLocalizer.CogThiefBarrelSaved % {'num': numBarrelsSaved}
             else:
-                if numBarrelsSaved > 1:
-                    resultStr = TTLocalizer.CogThiefBarrelsSaved % {'num': numBarrelsSaved}
-                else:
-                    if numBarrelsSaved == 1:
-                        resultStr = TTLocalizer.CogThiefBarrelSaved % {'num': numBarrelsSaved}
-                    else:
-                        resultStr = TTLocalizer.CogThiefNoBarrelsSaved
+                resultStr = TTLocalizer.CogThiefNoBarrelsSaved
             perfectTextSubnode = hidden.attachNewNode(self.__genText(resultStr))
             perfectText = hidden.attachNewNode('perfectText')
             perfectTextSubnode.reparentTo(perfectText)

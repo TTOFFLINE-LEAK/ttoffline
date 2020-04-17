@@ -27,25 +27,25 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
         self.validate(avId, impact <= 1.0, 'invalid hitBoss impact %s' % impact)
         if avId not in self.boss.involvedToons:
             return
-        if self.state != 'Dropped' and self.state != 'Grabbed':
-            return
-        if self.avoidHelmet or self == self.boss.heldObject:
-            return
-        if self.boss.heldObject == None:
-            if self.boss.attackCode == ToontownGlobals.BossCogDizzy:
-                damage = int(impact * 50)
-                self.boss.recordHit(max(damage, 2))
-            elif self.boss.acceptHelmetFrom(avId):
-                self.demand('Grabbed', self.boss.doId, self.boss.doId)
-                self.boss.heldObject = self
         else:
-            if impact >= ToontownGlobals.CashbotBossSafeKnockImpact:
+            if self.state != 'Dropped' and self.state != 'Grabbed':
+                return
+            if self.avoidHelmet or self == self.boss.heldObject:
+                return
+            if self.boss.heldObject == None:
+                if self.boss.attackCode == ToontownGlobals.BossCogDizzy:
+                    damage = int(impact * 50)
+                    self.boss.recordHit(max(damage, 2))
+                elif self.boss.acceptHelmetFrom(avId):
+                    self.demand('Grabbed', self.boss.doId, self.boss.doId)
+                    self.boss.heldObject = self
+            elif impact >= ToontownGlobals.CashbotBossSafeKnockImpact:
                 self.boss.heldObject.demand('Dropped', avId, self.boss.doId)
                 self.boss.heldObject.avoidHelmet = 1
                 self.boss.heldObject = None
                 self.avoidHelmet = 1
                 self.boss.waitForNextHelmet()
-        return
+            return
 
     def requestInitial(self):
         avId = self.air.getAvatarIdFromSender()

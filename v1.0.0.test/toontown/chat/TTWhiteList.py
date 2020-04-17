@@ -108,22 +108,23 @@ class TTWhiteList(WhiteList):
     def findWhitelistDir(self):
         if self.WhitelistOverHttp:
             return self.WhitelistStageDir
-        searchPath = DSearchPath()
-        if AppRunnerGlobal.appRunner:
-            searchPath.appendDirectory(Filename.expandFrom('$TT_3_5_ROOT/phase_3.5/models/news'))
         else:
-            basePath = os.path.expandvars('$TTMODELS') or './ttmodels'
-            searchPath.appendDirectory(Filename.fromOsSpecific(basePath + '/built/' + self.NewsBaseDir))
-            searchPath.appendDirectory(Filename(self.NewsBaseDir))
-        pfile = Filename(self.WhitelistFileName)
-        found = vfs.resolveFilename(pfile, searchPath)
-        if not found:
-            self.notify.warning('findWhitelistDir - no path: %s' % self.WhitelistFileName)
-            self.setErrorMessage(TTLocalizer.NewsPageErrorDownloadingFile % self.WhitelistFileName)
-            return None
-        self.notify.debug('found whitelist file %s' % pfile)
-        realDir = pfile.getDirname()
-        return realDir
+            searchPath = DSearchPath()
+            if AppRunnerGlobal.appRunner:
+                searchPath.appendDirectory(Filename.expandFrom('$TT_3_5_ROOT/phase_3.5/models/news'))
+            else:
+                basePath = os.path.expandvars('$TTMODELS') or './ttmodels'
+                searchPath.appendDirectory(Filename.fromOsSpecific(basePath + '/built/' + self.NewsBaseDir))
+                searchPath.appendDirectory(Filename(self.NewsBaseDir))
+            pfile = Filename(self.WhitelistFileName)
+            found = vfs.resolveFilename(pfile, searchPath)
+            if not found:
+                self.notify.warning('findWhitelistDir - no path: %s' % self.WhitelistFileName)
+                self.setErrorMessage(TTLocalizer.NewsPageErrorDownloadingFile % self.WhitelistFileName)
+                return None
+            self.notify.debug('found whitelist file %s' % pfile)
+            realDir = pfile.getDirname()
+            return realDir
 
     def downloadWhitelistTask(self, task):
         if self.ch.run():

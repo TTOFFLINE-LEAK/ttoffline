@@ -23,11 +23,10 @@ class PyVec3:
                 z = arg.getZ()
             else:
                 raise TypeError
-        else:
-            if len(args) == 3:
-                x = args[0]
-                y = args[1]
-                z = args[2]
+        elif len(args) == 3:
+            x = args[0]
+            y = args[1]
+            z = args[2]
         self.x = x
         self.y = y
         self.z = z
@@ -164,14 +163,12 @@ class PyVec3:
     def __setitem__(self, i, s):
         if i == 0:
             self.x = s
+        elif i == 1:
+            self.y = s
+        elif i == 2:
+            self.z = s
         else:
-            if i == 1:
-                self.y = s
-            else:
-                if i == 2:
-                    self.z = s
-                else:
-                    raise IndexError
+            raise IndexError
 
     def __repr__(self):
         return 'PyVec3(%s,%s,%s)' % (self.x, self.y, self.z)

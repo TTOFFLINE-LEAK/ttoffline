@@ -183,29 +183,25 @@ class BossCog(Avatar.Avatar):
     def updateHealthBar(self):
         if self.healthBar == None:
             return
-        health = 1.0 - float(self.bossDamage) / float(self.bossMaxDamage)
-        if health > 0.95:
-            condition = 0
         else:
-            if health > 0.7:
+            health = 1.0 - float(self.bossDamage) / float(self.bossMaxDamage)
+            if health > 0.95:
+                condition = 0
+            elif health > 0.7:
                 condition = 1
+            elif health > 0.3:
+                condition = 2
+            elif health > 0.05:
+                condition = 3
+            elif health > 0.0:
+                condition = 4
             else:
-                if health > 0.3:
-                    condition = 2
-                else:
-                    if health > 0.05:
-                        condition = 3
-                    else:
-                        if health > 0.0:
-                            condition = 4
-                        else:
-                            condition = 5
-        if self.healthCondition != condition:
-            if condition == 4:
-                blinkTask = Task.loop(Task(self.__blinkRed), Task.pause(0.75), Task(self.__blinkGray), Task.pause(0.1))
-                taskMgr.add(blinkTask, self.uniqueName('blink-task'))
-            else:
-                if condition == 5:
+                condition = 5
+            if self.healthCondition != condition:
+                if condition == 4:
+                    blinkTask = Task.loop(Task(self.__blinkRed), Task.pause(0.75), Task(self.__blinkGray), Task.pause(0.1))
+                    taskMgr.add(blinkTask, self.uniqueName('blink-task'))
+                elif condition == 5:
                     if self.healthCondition == 4:
                         taskMgr.remove(self.uniqueName('blink-task'))
                     blinkTask = Task.loop(Task(self.__blinkRed), Task.pause(0.25), Task(self.__blinkGray), Task.pause(0.1))
@@ -213,8 +209,8 @@ class BossCog(Avatar.Avatar):
                 else:
                     self.healthBar.setColor(self.healthColors[condition], 1)
                     self.healthBarGlow.setColor(self.healthGlowColors[condition], 1)
-            self.healthCondition = condition
-        return
+                self.healthCondition = condition
+            return
 
     def __blinkRed(self, task):
         self.healthBar.setColor(self.healthColors[3], 1)
@@ -431,48 +427,48 @@ class BossCog(Avatar.Avatar):
     def __doGetAnimIval(self, anim, raised, forward, happy):
         if raised == self.raised and forward == self.forward and happy == self.happy:
             return (self.getAnim(anim), anim != None)
-        startsHappy = self.happy
-        endsHappy = self.happy
-        ival = Sequence()
-        if raised and not self.raised:
-            upIval = self.getAngryActorInterval('Fb_down2Up')
-            if self.forward:
-                ival = upIval
-            else:
-                ival = Sequence(Func(self.reverseBody), upIval, Func(self.forwardBody))
-            ival = Parallel(SoundInterval(self.upSfx, node=self), ival)
-        if forward != self.forward:
-            if forward:
-                animName = 'Bb2Ff_spin'
-            else:
-                animName = 'Ff2Bb_spin'
-            ival = Sequence(ival, ActorInterval(self, animName))
-            startsHappy = 1
-            endsHappy = 1
-        startNeckHpr = self.neckForwardHpr
-        endNeckHpr = self.neckForwardHpr
-        if self.happy != startsHappy:
-            startNeckHpr = self.neckReversedHpr
-        if happy != endsHappy:
-            endNeckHpr = self.neckReversedHpr
-        if startNeckHpr != endNeckHpr:
-            ival = Sequence(Func(self.neck.setHpr, startNeckHpr), ParallelEndTogether(ival, Sequence(self.neck.hprInterval(0.5, endNeckHpr, startHpr=startNeckHpr, blendType='easeInOut'), Func(self.neck.setHpr, self.neckForwardHpr))))
         else:
-            if endNeckHpr != self.neckForwardHpr:
+            startsHappy = self.happy
+            endsHappy = self.happy
+            ival = Sequence()
+            if raised and not self.raised:
+                upIval = self.getAngryActorInterval('Fb_down2Up')
+                if self.forward:
+                    ival = upIval
+                else:
+                    ival = Sequence(Func(self.reverseBody), upIval, Func(self.forwardBody))
+                ival = Parallel(SoundInterval(self.upSfx, node=self), ival)
+            if forward != self.forward:
+                if forward:
+                    animName = 'Bb2Ff_spin'
+                else:
+                    animName = 'Ff2Bb_spin'
+                ival = Sequence(ival, ActorInterval(self, animName))
+                startsHappy = 1
+                endsHappy = 1
+            startNeckHpr = self.neckForwardHpr
+            endNeckHpr = self.neckForwardHpr
+            if self.happy != startsHappy:
+                startNeckHpr = self.neckReversedHpr
+            if happy != endsHappy:
+                endNeckHpr = self.neckReversedHpr
+            if startNeckHpr != endNeckHpr:
+                ival = Sequence(Func(self.neck.setHpr, startNeckHpr), ParallelEndTogether(ival, Sequence(self.neck.hprInterval(0.5, endNeckHpr, startHpr=startNeckHpr, blendType='easeInOut'), Func(self.neck.setHpr, self.neckForwardHpr))))
+            elif endNeckHpr != self.neckForwardHpr:
                 ival = Sequence(Func(self.neck.setHpr, startNeckHpr), ival, Func(self.neck.setHpr, self.neckForwardHpr))
-        if not raised and self.raised:
-            downIval = self.getAngryActorInterval('Fb_down2Up', playRate=-1)
-            if forward:
-                ival = Sequence(ival, downIval)
-            else:
-                ival = Sequence(ival, Func(self.reverseBody), downIval, Func(self.forwardBody))
-            ival = Parallel(SoundInterval(self.downSfx, node=self), ival)
-        self.raised = raised
-        self.forward = forward
-        self.happy = happy
-        if anim != None:
-            ival = Sequence(ival, self.getAnim(anim))
-        return (ival, 1)
+            if not raised and self.raised:
+                downIval = self.getAngryActorInterval('Fb_down2Up', playRate=-1)
+                if forward:
+                    ival = Sequence(ival, downIval)
+                else:
+                    ival = Sequence(ival, Func(self.reverseBody), downIval, Func(self.forwardBody))
+                ival = Parallel(SoundInterval(self.downSfx, node=self), ival)
+            self.raised = raised
+            self.forward = forward
+            self.happy = happy
+            if anim != None:
+                ival = Sequence(ival, self.getAnim(anim))
+            return (ival, 1)
 
     def setDizzy(self, dizzy):
         if dizzy and not self.dizzy:
@@ -506,64 +502,55 @@ class BossCog(Avatar.Avatar):
                 ival = Parallel(ActorInterval(self, animName, partName=['torso', 'head']), ActorInterval(self, 'Fb_downNeutral', partName='legs'))
             if not self.forward:
                 ival = Sequence(Func(self.reverseBody), ival, Func(self.forwardBody))
-        else:
-            if anim == 'down2Up':
-                ival = Parallel(SoundInterval(self.upSfx, node=self), self.getAngryActorInterval('Fb_down2Up'))
-                self.raised = 1
+        elif anim == 'down2Up':
+            ival = Parallel(SoundInterval(self.upSfx, node=self), self.getAngryActorInterval('Fb_down2Up'))
+            self.raised = 1
+        elif anim == 'up2Down':
+            ival = Parallel(SoundInterval(self.downSfx, node=self), self.getAngryActorInterval('Fb_down2Up', playRate=-1))
+            self.raised = 0
+        elif anim == 'throw':
+            self.doAnimate(None, raised=1, happy=0, queueNeutral=0)
+            ival = Parallel(Sequence(SoundInterval(self.throwSfx, node=self), duration=0), self.getAngryActorInterval('Fb_UpThrow'))
+        elif anim == 'hit':
+            if self.raised:
+                self.raised = 0
+                ival = self.getAngryActorInterval('Fb_firstHit')
             else:
-                if anim == 'up2Down':
-                    ival = Parallel(SoundInterval(self.downSfx, node=self), self.getAngryActorInterval('Fb_down2Up', playRate=-1))
-                    self.raised = 0
-                else:
-                    if anim == 'throw':
-                        self.doAnimate(None, raised=1, happy=0, queueNeutral=0)
-                        ival = Parallel(Sequence(SoundInterval(self.throwSfx, node=self), duration=0), self.getAngryActorInterval('Fb_UpThrow'))
-                    else:
-                        if anim == 'hit':
-                            if self.raised:
-                                self.raised = 0
-                                ival = self.getAngryActorInterval('Fb_firstHit')
-                            else:
-                                ival = self.getAngryActorInterval('Fb_downHit')
-                            ival = Parallel(SoundInterval(self.reelSfx, node=self), ival)
-                        else:
-                            if anim == 'ltSwing' or anim == 'rtSwing':
-                                self.doAnimate(None, raised=0, happy=0, queueNeutral=0)
-                                if anim == 'ltSwing':
-                                    ival = Sequence(Track((0, self.getAngryActorInterval('Fb_downLtSwing')), (0.9, SoundInterval(self.swingSfx, node=self)), (1, Func(self.bubbleL.unstash))), Func(self.bubbleL.stash))
-                                else:
-                                    ival = Sequence(Track((0, self.getAngryActorInterval('Fb_downRtSwing')), (0.9, SoundInterval(self.swingSfx, node=self)), (1, Func(self.bubbleR.unstash))), Func(self.bubbleR.stash))
-                            else:
-                                if anim == 'frontAttack':
-                                    self.doAnimate(None, raised=1, happy=0, queueNeutral=0)
-                                    pe = BattleParticles.loadParticleFile('bossCogFrontAttack.ptf')
-                                    ival = Sequence(Func(self.reverseHead), ActorInterval(self, 'Bb2Ff_spin'), Func(self.forwardHead))
-                                    if self.forward:
-                                        ival = Sequence(Func(self.reverseBody), ParallelEndTogether(ival, self.pelvis.hprInterval(0.5, self.pelvisForwardHpr, blendType='easeInOut')))
-                                    ival = Sequence(Track((0, ival), (0, SoundInterval(self.spinSfx, node=self)), (0.9, Parallel(SoundInterval(self.rainGearsSfx, node=self), ParticleInterval(pe, self.frontAttack, worldRelative=0, duration=1.5, cleanup=True), duration=0)), (1.9, Func(self.bubbleF.unstash))), Func(self.bubbleF.stash))
-                                    self.forward = 1
-                                    self.happy = 0
-                                    self.raised = 1
-                                else:
-                                    if anim == 'areaAttack':
-                                        if self.twoFaced:
-                                            self.doAnimate(None, raised=1, happy=0, queueNeutral=0)
-                                        else:
-                                            self.doAnimate(None, raised=1, happy=1, queueNeutral=1)
-                                        ival = Parallel(ActorInterval(self, 'Fb_jump'), Sequence(SoundInterval(self.swishSfx, duration=1.1, node=self), SoundInterval(self.boomSfx, duration=1.9)), Sequence(Wait(1.21), Func(self.announceAreaAttack)))
-                                        if self.twoFaced:
-                                            self.happy = 0
-                                        else:
-                                            self.happy = 1
-                                        self.raised = 1
-                                    else:
-                                        if anim == 'Fb_fall':
-                                            ival = Parallel(ActorInterval(self, 'Fb_fall'), Sequence(SoundInterval(self.reelSfx, node=self), SoundInterval(self.deathSfx)))
-                                        else:
-                                            if isinstance(anim, types.StringType):
-                                                ival = ActorInterval(self, anim)
-                                            else:
-                                                ival = anim
+                ival = self.getAngryActorInterval('Fb_downHit')
+            ival = Parallel(SoundInterval(self.reelSfx, node=self), ival)
+        elif anim == 'ltSwing' or anim == 'rtSwing':
+            self.doAnimate(None, raised=0, happy=0, queueNeutral=0)
+            if anim == 'ltSwing':
+                ival = Sequence(Track((0, self.getAngryActorInterval('Fb_downLtSwing')), (0.9, SoundInterval(self.swingSfx, node=self)), (1, Func(self.bubbleL.unstash))), Func(self.bubbleL.stash))
+            else:
+                ival = Sequence(Track((0, self.getAngryActorInterval('Fb_downRtSwing')), (0.9, SoundInterval(self.swingSfx, node=self)), (1, Func(self.bubbleR.unstash))), Func(self.bubbleR.stash))
+        elif anim == 'frontAttack':
+            self.doAnimate(None, raised=1, happy=0, queueNeutral=0)
+            pe = BattleParticles.loadParticleFile('bossCogFrontAttack.ptf')
+            ival = Sequence(Func(self.reverseHead), ActorInterval(self, 'Bb2Ff_spin'), Func(self.forwardHead))
+            if self.forward:
+                ival = Sequence(Func(self.reverseBody), ParallelEndTogether(ival, self.pelvis.hprInterval(0.5, self.pelvisForwardHpr, blendType='easeInOut')))
+            ival = Sequence(Track((0, ival), (0, SoundInterval(self.spinSfx, node=self)), (0.9, Parallel(SoundInterval(self.rainGearsSfx, node=self), ParticleInterval(pe, self.frontAttack, worldRelative=0, duration=1.5, cleanup=True), duration=0)), (1.9, Func(self.bubbleF.unstash))), Func(self.bubbleF.stash))
+            self.forward = 1
+            self.happy = 0
+            self.raised = 1
+        elif anim == 'areaAttack':
+            if self.twoFaced:
+                self.doAnimate(None, raised=1, happy=0, queueNeutral=0)
+            else:
+                self.doAnimate(None, raised=1, happy=1, queueNeutral=1)
+            ival = Parallel(ActorInterval(self, 'Fb_jump'), Sequence(SoundInterval(self.swishSfx, duration=1.1, node=self), SoundInterval(self.boomSfx, duration=1.9)), Sequence(Wait(1.21), Func(self.announceAreaAttack)))
+            if self.twoFaced:
+                self.happy = 0
+            else:
+                self.happy = 1
+            self.raised = 1
+        elif anim == 'Fb_fall':
+            ival = Parallel(ActorInterval(self, 'Fb_fall'), Sequence(SoundInterval(self.reelSfx, node=self), SoundInterval(self.deathSfx)))
+        elif isinstance(anim, types.StringType):
+            ival = ActorInterval(self, anim)
+        else:
+            ival = anim
         return ival
 
     def getTTSVolume(self):
@@ -571,9 +558,8 @@ class BossCog(Avatar.Avatar):
         result = int(round((avatarPos[0] + avatarPos[1]) / 2))
         if result > 100:
             result = 100
-        else:
-            if result < 0:
-                result = 0
+        elif result < 0:
+            result = 0
         volumeList = range(100, -1, -1)
         return volumeList[result]
 
@@ -583,14 +569,13 @@ class BossCog(Avatar.Avatar):
         self.__currentDialogue = dialogue
         if dialogue:
             base.playSfx(dialogue, node=self)
-        else:
-            if chatFlags & CFSpeech != 0:
-                if self.nametag.getNumChatPages() > 0:
-                    self.playDialogueForString(self.nametag.getChat())
-                    if self.soundChatBubble != None:
-                        base.playSfx(self.soundChatBubble, node=self)
-                elif self.nametag.getChatStomp() > 0:
-                    self.playDialogueForString(self.nametag.getStompText(), self.nametag.getStompDelay())
+        elif chatFlags & CFSpeech != 0:
+            if self.nametag.getNumChatPages() > 0:
+                self.playDialogueForString(self.nametag.getChat())
+                if self.soundChatBubble != None:
+                    base.playSfx(self.soundChatBubble, node=self)
+            elif self.nametag.getChatStomp() > 0:
+                self.playDialogueForString(self.nametag.getStompText(), self.nametag.getStompDelay())
         return
 
     def playDialogueForString(self, chatString, delay=0.0):
@@ -599,28 +584,23 @@ class BossCog(Avatar.Avatar):
         searchString = chatString.lower()
         if searchString.find(OTPLocalizer.DialogSpecial) >= 0:
             type = 'special'
+        elif searchString.find(OTPLocalizer.DialogExclamation) >= 0:
+            type = 'exclamation'
+        elif searchString.find(OTPLocalizer.DialogQuestion) >= 0:
+            type = 'question'
+        elif random.randint(0, 1):
+            type = 'statementA'
         else:
-            if searchString.find(OTPLocalizer.DialogExclamation) >= 0:
-                type = 'exclamation'
-            else:
-                if searchString.find(OTPLocalizer.DialogQuestion) >= 0:
-                    type = 'question'
-                else:
-                    if random.randint(0, 1):
-                        type = 'statementA'
-                    else:
-                        type = 'statementB'
+            type = 'statementB'
         stringLength = len(chatString)
         if stringLength <= OTPLocalizer.DialogLength1:
             length = 1
+        elif stringLength <= OTPLocalizer.DialogLength2:
+            length = 2
+        elif stringLength <= OTPLocalizer.DialogLength3:
+            length = 3
         else:
-            if stringLength <= OTPLocalizer.DialogLength2:
-                length = 2
-            else:
-                if stringLength <= OTPLocalizer.DialogLength3:
-                    length = 3
-                else:
-                    length = 4
+            length = 4
         self.playDialogue(type, length, chatString, delay)
 
     def playDialogue(self, type, length, chatString='', delay=0.0):
@@ -630,46 +610,46 @@ class BossCog(Avatar.Avatar):
             soundSequence.start()
             self.cleanUpSoundList()
             return
-        dialogueArray = self.getDialogueArray()
-        if dialogueArray == None:
-            return
-        sfxIndex = None
-        if type == 'statementA' or type == 'statementB':
-            if length == 1:
-                sfxIndex = 0
-            elif length == 2:
-                sfxIndex = 1
-            elif length >= 3:
-                sfxIndex = 2
         else:
-            if type == 'question':
+            dialogueArray = self.getDialogueArray()
+            if dialogueArray == None:
+                return
+            sfxIndex = None
+            if type == 'statementA' or type == 'statementB':
+                if length == 1:
+                    sfxIndex = 0
+                elif length == 2:
+                    sfxIndex = 1
+                elif length >= 3:
+                    sfxIndex = 2
+            elif type == 'question':
                 sfxIndex = 3
+            elif type == 'exclamation':
+                sfxIndex = 4
+            elif type == 'special':
+                sfxIndex = 5
             else:
-                if type == 'exclamation':
-                    sfxIndex = 4
-                else:
-                    if type == 'special':
-                        sfxIndex = 5
-                    else:
-                        notify.error('unrecognized dialogue type: ', type)
-        if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
-            soundSequence = Sequence(Wait(delay), SoundInterval(dialogueArray[sfxIndex], node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
-            self.soundSequenceList.append(soundSequence)
-            soundSequence.start()
-            self.cleanUpSoundList()
-        return
+                notify.error('unrecognized dialogue type: ', type)
+            if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
+                soundSequence = Sequence(Wait(delay), SoundInterval(dialogueArray[sfxIndex], node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
+                self.soundSequenceList.append(soundSequence)
+                soundSequence.start()
+                self.cleanUpSoundList()
+            return
 
     def playTTS(self, chatString):
         try:
             if self.getTTSVolume() == 0:
                 return
-            if sys.platform == 'darwin':
-                voice = ToontownGlobals.DefaultVoiceCogBoss
-                Popen(['say', voice, chatString])
             else:
-                volume = '-a' + str(self.getTTSVolume())
-                Popen([base.textToSpeechPath, volume, '-ven', chatString])
-            return
+                if sys.platform == 'darwin':
+                    voice = ToontownGlobals.DefaultVoiceCogBoss
+                    Popen(['say', voice, chatString])
+                else:
+                    volume = '-a' + str(self.getTTSVolume())
+                    Popen([base.textToSpeechPath, volume, '-ven', chatString])
+                return
+
         except:
             base.resetTextToSpeech()
             self.setSystemMessage(0, TTLocalizer.TextToSpeechWarning)

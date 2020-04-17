@@ -91,10 +91,9 @@ class Walk(StateData.StateData):
         if speed == 0 and self.swimSoundPlaying:
             self.swimSoundPlaying = 0
             self.swimSound.stop()
-        else:
-            if not self.swimSoundPlaying and self.IsSwimSoundAudible:
-                self.swimSoundPlaying = 1
-                base.playSfx(self.swimSound, looping=1)
+        elif not self.swimSoundPlaying and self.IsSwimSoundAudible:
+            self.swimSoundPlaying = 1
+            base.playSfx(self.swimSound, looping=1)
         return Task.cont
 
     def enterSlowWalking(self):

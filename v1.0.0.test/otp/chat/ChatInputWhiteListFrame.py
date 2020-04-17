@@ -91,18 +91,16 @@ class ChatInputWhiteListFrame(FSM.FSM, DirectFrame):
                 messenger.send('Chat-Failed open typed chat test')
                 self.notify.warning('Chat-Failed open typed chat test')
                 return None
-        else:
-            if request == 'PlayerWhisper':
-                if not base.talkAssistant.checkWhisperTypedChatPlayer(self.whisperId):
-                    messenger.send('Chat-Failed player typed chat test')
-                    self.notify.warning('Chat-Failed player typed chat test')
-                    return None
-            else:
-                if request == 'AvatarWhisper':
-                    if not base.talkAssistant.checkWhisperTypedChatAvatar(self.whisperId):
-                        messenger.send('Chat-Failed avatar typed chat test')
-                        self.notify.warning('Chat-Failed avatar typed chat test')
-                        return None
+        elif request == 'PlayerWhisper':
+            if not base.talkAssistant.checkWhisperTypedChatPlayer(self.whisperId):
+                messenger.send('Chat-Failed player typed chat test')
+                self.notify.warning('Chat-Failed player typed chat test')
+                return None
+        elif request == 'AvatarWhisper':
+            if not base.talkAssistant.checkWhisperTypedChatAvatar(self.whisperId):
+                messenger.send('Chat-Failed avatar typed chat test')
+                self.notify.warning('Chat-Failed avatar typed chat test')
+                return None
         return FSM.FSM.defaultFilter(self, request, *args)
 
     def enterOff(self):
@@ -157,14 +155,12 @@ class ChatInputWhiteListFrame(FSM.FSM, DirectFrame):
         result = None
         if not self.receiverId:
             result = self.requestMode('AllChat')
-        else:
-            if self.receiverId and not self.toPlayer:
-                self.whisperId = receiverId
-                result = self.requestMode('AvatarWhisper')
-            else:
-                if self.receiverId and self.toPlayer:
-                    self.whisperId = receiverId
-                    result = self.requestMode('PlayerWhisper')
+        elif self.receiverId and not self.toPlayer:
+            self.whisperId = receiverId
+            result = self.requestMode('AvatarWhisper')
+        elif self.receiverId and self.toPlayer:
+            self.whisperId = receiverId
+            result = self.requestMode('PlayerWhisper')
         return result
 
     def activate(self):
@@ -220,60 +216,53 @@ class ChatInputWhiteListFrame(FSM.FSM, DirectFrame):
     def sendChatBySwitch(self, text):
         if len(text) > 0 and text[0] == '~':
             base.talkAssistant.sendOpenTalk(text)
+        elif self.sendBy == 'Mode':
+            self.sendChatByMode(text)
+        elif self.sendBy == 'Data':
+            self.sendChatByData(text)
         else:
-            if self.sendBy == 'Mode':
-                self.sendChatByMode(text)
-            else:
-                if self.sendBy == 'Data':
-                    self.sendChatByData(text)
-                else:
-                    self.sendChatByMode(text)
+            self.sendChatByMode(text)
 
     def sendChatByData(self, text):
         if not self.receiverId:
             base.talkAssistant.sendOpenTalk(text)
-        else:
-            if self.receiverId and not self.toPlayer:
-                base.talkAssistant.sendWhisperTalk(text, self.receiverId)
-            else:
-                if self.receiverId and self.toPlayer:
-                    base.talkAssistant.sendAccountTalk(text, self.receiverId)
+        elif self.receiverId and not self.toPlayer:
+            base.talkAssistant.sendWhisperTalk(text, self.receiverId)
+        elif self.receiverId and self.toPlayer:
+            base.talkAssistant.sendAccountTalk(text, self.receiverId)
 
     def sendChatByMode(self, text):
         state = self.getCurrentOrNextState()
         messenger.send('sentRegularChat')
         if state == 'PlayerWhisper':
             base.talkAssistant.sendPlayerWhisperWLChat(text, self.whisperId)
+        elif state == 'AvatarWhisper':
+            base.talkAssistant.sendAvatarWhisperWLChat(text, self.whisperId)
+        elif state == 'GuildChat':
+            base.talkAssistant.sendAvatarGuildWLChat(text)
+        elif state == 'CrewChat':
+            base.talkAssistant.sendAvatarCrewWLChat(text)
+        elif len(text) > 0 and text[0] == '~':
+            base.talkAssistant.sendOpenTalk(text)
         else:
-            if state == 'AvatarWhisper':
-                base.talkAssistant.sendAvatarWhisperWLChat(text, self.whisperId)
-            else:
-                if state == 'GuildChat':
-                    base.talkAssistant.sendAvatarGuildWLChat(text)
-                else:
-                    if state == 'CrewChat':
-                        base.talkAssistant.sendAvatarCrewWLChat(text)
-                    else:
-                        if len(text) > 0 and text[0] == '~':
-                            base.talkAssistant.sendOpenTalk(text)
-                        else:
-                            base.talkAssistant.sendOpenTalk(text)
+            base.talkAssistant.sendOpenTalk(text)
 
     def sendFailed(self, text):
         if not self.checkBeforeSend:
             self.sendChat(text)
             return
-        self.chatEntry['frameColor'] = (0.9, 0.0, 0.0, 0.8)
+        else:
+            self.chatEntry['frameColor'] = (0.9, 0.0, 0.0, 0.8)
 
-        def resetFrameColor(task=None):
-            self.chatEntry['frameColor'] = self.origFrameColor
-            return Task.done
+            def resetFrameColor(task=None):
+                self.chatEntry['frameColor'] = self.origFrameColor
+                return Task.done
 
-        taskMgr.doMethodLater(0.1, resetFrameColor, 'resetFrameColor')
-        self.applyFilter(keyArgs=None, strict=True)
-        self.okayToSubmit = True
-        self.chatEntry.guiItem.setAcceptEnabled(True)
-        return
+            taskMgr.doMethodLater(0.1, resetFrameColor, 'resetFrameColor')
+            self.applyFilter(keyArgs=None, strict=True)
+            self.okayToSubmit = True
+            self.chatEntry.guiItem.setAcceptEnabled(True)
+            return
 
     def chatOverflow(self, overflowText):
         self.notify.debug('chatOverflow')

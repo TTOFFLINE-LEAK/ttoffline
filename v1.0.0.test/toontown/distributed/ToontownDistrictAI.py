@@ -27,11 +27,10 @@ class ToontownDistrictAI(DistributedDistrictAI):
     def setDescription(self, description):
         if not config.GetBool('mini-server', False):
             self.description = TTLocalizer.DiscordOffline
+        elif description == TTLocalizer.WordPageNA:
+            self.description = TTLocalizer.DistrictMiniserverDefault
         else:
-            if description == TTLocalizer.WordPageNA:
-                self.description = TTLocalizer.DistrictMiniserverDefault
-            else:
-                self.description = description
+            self.description = description
 
     def getDescription(self):
         return self.description

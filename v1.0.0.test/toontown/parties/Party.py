@@ -171,11 +171,10 @@ class Party(Place.Place):
         self._partyTiToken = None
         if hasattr(base, 'distributedParty'):
             self.__updateLocalAvatarTeleportIn(requestStatus)
+        elif hasattr(base.localAvatar, 'aboutToPlanParty') and base.localAvatar.aboutToPlanParty:
+            self.__updateLocalAvatarTeleportIn(requestStatus)
         else:
-            if hasattr(base.localAvatar, 'aboutToPlanParty') and base.localAvatar.aboutToPlanParty:
-                self.__updateLocalAvatarTeleportIn(requestStatus)
-            else:
-                self.acceptOnce(DistributedParty.generatedEvent, self.__updateLocalAvatarTeleportIn, [requestStatus])
+            self.acceptOnce(DistributedParty.generatedEvent, self.__updateLocalAvatarTeleportIn, [requestStatus])
         return
 
     def exitTeleportIn(self):
@@ -233,13 +232,12 @@ class Party(Place.Place):
         shardId = requestStatus['shardId']
         if hoodId == ToontownGlobals.PartyHood and zoneId == self.getZoneId() and shardId == None:
             self.fsm.request('teleportIn', [requestStatus])
+        elif hoodId == ToontownGlobals.MyEstate:
+            self.doneStatus = requestStatus
+            self.getEstateZoneAndGoHome(requestStatus)
         else:
-            if hoodId == ToontownGlobals.MyEstate:
-                self.doneStatus = requestStatus
-                self.getEstateZoneAndGoHome(requestStatus)
-            else:
-                self.doneStatus = requestStatus
-                messenger.send(self.doneEvent, [self.doneStatus])
+            self.doneStatus = requestStatus
+            messenger.send(self.doneEvent, [self.doneStatus])
         return
 
     def goHomeFailed(self, task):
@@ -276,11 +274,10 @@ class Party(Place.Place):
         if self.isPartyEnding:
             teleportNotify.debug('party ending, sending teleportResponse')
             fromAvatar.d_teleportResponse(toAvatar.doId, 0, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId())
-        else:
-            if base.config.GetBool('want-tptrack', False):
-                if toAvatar == localAvatar:
-                    localAvatar.doTeleportResponse(fromAvatar, toAvatar, toAvatar.doId, 1, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId(), fromAvatar.doId)
-                else:
-                    self.notify.warning('handleTeleportQuery toAvatar.doId != localAvatar.doId' % (toAvatar.doId, localAvatar.doId))
+        elif base.config.GetBool('want-tptrack', False):
+            if toAvatar == localAvatar:
+                localAvatar.doTeleportResponse(fromAvatar, toAvatar, toAvatar.doId, 1, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId(), fromAvatar.doId)
             else:
-                fromAvatar.d_teleportResponse(toAvatar.doId, 1, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId())
+                self.notify.warning('handleTeleportQuery toAvatar.doId != localAvatar.doId' % (toAvatar.doId, localAvatar.doId))
+        else:
+            fromAvatar.d_teleportResponse(toAvatar.doId, 1, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId())

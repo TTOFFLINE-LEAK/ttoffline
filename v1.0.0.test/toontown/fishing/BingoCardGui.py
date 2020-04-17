@@ -292,13 +292,14 @@ class BingoCardGui(DirectFrame):
     def getUnmarkedMatches(self, fish):
         if self.game is None:
             return []
-        matches = []
-        for cell in self.cellGuiList:
-            if cell['state'] == DGG.NORMAL:
-                if cell.getFishGenus() == fish[0] or fish == FishGlobals.BingoBoot:
-                    matches.append(cell)
+        else:
+            matches = []
+            for cell in self.cellGuiList:
+                if cell['state'] == DGG.NORMAL:
+                    if cell.getFishGenus() == fish[0] or fish == FishGlobals.BingoBoot:
+                        matches.append(cell)
 
-        return matches
+            return matches
 
     def getCellColor(self, id):
         if self.game.checkForColor(id):
@@ -393,7 +394,8 @@ class BingoCardGui(DirectFrame):
         lightIndex += 1
         if bOn == self.On:
             return '**/LightOn_0%02d' % lightIndex
-        return '**/LightOff_0%02d' % lightIndex
+        else:
+            return '**/LightOff_0%02d' % lightIndex
 
     def makeJackpotLights(self, parent):
         self.jpLights = []
@@ -431,24 +433,22 @@ class BingoCardGui(DirectFrame):
             self.lightSwitch(self.On, self.NumLights / 2 - nTimeIndex)
             nTimeIndex = (nTimeIndex + 1) % (self.NumLights / 2)
             delay = 0.05
-        else:
-            if flashMode == 1:
-                if nTimeIndex:
-                    self.lightSwitch(self.On)
-                else:
-                    self.lightSwitch(self.Off)
-                nTimeIndex = not nTimeIndex
-                delay = 0.5
+        elif flashMode == 1:
+            if nTimeIndex:
+                self.lightSwitch(self.On)
             else:
-                if flashMode == 0:
-                    for nLight in xrange(self.NumLights):
-                        if nLight % 2 == nTimeIndex:
-                            self.lightSwitch(self.On, nLight)
-                        else:
-                            self.lightSwitch(self.Off, nLight)
+                self.lightSwitch(self.Off)
+            nTimeIndex = not nTimeIndex
+            delay = 0.5
+        elif flashMode == 0:
+            for nLight in xrange(self.NumLights):
+                if nLight % 2 == nTimeIndex:
+                    self.lightSwitch(self.On, nLight)
+                else:
+                    self.lightSwitch(self.Off, nLight)
 
-                    nTimeIndex = (nTimeIndex + 1) % 2
-                    delay = 0.2
+            nTimeIndex = (nTimeIndex + 1) % 2
+            delay = 0.2
         taskMgr.doMethodLater(delay, self.flashJackpotLights, 'jackpotLightFlash', extraArgs=(flashMode, nTimeIndex))
         return Task.done
 
@@ -464,17 +464,14 @@ class BingoCardGui(DirectFrame):
     def showTutorial(self, messageType):
         if messageType == BG.TutorialIntro:
             self.tutorial['text'] = TTLocalizer.FishBingoHelpMain
-        else:
-            if messageType == BG.TutorialMark:
-                self.tutorial['text'] = TTLocalizer.FishBingoHelpFlash
-            else:
-                if messageType == BG.TutorialCard:
-                    if self.game:
-                        gameType = self.game.getGameType()
-                        self.tutorial['text'] = BG.getHelpString(gameType)
-                else:
-                    if messageType == BG.TutorialBingo:
-                        self.tutorial['text'] = TTLocalizer.FishBingoHelpBingo
+        elif messageType == BG.TutorialMark:
+            self.tutorial['text'] = TTLocalizer.FishBingoHelpFlash
+        elif messageType == BG.TutorialCard:
+            if self.game:
+                gameType = self.game.getGameType()
+                self.tutorial['text'] = BG.getHelpString(gameType)
+        elif messageType == BG.TutorialBingo:
+            self.tutorial['text'] = TTLocalizer.FishBingoHelpBingo
         self.tutorial.show()
 
     def hideTutorial(self, event=None):

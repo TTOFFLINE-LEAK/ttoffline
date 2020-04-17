@@ -126,21 +126,22 @@ class PartyCogActivityPlayer:
         if not self.pieHitSound:
             self.notify.warning('Trying to play hit sound on destroyed player')
             return
-        splatName = 'splat-creampie'
-        self.splat = globalPropPool.getProp(splatName)
-        self.splat.setBillboardPointEye()
-        self.splat.reparentTo(render)
-        self.splat.setPos(self.toon, position)
-        self.splat.setY(self.toon, bound(self.splat.getY(), self.toon.getHeight() / 2.0, position.getY()))
-        self.splat.setAlphaScale(1.0)
-        targetscale = 0.75
+        else:
+            splatName = 'splat-creampie'
+            self.splat = globalPropPool.getProp(splatName)
+            self.splat.setBillboardPointEye()
+            self.splat.reparentTo(render)
+            self.splat.setPos(self.toon, position)
+            self.splat.setY(self.toon, bound(self.splat.getY(), self.toon.getHeight() / 2.0, position.getY()))
+            self.splat.setAlphaScale(1.0)
+            targetscale = 0.75
 
-        def setSplatAlpha(amount):
-            self.splat.setAlphaScale(amount)
+            def setSplatAlpha(amount):
+                self.splat.setAlphaScale(amount)
 
-        self.kaboomTrack = Parallel(SoundInterval(self.pieHitSound, node=self.toon, volume=1.0, cutOff=PartyGlobals.PARTY_COG_CUTOFF), Sequence(Func(self.splat.showThrough), Parallel(Sequence(LerpScaleInterval(self.splat, duration=0.175, scale=targetscale, startScale=Point3(0.1, 0.1, 0.1), blendType='easeOut'), Wait(0.175)), Sequence(Wait(0.1), LerpFunc(setSplatAlpha, duration=1.0, fromData=1.0, toData=0.0, blendType='easeOut'))), Func(self.splat.cleanup), Func(self.splat.removeNode)))
-        self.kaboomTrack.start()
-        return
+            self.kaboomTrack = Parallel(SoundInterval(self.pieHitSound, node=self.toon, volume=1.0, cutOff=PartyGlobals.PARTY_COG_CUTOFF), Sequence(Func(self.splat.showThrough), Parallel(Sequence(LerpScaleInterval(self.splat, duration=0.175, scale=targetscale, startScale=Point3(0.1, 0.1, 0.1), blendType='easeOut'), Wait(0.175)), Sequence(Wait(0.1), LerpFunc(setSplatAlpha, duration=1.0, fromData=1.0, toData=0.0, blendType='easeOut'))), Func(self.splat.cleanup), Func(self.splat.removeNode)))
+            self.kaboomTrack.start()
+            return
 
 
 class PartyCogActivityLocalPlayer(PartyCogActivityPlayer):

@@ -48,7 +48,8 @@ class RaceGag(DirectObject.DirectObject):
     def isActive(self):
         if self.type:
             return True
-        return False
+        else:
+            return False
 
     def genGag(self, spot, type):
         self.type = type

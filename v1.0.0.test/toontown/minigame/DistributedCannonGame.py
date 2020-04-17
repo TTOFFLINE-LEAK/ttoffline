@@ -389,20 +389,21 @@ class DistributedCannonGame(DistributedMinigame):
     def setGameStart(self, timestamp):
         if not self.hasLocalToon:
             return
-        self.notify.debug('setGameStart')
-        DistributedMinigame.setGameStart(self, timestamp)
-        self.__stopIntro()
-        self.__putCameraBehindCannon()
-        if not base.config.GetBool('endless-cannon-game', 0):
-            self.timer.show()
-            self.timer.countdown(CannonGameGlobals.GameTime, self.__gameTimerExpired)
-        self.rewardPanel.reparentTo(base.a2dTopRight)
-        self.scoreMult = MinigameGlobals.getScoreMult(self.cr.playGame.hood.id)
-        self.__startRewardCountdown()
-        self.airborneToons = 0
-        self.clockStopTime = None
-        self.gameFSM.request('aim')
-        return
+        else:
+            self.notify.debug('setGameStart')
+            DistributedMinigame.setGameStart(self, timestamp)
+            self.__stopIntro()
+            self.__putCameraBehindCannon()
+            if not base.config.GetBool('endless-cannon-game', 0):
+                self.timer.show()
+                self.timer.countdown(CannonGameGlobals.GameTime, self.__gameTimerExpired)
+            self.rewardPanel.reparentTo(base.a2dTopRight)
+            self.scoreMult = MinigameGlobals.getScoreMult(self.cr.playGame.hood.id)
+            self.__startRewardCountdown()
+            self.airborneToons = 0
+            self.clockStopTime = None
+            self.gameFSM.request('aim')
+            return
 
     def __gameTimerExpired(self):
         self.notify.debug('game timer expired')
@@ -445,10 +446,11 @@ class DistributedCannonGame(DistributedMinigame):
     def announceToonWillLandInWater(self, avId, landTime):
         if not self.hasLocalToon:
             return
-        self.notify.debug('announceToonWillLandInWater: ' + str(avId) + ': time=' + str(landTime))
-        if self.clockStopTime == None:
-            self.clockStopTime = landTime
-        return
+        else:
+            self.notify.debug('announceToonWillLandInWater: ' + str(avId) + ': time=' + str(landTime))
+            if self.clockStopTime == None:
+                self.clockStopTime = landTime
+            return
 
     def enterOff(self):
         self.notify.debug('enterOff')
@@ -643,9 +645,8 @@ class DistributedCannonGame(DistributedMinigame):
         pos[0] += rotVel * globalClock.getDt()
         if pos[0] < CannonGameGlobals.CANNON_ROTATION_MIN:
             pos[0] = CannonGameGlobals.CANNON_ROTATION_MIN
-        else:
-            if pos[0] > CannonGameGlobals.CANNON_ROTATION_MAX:
-                pos[0] = CannonGameGlobals.CANNON_ROTATION_MAX
+        elif pos[0] > CannonGameGlobals.CANNON_ROTATION_MAX:
+            pos[0] = CannonGameGlobals.CANNON_ROTATION_MAX
         angVel = 0
         if self.upPressed:
             angVel += CannonGameGlobals.CANNON_ANGLE_VEL
@@ -654,9 +655,8 @@ class DistributedCannonGame(DistributedMinigame):
         pos[1] += angVel * globalClock.getDt()
         if pos[1] < CannonGameGlobals.CANNON_ANGLE_MIN:
             pos[1] = CannonGameGlobals.CANNON_ANGLE_MIN
-        else:
-            if pos[1] > CannonGameGlobals.CANNON_ANGLE_MAX:
-                pos[1] = CannonGameGlobals.CANNON_ANGLE_MAX
+        elif pos[1] > CannonGameGlobals.CANNON_ANGLE_MAX:
+            pos[1] = CannonGameGlobals.CANNON_ANGLE_MAX
         if oldRot != pos[0] or oldAng != pos[1]:
             if self.cannonMoving == 0:
                 self.cannonMoving = 1
@@ -665,11 +665,10 @@ class DistributedCannonGame(DistributedMinigame):
             if task.time - task.lastPositionBroadcastTime > CANNON_MOVE_UPDATE_FREQ:
                 task.lastPositionBroadcastTime = task.time
                 self.__broadcastLocalCannonPosition()
-        else:
-            if self.cannonMoving:
-                self.cannonMoving = 0
-                self.sndCannonMove.stop()
-                self.__broadcastLocalCannonPosition()
+        elif self.cannonMoving:
+            self.cannonMoving = 0
+            self.sndCannonMove.stop()
+            self.__broadcastLocalCannonPosition()
         return Task.cont
 
     def __broadcastLocalCannonPosition(self):
@@ -753,11 +752,10 @@ class DistributedCannonGame(DistributedMinigame):
         self.notify.debug('location of impact: ' + str(trajectory.getPos(timeOfImpact)))
         if hitWhat == self.HIT_WATER:
             self.notify.debug('toon will land in the water')
+        elif hitWhat == self.HIT_TOWER:
+            self.notify.debug('toon will hit the tower')
         else:
-            if hitWhat == self.HIT_TOWER:
-                self.notify.debug('toon will hit the tower')
-            else:
-                self.notify.debug('toon will hit the ground')
+            self.notify.debug('toon will hit the ground')
         head = self.toonHeadDict[avId]
         head.stopBlink()
         head.stopLookAroundNow()
@@ -802,17 +800,18 @@ class DistributedCannonGame(DistributedMinigame):
         self.notify.debug('t_waterImpact: %s' % t_waterImpact)
         if t_waterImpact > 0:
             return (t_waterImpact, self.HIT_WATER)
-        t_towerImpact = trajectory.checkCollisionWithCylinderSides(waterTower[0], waterTower[1], waterTower[2])
-        self.notify.debug('t_towerImpact: %s' % t_towerImpact)
-        if t_towerImpact > 0:
-            return (t_towerImpact, self.HIT_TOWER)
-        t_groundImpact = trajectory.checkCollisionWithGround()
-        self.notify.debug('t_groundImpact: %s' % t_groundImpact)
-        if t_groundImpact >= trajectory.getStartTime():
-            return (t_groundImpact, self.HIT_GROUND)
-        self.notify.error('__calcToonImpact: toon never impacts ground?')
-        return (
-         self.startTime, self.HIT_GROUND)
+        else:
+            t_towerImpact = trajectory.checkCollisionWithCylinderSides(waterTower[0], waterTower[1], waterTower[2])
+            self.notify.debug('t_towerImpact: %s' % t_towerImpact)
+            if t_towerImpact > 0:
+                return (t_towerImpact, self.HIT_TOWER)
+            t_groundImpact = trajectory.checkCollisionWithGround()
+            self.notify.debug('t_groundImpact: %s' % t_groundImpact)
+            if t_groundImpact >= trajectory.getStartTime():
+                return (t_groundImpact, self.HIT_GROUND)
+            self.notify.error('__calcToonImpact: toon never impacts ground?')
+            return (
+             self.startTime, self.HIT_GROUND)
 
     def __shootTask(self, task):
         base.playSfx(self.sndCannonFire)
@@ -878,35 +877,33 @@ class DistributedCannonGame(DistributedMinigame):
                 base.playSfx(self.sndHitWater)
                 task.info['toon'].setHpr(task.info['hRot'], 0, 0)
                 self.__somebodyWon(task.info['avId'])
-            else:
-                if task.info['hitWhat'] == self.HIT_TOWER:
-                    toon = task.info['toon']
-                    pos = toon.getPos()
-                    ttVec = Vec3(pos - self.towerPos)
-                    ttVec.setZ(0)
-                    ttVec.normalize()
-                    h = rad2Deg(math.asin(ttVec[0]))
-                    toon.setHpr(h, 94, 0)
-                    deltaZ = TOWER_HEIGHT - BUCKET_HEIGHT
-                    sf = min(max(pos[2] - BUCKET_HEIGHT, 0), deltaZ) / deltaZ
-                    hitPos = pos + Point3(ttVec * (0.75 * sf))
-                    toon.setPos(hitPos)
-                    hitPos.setZ(hitPos[2] - 1.0)
-                    s = Sequence(Wait(0.5), toon.posInterval(duration=LAND_TIME - 0.5, pos=hitPos, blendType='easeIn'))
-                    self.toonIntervalDict[task.info['avId']] = s
-                    s.start()
-                    avatar.setPos(0, 0, 0)
-                    avatar.pose('slip-forward', 25)
-                    base.playSfx(self.sndHitTower)
-                else:
-                    if task.info['hitWhat'] == self.HIT_GROUND:
-                        task.info['toon'].setP(render, -150.0)
-                        self.dustCloud.setPos(task.info['toon'], 0, 0, -2.5)
-                        self.dustCloud.setScale(0.35)
-                        self.dustCloud.play()
-                        base.playSfx(self.sndHitGround)
-                        avatar.setPlayRate(2.0, 'run')
-                        avatar.loop('run')
+            elif task.info['hitWhat'] == self.HIT_TOWER:
+                toon = task.info['toon']
+                pos = toon.getPos()
+                ttVec = Vec3(pos - self.towerPos)
+                ttVec.setZ(0)
+                ttVec.normalize()
+                h = rad2Deg(math.asin(ttVec[0]))
+                toon.setHpr(h, 94, 0)
+                deltaZ = TOWER_HEIGHT - BUCKET_HEIGHT
+                sf = min(max(pos[2] - BUCKET_HEIGHT, 0), deltaZ) / deltaZ
+                hitPos = pos + Point3(ttVec * (0.75 * sf))
+                toon.setPos(hitPos)
+                hitPos.setZ(hitPos[2] - 1.0)
+                s = Sequence(Wait(0.5), toon.posInterval(duration=LAND_TIME - 0.5, pos=hitPos, blendType='easeIn'))
+                self.toonIntervalDict[task.info['avId']] = s
+                s.start()
+                avatar.setPos(0, 0, 0)
+                avatar.pose('slip-forward', 25)
+                base.playSfx(self.sndHitTower)
+            elif task.info['hitWhat'] == self.HIT_GROUND:
+                task.info['toon'].setP(render, -150.0)
+                self.dustCloud.setPos(task.info['toon'], 0, 0, -2.5)
+                self.dustCloud.setScale(0.35)
+                self.dustCloud.play()
+                base.playSfx(self.sndHitGround)
+                avatar.setPlayRate(2.0, 'run')
+                avatar.loop('run')
             return Task.done
         return Task.cont
 
@@ -931,23 +928,24 @@ class DistributedCannonGame(DistributedMinigame):
     def __updateRewardCountdown(self, task):
         if not hasattr(self, 'rewardPanel'):
             return Task.cont
-        curTime = self.getCurrentGameTime()
-        if self.clockStopTime is not None:
-            if self.clockStopTime < curTime:
-                self.__killRewardCountdown()
-                curTime = self.clockStopTime
-        score = int(self.scoreMult * CannonGameGlobals.calcScore(curTime) + 0.5)
-        if not hasattr(task, 'curScore'):
+        else:
+            curTime = self.getCurrentGameTime()
+            if self.clockStopTime is not None:
+                if self.clockStopTime < curTime:
+                    self.__killRewardCountdown()
+                    curTime = self.clockStopTime
+            score = int(self.scoreMult * CannonGameGlobals.calcScore(curTime) + 0.5)
+            if not hasattr(task, 'curScore'):
+                task.curScore = score
+            self.rewardPanel['text'] = str(score)
+            if task.curScore != score:
+                if hasattr(self, 'jarIval'):
+                    self.jarIval.finish()
+                s = self.rewardPanel.getScale()
+                self.jarIval = Parallel(Sequence(self.rewardPanel.scaleInterval(0.15, s * 3.0 / 4.0, blendType='easeOut'), self.rewardPanel.scaleInterval(0.15, s, blendType='easeIn')), SoundInterval(self.sndRewardTick), name='cannonGameRewardJarThrob')
+                self.jarIval.start()
             task.curScore = score
-        self.rewardPanel['text'] = str(score)
-        if task.curScore != score:
-            if hasattr(self, 'jarIval'):
-                self.jarIval.finish()
-            s = self.rewardPanel.getScale()
-            self.jarIval = Parallel(Sequence(self.rewardPanel.scaleInterval(0.15, s * 3.0 / 4.0, blendType='easeOut'), self.rewardPanel.scaleInterval(0.15, s, blendType='easeIn')), SoundInterval(self.sndRewardTick), name='cannonGameRewardJarThrob')
-            self.jarIval.start()
-        task.curScore = score
-        return Task.cont
+            return Task.cont
 
     def __startIntro(self):
         self.T_WATER = 1

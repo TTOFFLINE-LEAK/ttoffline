@@ -127,16 +127,18 @@ class DistCogdoGameAI(DistCogdoGameBase, DistributedObjectAI):
     def getDifficulty(self):
         if self.difficultyOverride is not None:
             return self.difficultyOverride
-        if hasattr(self.air, 'cogdoGameDifficulty'):
-            return float(self.air.cogdoGameDifficulty)
-        return CogdoGameConsts.getDifficulty(self.getSafezoneId())
+        else:
+            if hasattr(self.air, 'cogdoGameDifficulty'):
+                return float(self.air.cogdoGameDifficulty)
+            return CogdoGameConsts.getDifficulty(self.getSafezoneId())
 
     def getSafezoneId(self):
         if self.exteriorZoneOverride is not None:
             return self.exteriorZoneOverride
-        if hasattr(self.air, 'cogdoGameSafezoneId'):
-            return CogdoGameConsts.getSafezoneId(self.air.cogdoGameSafezoneId)
-        return CogdoGameConsts.getSafezoneId(self.exteriorZone)
+        else:
+            if hasattr(self.air, 'cogdoGameSafezoneId'):
+                return CogdoGameConsts.getSafezoneId(self.air.cogdoGameSafezoneId)
+            return CogdoGameConsts.getSafezoneId(self.exteriorZone)
 
     def _validateSenderId(self, senderId):
         if senderId in self.getToonIds():

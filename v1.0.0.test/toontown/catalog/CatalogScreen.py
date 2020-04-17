@@ -182,11 +182,10 @@ class CatalogScreen(DirectFrame):
         self.setMaxPageIndex(self.numNewPages)
         if self.numNewPages == 0:
             self.setPageIndex(-1)
+        elif index is not None:
+            self.setPageIndex(index)
         else:
-            if index is not None:
-                self.setPageIndex(index)
-            else:
-                self.setPageIndex(0)
+            self.setPageIndex(0)
         self.showPageItems()
         return
 
@@ -200,11 +199,10 @@ class CatalogScreen(DirectFrame):
         self.setMaxPageIndex(self.numBackPages)
         if self.numBackPages == 0:
             self.setPageIndex(-1)
+        elif index is not None:
+            self.setPageIndex(index)
         else:
-            if index is not None:
-                self.setPageIndex(index)
-            else:
-                self.setPageIndex(0)
+            self.setPageIndex(0)
         self.showPageItems()
         return
 
@@ -218,11 +216,10 @@ class CatalogScreen(DirectFrame):
         self.setMaxPageIndex(self.numLoyaltyPages)
         if self.numLoyaltyPages == 0:
             self.setPageIndex(-1)
+        elif index is not None:
+            self.setPageIndex(index)
         else:
-            if index is not None:
-                self.setPageIndex(index)
-            else:
-                self.setPageIndex(0)
+            self.setPageIndex(0)
         self.showPageItems()
         return
 
@@ -236,11 +233,10 @@ class CatalogScreen(DirectFrame):
         self.setMaxPageIndex(self.numEmblemPages)
         if self.numEmblemPages == 0:
             self.setPageIndex(-1)
+        elif index is not None:
+            self.setPageIndex(index)
         else:
-            if index is not None:
-                self.setPageIndex(index)
-            else:
-                self.setPageIndex(0)
+            self.setPageIndex(0)
         self.showPageItems()
         return
 
@@ -255,15 +251,13 @@ class CatalogScreen(DirectFrame):
             self.showBackorderItems()
         if self.viewing == 'New' and self.pageIndex > self.maxPageIndex and self.numLoyaltyPages > 0:
             self.showLoyaltyItems()
+        elif self.viewing == 'Backorder' and self.pageIndex > self.maxPageIndex and self.numLoyaltyPages > 0:
+            self.showLoyaltyItems()
+        elif self.viewing == 'Loyalty' and self.pageIndex > self.maxPageIndex and self.numEmblemPages > 0:
+            self.showEmblemItems()
         else:
-            if self.viewing == 'Backorder' and self.pageIndex > self.maxPageIndex and self.numLoyaltyPages > 0:
-                self.showLoyaltyItems()
-            else:
-                if self.viewing == 'Loyalty' and self.pageIndex > self.maxPageIndex and self.numEmblemPages > 0:
-                    self.showEmblemItems()
-                else:
-                    self.pageIndex = min(self.pageIndex, self.maxPageIndex)
-                    self.showPageItems()
+            self.pageIndex = min(self.pageIndex, self.maxPageIndex)
+            self.showPageItems()
         return
 
     def showBackPage(self):
@@ -272,15 +266,13 @@ class CatalogScreen(DirectFrame):
         self.pageIndex = self.pageIndex - 1
         if self.viewing == 'Backorder' and self.pageIndex < 0 and self.numNewPages > 0:
             self.showNewItems(self.numNewPages - 1)
+        elif self.viewing == 'Loyalty' and self.pageIndex < 0 and self.numBackPages > 0:
+            self.showBackorderItems(self.numBackPages - 1)
+        elif self.viewing == 'Emblem' and self.pageIndex < 0 and self.numLoyaltyPages > 0:
+            self.showLoyaltyItems(self.numLoyaltyPages - 1)
         else:
-            if self.viewing == 'Loyalty' and self.pageIndex < 0 and self.numBackPages > 0:
-                self.showBackorderItems(self.numBackPages - 1)
-            else:
-                if self.viewing == 'Emblem' and self.pageIndex < 0 and self.numLoyaltyPages > 0:
-                    self.showLoyaltyItems(self.numLoyaltyPages - 1)
-                else:
-                    self.pageIndex = max(self.pageIndex, -1)
-                    self.showPageItems()
+            self.pageIndex = max(self.pageIndex, -1)
+            self.showPageItems()
 
     def showPageItems(self):
         self.hidePages()
@@ -302,61 +294,52 @@ class CatalogScreen(DirectFrame):
                     if self.viewing == 'Loyalty':
                         page = self.loyaltyPageList[self.pageIndex]
                         newOrBackOrLoyalty = 2
-                    else:
-                        if self.viewing == 'Emblem':
-                            page = self.emblemPageList[self.pageIndex]
-                            newOrBackOrLoyalty = 3
-            page.show()
-            for panel in self.panelDict[page.getKey()]:
-                panel.load()
-                if panel.ival:
-                    panel.ival.loop()
-                self.visiblePanels.append(panel)
+                    elif self.viewing == 'Emblem':
+                        page = self.emblemPageList[self.pageIndex]
+                        newOrBackOrLoyalty = 3
+                    page.show()
+                    for panel in self.panelDict[page.getKey()]:
+                        panel.load()
+                        if panel.ival:
+                            panel.ival.loop()
+                        self.visiblePanels.append(panel)
 
-        pIndex = 0
-        randGen = random.Random()
-        randGen.seed(base.localAvatar.catalogScheduleCurrentWeek + (self.pageIndex << 8) + (newOrBackOrLoyalty << 16))
-        for i in xrange(NUM_CATALOG_ROWS):
-            for j in xrange(NUM_CATALOG_COLS):
-                if pIndex < len(self.visiblePanels):
-                    type = self.visiblePanels[pIndex]['item'].getTypeCode()
-                    self.squares[i][j].setColor(CatalogPanelColors.values()[randGen.randint(0, len(CatalogPanelColors) - 1)])
-                    cs = 0.7 + 0.3 * randGen.random()
-                    self.squares[i][j].setColorScale(0.7 + 0.3 * randGen.random(), 0.7 + 0.3 * randGen.random(), 0.7 + 0.3 * randGen.random(), 1)
-                else:
-                    self.squares[i][j].setColor(CatalogPanelColors[CatalogItemTypes.CHAT_ITEM])
-                    self.squares[i][j].clearColorScale()
-                pIndex += 1
-
-        if self.viewing == 'New':
-            text = TTLocalizer.CatalogNew
-        else:
-            if self.viewing == 'Loyalty':
-                text = TTLocalizer.CatalogLoyalty
-            else:
-                if self.viewing == 'Backorder':
-                    text = TTLocalizer.CatalogBackorder
-                else:
-                    if self.viewing == 'Emblem':
-                        text = TTLocalizer.CatalogEmblem
-        self.pageLabel['text'] = text + ' - %d' % (self.pageIndex + 1)
-        if self.pageIndex < self.maxPageIndex:
-            self.nextPageButton.show()
-        else:
-            if self.viewing == 'New' and self.numBackPages == 0 and self.numLoyaltyPages == 0:
-                self.nextPageButton.hide()
-            else:
-                if self.viewing == 'Backorder' and self.numLoyaltyPages == 0:
-                    self.nextPageButton.hide()
-                else:
-                    if self.viewing == 'Loyalty' and self.numEmblemPages == 0:
-                        self.nextPageButton.hide()
-                    else:
-                        if self.viewing == 'Loyalty' and self.numEmblemPages > 0:
-                            self.nextPageButton.show()
+                pIndex = 0
+                randGen = random.Random()
+                randGen.seed(base.localAvatar.catalogScheduleCurrentWeek + (self.pageIndex << 8) + (newOrBackOrLoyalty << 16))
+                for i in xrange(NUM_CATALOG_ROWS):
+                    for j in xrange(NUM_CATALOG_COLS):
+                        if pIndex < len(self.visiblePanels):
+                            type = self.visiblePanels[pIndex]['item'].getTypeCode()
+                            self.squares[i][j].setColor(CatalogPanelColors.values()[randGen.randint(0, len(CatalogPanelColors) - 1)])
+                            cs = 0.7 + 0.3 * randGen.random()
+                            self.squares[i][j].setColorScale(0.7 + 0.3 * randGen.random(), 0.7 + 0.3 * randGen.random(), 0.7 + 0.3 * randGen.random(), 1)
                         else:
-                            if self.viewing == 'Emblem':
-                                self.nextPageButton.hide()
+                            self.squares[i][j].setColor(CatalogPanelColors[CatalogItemTypes.CHAT_ITEM])
+                            self.squares[i][j].clearColorScale()
+                        pIndex += 1
+
+            if self.viewing == 'New':
+                text = TTLocalizer.CatalogNew
+            elif self.viewing == 'Loyalty':
+                text = TTLocalizer.CatalogLoyalty
+            elif self.viewing == 'Backorder':
+                text = TTLocalizer.CatalogBackorder
+            elif self.viewing == 'Emblem':
+                text = TTLocalizer.CatalogEmblem
+            self.pageLabel['text'] = text + ' - %d' % (self.pageIndex + 1)
+            if self.pageIndex < self.maxPageIndex:
+                self.nextPageButton.show()
+            elif self.viewing == 'New' and self.numBackPages == 0 and self.numLoyaltyPages == 0:
+                self.nextPageButton.hide()
+            elif self.viewing == 'Backorder' and self.numLoyaltyPages == 0:
+                self.nextPageButton.hide()
+            elif self.viewing == 'Loyalty' and self.numEmblemPages == 0:
+                self.nextPageButton.hide()
+            elif self.viewing == 'Loyalty' and self.numEmblemPages > 0:
+                self.nextPageButton.show()
+            elif self.viewing == 'Emblem':
+                self.nextPageButton.hide()
             self.adjustForSound()
             self.update()
         return
@@ -377,10 +360,9 @@ class CatalogScreen(DirectFrame):
 
         if numEmoteItems == 1:
             emotePanels[0].handleSoundOnButton()
-        else:
-            if numEmoteItems > 1:
-                for panel in emotePanels:
-                    panel.handleSoundOffButton()
+        elif numEmoteItems > 1:
+            for panel in emotePanels:
+                panel.handleSoundOffButton()
 
     def hidePages(self):
         for page in self.pageList:
@@ -765,13 +747,12 @@ class CatalogScreen(DirectFrame):
         if currentWeek < 57:
             seriesNumber = currentWeek / ToontownGlobals.CatalogNumWeeksPerSeries + 1
             weekNumber = currentWeek % ToontownGlobals.CatalogNumWeeksPerSeries + 1
+        elif currentWeek < 65:
+            seriesNumber = 6
+            weekNumber = currentWeek - 56
         else:
-            if currentWeek < 65:
-                seriesNumber = 6
-                weekNumber = currentWeek - 56
-            else:
-                seriesNumber = currentWeek / ToontownGlobals.CatalogNumWeeksPerSeries + 2
-                weekNumber = currentWeek % ToontownGlobals.CatalogNumWeeksPerSeries + 1
+            seriesNumber = currentWeek / ToontownGlobals.CatalogNumWeeksPerSeries + 2
+            weekNumber = currentWeek % ToontownGlobals.CatalogNumWeeksPerSeries + 1
         geom = NodePath('cover')
         cover = guiItems.find('**/cover')
         maxSeries = ToontownGlobals.CatalogNumWeeks / ToontownGlobals.CatalogNumWeeksPerSeries + 1

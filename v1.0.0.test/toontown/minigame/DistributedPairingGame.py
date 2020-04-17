@@ -72,7 +72,8 @@ class DistributedPairingGame(DistributedMinigame):
     def getInstructions(self):
         if self.numPlayers > 1:
             return TTLocalizer.PairingGameInstructionsMulti
-        return TTLocalizer.PairingGameInstructions
+        else:
+            return TTLocalizer.PairingGameInstructions
 
     def getMaxDuration(self):
         return 0
@@ -455,41 +456,42 @@ class DistributedPairingGame(DistributedMinigame):
     def setEveryoneDone(self):
         if not self.hasLocalToon:
             return
-        if self.gameFSM.getCurrentState().getName() != 'play':
-            self.notify.warning('ignoring setEveryoneDone msg')
-            return
-        self.notify.debug('setEveryoneDone')
-
-        def endGame(task, self=self):
-            if not PairingGameGlobals.EndlessGame:
-                self.gameOver()
-            return Task.done
-
-        self.timer.hide()
-        self.bonusGlow.hide()
-        if len(self.inactiveList) == len(self.cards):
-            self.notify.debug('perfect game!')
-            perfectTextSubnode = hidden.attachNewNode(self.__genText(TTLocalizer.PairingGamePerfect))
-            perfectText = hidden.attachNewNode('perfectText')
-            perfectTextSubnode.reparentTo(perfectText)
-            frame = self.__textGen.getCardActual()
-            offsetY = -abs(frame[2] + frame[3]) / 2.0
-            perfectTextSubnode.setPos(0, 0, offsetY)
-            perfectText.setColor(1, 0.1, 0.1, 1)
-
-            def fadeFunc(t, text=perfectText):
-                text.setColorScale(1, 1, 1, t)
-
-            def destroyText(text=perfectText):
-                text.removeNode()
-
-            textTrack = Sequence(Func(perfectText.reparentTo, aspect2d), Parallel(LerpScaleInterval(perfectText, duration=0.5, scale=0.3, startScale=0.0), LerpFunctionInterval(fadeFunc, fromData=0.0, toData=1.0, duration=0.5)), Wait(2.0), Parallel(LerpScaleInterval(perfectText, duration=0.5, scale=1.0), LerpFunctionInterval(fadeFunc, fromData=1.0, toData=0.0, duration=0.5, blendType='easeIn')), Func(destroyText), WaitInterval(0.5), Func(endGame, None))
-            soundTrack = SoundInterval(self.sndPerfect)
-            self.perfectIval = Parallel(textTrack, soundTrack)
-            self.perfectIval.start()
         else:
-            taskMgr.doMethodLater(1, endGame, self.EndGameTaskName)
-        return
+            if self.gameFSM.getCurrentState().getName() != 'play':
+                self.notify.warning('ignoring setEveryoneDone msg')
+                return
+            self.notify.debug('setEveryoneDone')
+
+            def endGame(task, self=self):
+                if not PairingGameGlobals.EndlessGame:
+                    self.gameOver()
+                return Task.done
+
+            self.timer.hide()
+            self.bonusGlow.hide()
+            if len(self.inactiveList) == len(self.cards):
+                self.notify.debug('perfect game!')
+                perfectTextSubnode = hidden.attachNewNode(self.__genText(TTLocalizer.PairingGamePerfect))
+                perfectText = hidden.attachNewNode('perfectText')
+                perfectTextSubnode.reparentTo(perfectText)
+                frame = self.__textGen.getCardActual()
+                offsetY = -abs(frame[2] + frame[3]) / 2.0
+                perfectTextSubnode.setPos(0, 0, offsetY)
+                perfectText.setColor(1, 0.1, 0.1, 1)
+
+                def fadeFunc(t, text=perfectText):
+                    text.setColorScale(1, 1, 1, t)
+
+                def destroyText(text=perfectText):
+                    text.removeNode()
+
+                textTrack = Sequence(Func(perfectText.reparentTo, aspect2d), Parallel(LerpScaleInterval(perfectText, duration=0.5, scale=0.3, startScale=0.0), LerpFunctionInterval(fadeFunc, fromData=0.0, toData=1.0, duration=0.5)), Wait(2.0), Parallel(LerpScaleInterval(perfectText, duration=0.5, scale=1.0), LerpFunctionInterval(fadeFunc, fromData=1.0, toData=0.0, duration=0.5, blendType='easeIn')), Func(destroyText), WaitInterval(0.5), Func(endGame, None))
+                soundTrack = SoundInterval(self.sndPerfect)
+                self.perfectIval = Parallel(textTrack, soundTrack)
+                self.perfectIval.start()
+            else:
+                taskMgr.doMethodLater(1, endGame, self.EndGameTaskName)
+            return
 
     def __genText(self, text):
         self.__textGen.setText(text)

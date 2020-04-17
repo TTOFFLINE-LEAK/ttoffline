@@ -13,14 +13,12 @@ class DistributedSellbotHQDoor(DistributedCogHQDoor.DistributedCogHQDoor):
         self.notify.debugStateCall(self)
         if suitType == CogDisguiseGlobals.suitTypes.NoSuit:
             popupMsg = TTLocalizer.SellbotRentalSuitMessage
+        elif suitType == CogDisguiseGlobals.suitTypes.NoMerits:
+            popupMsg = TTLocalizer.SellbotCogSuitNoMeritsMessage
+        elif suitType == CogDisguiseGlobals.suitTypes.FullSuit:
+            popupMsg = TTLocalizer.SellbotCogSuitHasMeritsMessage
         else:
-            if suitType == CogDisguiseGlobals.suitTypes.NoMerits:
-                popupMsg = TTLocalizer.SellbotCogSuitNoMeritsMessage
-            else:
-                if suitType == CogDisguiseGlobals.suitTypes.FullSuit:
-                    popupMsg = TTLocalizer.SellbotCogSuitHasMeritsMessage
-                else:
-                    popupMsg = TTLocalizer.FADoorCodes_SB_DISGUISE_INCOMPLETE
+            popupMsg = TTLocalizer.FADoorCodes_SB_DISGUISE_INCOMPLETE
         localAvatar.elevatorNotifier.showMeWithoutStopping(popupMsg, pos=(0, 0, 0.26), ttDialog=True)
         localAvatar.elevatorNotifier.setOkButton()
         localAvatar.elevatorNotifier.doneButton.setZ(-0.3)

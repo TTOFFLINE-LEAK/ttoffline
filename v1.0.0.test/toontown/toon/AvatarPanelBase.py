@@ -19,8 +19,9 @@ class AvatarPanelBase(AvatarPanel.AvatarPanel):
     def getIgnoreButtonInfo(self):
         if base.cr.avatarFriendsManager.checkIgnored(self.avId):
             return (TTLocalizer.AvatarPanelStopIgnoring, self.handleStopIgnoring, STOP_IGNORE_SCALE)
-        return (
-         TTLocalizer.AvatarPanelIgnore, self.handleIgnore, IGNORE_SCALE)
+        else:
+            return (
+             TTLocalizer.AvatarPanelIgnore, self.handleIgnore, IGNORE_SCALE)
 
     def handleIgnore(self):
         isAvatarFriend = base.cr.isFriend(self.avatar.doId)
@@ -49,25 +50,27 @@ class AvatarPanelBase(AvatarPanel.AvatarPanel):
         if value == -1:
             self.freeLocalAvatar()
             return
-        base.cr.avatarFriendsManager.addIgnore(self.avId)
-        self.dialog = TTDialog.TTGlobalDialog(style=TTDialog.Acknowledge, text=TTLocalizer.IgnorePanelIgnore % self.avName, text_wordwrap=18.5, text_scale=0.06, topPad=0.1, doneEvent='IgnoreComplete', command=self.handleDoneIgnoring)
-        DirectLabel(parent=self.dialog, relief=None, pos=(0, TTLocalizer.APBdirectLabelPosY, 0.15), text=TTLocalizer.IgnorePanelTitle, textMayChange=0, text_scale=0.08)
-        self.dialog.show()
-        self.__acceptStoppedStateMsg()
-        self.requestStopped()
-        return
+        else:
+            base.cr.avatarFriendsManager.addIgnore(self.avId)
+            self.dialog = TTDialog.TTGlobalDialog(style=TTDialog.Acknowledge, text=TTLocalizer.IgnorePanelIgnore % self.avName, text_wordwrap=18.5, text_scale=0.06, topPad=0.1, doneEvent='IgnoreComplete', command=self.handleDoneIgnoring)
+            DirectLabel(parent=self.dialog, relief=None, pos=(0, TTLocalizer.APBdirectLabelPosY, 0.15), text=TTLocalizer.IgnorePanelTitle, textMayChange=0, text_scale=0.08)
+            self.dialog.show()
+            self.__acceptStoppedStateMsg()
+            self.requestStopped()
+            return
 
     def handleStopIgnoringConfirm(self, value):
         if value == -1:
             self.freeLocalAvatar()
             return
-        base.cr.avatarFriendsManager.removeIgnore(self.avId)
-        self.dialog = TTDialog.TTGlobalDialog(style=TTDialog.Acknowledge, text=TTLocalizer.IgnorePanelEndIgnore % self.avName, text_wordwrap=18.5, text_scale=0.06, topPad=0.1, doneEvent='StopIgnoringComplete', command=self.handleDoneIgnoring)
-        DirectLabel(parent=self.dialog, relief=None, pos=(0, TTLocalizer.APBdirectLabelPosY, 0.15), text=TTLocalizer.IgnorePanelTitle, textMayChange=0, text_scale=0.08)
-        self.dialog.show()
-        self.__acceptStoppedStateMsg()
-        self.requestStopped()
-        return
+        else:
+            base.cr.avatarFriendsManager.removeIgnore(self.avId)
+            self.dialog = TTDialog.TTGlobalDialog(style=TTDialog.Acknowledge, text=TTLocalizer.IgnorePanelEndIgnore % self.avName, text_wordwrap=18.5, text_scale=0.06, topPad=0.1, doneEvent='StopIgnoringComplete', command=self.handleDoneIgnoring)
+            DirectLabel(parent=self.dialog, relief=None, pos=(0, TTLocalizer.APBdirectLabelPosY, 0.15), text=TTLocalizer.IgnorePanelTitle, textMayChange=0, text_scale=0.08)
+            self.dialog.show()
+            self.__acceptStoppedStateMsg()
+            self.requestStopped()
+            return
 
     def handleDoneIgnoring(self, value):
         self.freeLocalAvatar()
@@ -235,12 +238,11 @@ class AvatarPanelBase(AvatarPanel.AvatarPanel):
     def requestWalk(self):
         if base.cr.playGame.getPlace().fsm.hasStateNamed('finalBattle'):
             base.cr.playGame.getPlace().fsm.request('finalBattle')
+        elif base.cr.playGame.getPlace().fsm.hasStateNamed('walk'):
+            if base.cr.playGame.getPlace().getState() == 'stopped':
+                base.cr.playGame.getPlace().fsm.request('walk')
         else:
-            if base.cr.playGame.getPlace().fsm.hasStateNamed('walk'):
-                if base.cr.playGame.getPlace().getState() == 'stopped':
-                    base.cr.playGame.getPlace().fsm.request('walk')
-            else:
-                self.notify.warning('skipping request to walk in %s' % base.cr.playGame.getPlace())
+            self.notify.warning('skipping request to walk in %s' % base.cr.playGame.getPlace())
 
     def __acceptStoppedStateMsg(self):
         self.dialog.ignore('exitingStoppedState')

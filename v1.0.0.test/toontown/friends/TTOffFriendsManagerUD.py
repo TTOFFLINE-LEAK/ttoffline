@@ -75,24 +75,25 @@ class GetFriendsListOperation(FSM):
         if len(self.friendsList) <= 0:
             self.callback(success=False, avId=self.avId, friendsDetails=None, onlineFriends=None)
             return
-        for friendId, trueFriend in self.friendsList:
-            details = self.mgr.avBasicInfoCache.get(friendId)
-            if details:
-                expire = details.get('expire')
-                avInfo = details.get('avInfo')
-                if expire and avInfo:
-                    if expire > time.time():
-                        self.friendsDetails.append(avInfo)
-                        self.iterated += 1
-                        self.__testFinished()
-                        continue
-                    else:
-                        del self.mgr.avBasicInfoCache[friendId]
-            newOperation = GetAvatarInfoOperation(self.mgr, self.avId, friendId, self.__gotAvatarInfo)
-            newOperation.start()
-            self.operations[friendId] = newOperation
+        else:
+            for friendId, trueFriend in self.friendsList:
+                details = self.mgr.avBasicInfoCache.get(friendId)
+                if details:
+                    expire = details.get('expire')
+                    avInfo = details.get('avInfo')
+                    if expire and avInfo:
+                        if expire > time.time():
+                            self.friendsDetails.append(avInfo)
+                            self.iterated += 1
+                            self.__testFinished()
+                            continue
+                        else:
+                            del self.mgr.avBasicInfoCache[friendId]
+                newOperation = GetAvatarInfoOperation(self.mgr, self.avId, friendId, self.__gotAvatarInfo)
+                newOperation.start()
+                self.operations[friendId] = newOperation
 
-        return
+            return
 
     def __gotAvatarInfo(self, success, avId, fields, isPet):
         if fields['avId'] in self.operations:
@@ -350,10 +351,9 @@ class TTOffFriendsManagerUD(DistributedObjectGlobalUD):
             newOperation = GetAvatarInfoOperation(self, avId, friendId, functools.partial(self.__handleRemoveFriend, friendId=friendId, final=True))
             newOperation.start()
             self.operations[avId] = newOperation
-        else:
-            if online:
-                dg = self.air.dclassesByName['DistributedToonUD'].aiFormatUpdate('friendsNotify', friendId, friendId, self.air.ourChannel, [avId, 1])
-                self.air.send(dg)
+        elif online:
+            dg = self.air.dclassesByName['DistributedToonUD'].aiFormatUpdate('friendsNotify', friendId, friendId, self.air.ourChannel, [avId, 1])
+            self.air.send(dg)
 
     def comingOnline(self, avId, friends):
         for friendId in friends:

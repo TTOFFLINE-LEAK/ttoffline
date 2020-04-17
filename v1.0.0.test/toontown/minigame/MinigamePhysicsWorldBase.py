@@ -171,5 +171,6 @@ class MinigamePhysicsWorldBase:
         c1 = self.space.getCollideId(entry.getGeom2())
         if c0 > c1:
             return (c1, c0)
-        return (
-         c0, c1)
+        else:
+            return (
+             c0, c1)

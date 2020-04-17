@@ -29,8 +29,8 @@ class NPCFriendPanel(DirectFrame):
             except IndexError:
                 NPCID = None
                 count = 0
-            else:
-                card.update(NPCID, count, fCallable)
+
+            card.update(NPCID, count, fCallable)
 
         return
 
@@ -53,17 +53,17 @@ class NPCFriendPanel(DirectFrame):
                 yOffset2 = -2.45
             else:
                 self.notify.error('got wrong max SOS cards %s' % self.maxNPCFriends)
-        count = 0
-        for i in xrange(self.maxNPCFriends):
-            card = NPCFriendCard(parent=self, rotateCard=rotateCard, doneEvent=self['doneEvent'])
-            self.cardList.append(card)
-            card.setPos(xOffset, 1, yOffset)
-            card.setScale(0.75)
-            xOffset += 3.5
-            count += 1
-            if count % 4 == 0:
-                xOffset = -5.25
-                yOffset += yOffset2
+            count = 0
+            for i in xrange(self.maxNPCFriends):
+                card = NPCFriendCard(parent=self, rotateCard=rotateCard, doneEvent=self['doneEvent'])
+                self.cardList.append(card)
+                card.setPos(xOffset, 1, yOffset)
+                card.setScale(0.75)
+                xOffset += 3.5
+                count += 1
+                if count % 4 == 0:
+                    xOffset = -5.25
+                    yOffset += yOffset2
 
 
 class NPCFriendCard(DirectFrame):

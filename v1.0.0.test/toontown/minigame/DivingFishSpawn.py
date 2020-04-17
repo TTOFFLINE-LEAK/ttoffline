@@ -28,28 +28,23 @@ class DivingFishSpawn(DirectObject):
         if fishcode is 0:
             fish = Actor.Actor('phase_4/models/char/clownFish-zero.bam', {'anim': loadBase + 'clownFish-swim.bam'})
             fish.name = 'clown'
+        elif fishcode is 1:
+            fish = Actor.Actor('phase_4/models/char/PBJfish-zero.bam', {'anim': 'phase_4/models/char/PBJfish-swim.bam'})
+            fish.name = 'pbj'
+        elif fishcode is 2:
+            fish = Actor.Actor('phase_4/models/char/BearAcuda-zero.bam', {'anim': 'phase_4/models/char/BearAcuda-swim.bam'})
+            fish.name = 'bear'
+        elif fishcode is 3:
+            fish = Actor.Actor(loadBase + 'balloonFish-zero.bam', {'anim': loadBase + 'balloonFish-swim.bam'})
+            fish.name = 'balloon'
+        elif fishcode is 4:
+            fish = Actor.Actor(loadBase + 'nurseShark-zero.bam', {'anim': loadBase + 'nurseShark-swim.bam'})
+            fish.name = 'nurse'
+        elif fishcode is 5:
+            fish = Actor.Actor(loadBase + 'pianoTuna-zero.bam', {'anim': loadBase + 'pianoTuna-swim.bam'})
+            fish.name = 'piano'
         else:
-            if fishcode is 1:
-                fish = Actor.Actor('phase_4/models/char/PBJfish-zero.bam', {'anim': 'phase_4/models/char/PBJfish-swim.bam'})
-                fish.name = 'pbj'
-            else:
-                if fishcode is 2:
-                    fish = Actor.Actor('phase_4/models/char/BearAcuda-zero.bam', {'anim': 'phase_4/models/char/BearAcuda-swim.bam'})
-                    fish.name = 'bear'
-                else:
-                    if fishcode is 3:
-                        fish = Actor.Actor(loadBase + 'balloonFish-zero.bam', {'anim': loadBase + 'balloonFish-swim.bam'})
-                        fish.name = 'balloon'
-                    else:
-                        if fishcode is 4:
-                            fish = Actor.Actor(loadBase + 'nurseShark-zero.bam', {'anim': loadBase + 'nurseShark-swim.bam'})
-                            fish.name = 'nurse'
-                        else:
-                            if fishcode is 5:
-                                fish = Actor.Actor(loadBase + 'pianoTuna-zero.bam', {'anim': loadBase + 'pianoTuna-swim.bam'})
-                                fish.name = 'piano'
-                            else:
-                                return
+            return
         fish.active = 1
         fish.direction = self.direction
         idCode = self.getUniqueNumber()
@@ -62,44 +57,38 @@ class DivingFishSpawn(DirectObject):
             fish.setH(90 * self.direction)
             fish.loop('anim')
             cSphere = CollisionSphere(0.0, 0.0, 0.0, 1.2)
-        else:
-            if fish.name == 'pbj':
-                fish.setH(15 * self.direction)
-                fish.loop('anim')
-                cSphere = CollisionSphere(0.0, 0.0, 0.0, 1)
+        elif fish.name == 'pbj':
+            fish.setH(15 * self.direction)
+            fish.loop('anim')
+            cSphere = CollisionSphere(0.0, 0.0, 0.0, 1)
+        elif fish.name == 'balloon':
+            fish.setH(0)
+            fish.loop('anim', fromFrame=0, toFrame=94)
+            fish.setScale(2)
+            cSphere = CollisionSphere(0.0, 0.0, 0.0, 0.2)
+        elif fish.name == 'bear':
+            fish.setH(90 * self.direction)
+            cSphere = CollisionSphere(0.0, -1.0, 3.5, 3.0)
+            fish.loop('anim')
+            fish.setScale(0.4, 1.7, 1.7)
+        elif fish.name == 'nurse':
+            fish.setH(90 * self.direction)
+            cSphere = CollisionSphere(0.0, -1.0, 0.0, 1)
+            fish.setScale(0.5, 1.7, 1.7)
+            fish.loop('anim')
+        elif fish.name == 'mackerel':
+            fish.setH(90 * self.direction)
+            cSphere = CollisionSphere(0.0, 0.0, 0.0, 1.5)
+            fish.loop('anim', fromFrame=36, toFrame=80)
+        elif fish.name == 'piano':
+            fish.loop('anim')
+            fish.setScale(1.4)
+            cSphere = CollisionSphere(0, 0, 0, 1)
+            fishSoundName = 'Piano_Tuna.ogg'
+            if self.direction is -1:
+                fish.setH(0)
             else:
-                if fish.name == 'balloon':
-                    fish.setH(0)
-                    fish.loop('anim', fromFrame=0, toFrame=94)
-                    fish.setScale(2)
-                    cSphere = CollisionSphere(0.0, 0.0, 0.0, 0.2)
-                else:
-                    if fish.name == 'bear':
-                        fish.setH(90 * self.direction)
-                        cSphere = CollisionSphere(0.0, -1.0, 3.5, 3.0)
-                        fish.loop('anim')
-                        fish.setScale(0.4, 1.7, 1.7)
-                    else:
-                        if fish.name == 'nurse':
-                            fish.setH(90 * self.direction)
-                            cSphere = CollisionSphere(0.0, -1.0, 0.0, 1)
-                            fish.setScale(0.5, 1.7, 1.7)
-                            fish.loop('anim')
-                        else:
-                            if fish.name == 'mackerel':
-                                fish.setH(90 * self.direction)
-                                cSphere = CollisionSphere(0.0, 0.0, 0.0, 1.5)
-                                fish.loop('anim', fromFrame=36, toFrame=80)
-                            else:
-                                if fish.name == 'piano':
-                                    fish.loop('anim')
-                                    fish.setScale(1.4)
-                                    cSphere = CollisionSphere(0, 0, 0, 1)
-                                    fishSoundName = 'Piano_Tuna.ogg'
-                                    if self.direction is -1:
-                                        fish.setH(0)
-                                    else:
-                                        fish.setH(180)
+                fish.setH(180)
         cSphere.setTangible(0)
         fish.offset = 0
         cSphereNode = CollisionNode('fc' + str(fish.code))

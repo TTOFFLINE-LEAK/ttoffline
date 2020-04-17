@@ -29,15 +29,12 @@ class DGPlayground(Playground.Playground):
         bird = int(randNum * 100) % 4 + 1
         if bird == 1:
             base.playSfx(self.loader.bird1Sound)
-        else:
-            if bird == 2:
-                base.playSfx(self.loader.bird2Sound)
-            else:
-                if bird == 3:
-                    base.playSfx(self.loader.bird3Sound)
-                else:
-                    if bird == 4:
-                        base.playSfx(self.loader.bird4Sound)
+        elif bird == 2:
+            base.playSfx(self.loader.bird2Sound)
+        elif bird == 3:
+            base.playSfx(self.loader.bird3Sound)
+        elif bird == 4:
+            base.playSfx(self.loader.bird4Sound)
         self.nextBirdTime = task.time + randNum * 20.0
         return Task.cont
 

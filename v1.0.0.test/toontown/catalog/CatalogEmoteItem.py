@@ -82,16 +82,17 @@ class CatalogEmoteItem(CatalogItem.CatalogItem):
         self.volume = volume
         if not hasattr(self, 'pictureToon'):
             return Sequence()
-        track, duration = Emote.globalEmote.doEmote(self.pictureToon, self.emoteIndex, volume=self.volume)
-        if duration == None:
-            duration = 0
-        name = 'emote-item-%s' % self.sequenceNumber
-        CatalogEmoteItem.sequenceNumber += 1
-        if track != None:
-            track = Sequence(Sequence(track, duration=0), Wait(duration + 2), name=name)
         else:
-            track = Sequence(Func(Emote.globalEmote.doEmote, toon, self.emoteIndex), Wait(duration + 4), name=name)
-        return track
+            track, duration = Emote.globalEmote.doEmote(self.pictureToon, self.emoteIndex, volume=self.volume)
+            if duration == None:
+                duration = 0
+            name = 'emote-item-%s' % self.sequenceNumber
+            CatalogEmoteItem.sequenceNumber += 1
+            if track != None:
+                track = Sequence(Sequence(track, duration=0), Wait(duration + 2), name=name)
+            else:
+                track = Sequence(Func(Emote.globalEmote.doEmote, toon, self.emoteIndex), Wait(duration + 4), name=name)
+            return track
 
     def cleanupPicture(self):
         CatalogItem.CatalogItem.cleanupPicture(self)
@@ -131,8 +132,9 @@ class CatalogEmoteItem(CatalogItem.CatalogItem):
     def isGift(self):
         if self.getEmblemPrices():
             return 0
-        if self.loyaltyRequirement() > 0:
-            return 0
-        if self.emoteIndex in LoyaltyEmoteItems:
-            return 0
-        return 1
+        else:
+            if self.loyaltyRequirement() > 0:
+                return 0
+            if self.emoteIndex in LoyaltyEmoteItems:
+                return 0
+            return 1

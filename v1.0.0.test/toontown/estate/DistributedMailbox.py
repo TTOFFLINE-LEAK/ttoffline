@@ -56,9 +56,8 @@ class DistributedMailbox(DistributedObject.DistributedObject):
         zOffset = 0
         if self.housePosInd == 3:
             zOffset = -1
-        else:
-            if self.housePosInd == 2:
-                zOffset = 0.5
+        elif self.housePosInd == 2:
+            zOffset = 0.5
         self.model = loader.loadModel('phase_5.5/models/estate/mailboxHouse')
         self.model.reparentTo(estateNode)
         self.model.setPos(houseNode, 19, -4, 0 + zOffset)

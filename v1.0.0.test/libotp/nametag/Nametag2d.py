@@ -192,9 +192,8 @@ class Nametag2d(Nametag, MarginPopup):
             if color[3] != 1.0:
                 self.m_arrow.setTransparency(1)
             self.rotateArrow()
-        else:
-            if self.m_arrow:
-                self.m_arrow.removeNode()
+        elif self.m_arrow:
+            self.m_arrow.removeNode()
         v69 = self.m_np.getNetTransform().getMat()
         v69 = a3 * v69
         v77 = v69.xformPoint(Point3(self.m_group.m_name_frame[0] - NametagGlobals._card_pad[0], 0, v68))
@@ -224,9 +223,8 @@ class Nametag2d(Nametag, MarginPopup):
         page_button = None
         if has_page_button:
             page_button = NametagGlobals.getPageButton(v5)
-        else:
-            if has_quit_button:
-                page_button = NametagGlobals.getQuitButton(v5)
+        elif has_quit_button:
+            page_button = NametagGlobals.getQuitButton(v5)
         reversed = self.m_group.m_chat_flags & CFReversed
         new_button = [None]
         balloon_result = balloon.generate(text, self.m_group.getChatFont(), self.m_wordwrap, text_color, balloon_color, False, self.m_has_draw_order, self.m_draw_order, page_button, self.m_group.willHaveButton(), reversed, new_button)

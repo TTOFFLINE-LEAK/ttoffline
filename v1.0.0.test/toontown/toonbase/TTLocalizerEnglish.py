@@ -6299,14 +6299,12 @@ for accessoryId in CatalogAccessoryItemGlobals.AccessoryTypes.keys():
     accessoryInfo = CatalogAccessoryItemGlobals.AccessoryTypes[accessoryId]
     if accessoryInfo[0] % 4 == 0:
         accessoryStyleDescription = HatStylesDescriptions
+    elif accessoryInfo[0] % 4 == 1:
+        accessoryStyleDescription = GlassesStylesDescriptions
+    elif accessoryInfo[0] % 4 == 2:
+        accessoryStyleDescription = BackpackStylesDescriptions
     else:
-        if accessoryInfo[0] % 4 == 1:
-            accessoryStyleDescription = GlassesStylesDescriptions
-        else:
-            if accessoryInfo[0] % 4 == 2:
-                accessoryStyleDescription = BackpackStylesDescriptions
-            else:
-                accessoryStyleDescription = ShoesStylesDescriptions
+        accessoryStyleDescription = ShoesStylesDescriptions
     if accessoryInfo[3]:
         AwardManagerAccessoryNames[accessoryId] = AccessoryNamePrefix[accessoryInfo[0]] + accessoryStyleDescription[accessoryInfo[1]]
     AccessoryTypeNames[accessoryId] = accessoryStyleDescription[accessoryInfo[1]]
@@ -9764,10 +9762,11 @@ def getTrackGenreString(genreId):
 def getTunnelSignName(trackId, padId):
     if trackId == 2 and padId == 0:
         return 'tunne1l_citysign'
-    if trackId == 1 and padId == 0:
-        return 'tunnel_countrysign1'
-    genreId = RaceGlobals.getTrackGenre(trackId)
-    return 'tunnel%s_%ssign' % (padId + 1, RaceGlobals.getTrackGenreString(genreId))
+    else:
+        if trackId == 1 and padId == 0:
+            return 'tunnel_countrysign1'
+        genreId = RaceGlobals.getTrackGenre(trackId)
+        return 'tunnel%s_%ssign' % (padId + 1, RaceGlobals.getTrackGenreString(genreId))
 
 
 KartTrophyDescriptions = [

@@ -261,17 +261,14 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                 self.betterlucknexttime(avList, index)
             else:
                 self.loginFSM.request('waitForSetAvatarResponse', [avatarChoice])
-        else:
-            if done == 'nameIt':
-                self.accept('downloadAck-response', self.__handleDownloadAck, [avList, index])
-                self.downloadAck = DownloadForceAcknowledge('downloadAck-response')
-                self.downloadAck.enter(4)
-            else:
-                if done == 'create':
-                    self.loginFSM.request('createAvatar', [avList, index])
-                else:
-                    if done == 'delete':
-                        self.loginFSM.request('waitForDeleteAvatarResponse', [avatarChoice])
+        elif done == 'nameIt':
+            self.accept('downloadAck-response', self.__handleDownloadAck, [avList, index])
+            self.downloadAck = DownloadForceAcknowledge('downloadAck-response')
+            self.downloadAck.enter(4)
+        elif done == 'create':
+            self.loginFSM.request('createAvatar', [avList, index])
+        elif done == 'delete':
+            self.loginFSM.request('waitForDeleteAvatarResponse', [avatarChoice])
 
     def __handleDownloadAck(self, avList, index, doneStatus):
         if doneStatus['mode'] == 'complete':
@@ -324,19 +321,18 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                     avList.remove(self.newPotAv)
             self.avCreate.exit()
             self.loginFSM.request('chooseAvatar', [avList])
-        else:
-            if done == 'created':
-                self.avCreate.exit()
-                if not base.launcher or base.launcher.getPhaseComplete(3.5):
-                    for i in avList:
-                        if i.position == avPosition:
-                            newPotAv = i
+        elif done == 'created':
+            self.avCreate.exit()
+            if not base.launcher or base.launcher.getPhaseComplete(3.5):
+                for i in avList:
+                    if i.position == avPosition:
+                        newPotAv = i
 
-                    self.loginFSM.request('waitForSetAvatarResponse', [newPotAv])
-                else:
-                    self.loginFSM.request('chooseAvatar', [avList])
+                self.loginFSM.request('waitForSetAvatarResponse', [newPotAv])
             else:
-                self.notify.error('Invalid doneStatus from MakeAToon: ' + str(done))
+                self.loginFSM.request('chooseAvatar', [avList])
+        else:
+            self.notify.error('Invalid doneStatus from MakeAToon: ' + str(done))
 
     def exitCreateAvatar(self):
         self.ignore('makeAToonComplete')
@@ -533,18 +529,16 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             parentId = di2.getUint32()
             if self._doIdIsOnCurrentShard(parentId):
                 return
-        else:
-            if msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
-                di2 = PyDatagramIterator(di)
-                parentId = di2.getUint32()
-                if self._doIdIsOnCurrentShard(parentId):
-                    return
-            else:
-                if msgType == CLIENT_OBJECT_SET_FIELD:
-                    di2 = PyDatagramIterator(di)
-                    doId = di2.getUint32()
-                    if self._doIdIsOnCurrentShard(doId):
-                        return
+        elif msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
+            di2 = PyDatagramIterator(di)
+            parentId = di2.getUint32()
+            if self._doIdIsOnCurrentShard(parentId):
+                return
+        elif msgType == CLIENT_OBJECT_SET_FIELD:
+            di2 = PyDatagramIterator(di)
+            doId = di2.getUint32()
+            if self._doIdIsOnCurrentShard(doId):
+                return
         self.handleMessageType(msgType, di)
 
     def _logFailedDisable(self, doId, ownerView):
@@ -627,9 +621,10 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.notify.warning('removeToontownShardInterest: no shard interest open')
             callback()
             return
-        self.acceptOnce(ToontownClientRepository.ClearInterestDoneEvent, Functor(self._tcrRemoveUberZoneInterest, callback))
-        self._removeEmulatedSetZone(ToontownClientRepository.ClearInterestDoneEvent)
-        return
+        else:
+            self.acceptOnce(ToontownClientRepository.ClearInterestDoneEvent, Functor(self._tcrRemoveUberZoneInterest, callback))
+            self._removeEmulatedSetZone(ToontownClientRepository.ClearInterestDoneEvent)
+            return
 
     def _tcrRemoveUberZoneInterest(self, callback):
         self.acceptOnce(ToontownClientRepository.ClearInterestDoneEvent, Functor(self._tcrRemoveShardInterestDone, callback))
@@ -708,37 +703,37 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         if doId in self.friendsMap:
             teleportNotify.debug('friend %s in friendsMap' % doId)
             return self.friendsMap[doId]
-        avatar = None
-        if doId in self.doId2do:
-            teleportNotify.debug('found friend %s in doId2do' % doId)
-            avatar = self.doId2do[doId]
         else:
-            if self.cache.contains(doId):
-                teleportNotify.debug('found friend %s in cache' % doId)
-                avatar = self.cache.dict[doId]
+            avatar = None
+            if doId in self.doId2do:
+                teleportNotify.debug('found friend %s in doId2do' % doId)
+                avatar = self.doId2do[doId]
             else:
-                if self.playerFriendsManager.getAvHandleFromId(doId):
+                if self.cache.contains(doId):
+                    teleportNotify.debug('found friend %s in cache' % doId)
+                    avatar = self.cache.dict[doId]
+                elif self.playerFriendsManager.getAvHandleFromId(doId):
                     teleportNotify.debug('found friend %s in playerFriendsManager' % doId)
                     avatar = base.cr.playerFriendsManager.getAvHandleFromId(doId)
                 else:
                     self.notify.warning("Don't know who friend %s is." % doId)
                     return
-        if not (isinstance(avatar, DistributedToon.DistributedToon) and avatar.__class__ is DistributedToon.DistributedToon or isinstance(avatar, DistributedPet.DistributedPet)):
-            self.notify.warning('friendsNotify%s: invalid friend object %s' % (choice(source, '(%s)' % source, ''), doId))
-            return
-        if base.wantPets:
-            if avatar.isPet():
-                if avatar.bFake:
-                    handle = PetHandle.PetHandle(avatar)
+                if not (isinstance(avatar, DistributedToon.DistributedToon) and avatar.__class__ is DistributedToon.DistributedToon or isinstance(avatar, DistributedPet.DistributedPet)):
+                    self.notify.warning('friendsNotify%s: invalid friend object %s' % (choice(source, '(%s)' % source, ''), doId))
+                    return
+            if base.wantPets:
+                if avatar.isPet():
+                    if avatar.bFake:
+                        handle = PetHandle.PetHandle(avatar)
+                    else:
+                        handle = avatar
                 else:
-                    handle = avatar
+                    handle = FriendHandle.FriendHandle(doId, avatar.getName(), avatar.style, avatar.getPetId())
             else:
-                handle = FriendHandle.FriendHandle(doId, avatar.getName(), avatar.style, avatar.getPetId())
-        else:
-            handle = FriendHandle.FriendHandle(doId, avatar.getName(), avatar.style, '')
-        teleportNotify.debug('adding %s to friendsMap' % doId)
-        self.friendsMap[doId] = handle
-        return handle
+                handle = FriendHandle.FriendHandle(doId, avatar.getName(), avatar.style, '')
+            teleportNotify.debug('adding %s to friendsMap' % doId)
+            self.friendsMap[doId] = handle
+            return handle
 
     def identifyPlayer(self, pId):
         return base.cr.playerFriendsManager.getFriendInfo(pId)
@@ -746,7 +741,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
     def identifyAvatar(self, doId):
         if doId in self.doId2do:
             return self.doId2do[doId]
-        return self.identifyFriend(doId)
+        else:
+            return self.identifyFriend(doId)
 
     def isFriendsMapComplete(self):
         for friendId, flags in base.localAvatar.friendsList:
@@ -945,12 +941,11 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                 self.old_setzone_interest_handle = self.addInterest(parentId, interestZones, name, ToontownClientRepository.SetZoneDoneEvent)
             else:
                 self.alterInterest(self.old_setzone_interest_handle, parentId, interestZones, name, ToontownClientRepository.SetZoneDoneEvent)
+        elif op == ToontownClientRepository.ClearInterest:
+            self.removeInterest(self.old_setzone_interest_handle, ToontownClientRepository.SetZoneDoneEvent)
+            self.old_setzone_interest_handle = None
         else:
-            if op == ToontownClientRepository.ClearInterest:
-                self.removeInterest(self.old_setzone_interest_handle, ToontownClientRepository.SetZoneDoneEvent)
-                self.old_setzone_interest_handle = None
-            else:
-                self.notify.error('unknown setZone op: %s' % op)
+            self.notify.error('unknown setZone op: %s' % op)
         return
 
     def _handleEmuSetZoneDone(self):
@@ -1032,11 +1027,10 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             obj.deleteOrDelay()
             if obj.getDelayDeleteCount() <= 0:
                 obj.detectLeaks()
+        elif self.cache.contains(doId):
+            self.cache.delete(doId)
         else:
-            if self.cache.contains(doId):
-                self.cache.delete(doId)
-            else:
-                self.notify.warning('Asked to delete non-existent DistObj ' + str(doId))
+            self.notify.warning('Asked to delete non-existent DistObj ' + str(doId))
 
     def _abandonShard(self):
         for doId, obj in self.doId2do.items():

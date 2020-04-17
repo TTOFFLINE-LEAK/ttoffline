@@ -438,10 +438,9 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
         if self.skidding and not self.driftSeqStarted:
             self.driftSeqStarted = True
             self.driftSeq.start()
-        else:
-            if not self.skidding and self.driftSeqStarted:
-                self.driftSeqStarted = False
-                self.driftSeq.finish()
+        elif not self.skidding and self.driftSeqStarted:
+            self.driftSeqStarted = False
+            self.driftSeq.finish()
 
     def cleanupDriftParticles(self):
         self.driftSeq.finish()
@@ -508,11 +507,10 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
         self.notify.debug('SetState received: %s' % state)
         if state == 'C':
             self.demand('Controlled')
+        elif state == 'P':
+            self.demand('Parked')
         else:
-            if state == 'P':
-                self.demand('Parked')
-            else:
-                self.notify.error('Invalid state from AI: %s' % state)
+            self.notify.error('Invalid state from AI: %s' % state)
 
     def d_requestControl(self):
         self.sendUpdate('requestControl')
@@ -657,7 +655,8 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
 
         if self.pieCount == 0:
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def __enableControlInterface(self):
         if self.canRace:
@@ -770,34 +769,30 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
     def __upArrow(self, pressed):
         if pressed:
             self.arrowVert = 1
-        else:
-            if self.arrowVert > 0:
-                self.arrowVert = 0
+        elif self.arrowVert > 0:
+            self.arrowVert = 0
 
     def __downArrow(self, pressed):
         if pressed:
             self.arrowVert = -1
-        else:
-            if self.arrowVert < 0:
-                self.arrowVert = 0
+        elif self.arrowVert < 0:
+            self.arrowVert = 0
 
     def __rightArrow(self, pressed):
         if pressed:
             self.arrowHorz = 1
             self.rightHeld += 1
-        else:
-            if self.arrowHorz > 0:
-                self.arrowHorz = 0
-                self.rightHeld = 0
+        elif self.arrowHorz > 0:
+            self.arrowHorz = 0
+            self.rightHeld = 0
 
     def __leftArrow(self, pressed):
         if pressed:
             self.arrowHorz = -1
             self.leftHeld += 1
-        else:
-            if self.arrowHorz < 0:
-                self.arrowHorz = 0
-                self.leftHeld = 0
+        elif self.arrowHorz < 0:
+            self.arrowHorz = 0
+            self.leftHeld = 0
 
     def __updateNonlocalVehicle(self, task=None):
         self.curSpeed = self.smoother.getSmoothForwardVelocity()
@@ -874,9 +869,8 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
             effectiveSpeed = self.speedMinTurn
         if effectiveSpeed < self.speedMaxTurn:
             turnRatio = 1.0 * effectiveSpeed
-        else:
-            if effectiveSpeed >= self.speedMaxTurn:
-                turnRatio = 1.0 * (effectiveSpeed * (self.speedMaxTurn / speed))
+        elif effectiveSpeed >= self.speedMaxTurn:
+            turnRatio = 1.0 * (effectiveSpeed * (self.speedMaxTurn / speed))
 
     def __updateWheelPos(self, dt, curSpeed):
         ratioIntoMax = (curSpeed - self.speedMinTurn) / (self.speedMaxTurn - self.speedMinTurn)
@@ -961,42 +955,42 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
                     self.acceleration = self.arrowVert * self.accelerationMult * self.cheatFactor * 0.5
             if self.turbo:
                 self.acceleration += self.accelerationMult * 1.5
-        self.engine.setVector(Vec3(0, self.acceleration, 0))
-        if self.groundType == 'ice':
-            rotMat = Mat3.rotateMatNormaxis(newHForTurning, Vec3.up())
-        else:
-            rotMat = Mat3.rotateMatNormaxis(self.getH(), Vec3.up())
-        curHeading = rotMat.xform(Vec3.forward())
-        push = (3 - self.getP()) * 0.02
-        curHeading.setZ(curHeading.getZ() - min(0.2, max(-0.2, push)))
-        windResistance = self.surfaceModifiers[self.groundType]['windResistance']
-        self.windResistance.setCoef(windResistance)
-        physicsFrame = int((globalClock.getFrameTime() - self.physicsEpoch) * self.physicsCalculationsPerSecond)
-        numFrames = min(physicsFrame - self.lastPhysicsFrame, self.maxPhysicsFrames)
-        self.lastPhysicsFrame = physicsFrame
-        leanIncrement = self.arrowHorz * self.physicsDt * self.turnRatio
-        if self.stopped:
-            leanIncrement = 0
-        driftMin = self.surfaceModifiers[self.groundType]['driftMin']
-        if self.proRacer:
-            driftMin = self.surfaceModifiers[self.groundType]['driftMin'] * 0.2
-            if self.skidding:
-                driftMin = self.surfaceModifiers[self.groundType]['driftMin']
-        for i in xrange(int(numFrames)):
-            self.physicsMgr.doPhysics(self.physicsDt)
-            curVelocity = self.actorNode.getPhysicsObject().getVelocity()
-            idealVelocity = curHeading * curSpeed
-            curVelocity *= self.imHitMult
-            driftVal = abs(self.leanAmount) * 16 / self.cheatFactor + 15 / self.cheatFactor
-            curVelocity = Vec3((curVelocity * driftVal + idealVelocity) / (driftVal + 1))
-            curSpeed = curVelocity.length()
-            curVelocity.normalize()
-            curVelocity *= min(curSpeed, 600)
-            self.actorNode.getPhysicsObject().setVelocity(curVelocity)
-            curSpeed = curVelocity.length()
-            speedFactor = min(curSpeed, 150) / 162.0
-            self.leanAmount = (self.leanAmount + leanIncrement) * speedFactor
-            self.leanAmount = clampScalar(self.leanAmount, -10, 10)
+            self.engine.setVector(Vec3(0, self.acceleration, 0))
+            if self.groundType == 'ice':
+                rotMat = Mat3.rotateMatNormaxis(newHForTurning, Vec3.up())
+            else:
+                rotMat = Mat3.rotateMatNormaxis(self.getH(), Vec3.up())
+            curHeading = rotMat.xform(Vec3.forward())
+            push = (3 - self.getP()) * 0.02
+            curHeading.setZ(curHeading.getZ() - min(0.2, max(-0.2, push)))
+            windResistance = self.surfaceModifiers[self.groundType]['windResistance']
+            self.windResistance.setCoef(windResistance)
+            physicsFrame = int((globalClock.getFrameTime() - self.physicsEpoch) * self.physicsCalculationsPerSecond)
+            numFrames = min(physicsFrame - self.lastPhysicsFrame, self.maxPhysicsFrames)
+            self.lastPhysicsFrame = physicsFrame
+            leanIncrement = self.arrowHorz * self.physicsDt * self.turnRatio
+            if self.stopped:
+                leanIncrement = 0
+            driftMin = self.surfaceModifiers[self.groundType]['driftMin']
+            if self.proRacer:
+                driftMin = self.surfaceModifiers[self.groundType]['driftMin'] * 0.2
+                if self.skidding:
+                    driftMin = self.surfaceModifiers[self.groundType]['driftMin']
+            for i in xrange(int(numFrames)):
+                self.physicsMgr.doPhysics(self.physicsDt)
+                curVelocity = self.actorNode.getPhysicsObject().getVelocity()
+                idealVelocity = curHeading * curSpeed
+                curVelocity *= self.imHitMult
+                driftVal = abs(self.leanAmount) * 16 / self.cheatFactor + 15 / self.cheatFactor
+                curVelocity = Vec3((curVelocity * driftVal + idealVelocity) / (driftVal + 1))
+                curSpeed = curVelocity.length()
+                curVelocity.normalize()
+                curVelocity *= min(curSpeed, 600)
+                self.actorNode.getPhysicsObject().setVelocity(curVelocity)
+                curSpeed = curVelocity.length()
+                speedFactor = min(curSpeed, 150) / 162.0
+                self.leanAmount = (self.leanAmount + leanIncrement) * speedFactor
+                self.leanAmount = clampScalar(self.leanAmount, -10, 10)
 
         self.cWallTrav.traverse(render)
         self.curSpeed = curSpeed
@@ -1022,21 +1016,18 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
             dir2 = self.proCameraHeading
             if dir1 > 180:
                 dir1 -= 360
-            else:
-                if dir1 < -180:
-                    dir1 += 360
+            elif dir1 < -180:
+                dir1 += 360
             if dir2 > 180:
                 dir2 -= 360
-            else:
-                if dir2 < -180:
-                    dir2 += 360
+            elif dir2 < -180:
+                dir2 += 360
             self.proCameraHeading = dir2
             dif = dir1 - dir2
             if dif > 180:
                 dif -= 360
-            else:
-                if dif < -180:
-                    dif += 360
+            elif dif < -180:
+                dif += 360
             speedDif = abs(dif)
             if speedDif > 90:
                 speedDif = 90
@@ -1049,9 +1040,8 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
             swingSpeed = self.armSwingSpeedPerp * swingSpeedRatio + self.armSwingSpeedPara * (1 - swingSpeedRatio)
             self.proCameraHeading += dif * cameraTightener * (dt / swingSpeed)
             self.cameraArmNode.setH(self.proCameraHeading - self.getH())
-        else:
-            if not self.stopped:
-                self.cameraNode.setH(self.leanAmount)
+        elif not self.stopped:
+            self.cameraNode.setH(self.leanAmount)
         self.updateParticles(self.leanAmount)
         if (self.leanAmount > 8 or self.leanAmount < -8) and self.offGround <= 0:
             self.startSkid()
@@ -1140,9 +1130,8 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
         self.setP((newPitch + curPitch) / 2.0)
         if self.proRacer:
             self.cameraNode.setP(-newPitch)
-        else:
-            if not self.stopped:
-                self.cameraNode.setP(-newPitch)
+        elif not self.stopped:
+            self.cameraNode.setP(-newPitch)
 
     def setBodyType(self, bodyType):
         self.kartDNA[KartDNA.bodyType] = bodyType

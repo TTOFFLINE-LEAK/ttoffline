@@ -370,15 +370,12 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             return
         if instruct == 1:
             self.cagedToon.nametag3d.setScale(2)
-        else:
-            if instruct == 2:
-                self.cagedToon.setChatAbsolute(TTLocalizer.CagedToonDrop[cageIndex], CFSpeech)
-            else:
-                if instruct == 3:
-                    self.cagedToon.nametag3d.setScale(1)
-                else:
-                    if instruct == 4:
-                        self.cagedToon.clearChat()
+        elif instruct == 2:
+            self.cagedToon.setChatAbsolute(TTLocalizer.CagedToonDrop[cageIndex], CFSpeech)
+        elif instruct == 3:
+            self.cagedToon.nametag3d.setScale(1)
+        elif instruct == 4:
+            self.cagedToon.clearChat()
 
     def makeEndOfBattleMovie(self, hasLocalToon):
         name = self.uniqueName('CageDrop')
@@ -422,16 +419,15 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     def __talkAboutPromotion(self, speech):
         if not self.localToonPromoted:
             pass
+        elif self.prevCogSuitLevel < ToontownGlobals.MaxCogSuitLevel:
+            speech += TTLocalizer.CagedToonPromotion
+            newCogSuitLevel = localAvatar.getCogLevels()[CogDisguiseGlobals.dept2deptIndex(self.style.dept)]
+            if newCogSuitLevel == ToontownGlobals.MaxCogSuitLevel:
+                speech += TTLocalizer.CagedToonLastPromotion % (ToontownGlobals.MaxCogSuitLevel + 1)
+            if newCogSuitLevel in ToontownGlobals.CogSuitHPLevels:
+                speech += TTLocalizer.CagedToonHPBoost
         else:
-            if self.prevCogSuitLevel < ToontownGlobals.MaxCogSuitLevel:
-                speech += TTLocalizer.CagedToonPromotion
-                newCogSuitLevel = localAvatar.getCogLevels()[CogDisguiseGlobals.dept2deptIndex(self.style.dept)]
-                if newCogSuitLevel == ToontownGlobals.MaxCogSuitLevel:
-                    speech += TTLocalizer.CagedToonLastPromotion % (ToontownGlobals.MaxCogSuitLevel + 1)
-                if newCogSuitLevel in ToontownGlobals.CogSuitHPLevels:
-                    speech += TTLocalizer.CagedToonHPBoost
-            else:
-                speech += TTLocalizer.CagedToonMaxed % (ToontownGlobals.MaxCogSuitLevel + 1)
+            speech += TTLocalizer.CagedToonMaxed % (ToontownGlobals.MaxCogSuitLevel + 1)
         return speech
 
     def __makeCageOpenMovie(self):
@@ -1112,13 +1108,12 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             if toon == localAvatar:
                 self.d_hitBossInsides()
             self.flashRed()
-        else:
-            if pieCode == ToontownGlobals.PieCodeBossCog:
-                if toon == localAvatar:
-                    self.d_hitBoss(1)
-                if self.dizzy:
-                    self.flashRed()
-                    self.doAnimate('hit', now=1)
+        elif pieCode == ToontownGlobals.PieCodeBossCog:
+            if toon == localAvatar:
+                self.d_hitBoss(1)
+            if self.dizzy:
+                self.flashRed()
+                self.doAnimate('hit', now=1)
 
     def __localPieSplat(self, pieCode, entry):
         if pieCode != ToontownGlobals.PieCodeToon:

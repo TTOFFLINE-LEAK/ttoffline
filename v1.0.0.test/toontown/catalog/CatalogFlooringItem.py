@@ -109,8 +109,10 @@ class CatalogFlooringItem(CatalogSurfaceItem):
         if colors:
             if colorIndex < len(colors):
                 return colors[colorIndex]
-            print 'Warning: colorIndex not in colors. Returning white.'
-            return CT_WHITE
+            else:
+                print 'Warning: colorIndex not in colors. Returning white.'
+                return CT_WHITE
+
         else:
             return CT_WHITE
         return

@@ -236,26 +236,24 @@ class DistributedHQInterior(DistributedObject.DistributedObject):
                 task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
                 task.trophyStarSpeed = 15
                 task.trophyStar = trophyStar
+        elif score >= ToontownGlobals.TrophyStarLevels[2]:
+            trophyStar.show()
+            trophyStar.setScale(0.75 * scale)
+            trophyStar.setColor(ToontownGlobals.TrophyStarColors[2])
+            if score >= ToontownGlobals.TrophyStarLevels[3]:
+                task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
+                task.trophyStarSpeed = 10
+                task.trophyStar = trophyStar
+        elif score >= ToontownGlobals.TrophyStarLevels[0]:
+            trophyStar.show()
+            trophyStar.setScale(0.75 * scale)
+            trophyStar.setColor(ToontownGlobals.TrophyStarColors[0])
+            if score >= ToontownGlobals.TrophyStarLevels[1]:
+                task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
+                task.trophyStarSpeed = 8
+                task.trophyStar = trophyStar
         else:
-            if score >= ToontownGlobals.TrophyStarLevels[2]:
-                trophyStar.show()
-                trophyStar.setScale(0.75 * scale)
-                trophyStar.setColor(ToontownGlobals.TrophyStarColors[2])
-                if score >= ToontownGlobals.TrophyStarLevels[3]:
-                    task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
-                    task.trophyStarSpeed = 10
-                    task.trophyStar = trophyStar
-            else:
-                if score >= ToontownGlobals.TrophyStarLevels[0]:
-                    trophyStar.show()
-                    trophyStar.setScale(0.75 * scale)
-                    trophyStar.setColor(ToontownGlobals.TrophyStarColors[0])
-                    if score >= ToontownGlobals.TrophyStarLevels[1]:
-                        task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
-                        task.trophyStarSpeed = 8
-                        task.trophyStar = trophyStar
-                else:
-                    trophyStar.hide()
+            trophyStar.hide()
 
     def __starSpin(self, task):
         now = globalClock.getFrameTime()

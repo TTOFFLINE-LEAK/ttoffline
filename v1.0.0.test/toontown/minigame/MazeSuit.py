@@ -113,15 +113,12 @@ class MazeSuit(DirectObject):
         while not self.maze.isWalkable(sTX, sTY):
             if 0 == direction:
                 sTX -= 1
-            else:
-                if 1 == direction:
-                    sTY -= 1
-                else:
-                    if 2 == direction:
-                        sTX += 1
-                    else:
-                        if 3 == direction:
-                            sTY += 1
+            elif 1 == direction:
+                sTY -= 1
+            elif 2 == direction:
+                sTX += 1
+            elif 3 == direction:
+                sTY += 1
             c += 1
             if c > lim:
                 c = 0
@@ -153,17 +150,13 @@ class MazeSuit(DirectObject):
     def __applyDirection(self, dir, TX, TY):
         if self.DIR_UP == dir:
             TY += 1
-        else:
-            if self.DIR_DOWN == dir:
-                TY -= 1
-            else:
-                if self.DIR_LEFT == dir:
-                    TX -= 1
-                else:
-                    if self.DIR_RIGHT == dir:
-                        TX += 1
-        return (
-         TX, TY)
+        elif self.DIR_DOWN == dir:
+            TY -= 1
+        elif self.DIR_LEFT == dir:
+            TX -= 1
+        elif self.DIR_RIGHT == dir:
+            TX += 1
+        return (TX, TY)
 
     def __chooseNewWalkDirection(self, unwalkables):
         if not self.rng.randrange(self._walkSameDirectionProb):
@@ -194,14 +187,13 @@ class MazeSuit(DirectObject):
     def getThinkTimestampTics(self, curTic):
         if curTic < self.nextThinkTic:
             return []
-        r = range(self.nextThinkTic, curTic + 1, self.ticPeriod)
-        self.lastTicBeforeRender = r[(-1)]
-        return r
+        else:
+            r = range(self.nextThinkTic, curTic + 1, self.ticPeriod)
+            self.lastTicBeforeRender = r[(-1)]
+            return r
 
     def prepareToThink(self):
-        self.occupiedTiles = [
-         (
-          self.nextTX, self.nextTY)]
+        self.occupiedTiles = [(self.nextTX, self.nextTY)]
 
     def think(self, curTic, curT, unwalkables):
         self.TX = self.nextTX
@@ -221,9 +213,8 @@ class MazeSuit(DirectObject):
                 toH = self.directionHs[self.direction]
                 if self.fromH == 270 and toH == 0:
                     self.fromH = -90
-                else:
-                    if self.fromH == 0 and toH == 270:
-                        self.fromH = 360
+                elif self.fromH == 0 and toH == 270:
+                    self.fromH = 360
                 self.fromHpr.set(self.fromH, 0, 0)
                 self.toHpr.set(toH, 0, 0)
                 turnIval = LerpHprInterval(self.suit, self.turnDuration, self.toHpr, startHpr=self.fromHpr, name=self.uniqueName('turnMazeSuit'))

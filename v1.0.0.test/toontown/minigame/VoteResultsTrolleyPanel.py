@@ -179,12 +179,10 @@ class VoteResultsTrolleyPanel(DirectFrame):
                 reasonStr = TTLocalizer.TravelGameReasonVotesPlural % {'dir': TTLocalizer.TravelGameDirections[self.directionToGo], 'numVotes': diffVotes}
             else:
                 reasonStr = TTLocalizer.TravelGameReasonVotesSingular % {'dir': TTLocalizer.TravelGameDirections[self.directionToGo], 'numVotes': diffVotes}
-        else:
-            if self.directionReason == TravelGameGlobals.ReasonRandom:
-                reasonStr = TTLocalizer.TravelGameReasonRandom % {'dir': TTLocalizer.TravelGameDirections[self.directionToGo], 'numVotes': self.directionTotals[self.directionToGo]}
-            else:
-                if self.directionReason == TravelGameGlobals.ReasonPlaceDecider:
-                    reasonStr = TravelGameReasonPlace % {'name': 'TODO NAME', 'dir': TTLocalizer.TravelGameDirections[self.directionToGo]}
+        elif self.directionReason == TravelGameGlobals.ReasonRandom:
+            reasonStr = TTLocalizer.TravelGameReasonRandom % {'dir': TTLocalizer.TravelGameDirections[self.directionToGo], 'numVotes': self.directionTotals[self.directionToGo]}
+        elif self.directionReason == TravelGameGlobals.ReasonPlaceDecider:
+            reasonStr = TravelGameReasonPlace % {'name': 'TODO NAME', 'dir': TTLocalizer.TravelGameDirections[self.directionToGo]}
         self.resultLabel['text'] = reasonStr
         self.resultLabel.hide()
 
@@ -227,11 +225,10 @@ class VoteResultsTrolleyPanel(DirectFrame):
                 track.append(Func(self.avArrows[index].show, name='showArrow %d' % index))
             if direction == 0 and numVotes:
                 pass
+            elif direction == 1 and numVotes:
+                pass
             else:
-                if direction == 1 and numVotes:
-                    pass
-                else:
-                    track.append(SoundInterval(self.noVoteSfx))
+                track.append(SoundInterval(self.noVoteSfx))
             track.append(LerpFunc(avVotesTicker, duration=duration, name='countAvVotes %d' % index))
         return track
 
@@ -247,9 +244,8 @@ class VoteResultsTrolleyPanel(DirectFrame):
         soundAndWait.append(Wait(2.0))
         if self.localAvatarWon:
             soundAndWait.append(SoundInterval(self.winVoteSfx))
-        else:
-            if self.localAvatarLost:
-                soundAndWait.append(SoundInterval(self.loseVoteSfx, duration=0.43))
+        elif self.localAvatarLost:
+            soundAndWait.append(SoundInterval(self.loseVoteSfx, duration=0.43))
         self.movie.append(soundAndWait)
         self.movie.start()
 

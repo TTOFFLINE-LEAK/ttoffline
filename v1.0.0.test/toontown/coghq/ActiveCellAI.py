@@ -15,7 +15,8 @@ class ActiveCellAI(DistributedEntityAI.DistributedEntityAI):
             if self.grid:
                 self.grid.addActiveCell(self)
                 return 1
-            return 0
+            else:
+                return 0
 
         if not setGrid():
             self.accept(self.level.getEntityCreateEvent(self.gridId), setGrid)

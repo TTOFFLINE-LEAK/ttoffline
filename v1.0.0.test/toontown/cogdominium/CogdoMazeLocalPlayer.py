@@ -181,10 +181,11 @@ class CogdoMazeLocalPlayer(CogdoMazePlayer):
     def removeGag(self):
         if self.equippedGag is None:
             return
-        CogdoMazePlayer.removeGag(self)
-        self.throwPending = False
-        messenger.send(Globals.WaterCoolerShowEventName, [])
-        return
+        else:
+            CogdoMazePlayer.removeGag(self)
+            self.throwPending = False
+            messenger.send(Globals.WaterCoolerShowEventName, [])
+            return
 
     def controlKeyPressed(self):
         if self.game.finished or self.throwPending or self.getCurrentOrNextState() == 'Hit' or self.equippedGag == None:

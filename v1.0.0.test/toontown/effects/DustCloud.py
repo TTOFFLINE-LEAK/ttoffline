@@ -35,11 +35,12 @@ class DustCloud(NodePath):
             sound = DustCloud.sounds.get(soundId)
             if self.wantSound and sound:
                 return sound.play
+            else:
 
-            def dummy():
-                pass
+                def dummy():
+                    pass
 
-            return dummy
+                return dummy
 
         tflipDuration = self.seqNode.getNumChildren() / float(rate)
         self.track = Sequence(Func(self.show), Func(self.messaging), Func(self.seqNode.play, 0, self.seqNode.getNumFrames() - 1), Func(self.seqNode.setFrameRate, rate), Func(getSoundFuncIfAble(SFX.poof)), Wait(tflipDuration), Func(self._resetTrack), name='dustCloud-track-%d' % self.trackId)
@@ -54,10 +55,13 @@ class DustCloud(NodePath):
     def isPlaying(self):
         if self.track == None:
             return False
-        if self.track.isPlaying():
-            return True
-        return False
-        return
+        else:
+            if self.track.isPlaying():
+                return True
+            else:
+                return False
+
+            return
 
     def play(self, rate=24):
         self.stop()

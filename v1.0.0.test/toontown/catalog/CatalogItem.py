@@ -134,14 +134,16 @@ class CatalogItem():
     def loyaltyRequirement(self):
         if not hasattr(self, 'loyaltyDays'):
             return 0
-        return self.loyaltyDays
+        else:
+            return self.loyaltyDays
 
     def getPrice(self, catalogType):
         if catalogType == CatalogTypeBackorder:
             return self.getBackPrice()
-        if self.isSaleItem():
-            return self.getSalePrice()
-        return self.getCurrentPrice()
+        else:
+            if self.isSaleItem():
+                return self.getSalePrice()
+            return self.getCurrentPrice()
 
     def getCurrentPrice(self):
         return int(self.getBasePrice())
@@ -174,32 +176,34 @@ class CatalogItem():
     def getRequestPurchaseErrorText(self, retcode):
         if retcode == ToontownGlobals.P_ItemAvailable:
             return TTLocalizer.CatalogPurchaseItemAvailable
-        if retcode == ToontownGlobals.P_ItemOnOrder:
-            return TTLocalizer.CatalogPurchaseItemOnOrder
-        if retcode == ToontownGlobals.P_MailboxFull:
-            return TTLocalizer.CatalogPurchaseMailboxFull
-        if retcode == ToontownGlobals.P_OnOrderListFull:
-            return TTLocalizer.CatalogPurchaseOnOrderListFull
-        return TTLocalizer.CatalogPurchaseGeneralError % retcode
+        else:
+            if retcode == ToontownGlobals.P_ItemOnOrder:
+                return TTLocalizer.CatalogPurchaseItemOnOrder
+            if retcode == ToontownGlobals.P_MailboxFull:
+                return TTLocalizer.CatalogPurchaseMailboxFull
+            if retcode == ToontownGlobals.P_OnOrderListFull:
+                return TTLocalizer.CatalogPurchaseOnOrderListFull
+            return TTLocalizer.CatalogPurchaseGeneralError % retcode
 
     def getRequestGiftPurchaseErrorText(self, retcode):
         if retcode == ToontownGlobals.P_ItemAvailable:
             return TTLocalizer.CatalogPurchaseGiftItemAvailable
-        if retcode == ToontownGlobals.P_ItemOnOrder:
-            return TTLocalizer.CatalogPurchaseGiftItemOnOrder
-        if retcode == ToontownGlobals.P_MailboxFull:
-            return TTLocalizer.CatalogPurchaseGiftMailboxFull
-        if retcode == ToontownGlobals.P_OnOrderListFull:
-            return TTLocalizer.CatalogPurchaseGiftOnOrderListFull
-        if retcode == ToontownGlobals.P_NotAGift:
-            return TTLocalizer.CatalogPurchaseGiftNotAGift
-        if retcode == ToontownGlobals.P_WillNotFit:
-            return TTLocalizer.CatalogPurchaseGiftWillNotFit
-        if retcode == ToontownGlobals.P_ReachedPurchaseLimit:
-            return TTLocalizer.CatalogPurchaseGiftLimitReached
-        if retcode == ToontownGlobals.P_NotEnoughMoney:
-            return TTLocalizer.CatalogPurchaseGiftNotEnoughMoney
-        return TTLocalizer.CatalogPurchaseGiftGeneralError % {'friend': '%s', 'error': retcode}
+        else:
+            if retcode == ToontownGlobals.P_ItemOnOrder:
+                return TTLocalizer.CatalogPurchaseGiftItemOnOrder
+            if retcode == ToontownGlobals.P_MailboxFull:
+                return TTLocalizer.CatalogPurchaseGiftMailboxFull
+            if retcode == ToontownGlobals.P_OnOrderListFull:
+                return TTLocalizer.CatalogPurchaseGiftOnOrderListFull
+            if retcode == ToontownGlobals.P_NotAGift:
+                return TTLocalizer.CatalogPurchaseGiftNotAGift
+            if retcode == ToontownGlobals.P_WillNotFit:
+                return TTLocalizer.CatalogPurchaseGiftWillNotFit
+            if retcode == ToontownGlobals.P_ReachedPurchaseLimit:
+                return TTLocalizer.CatalogPurchaseGiftLimitReached
+            if retcode == ToontownGlobals.P_NotEnoughMoney:
+                return TTLocalizer.CatalogPurchaseGiftNotEnoughMoney
+            return TTLocalizer.CatalogPurchaseGiftGeneralError % {'friend': '%s', 'error': retcode}
 
     def acceptItem(self, mailbox, index, callback):
         mailbox.acceptItem(self, index, callback)
@@ -214,13 +218,14 @@ class CatalogItem():
     def getAcceptItemErrorText(self, retcode):
         if retcode == ToontownGlobals.P_NoRoomForItem:
             return TTLocalizer.CatalogAcceptRoomError
-        if retcode == ToontownGlobals.P_ReachedPurchaseLimit:
-            return TTLocalizer.CatalogAcceptLimitError
-        if retcode == ToontownGlobals.P_WillNotFit:
-            return TTLocalizer.CatalogAcceptFitError
-        if retcode == ToontownGlobals.P_InvalidIndex:
-            return TTLocalizer.CatalogAcceptInvalidError
-        return TTLocalizer.CatalogAcceptGeneralError % retcode
+        else:
+            if retcode == ToontownGlobals.P_ReachedPurchaseLimit:
+                return TTLocalizer.CatalogAcceptLimitError
+            if retcode == ToontownGlobals.P_WillNotFit:
+                return TTLocalizer.CatalogAcceptFitError
+            if retcode == ToontownGlobals.P_InvalidIndex:
+                return TTLocalizer.CatalogAcceptInvalidError
+            return TTLocalizer.CatalogAcceptGeneralError % retcode
 
     def output(self, store=-1):
         return 'CatalogItem'
@@ -278,19 +283,18 @@ class CatalogItem():
                 h = di.getArg(STInt16, 10)
                 p = 0.0
                 r = 0.0
+            elif versionNumber < 5:
+                h = di.getArg(STInt16, 256.0 / 360.0)
+                p = di.getArg(STInt16, 256.0 / 360.0)
+                r = di.getArg(STInt16, 256.0 / 360.0)
+                hpr = oldToNewHpr(VBase3(h, p, r))
+                h = hpr[0]
+                p = hpr[1]
+                r = hpr[2]
             else:
-                if versionNumber < 5:
-                    h = di.getArg(STInt16, 256.0 / 360.0)
-                    p = di.getArg(STInt16, 256.0 / 360.0)
-                    r = di.getArg(STInt16, 256.0 / 360.0)
-                    hpr = oldToNewHpr(VBase3(h, p, r))
-                    h = hpr[0]
-                    p = hpr[1]
-                    r = hpr[2]
-                else:
-                    h = di.getArg(STInt16, 256.0 / 360.0)
-                    p = di.getArg(STInt16, 256.0 / 360.0)
-                    r = di.getArg(STInt16, 256.0 / 360.0)
+                h = di.getArg(STInt16, 256.0 / 360.0)
+                p = di.getArg(STInt16, 256.0 / 360.0)
+                r = di.getArg(STInt16, 256.0 / 360.0)
             self.posHpr = (
              x,
              y,

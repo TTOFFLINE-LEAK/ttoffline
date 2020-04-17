@@ -250,57 +250,56 @@ class BodyShop(StateData.StateData):
         if not self.clothesPicked:
             length = len(ToonDNA.toonTorsoTypes[6:])
             torsoOffset = 6
+        elif gender == 'm':
+            length = len(ToonDNA.toonTorsoTypes[:3])
+            torsoOffset = 0
+            if self.dna.armColor not in ToonDNA.defaultBoyColorList:
+                self.dna.armColor = ToonDNA.defaultBoyColorList[0]
+            if self.dna.legColor not in ToonDNA.defaultBoyColorList:
+                self.dna.legColor = ToonDNA.defaultBoyColorList[0]
+            if self.dna.headColor not in ToonDNA.defaultBoyColorList:
+                self.dna.headColor = ToonDNA.defaultBoyColorList[0]
+            if self.toon.style.topTex not in ToonDNA.MakeAToonBoyShirts:
+                randomShirt = ToonDNA.getRandomTop(gender, ToonDNA.MAKE_A_TOON)
+                shirtTex, shirtColor, sleeveTex, sleeveColor = randomShirt
+                self.toon.style.topTex = shirtTex
+                self.toon.style.topTexColor = shirtColor
+                self.toon.style.sleeveTex = sleeveTex
+                self.toon.style.sleeveTexColor = sleeveColor
+            if self.toon.style.botTex not in ToonDNA.MakeAToonBoyBottoms:
+                botTex, botTexColor = ToonDNA.getRandomBottom(gender, ToonDNA.MAKE_A_TOON)
+                self.toon.style.botTex = botTex
+                self.toon.style.botTexColor = botTexColor
         else:
-            if gender == 'm':
-                length = len(ToonDNA.toonTorsoTypes[:3])
+            length = len(ToonDNA.toonTorsoTypes[3:6])
+            if self.toon.style.torso[1] == 'd':
+                torsoOffset = 3
+            else:
                 torsoOffset = 0
-                if self.dna.armColor not in ToonDNA.defaultBoyColorList:
-                    self.dna.armColor = ToonDNA.defaultBoyColorList[0]
-                if self.dna.legColor not in ToonDNA.defaultBoyColorList:
-                    self.dna.legColor = ToonDNA.defaultBoyColorList[0]
-                if self.dna.headColor not in ToonDNA.defaultBoyColorList:
-                    self.dna.headColor = ToonDNA.defaultBoyColorList[0]
-                if self.toon.style.topTex not in ToonDNA.MakeAToonBoyShirts:
-                    randomShirt = ToonDNA.getRandomTop(gender, ToonDNA.MAKE_A_TOON)
-                    shirtTex, shirtColor, sleeveTex, sleeveColor = randomShirt
-                    self.toon.style.topTex = shirtTex
-                    self.toon.style.topTexColor = shirtColor
-                    self.toon.style.sleeveTex = sleeveTex
-                    self.toon.style.sleeveTexColor = sleeveColor
-                if self.toon.style.botTex not in ToonDNA.MakeAToonBoyBottoms:
-                    botTex, botTexColor = ToonDNA.getRandomBottom(gender, ToonDNA.MAKE_A_TOON)
+            if self.dna.armColor not in ToonDNA.defaultGirlColorList:
+                self.dna.armColor = ToonDNA.defaultGirlColorList[0]
+            if self.dna.legColor not in ToonDNA.defaultGirlColorList:
+                self.dna.legColor = ToonDNA.defaultGirlColorList[0]
+            if self.dna.headColor not in ToonDNA.defaultGirlColorList:
+                self.dna.headColor = ToonDNA.defaultGirlColorList[0]
+            if self.toon.style.topTex not in ToonDNA.MakeAToonGirlShirts:
+                randomShirt = ToonDNA.getRandomTop(gender, ToonDNA.MAKE_A_TOON)
+                shirtTex, shirtColor, sleeveTex, sleeveColor = randomShirt
+                self.toon.style.topTex = shirtTex
+                self.toon.style.topTexColor = shirtColor
+                self.toon.style.sleeveTex = sleeveTex
+                self.toon.style.sleeveTexColor = sleeveColor
+            if self.toon.style.botTex not in ToonDNA.MakeAToonGirlBottoms:
+                if self.toon.style.torso[1] == 'd':
+                    botTex, botTexColor = ToonDNA.getRandomBottom(gender, ToonDNA.MAKE_A_TOON, girlBottomType=ToonDNA.SKIRT)
                     self.toon.style.botTex = botTex
                     self.toon.style.botTexColor = botTexColor
-            else:
-                length = len(ToonDNA.toonTorsoTypes[3:6])
-                if self.toon.style.torso[1] == 'd':
                     torsoOffset = 3
                 else:
+                    botTex, botTexColor = ToonDNA.getRandomBottom(gender, ToonDNA.MAKE_A_TOON, girlBottomType=ToonDNA.SHORTS)
+                    self.toon.style.botTex = botTex
+                    self.toon.style.botTexColor = botTexColor
                     torsoOffset = 0
-                if self.dna.armColor not in ToonDNA.defaultGirlColorList:
-                    self.dna.armColor = ToonDNA.defaultGirlColorList[0]
-                if self.dna.legColor not in ToonDNA.defaultGirlColorList:
-                    self.dna.legColor = ToonDNA.defaultGirlColorList[0]
-                if self.dna.headColor not in ToonDNA.defaultGirlColorList:
-                    self.dna.headColor = ToonDNA.defaultGirlColorList[0]
-                if self.toon.style.topTex not in ToonDNA.MakeAToonGirlShirts:
-                    randomShirt = ToonDNA.getRandomTop(gender, ToonDNA.MAKE_A_TOON)
-                    shirtTex, shirtColor, sleeveTex, sleeveColor = randomShirt
-                    self.toon.style.topTex = shirtTex
-                    self.toon.style.topTexColor = shirtColor
-                    self.toon.style.sleeveTex = sleeveTex
-                    self.toon.style.sleeveTexColor = sleeveColor
-                if self.toon.style.botTex not in ToonDNA.MakeAToonGirlBottoms:
-                    if self.toon.style.torso[1] == 'd':
-                        botTex, botTexColor = ToonDNA.getRandomBottom(gender, ToonDNA.MAKE_A_TOON, girlBottomType=ToonDNA.SKIRT)
-                        self.toon.style.botTex = botTex
-                        self.toon.style.botTexColor = botTexColor
-                        torsoOffset = 3
-                    else:
-                        botTex, botTexColor = ToonDNA.getRandomBottom(gender, ToonDNA.MAKE_A_TOON, girlBottomType=ToonDNA.SHORTS)
-                        self.toon.style.botTex = botTex
-                        self.toon.style.botTexColor = botTexColor
-                        torsoOffset = 0
         self.torsoChoice = (self.torsoChoice + offset) % length
         self.__updateScrollButtons(self.torsoChoice, length, self.torsoStart, self.torsoLButton, self.torsoRButton)
         torso = ToonDNA.toonTorsoTypes[(torsoOffset + self.torsoChoice)]
@@ -351,14 +350,12 @@ class BodyShop(StateData.StateData):
     def __updateScrollButtons(self, choice, length, start, lButton, rButton):
         if choice == (start - 1) % length:
             rButton['state'] = DGG.DISABLED
-        else:
-            if choice != (start - 1) % length:
-                rButton['state'] = DGG.NORMAL
+        elif choice != (start - 1) % length:
+            rButton['state'] = DGG.NORMAL
         if choice == start % length:
             lButton['state'] = DGG.DISABLED
-        else:
-            if choice != start % length:
-                lButton['state'] = DGG.NORMAL
+        elif choice != start % length:
+            lButton['state'] = DGG.NORMAL
         if lButton['state'] == DGG.DISABLED and rButton['state'] == DGG.DISABLED:
             self.notify.info('Both buttons got disabled! Doing fallback code. choice%d, length=%d, start=%d, lButton=%s, rButton=%s' % (choice,
              length,
@@ -418,37 +415,29 @@ class BodyShop(StateData.StateData):
         if species == 'd':
             self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['dog']
             self.memberButton.hide()
-        else:
-            if species == 'c':
-                self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['cat']
-                self.memberButton.hide()
-            else:
-                if species == 'm':
-                    self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['mouse']
-                    self.memberButton.hide()
-                else:
-                    if species == 'h':
-                        self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['horse']
-                        self.memberButton.show()
-                    else:
-                        if species == 'r':
-                            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['rabbit']
-                            self.memberButton.hide()
-                        else:
-                            if species == 'f':
-                                self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['duck']
-                                self.memberButton.hide()
-                            else:
-                                if species == 'p':
-                                    self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['monkey']
-                                    self.memberButton.show()
-                                else:
-                                    if species == 'b':
-                                        self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['bear']
-                                        self.memberButton.show()
-                                    else:
-                                        if species == 's':
-                                            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['pig']
-                                            self.memberButton.hide()
+        elif species == 'c':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['cat']
+            self.memberButton.hide()
+        elif species == 'm':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['mouse']
+            self.memberButton.hide()
+        elif species == 'h':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['horse']
+            self.memberButton.show()
+        elif species == 'r':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['rabbit']
+            self.memberButton.hide()
+        elif species == 'f':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['duck']
+            self.memberButton.hide()
+        elif species == 'p':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['monkey']
+            self.memberButton.show()
+        elif species == 'b':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['bear']
+            self.memberButton.show()
+        elif species == 's':
+            self.speciesFrame['text'] = TTLocalizer.AnimalToSpecies['pig']
+            self.memberButton.hide()
         if base.cr.isPaid():
             self.memberButton.hide()

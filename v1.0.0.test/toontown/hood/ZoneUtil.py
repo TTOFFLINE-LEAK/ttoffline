@@ -23,7 +23,8 @@ def getStreetName(branchId):
     global tutorialDict
     if tutorialDict:
         return StreetNames[20000][(-1)]
-    return StreetNames[branchId][(-1)]
+    else:
+        return StreetNames[branchId][(-1)]
 
 
 def getLoaderName(zoneId):
@@ -38,11 +39,10 @@ def getLoaderName(zoneId):
             suffix -= 500
         if isCogHQZone(zoneId):
             loaderName = 'cogHQLoader'
+        elif suffix < 100:
+            loaderName = 'safeZoneLoader'
         else:
-            if suffix < 100:
-                loaderName = 'safeZoneLoader'
-            else:
-                loaderName = 'townLoader'
+            loaderName = 'townLoader'
     return loaderName
 
 
@@ -64,7 +64,8 @@ def isPlayground(zoneId):
     whereName = getWhereName(zoneId, False)
     if whereName == 'cogHQExterior':
         return True
-    return zoneId % 1000 == 0 and zoneId < DynamicZonesBegin
+    else:
+        return zoneId % 1000 == 0 and zoneId < DynamicZonesBegin
 
 
 def isPetshop(zoneId):
@@ -106,17 +107,15 @@ def getWhereName(zoneId, isToon):
                     zoneUtilNotify.error('unknown cogHQ interior for hood: ' + str(getHoodId(zoneId)))
             else:
                 zoneUtilNotify.error('unknown cogHQ where: ' + str(zoneId))
-        else:
-            if suffix == 0:
-                where = 'playground'
+        elif suffix == 0:
+            where = 'playground'
+        elif suffix >= 500:
+            if isToon:
+                where = 'toonInterior'
             else:
-                if suffix >= 500:
-                    if isToon:
-                        where = 'toonInterior'
-                    else:
-                        where = 'suitInterior'
-                else:
-                    where = 'street'
+                where = 'suitInterior'
+        else:
+            where = 'street'
     return where
 
 
@@ -142,13 +141,12 @@ def isWelcomeValley(zoneId):
 def getCanonicalZoneId(zoneId):
     if zoneId == WelcomeValleyToken:
         zoneId = base.cr.moddingManager.defaultZone
-    else:
-        if zoneId >= WelcomeValleyBegin and zoneId < WelcomeValleyEnd:
-            zoneId = zoneId % 2000
-            if zoneId < 1000:
-                zoneId = zoneId + ToontownCentral
-            else:
-                zoneId = zoneId - 1000 + GoofySpeedway
+    elif zoneId >= WelcomeValleyBegin and zoneId < WelcomeValleyEnd:
+        zoneId = zoneId % 2000
+        if zoneId < 1000:
+            zoneId = zoneId + ToontownCentral
+        else:
+            zoneId = zoneId - 1000 + GoofySpeedway
     return zoneId
 
 
@@ -224,18 +222,15 @@ def getWakeInfo(hoodId=None, zoneId=None):
         if canonicalZoneId == DonaldsDock:
             wakeWaterHeight = DDWakeWaterHeight
             showWake = 1
-        else:
-            if canonicalZoneId == ToontownCentral:
-                wakeWaterHeight = TTWakeWaterHeight
-                showWake = 1
-            else:
-                if canonicalZoneId == OutdoorZone:
-                    wakeWaterHeight = OZWakeWaterHeight
-                    showWake = 1
-                else:
-                    if hoodId == MyEstate:
-                        wakeWaterHeight = EstateWakeWaterHeight
-                        showWake = 1
+        elif canonicalZoneId == ToontownCentral:
+            wakeWaterHeight = TTWakeWaterHeight
+            showWake = 1
+        elif canonicalZoneId == OutdoorZone:
+            wakeWaterHeight = OZWakeWaterHeight
+            showWake = 1
+        elif hoodId == MyEstate:
+            wakeWaterHeight = EstateWakeWaterHeight
+            showWake = 1
     except AttributeError:
         pass
 

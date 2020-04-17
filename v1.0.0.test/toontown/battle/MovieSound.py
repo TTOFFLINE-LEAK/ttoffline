@@ -29,33 +29,34 @@ AFTER_STARS = 1.75
 def doSounds(sounds):
     if len(sounds) == 0:
         return (None, None)
-    npcArrivals, npcDepartures, npcs = MovieNPCSOS.doNPCTeleports(sounds)
-    mtrack = Parallel()
-    hitCount = 0
-    prevLevel = 0
-    prevSounds = [[], [], [], [], [], [], []]
-    for sound in sounds:
-        level = sound['level']
-        prevSounds[level].append(sound)
-        for target in sound['target']:
-            if target['hp'] > 0:
-                hitCount += 1
-                break
+    else:
+        npcArrivals, npcDepartures, npcs = MovieNPCSOS.doNPCTeleports(sounds)
+        mtrack = Parallel()
+        hitCount = 0
+        prevLevel = 0
+        prevSounds = [[], [], [], [], [], [], []]
+        for sound in sounds:
+            level = sound['level']
+            prevSounds[level].append(sound)
+            for target in sound['target']:
+                if target['hp'] > 0:
+                    hitCount += 1
+                    break
 
-    delay = 0.0
-    for soundList in prevSounds:
-        if len(soundList) > 0:
-            mtrack.append(__doSoundsLevel(soundList, delay, hitCount, npcs))
-            delay += TOON_SOUND_DELAY
+        delay = 0.0
+        for soundList in prevSounds:
+            if len(soundList) > 0:
+                mtrack.append(__doSoundsLevel(soundList, delay, hitCount, npcs))
+                delay += TOON_SOUND_DELAY
 
-    soundTrack = Sequence(npcArrivals, mtrack, npcDepartures)
-    targets = sounds[0]['target']
-    camDuration = mtrack.getDuration()
-    enterDuration = npcArrivals.getDuration()
-    exitDuration = npcDepartures.getDuration()
-    camTrack = MovieCamera.chooseSoundShot(sounds, targets, camDuration, enterDuration, exitDuration)
-    return (
-     soundTrack, camTrack)
+        soundTrack = Sequence(npcArrivals, mtrack, npcDepartures)
+        targets = sounds[0]['target']
+        camDuration = mtrack.getDuration()
+        enterDuration = npcArrivals.getDuration()
+        exitDuration = npcDepartures.getDuration()
+        camTrack = MovieCamera.chooseSoundShot(sounds, targets, camDuration, enterDuration, exitDuration)
+        return (
+         soundTrack, camTrack)
 
 
 def __getSuitTrack(sound, lastSoundThatHit, delay, hitCount, targets, totalDamage, hpbonus, toon, npcs):

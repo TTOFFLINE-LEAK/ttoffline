@@ -389,7 +389,8 @@ def getCourseName(courseId):
         if not CourseInfo[courseId]['name']:
             CourseInfo[courseId]['name'] = TTLocalizer.GolfCourseNames[courseId]
         return CourseInfo[courseId]['name']
-    return ''
+    else:
+        return ''
 
 
 def getHoleName(holeId):
@@ -398,7 +399,8 @@ def getHoleName(holeId):
         if not HoleInfo[holeId]['name']:
             HoleInfo[holeId]['name'] = TTLocalizer.GolfHoleNames[holeId]
         return HoleInfo[holeId]['name']
-    return ''
+    else:
+        return ''
 
 
 def getHistoryIndexForTrophy(trophyIndex):

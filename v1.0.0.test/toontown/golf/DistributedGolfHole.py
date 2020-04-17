@@ -291,9 +291,8 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
             self.pumpk1.loop('dance2')
         if self.holeId == 36:
             self.pumpk1.setPosHpr(95.822, 15.2, -1.5, -90, 0, 0)
-        else:
-            if self.holeId == 37:
-                self.pumpk1.setPosHpr(90.822, -15.2, -1.5, -90, 0, 0)
+        elif self.holeId == 37:
+            self.pumpk1.setPosHpr(90.822, -15.2, -1.5, -90, 0, 0)
 
     def createLocatorDict(self):
         self.locDict = {}
@@ -443,31 +442,27 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
             posUpdate = True
             self.aimMomentum = 0.0
             self.ballFollow.headsUp(self.holeBottomNodePath)
+        elif self.arrowKeys.rightPressed() and not self.arrowKeys.leftPressed():
+            self.aimMomentum -= momentumChange
+            if self.aimMomentum > 0:
+                self.aimMomentum = 0.0
+            elif self.aimMomentum < -30.0:
+                self.aimMomentum = -30.0
+            posUpdate = True
+            self.switchToAnimState('GolfRotateLeft')
+            self.scoreBoard.hide()
+        elif self.arrowKeys.leftPressed() and not self.arrowKeys.rightPressed():
+            self.aimMomentum += momentumChange
+            if self.aimMomentum < 0.0:
+                self.aimMomentum = 0.0
+            elif self.aimMomentum > 30.0:
+                self.aimMomentum = 30.0
+            posUpdate = True
+            self.switchToAnimState('GolfRotateRight')
+            self.scoreBoard.hide()
         else:
-            if self.arrowKeys.rightPressed() and not self.arrowKeys.leftPressed():
-                self.aimMomentum -= momentumChange
-                if self.aimMomentum > 0:
-                    self.aimMomentum = 0.0
-                else:
-                    if self.aimMomentum < -30.0:
-                        self.aimMomentum = -30.0
-                posUpdate = True
-                self.switchToAnimState('GolfRotateLeft')
-                self.scoreBoard.hide()
-            else:
-                if self.arrowKeys.leftPressed() and not self.arrowKeys.rightPressed():
-                    self.aimMomentum += momentumChange
-                    if self.aimMomentum < 0.0:
-                        self.aimMomentum = 0.0
-                    else:
-                        if self.aimMomentum > 30.0:
-                            self.aimMomentum = 30.0
-                    posUpdate = True
-                    self.switchToAnimState('GolfRotateRight')
-                    self.scoreBoard.hide()
-                else:
-                    self.aimMomentum = 0.0
-                    self.switchToAnimState('GolfPuttLoop')
+            self.aimMomentum = 0.0
+            self.switchToAnimState('GolfPuttLoop')
         self.ballFollow.setH(self.ballFollow.getH() + self.aimMomentum * dt)
         if self.arrowKeys.upPressed() and self.golfCourse.canDrive(self.currentGolfer):
             b.enable()
@@ -483,11 +478,10 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
                 self.sendUpdate('setTempAimHeading', [localAvatar.doId, self.ballFollow.getH()])
                 self.lastTimeHeadingSent = globalClock.getFrameTime()
                 self.lastTempHeadingSent = self.ballFollow.getH()
-        else:
-            if self.lastTempHeadingSent != self.ballFollow.getH():
-                self.sendUpdate('setTempAimHeading', [localAvatar.doId, self.ballFollow.getH()])
-                self.lastTimeHeadingSent = globalClock.getFrameTime()
-                self.lastTempHeadingSent = self.ballFollow.getH()
+        elif self.lastTempHeadingSent != self.ballFollow.getH():
+            self.sendUpdate('setTempAimHeading', [localAvatar.doId, self.ballFollow.getH()])
+            self.lastTimeHeadingSent = globalClock.getFrameTime()
+            self.lastTempHeadingSent = self.ballFollow.getH()
         self.setCamera2Ball()
         self.fixCurrentGolferFeet()
         self.adjustClub()
@@ -518,36 +512,37 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         kickHimOut = self.updateWarning()
         if kickHimOut:
             return
-        curAimTime = globalClock.getRealTime() - self.enterAimStart
-        if curAimTime < 0:
-            curAimTime = 0
-        if curAimTime > GolfGlobals.AIM_DURATION:
-            curAimTime = GolfGlobals.AIM_DURATION
-        self.notify.debug('curAimTime = %f' % curAimTime)
-        x = -math.sin(self.ballFollow.getH() * 0.0174532925)
-        y = math.cos(self.ballFollow.getH() * 0.0174532925)
-        b = self.curGolfBall()
-        if hasattr(base, 'golfPower') and base.golfPower != None:
-            self.power = float(base.golfPower)
-        if not self.swingInfoSent:
-            self.sendUpdate('postSwingState', [self.getCycleTime(),
-             self.power,
-             b.getPosition()[0],
-             b.getPosition()[1],
-             b.getPosition()[2],
-             x,
-             y,
-             curAimTime,
-             self.getCommonObjectData()])
-        self.swingInfoSent = True
-        if self.power < 15 and self.golfCourse.scores[localAvatar.doId][self.golfCourse.curHoleIndex] == 0:
-            self.powerReminder = DirectLabel(text=TTLocalizer.GolfPowerReminder, text_shadow=(0,
-                                                                                              0,
-                                                                                              0,
-                                                                                              1), text_fg=VBase4(1, 1, 0.0, 1), text_align=TextNode.ACenter, relief=None, pos=(0,
-                                                                                                                                                                               0,
-                                                                                                                                                                               0.8), scale=0.12)
-        return
+        else:
+            curAimTime = globalClock.getRealTime() - self.enterAimStart
+            if curAimTime < 0:
+                curAimTime = 0
+            if curAimTime > GolfGlobals.AIM_DURATION:
+                curAimTime = GolfGlobals.AIM_DURATION
+            self.notify.debug('curAimTime = %f' % curAimTime)
+            x = -math.sin(self.ballFollow.getH() * 0.0174532925)
+            y = math.cos(self.ballFollow.getH() * 0.0174532925)
+            b = self.curGolfBall()
+            if hasattr(base, 'golfPower') and base.golfPower != None:
+                self.power = float(base.golfPower)
+            if not self.swingInfoSent:
+                self.sendUpdate('postSwingState', [self.getCycleTime(),
+                 self.power,
+                 b.getPosition()[0],
+                 b.getPosition()[1],
+                 b.getPosition()[2],
+                 x,
+                 y,
+                 curAimTime,
+                 self.getCommonObjectData()])
+            self.swingInfoSent = True
+            if self.power < 15 and self.golfCourse.scores[localAvatar.doId][self.golfCourse.curHoleIndex] == 0:
+                self.powerReminder = DirectLabel(text=TTLocalizer.GolfPowerReminder, text_shadow=(0,
+                                                                                                  0,
+                                                                                                  0,
+                                                                                                  1), text_fg=VBase4(1, 1, 0.0, 1), text_align=TextNode.ACenter, relief=None, pos=(0,
+                                                                                                                                                                                   0,
+                                                                                                                                                                                   0.8), scale=0.12)
+            return
 
     def updateWarning(self):
         retval = False
@@ -563,10 +558,9 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
                                                                                                                                                                                                                           1), text_wordwrap=20)
             self.warningInterval = Sequence(LerpColorScaleInterval(self.warningLabel, 10, Vec4(1, 1, 1, 0), startColorScale=Vec4(1, 1, 1, 1), blendType='easeIn'), Func(self.warningLabel.destroy))
             self.warningInterval.start()
-        else:
-            if self.localMissedSwings >= GolfGlobals.KICKOUT_SWINGS:
-                self.golfCourse.handleFallingAsleepGolf(None)
-                retval = True
+        elif self.localMissedSwings >= GolfGlobals.KICKOUT_SWINGS:
+            self.golfCourse.handleFallingAsleepGolf(None)
+            retval = True
         return retval
 
     def assignRecordSwing(self, avId, cycleTime, power, x, y, z, dirX, dirY, commonObjectData):
@@ -942,22 +936,21 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
             if diffTime > 0:
                 self.swingInterval.append(ActorInterval(av, 'lookloop-putt', endTime=diffTime))
             self.swingInterval.append(ActorInterval(av, 'good-putt', endTime=self.playbackMovieDuration, loop=1))
+        elif self.ballTouchedHoleTime:
+            self.notify.debug('doing self.ballTouchedHoleTime')
+            curDuration = self.swingInterval.getDuration()
+            lookPuttInterval = ActorInterval(av, 'look-putt')
+            if curDuration < adjustedBallTouchedHoleTime:
+                self.swingInterval.append(lookPuttInterval)
+            curDuration = self.swingInterval.getDuration()
+            diffTime = adjustedBallTouchedHoleTime - curDuration
+            if diffTime > 0:
+                self.swingInterval.append(ActorInterval(av, 'lookloop-putt', endTime=diffTime))
+            self.swingInterval.append(ActorInterval(av, 'bad-putt', endFrame=32))
+            self.swingInterval.append(ActorInterval(av, 'badloop-putt', endTime=self.playbackMovieDuration, loop=1))
         else:
-            if self.ballTouchedHoleTime:
-                self.notify.debug('doing self.ballTouchedHoleTime')
-                curDuration = self.swingInterval.getDuration()
-                lookPuttInterval = ActorInterval(av, 'look-putt')
-                if curDuration < adjustedBallTouchedHoleTime:
-                    self.swingInterval.append(lookPuttInterval)
-                curDuration = self.swingInterval.getDuration()
-                diffTime = adjustedBallTouchedHoleTime - curDuration
-                if diffTime > 0:
-                    self.swingInterval.append(ActorInterval(av, 'lookloop-putt', endTime=diffTime))
-                self.swingInterval.append(ActorInterval(av, 'bad-putt', endFrame=32))
-                self.swingInterval.append(ActorInterval(av, 'badloop-putt', endTime=self.playbackMovieDuration, loop=1))
-            else:
-                self.swingInterval.append(ActorInterval(av, 'look-putt'))
-                self.swingInterval.append(ActorInterval(av, 'lookloop-putt', endTime=self.playbackMovieDuration, loop=1))
+            self.swingInterval.append(ActorInterval(av, 'look-putt'))
+            self.swingInterval.append(ActorInterval(av, 'lookloop-putt', endTime=self.playbackMovieDuration, loop=1))
         sfxInterval = Parallel()
         ballHitInterval = Sequence(Wait(GolfGlobals.BALL_CONTACT_TIME), SoundInterval(self.hitBallSfx))
         sfxInterval.append(ballHitInterval)
@@ -1014,23 +1007,22 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
                 crowdIval.append(SoundInterval(crowdBuildupSfx, startTime=startTime))
                 crowdIval.append(SoundInterval(crowdApplauseSfx))
             sfxInterval.append(crowdIval)
-        else:
-            if self.ballFirstTouchedHoleTime:
-                crowdIval = Sequence()
-                buildupLength = crowdBuildupSfx.length()
-                self.notify.debug('touched but not going in buildupLength=%s' % buildupLength)
-                diffTime = adjustedBallFirstTouchedHoleTime - buildupLength
-                if diffTime > 0:
-                    self.notify.debug('waiting %.2f to play crowd buildup' % diffTime)
-                    crowdIval.append(Wait(diffTime))
-                    crowdIval.append(SoundInterval(crowdBuildupSfx))
-                    crowdIval.append(SoundInterval(crowdMissSfx))
-                else:
-                    startTime = buildupLength - adjustedBallFirstTouchedHoleTime
-                    self.notify.debug('playing abbreviated crowd build and miss diffTime=%s startTime=%s' % (diffTime, startTime))
-                    crowdIval.append(SoundInterval(crowdBuildupSfx, startTime=startTime))
-                    crowdIval.append(SoundInterval(crowdMissSfx))
-                sfxInterval.append(crowdIval)
+        elif self.ballFirstTouchedHoleTime:
+            crowdIval = Sequence()
+            buildupLength = crowdBuildupSfx.length()
+            self.notify.debug('touched but not going in buildupLength=%s' % buildupLength)
+            diffTime = adjustedBallFirstTouchedHoleTime - buildupLength
+            if diffTime > 0:
+                self.notify.debug('waiting %.2f to play crowd buildup' % diffTime)
+                crowdIval.append(Wait(diffTime))
+                crowdIval.append(SoundInterval(crowdBuildupSfx))
+                crowdIval.append(SoundInterval(crowdMissSfx))
+            else:
+                startTime = buildupLength - adjustedBallFirstTouchedHoleTime
+                self.notify.debug('playing abbreviated crowd build and miss diffTime=%s startTime=%s' % (diffTime, startTime))
+                crowdIval.append(SoundInterval(crowdBuildupSfx, startTime=startTime))
+                crowdIval.append(SoundInterval(crowdMissSfx))
+            sfxInterval.append(crowdIval)
         if self.sfxInterval:
             sfxInterval.finish()
         self.sfxInterval = sfxInterval
@@ -1118,10 +1110,9 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
             textStr = diff
         if strokes == 1:
             textStr = TTLocalizer.GolfHoleInOne
-        else:
-            if diff in TTLocalizer.GolfShotDesc:
-                if self.ballWillGoInHole:
-                    textStr = TTLocalizer.GolfShotDesc[diff]
+        elif diff in TTLocalizer.GolfShotDesc:
+            if self.ballWillGoInHole:
+                textStr = TTLocalizer.GolfShotDesc[diff]
         perfectTextSubnode = hidden.attachNewNode(self.__genText(textStr))
         perfectText = hidden.attachNewNode('perfectText')
         perfectTextSubnode.reparentTo(perfectText)
@@ -1143,9 +1134,8 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         soundTrack = Sequence()
         if strokes == 1:
             soundTrack.append(SoundInterval(self.holeInOneSfx))
-        else:
-            if self.hasCurGolferReachedMaxSwing and not self.ballWillGoInHole:
-                soundTrack.append(SoundInterval(self.kickedOutSfx))
+        elif self.hasCurGolferReachedMaxSwing and not self.ballWillGoInHole:
+            soundTrack.append(SoundInterval(self.kickedOutSfx))
         self.perfectIval = Parallel(textTrack, soundTrack, animTrack)
         self.perfectIval.start()
 
@@ -1177,9 +1167,8 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
             if self.inPlayBack == 2:
                 self.playBackFrame()
                 self.makeCurGolferLookAtBall()
-            else:
-                if self.state == 'Playback' and self.inPlayBack == 0:
-                    self.request('Wait')
+            elif self.state == 'Playback' and self.inPlayBack == 0:
+                self.request('Wait')
             self.updateTranslucentObjects()
 
     def updateTranslucentObjects(self):
@@ -1428,29 +1417,31 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
     def __beginTossGolf(self):
         if self.aimStart != None:
             return
-        if not self.state == 'Aim':
+        else:
+            if not self.state == 'Aim':
+                return
+            if self.swingInfoSent:
+                return
+            self.localToonHitControl = True
+            time = globalClock.getFrameTime()
+            self.aimStart = time
+            messenger.send('wakeup')
+            self.scoreBoard.hide()
+            taskMgr.add(self.__updateGolfPower, self.golfPowerTaskName)
             return
-        if self.swingInfoSent:
-            return
-        self.localToonHitControl = True
-        time = globalClock.getFrameTime()
-        self.aimStart = time
-        messenger.send('wakeup')
-        self.scoreBoard.hide()
-        taskMgr.add(self.__updateGolfPower, self.golfPowerTaskName)
-        return
 
     def __endTossGolf(self):
         if self.aimStart == None:
             return
-        if not self.state == 'Aim':
+        else:
+            if not self.state == 'Aim':
+                return
+            messenger.send('wakeup')
+            taskMgr.remove(self.golfPowerTaskName)
+            self.aimStart = None
+            self.sendSwingInfo()
+            self.resetPowerBar()
             return
-        messenger.send('wakeup')
-        taskMgr.remove(self.golfPowerTaskName)
-        self.aimStart = None
-        self.sendSwingInfo()
-        self.resetPowerBar()
-        return
 
     def __updateGolfPower(self, task):
         if not self.powerBar:
@@ -1551,16 +1542,15 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
                 base.camera.reparentTo(render)
                 base.camera.setPos(self.camTopViewPos)
                 base.camera.setHpr(self.camTopViewHpr)
+        elif doInterval:
+            curHpr = camera.getHpr(self.ballFollow)
+            angle = PythonUtil.closestDestAngle2(curHpr[0], 0)
+            self.camInterval = Sequence(Func(base.camera.wrtReparentTo, self.ballFollow), LerpPosHprInterval(base.camera, 2, self.camPosBallFollow, self.camHprBallFollow))
+            self.camInterval.start()
         else:
-            if doInterval:
-                curHpr = camera.getHpr(self.ballFollow)
-                angle = PythonUtil.closestDestAngle2(curHpr[0], 0)
-                self.camInterval = Sequence(Func(base.camera.wrtReparentTo, self.ballFollow), LerpPosHprInterval(base.camera, 2, self.camPosBallFollow, self.camHprBallFollow))
-                self.camInterval.start()
-            else:
-                base.camera.reparentTo(self.ballFollow)
-                base.camera.setPos(self.camPosBallFollow)
-                base.camera.setHpr(self.camHprBallFollow)
+            base.camera.reparentTo(self.ballFollow)
+            base.camera.setPos(self.camPosBallFollow)
+            base.camera.setHpr(self.camHprBallFollow)
 
     def doFlyOverMovie(self, avId):
         title = GolfGlobals.getCourseName(self.golfCourse.courseId) + ' :\n ' + GolfGlobals.getHoleName(self.holeId) + '\n' + TTLocalizer.GolfPar + ' : ' + '%s' % self.holeInfo['par']
@@ -1698,16 +1688,14 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
                 if distance > 2.0:
                     base.playSfx(self.bumpHardSfx)
                     self.lastBumpSfxPos = golfBallPos
-        else:
-            if GolfGlobals.MOVER_COLLIDE_ID in [c0, c1]:
-                if not self.bumpMoverSfx.status() == self.bumpMoverSfx.PLAYING:
-                    base.playSfx(self.bumpMoverSfx)
-                    self.lastBumpSfxPos = golfBallPos
-            else:
-                if GolfGlobals.WINDMILL_BASE_COLLIDE_ID in [c0, c1]:
-                    if not self.bumpWindmillSfx.status() == self.bumpWindmillSfx.PLAYING:
-                        base.playSfx(self.bumpWindmillSfx)
-                        self.lastBumpSfxPos = golfBallPos
+        elif GolfGlobals.MOVER_COLLIDE_ID in [c0, c1]:
+            if not self.bumpMoverSfx.status() == self.bumpMoverSfx.PLAYING:
+                base.playSfx(self.bumpMoverSfx)
+                self.lastBumpSfxPos = golfBallPos
+        elif GolfGlobals.WINDMILL_BASE_COLLIDE_ID in [c0, c1]:
+            if not self.bumpWindmillSfx.status() == self.bumpWindmillSfx.PLAYING:
+                base.playSfx(self.bumpWindmillSfx)
+                self.lastBumpSfxPos = golfBallPos
 
     def safeRequestToState(self, newState):
         doingRequest = False

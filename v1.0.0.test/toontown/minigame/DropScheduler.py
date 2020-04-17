@@ -67,7 +67,6 @@ class ThreePhaseDropScheduler(DropScheduler):
         delay = self._dropPeriod
         if self.curT - self._startTime < self._normalDropDelay:
             delay *= self._slowerDropPeriodMult
-        else:
-            if self.curT - self._startTime >= self.fasterDropDelay:
-                delay *= self.fasterDropPeriodMult
+        elif self.curT - self._startTime >= self.fasterDropDelay:
+            delay *= self.fasterDropPeriodMult
         return delay

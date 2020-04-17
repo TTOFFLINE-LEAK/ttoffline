@@ -440,9 +440,8 @@ class RaceGUI:
             self.timeLabels[self.maxLapHit][2]['text'] = '%s' % fraction
         if self.race.wrongWay and not self.wrongWaySeq.isPlaying():
             self.wrongWaySeq.loop()
-        else:
-            if not self.race.wrongWay and self.wrongWaySeq.isPlaying():
-                self.wrongWaySeq.finish()
+        elif not self.race.wrongWay and self.wrongWaySeq.isPlaying():
+            self.wrongWaySeq.finish()
 
     def updateRacerInfo(self, avId, curvetime=None, maxlaphit=None):
         if avId in self.racerDict.keys():

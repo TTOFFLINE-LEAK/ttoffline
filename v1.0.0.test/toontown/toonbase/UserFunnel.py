@@ -69,9 +69,8 @@ class UserFunnel():
     def checkForCFfile(self):
         if firstRun() == True:
             pass
-        else:
-            if os.path.isfile(self.cfCookieFile) == False:
-                firstRun('write', True)
+        elif os.path.isfile(self.cfCookieFile) == False:
+            firstRun('write', True)
 
     def whatOSver(self):
         if sys.platform == 'win32':
@@ -143,33 +142,34 @@ class UserFunnel():
     def getFunnelURL(self):
         if patcherVer() == ['OFFLINE']:
             return
-        if patcherVer() == []:
-            patcherHTTP = HTTPClient()
-            if checkParamFile() == None:
-                patcherDoc = patcherHTTP.getDocument(URLSpec('http://download.toontown.com/english/currentVersion/content/patcher.ver'))
-                vconGroup('w', self.cgRelease)
-            else:
-                patcherDoc = patcherHTTP.getDocument(URLSpec(checkParamFile()))
-                vconGroup('w', self.cgBeta)
-            rf = Ramfile()
-            patcherDoc.downloadToRam(rf)
-            self.patcherURL = rf.getData()
-            if self.patcherURL.find('FUNNEL_LOG') == -1:
-                patcherVer('w', 'OFFLINE')
-                return
-            self.patcherURL = self.patcherURL.split('\n')
-            del rf
-            del patcherDoc
-            del patcherHTTP
-            while self.patcherURL:
-                self.confLine = self.patcherURL.pop()
-                if self.confLine.find('FUNNEL_LOG=') != -1 and self.confLine.find('#FUNNEL_LOG=') == -1:
-                    self.dynamicVRFunnel = self.confLine[11:].strip('\n')
-                    patcherVer('w', self.confLine[11:].strip('\n'))
-
         else:
-            self.dynamicVRFunnel = patcherVer()[0]
-        return
+            if patcherVer() == []:
+                patcherHTTP = HTTPClient()
+                if checkParamFile() == None:
+                    patcherDoc = patcherHTTP.getDocument(URLSpec('http://download.toontown.com/english/currentVersion/content/patcher.ver'))
+                    vconGroup('w', self.cgRelease)
+                else:
+                    patcherDoc = patcherHTTP.getDocument(URLSpec(checkParamFile()))
+                    vconGroup('w', self.cgBeta)
+                rf = Ramfile()
+                patcherDoc.downloadToRam(rf)
+                self.patcherURL = rf.getData()
+                if self.patcherURL.find('FUNNEL_LOG') == -1:
+                    patcherVer('w', 'OFFLINE')
+                    return
+                self.patcherURL = self.patcherURL.split('\n')
+                del rf
+                del patcherDoc
+                del patcherHTTP
+                while self.patcherURL:
+                    self.confLine = self.patcherURL.pop()
+                    if self.confLine.find('FUNNEL_LOG=') != -1 and self.confLine.find('#FUNNEL_LOG=') == -1:
+                        self.dynamicVRFunnel = self.confLine[11:].strip('\n')
+                        patcherVer('w', self.confLine[11:].strip('\n'))
+
+            else:
+                self.dynamicVRFunnel = patcherVer()[0]
+            return
 
     def isVarSet(self, varInQuestion):
         try:
@@ -350,21 +350,23 @@ class HitBoxCookie():
         except WindowsError:
             print 'Dir does not exist, do nothing'
             return
-        else:
-            while sdir:
-                temp = sdir.pop()
-                if temp.find('@hitbox[') != -1:
-                    self.hitboxCookieFile = temp
-                if temp.find('@ehg-dig.hitbox[') != -1:
-                    self.ehgdigCookieFile = temp
 
-            if self.hitboxCookieFile != None and self.ehgdigCookieFile != None:
-                return 1
+        while sdir:
+            temp = sdir.pop()
+            if temp.find('@hitbox[') != -1:
+                self.hitboxCookieFile = temp
+            if temp.find('@ehg-dig.hitbox[') != -1:
+                self.ehgdigCookieFile = temp
+
+        if self.hitboxCookieFile != None and self.ehgdigCookieFile != None:
+            return 1
+        else:
             if self.hitboxCookieFile == None and self.ehgdigCookieFile == None:
                 return 0
+            else:
+                return -1
 
-        return -1
-        return
+            return
 
     def openHitboxFile(self, filename, type='python'):
         if type == 'ie':
@@ -392,43 +394,44 @@ class HitBoxCookie():
             return
         if sys.platform != 'win32':
             return
-        self.findIECookieFiles()
-        iecData = self.openHitboxFile(self.ehgdigCookieFile, 'ie')
-        iecData = iecData.split('*\n')
-        x = 0
-        while x < len(iecData):
-            if iecData[x].find(self.hitboxAcct) != -1:
-                iecData.pop(x)
-                print 'Removed it from the list'
-                break
-            x += 1
+        else:
+            self.findIECookieFiles()
+            iecData = self.openHitboxFile(self.ehgdigCookieFile, 'ie')
+            iecData = iecData.split('*\n')
+            x = 0
+            while x < len(iecData):
+                if iecData[x].find(self.hitboxAcct) != -1:
+                    iecData.pop(x)
+                    print 'Removed it from the list'
+                    break
+                x += 1
 
-        iecWrite = open(self.ieCookieDir + '\\' + self.ehgdigCookieFile, 'w')
-        while iecData:
-            iecBuffer = iecData.pop() + '*\n'
-            iecBuffer = iecBuffer.strip('/')
+            iecWrite = open(self.ieCookieDir + '\\' + self.ehgdigCookieFile, 'w')
+            while iecData:
+                iecBuffer = iecData.pop() + '*\n'
+                iecBuffer = iecBuffer.strip('/')
+                if iecBuffer[0] == '.':
+                    iecBuffer = iecBuffer[1:]
+                iecWrite.write(iecBuffer)
+
+            tempDMBUFFER = self.dmAcct[0]
+            if tempDMBUFFER[0].find('.') == 0:
+                tempDMBUFFER = tempDMBUFFER[1:]
+            iecWrite.write(self.dmAcct[1] + '\n' + self.dmAcct[2] + '\n' + tempDMBUFFER + '/\n*\n')
+            iecWrite.close()
+            del iecData
+            del iecWrite
+            del iecBuffer
+            iecWrite = open(self.ieCookieDir + '\\' + self.hitboxCookieFile, 'w')
+            iecBuffer = self.ctg[0]
             if iecBuffer[0] == '.':
                 iecBuffer = iecBuffer[1:]
-            iecWrite.write(iecBuffer)
-
-        tempDMBUFFER = self.dmAcct[0]
-        if tempDMBUFFER[0].find('.') == 0:
-            tempDMBUFFER = tempDMBUFFER[1:]
-        iecWrite.write(self.dmAcct[1] + '\n' + self.dmAcct[2] + '\n' + tempDMBUFFER + '/\n*\n')
-        iecWrite.close()
-        del iecData
-        del iecWrite
-        del iecBuffer
-        iecWrite = open(self.ieCookieDir + '\\' + self.hitboxCookieFile, 'w')
-        iecBuffer = self.ctg[0]
-        if iecBuffer[0] == '.':
-            iecBuffer = iecBuffer[1:]
-        if iecBuffer.find('/') == -1:
-            iecBuffer = iecBuffer + '/'
-        iecWrite.write(self.ctg[1] + '\n' + self.ctg[2] + '\n' + iecBuffer + '\n*\n')
-        iecWrite.write(self.wss_gw[1] + '\n' + self.wss_gw[2] + '\n' + iecBuffer + '\n*\n')
-        iecWrite.close()
-        return
+            if iecBuffer.find('/') == -1:
+                iecBuffer = iecBuffer + '/'
+            iecWrite.write(self.ctg[1] + '\n' + self.ctg[2] + '\n' + iecBuffer + '\n*\n')
+            iecWrite.write(self.wss_gw[1] + '\n' + self.wss_gw[2] + '\n' + iecBuffer + '\n*\n')
+            iecWrite.close()
+            return
 
     def OLDwritePythonHitBoxCookies(self, filename='cf.txt'):
         if self.ctg == None or self.wss_gw == None or self.dmAcct == None:
@@ -468,33 +471,34 @@ class HitBoxCookie():
     def loadIEHitBoxCookies(self):
         if self.findIECookieFiles() != 1:
             return
-        if sys.platform != 'win32':
-            return
-        hitboxStandard = self.openHitboxFile(self.hitboxCookieFile, 'ie')
-        hitboxDIG = self.openHitboxFile(self.ehgdigCookieFile, 'ie')
-        hitboxStandard = self.splitIECookie(hitboxStandard)
-        hitboxDIG = self.splitIECookie(hitboxDIG)
-        ctg = None
-        wss = None
-        for x in hitboxStandard:
-            if x.find('CTG\n') != -1:
-                ctg = x
-            if x.find('WSS_GW\n') != -1:
-                wss = x
+        else:
+            if sys.platform != 'win32':
+                return
+            hitboxStandard = self.openHitboxFile(self.hitboxCookieFile, 'ie')
+            hitboxDIG = self.openHitboxFile(self.ehgdigCookieFile, 'ie')
+            hitboxStandard = self.splitIECookie(hitboxStandard)
+            hitboxDIG = self.splitIECookie(hitboxDIG)
+            ctg = None
+            wss = None
+            for x in hitboxStandard:
+                if x.find('CTG\n') != -1:
+                    ctg = x
+                if x.find('WSS_GW\n') != -1:
+                    wss = x
 
-        if ctg == None or wss == None:
-            return
-        DM = None
-        for x in hitboxDIG:
-            if x.find(self.hitboxAcct) != -1:
-                DM = x
+            if ctg == None or wss == None:
+                return
+            DM = None
+            for x in hitboxDIG:
+                if x.find(self.hitboxAcct) != -1:
+                    DM = x
 
-        if DM == None:
+            if DM == None:
+                return
+            self.ctg = self.sortIECookie(ctg)
+            self.wss_gw = self.sortIECookie(wss)
+            self.dm560804E8WD = self.sortIECookie(DM)
             return
-        self.ctg = self.sortIECookie(ctg)
-        self.wss_gw = self.sortIECookie(wss)
-        self.dm560804E8WD = self.sortIECookie(DM)
-        return
 
 
 def convertHitBoxIEtoPython():
@@ -525,32 +529,33 @@ def getreg(regVar):
     if sys.platform != 'win32':
         print "System is not MS-Windows. I haven't been setup yet to work with systems other than MS-Win using MS-Internet Explorer Cookies"
         return ''
-    siteName = 'toontown.online.disney'
-    cookiedir = os.getenv('USERPROFILE') + '\\Cookies'
-    sdir = os.listdir(cookiedir)
-    wholeCookie = None
-    while sdir:
-        temp = sdir.pop()
-        if temp.find(siteName) != -1:
-            wholeCookie = temp
-            break
+    else:
+        siteName = 'toontown.online.disney'
+        cookiedir = os.getenv('USERPROFILE') + '\\Cookies'
+        sdir = os.listdir(cookiedir)
+        wholeCookie = None
+        while sdir:
+            temp = sdir.pop()
+            if temp.find(siteName) != -1:
+                wholeCookie = temp
+                break
 
-    if wholeCookie == None:
-        print 'Cookie not found for site name: ' + siteName
-        return ''
-    CompleteCookiePath = cookiedir + '\\' + wholeCookie
-    cf = open(CompleteCookiePath, 'r')
-    data = cf.read()
-    cf.close()
-    del cf
-    data = data.replace('%3D', '=')
-    data = data.replace('%26', '&')
-    regNameStart = data.find(regVar)
-    if regNameStart == -1:
-        return ''
-    regVarStart = data.find('=', regNameStart + 1)
-    regVarEnd = data.find('&', regNameStart + 1)
-    return data[regVarStart + 1:regVarEnd]
+        if wholeCookie == None:
+            print 'Cookie not found for site name: ' + siteName
+            return ''
+        CompleteCookiePath = cookiedir + '\\' + wholeCookie
+        cf = open(CompleteCookiePath, 'r')
+        data = cf.read()
+        cf.close()
+        del cf
+        data = data.replace('%3D', '=')
+        data = data.replace('%26', '&')
+        regNameStart = data.find(regVar)
+        if regNameStart == -1:
+            return ''
+        regVarStart = data.find('=', regNameStart + 1)
+        regVarEnd = data.find('&', regNameStart + 1)
+        return data[regVarStart + 1:regVarEnd]
 
 
 def getMAC(staticMAC=[

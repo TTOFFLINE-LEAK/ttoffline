@@ -252,11 +252,12 @@ CogDeptNames = [TTLocalizer.Bossbot,
 def cogHQZoneId2deptIndex(zone):
     if zone >= 13000 and zone <= 13999:
         return 1
-    if zone >= 12000:
-        return 2
-    if zone >= 11000:
-        return 3
-    return 0
+    else:
+        if zone >= 12000:
+            return 2
+        if zone >= 11000:
+            return 3
+        return 0
 
 
 def cogHQZoneId2dept(zone):

@@ -49,14 +49,12 @@ class Experience:
                 self.experience[track] += amount
             else:
                 self.experience[track] = MaxSkill
+        elif self.experience[track] + amount <= UnpaidMaxSkills[track]:
+            self.experience[track] += amount
+        elif self.experience[track] > UnpaidMaxSkills[track]:
+            self.experience[track] += 0
         else:
-            if self.experience[track] + amount <= UnpaidMaxSkills[track]:
-                self.experience[track] += amount
-            else:
-                if self.experience[track] > UnpaidMaxSkills[track]:
-                    self.experience[track] += 0
-                else:
-                    self.experience[track] = UnpaidMaxSkills[track]
+            self.experience[track] = UnpaidMaxSkills[track]
 
     def maxOutExp(self):
         for track in xrange(0, len(Tracks)):

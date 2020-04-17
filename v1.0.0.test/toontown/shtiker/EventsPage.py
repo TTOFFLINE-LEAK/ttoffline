@@ -230,10 +230,9 @@ class EventsPage(ShtikerPage.ShtikerPage):
         if inviteStatus == PartyGlobals.InviteStatus.Accepted:
             dot['geom'] = (
              self.hostingGui.find('**/checkmark'),)
-        else:
-            if inviteStatus == PartyGlobals.InviteStatus.Rejected:
-                dot['geom'] = (
-                 self.hostingGui.find('**/x'),)
+        elif inviteStatus == PartyGlobals.InviteStatus.Rejected:
+            dot['geom'] = (
+             self.hostingGui.find('**/x'),)
         PartyUtils.truncateTextOfLabelBasedOnWidth(label, name, PartyGlobals.EventsPageGuestNameMaxWidth)
         dot.reparentTo(label)
         return label
@@ -344,10 +343,11 @@ class EventsPage(ShtikerPage.ShtikerPage):
         if self.selectedInvitationItem is None:
             self.invitePartyGoButton['state'] = DirectGuiGlobals.DISABLED
             return
-        self.doneStatus = {'mode': 'startparty', 'firstStart': False, 
-           'hostId': self.selectedInvitationItem.getPythonTag('hostId')}
-        messenger.send(self.doneEvent)
-        return
+        else:
+            self.doneStatus = {'mode': 'startparty', 'firstStart': False, 
+               'hostId': self.selectedInvitationItem.getPythonTag('hostId')}
+            messenger.send(self.doneEvent)
+            return
 
     def loadHostedPartyInfo(self):
         self.unloadGuests()
@@ -371,26 +371,25 @@ class EventsPage(ShtikerPage.ShtikerPage):
                     if partyInfo.status == PartyGlobals.PartyStatus.CanStart:
                         self.partyGoButton['state'] = DirectGuiGlobals.NORMAL
                         self.partyGoButton['text'] = (TTLocalizer.EventsPageGoButton,)
-                    else:
-                        if partyInfo.status == PartyGlobals.PartyStatus.Started:
-                            place = base.cr.playGame.getPlace()
-                            if isinstance(place, Party):
-                                if hasattr(base, 'distributedParty'):
-                                    if base.distributedParty.partyInfo.hostId == base.localAvatar.doId:
-                                        self.partyGoButton['state'] = DirectGuiGlobals.DISABLED
-                                    else:
-                                        self.partyGoButton['state'] = DirectGuiGlobals.NORMAL
+                    elif partyInfo.status == PartyGlobals.PartyStatus.Started:
+                        place = base.cr.playGame.getPlace()
+                        if isinstance(place, Party):
+                            if hasattr(base, 'distributedParty'):
+                                if base.distributedParty.partyInfo.hostId == base.localAvatar.doId:
+                                    self.partyGoButton['state'] = DirectGuiGlobals.DISABLED
                                 else:
                                     self.partyGoButton['state'] = DirectGuiGlobals.NORMAL
-                                    self.notify.warning('base.distributedParty is not defined when base.cr.playGame.getPlace is party. This should never happen.')
                             else:
                                 self.partyGoButton['state'] = DirectGuiGlobals.NORMAL
-                            self.partyGoButton['text'] = (
-                             TTLocalizer.EventsPageGoBackButton,)
+                                self.notify.warning('base.distributedParty is not defined when base.cr.playGame.getPlace is party. This should never happen.')
                         else:
-                            self.partyGoButton['text'] = (
-                             TTLocalizer.EventsPageGoButton,)
-                            self.partyGoButton['state'] = DirectGuiGlobals.DISABLED
+                            self.partyGoButton['state'] = DirectGuiGlobals.NORMAL
+                        self.partyGoButton['text'] = (
+                         TTLocalizer.EventsPageGoBackButton,)
+                    else:
+                        self.partyGoButton['text'] = (
+                         TTLocalizer.EventsPageGoButton,)
+                        self.partyGoButton['state'] = DirectGuiGlobals.DISABLED
                     if partyInfo.status not in (PartyGlobals.PartyStatus.Pending, PartyGlobals.PartyStatus.CanStart):
                         self.hostingCancelButton['state'] = DirectGuiGlobals.DISABLED
                     else:
@@ -425,13 +424,14 @@ class EventsPage(ShtikerPage.ShtikerPage):
     def _startParty(self):
         if not self.checkCanStartHostedParty():
             return
-        if self.hostedPartyInfo.status == PartyGlobals.PartyStatus.CanStart:
-            firstStart = True
         else:
-            firstStart = False
-        self.doneStatus = {'mode': 'startparty', 'firstStart': firstStart, 'hostId': None}
-        messenger.send(self.doneEvent)
-        return
+            if self.hostedPartyInfo.status == PartyGlobals.PartyStatus.CanStart:
+                firstStart = True
+            else:
+                firstStart = False
+            self.doneStatus = {'mode': 'startparty', 'firstStart': firstStart, 'hostId': None}
+            messenger.send(self.doneEvent)
+            return
 
     def loadGuests(self):
         for partyReplyInfoBase in base.localAvatar.partyReplyInfoBases:
@@ -606,46 +606,43 @@ class EventsPage(ShtikerPage.ShtikerPage):
                 self.titleLabel['text'] = TTLocalizer.EventsPageHostTabTitleNoParties
             else:
                 self.titleLabel['text'] = TTLocalizer.EventsPageHostTabTitle
-        else:
-            if self.mode == EventsPage_Invited:
-                self.titleLabel['text'] = TTLocalizer.EventsPageInvitedTabTitle
-                self.hostTab['state'] = DirectGuiGlobals.NORMAL
-                self.invitedTab['state'] = DirectGuiGlobals.DISABLED
-                self.calendarTab['state'] = DirectGuiGlobals.NORMAL
-                self.newsTab['state'] = DirectGuiGlobals.NORMAL
-                self.hostedPartyDisplay.hide()
-                self.invitationDisplay.show()
-                self.calendarDisplay.hide()
-                self.newsDisplay.hide()
-                self.loadInvitations()
-            else:
-                if self.mode == EventsPage_Calendar:
-                    self.titleLabel['text'] = ''
-                    self.hostTab['state'] = DirectGuiGlobals.NORMAL
-                    self.invitedTab['state'] = DirectGuiGlobals.NORMAL
-                    self.calendarTab['state'] = DirectGuiGlobals.DISABLED
-                    self.newsTab['state'] = DirectGuiGlobals.NORMAL
-                    self.hostedPartyDisplay.hide()
-                    self.invitationDisplay.hide()
-                    self.calendarDisplay.show()
-                    self.newsDisplay.hide()
-                    if not self.calendarGuiMonth:
-                        curServerDate = base.cr.toontownTimeManager.getCurServerDateTime()
-                        self.calendarGuiMonth = CalendarGuiMonth(self.calendarDisplay, curServerDate, onlyFutureMonthsClickable=True)
-                    self.calendarGuiMonth.changeMonth(0)
-                else:
-                    if self.mode == EventsPage_News:
-                        self.titleLabel['text'] = ''
-                        self.hostTab['state'] = DirectGuiGlobals.NORMAL
-                        self.invitedTab['state'] = DirectGuiGlobals.NORMAL
-                        self.calendarTab['state'] = DirectGuiGlobals.NORMAL
-                        self.newsTab['state'] = DirectGuiGlobals.DISABLED
-                        self.hostedPartyDisplay.hide()
-                        self.invitationDisplay.hide()
-                        self.calendarDisplay.hide()
-                        if not self.gotRssFeed:
-                            pass
-                        self.newsDisplay.show()
+        elif self.mode == EventsPage_Invited:
+            self.titleLabel['text'] = TTLocalizer.EventsPageInvitedTabTitle
+            self.hostTab['state'] = DirectGuiGlobals.NORMAL
+            self.invitedTab['state'] = DirectGuiGlobals.DISABLED
+            self.calendarTab['state'] = DirectGuiGlobals.NORMAL
+            self.newsTab['state'] = DirectGuiGlobals.NORMAL
+            self.hostedPartyDisplay.hide()
+            self.invitationDisplay.show()
+            self.calendarDisplay.hide()
+            self.newsDisplay.hide()
+            self.loadInvitations()
+        elif self.mode == EventsPage_Calendar:
+            self.titleLabel['text'] = ''
+            self.hostTab['state'] = DirectGuiGlobals.NORMAL
+            self.invitedTab['state'] = DirectGuiGlobals.NORMAL
+            self.calendarTab['state'] = DirectGuiGlobals.DISABLED
+            self.newsTab['state'] = DirectGuiGlobals.NORMAL
+            self.hostedPartyDisplay.hide()
+            self.invitationDisplay.hide()
+            self.calendarDisplay.show()
+            self.newsDisplay.hide()
+            if not self.calendarGuiMonth:
+                curServerDate = base.cr.toontownTimeManager.getCurServerDateTime()
+                self.calendarGuiMonth = CalendarGuiMonth(self.calendarDisplay, curServerDate, onlyFutureMonthsClickable=True)
+            self.calendarGuiMonth.changeMonth(0)
+        elif self.mode == EventsPage_News:
+            self.titleLabel['text'] = ''
+            self.hostTab['state'] = DirectGuiGlobals.NORMAL
+            self.invitedTab['state'] = DirectGuiGlobals.NORMAL
+            self.calendarTab['state'] = DirectGuiGlobals.NORMAL
+            self.newsTab['state'] = DirectGuiGlobals.DISABLED
+            self.hostedPartyDisplay.hide()
+            self.invitationDisplay.hide()
+            self.calendarDisplay.hide()
+            if not self.gotRssFeed:
+                pass
+            self.newsDisplay.show()
         return
 
     def __setPublicPrivateButton(self):
@@ -705,15 +702,14 @@ class EventsPage(ShtikerPage.ShtikerPage):
                 self.loadHostedPartyInfo()
                 self.cancelPartyResultGui['text'] = TTLocalizer.EventsPageCancelPartyResultOk % beansRefunded
                 self.cancelPartyResultGui.show()
+        elif errorCode == PartyGlobals.ChangePartyFieldErrorCode.AlreadyRefunded and newPartyStatus == PartyGlobals.PartyStatus.NeverStarted:
+            self.loadHostedPartyInfo()
+            self.cancelPartyResultGui['text'] = TTLocalizer.EventsPageCancelPartyAlreadyRefunded
+            self.cancelPartyResultGui.show()
         else:
-            if errorCode == PartyGlobals.ChangePartyFieldErrorCode.AlreadyRefunded and newPartyStatus == PartyGlobals.PartyStatus.NeverStarted:
-                self.loadHostedPartyInfo()
-                self.cancelPartyResultGui['text'] = TTLocalizer.EventsPageCancelPartyAlreadyRefunded
-                self.cancelPartyResultGui.show()
-            else:
-                self.cancelPartyResultGui['text'] = TTLocalizer.EventsPageCancelPartyResultError
-                self.cancelPartyResultGui.show()
-                self.hostingCancelButton['state'] = DirectGuiGlobals.NORMAL
+            self.cancelPartyResultGui['text'] = TTLocalizer.EventsPageCancelPartyResultError
+            self.cancelPartyResultGui.show()
+            self.hostingCancelButton['state'] = DirectGuiGlobals.NORMAL
 
     def cancelPartyResultGuiCommand(self):
         self.cancelPartyResultGui.hide()
@@ -840,9 +836,8 @@ class EventsPage(ShtikerPage.ShtikerPage):
         if not self.NonblockingDownload:
             if not taskMgr.hasTaskNamed(self.DownloadArticlesTaskName):
                 taskMgr.doMethodLater(0.5, self.downloadArticlesTask, self.DownloadArticlesTaskName)
-        else:
-            if not self.downloadArticlesInProgress:
-                self.downloadArticlesNonblocking()
+        elif not self.downloadArticlesInProgress:
+            self.downloadArticlesNonblocking()
 
     def downloadArticlesTask(self, task):
         self.articleImages = {}
@@ -870,22 +865,22 @@ class EventsPage(ShtikerPage.ShtikerPage):
                 imageFile.close()
             except IOError:
                 self.notify.warning('image url %d could not open %s' % (index, imageUrl))
-            else:
-                text = ''
-                self.articleText[index] = text
-                try:
-                    self.notify.info('opening %s' % textUrl)
-                    textFile = urllib.urlopen(textUrl)
-                    data = textFile.read()
-                    data = data.replace('\\1', '\x01')
-                    data = data.replace('\\2', '\x02')
-                    data = data.replace('\r', ' ')
-                    self.articleText[index] = data
-                    textFile.close()
-                except IOError:
-                    self.notify.warning('text url %d could not open %s' % (index, textUrl))
-                else:
-                    self.articleIndexList.addItem('')
+
+            text = ''
+            self.articleText[index] = text
+            try:
+                self.notify.info('opening %s' % textUrl)
+                textFile = urllib.urlopen(textUrl)
+                data = textFile.read()
+                data = data.replace('\\1', '\x01')
+                data = data.replace('\\2', '\x02')
+                data = data.replace('\r', ' ')
+                self.articleText[index] = data
+                textFile.close()
+            except IOError:
+                self.notify.warning('text url %d could not open %s' % (index, textUrl))
+
+            self.articleIndexList.addItem('')
 
         self.newsStatusLabel['text'] = ''
         self.gotArticles = True
@@ -914,10 +909,9 @@ class EventsPage(ShtikerPage.ShtikerPage):
         if imgAspectRatio > maxAspectRatio:
             if xSize:
                 curYSize = maxFrameXSize * ySize / xSize
-        else:
-            if ySize:
-                curXSize = maxFrameYSize * xSize / ySize
-                shrinkY = False
+        elif ySize:
+            curXSize = maxFrameYSize * xSize / ySize
+            shrinkY = False
         minX = -curXSize / 2.0
         maxX = curXSize / 2.0
         minY = -curYSize / 2.0
@@ -1135,14 +1129,12 @@ class EventsPage(ShtikerPage.ShtikerPage):
             serverAddress = base.cr.getServerAddress()
             if 'test.toontown' in serverAddress.getServer():
                 result = 'http://play.test.toontown.com'
+            elif 'ttown4' in serverAddress.getServer():
+                result = 'http://ttown4.online.disney.com:1601'
+            elif 'qa.toontown' in serverAddress.getServer():
+                result = 'http://play.qa.toontown.com'
             else:
-                if 'ttown4' in serverAddress.getServer():
-                    result = 'http://ttown4.online.disney.com:1601'
-                else:
-                    if 'qa.toontown' in serverAddress.getServer():
-                        result = 'http://play.qa.toontown.com'
-                    else:
-                        result = 'http://play.toontown.com'
+                result = 'http://play.toontown.com'
             result += self.NewsUrl
         else:
             result = self.NewsUrl

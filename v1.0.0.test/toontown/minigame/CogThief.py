@@ -158,12 +158,10 @@ class CogThief(DirectObject):
     def think(self):
         if self.goal == CTGG.ToonGoal:
             self.thinkAboutCatchingToon()
-        else:
-            if self.goal == CTGG.BarrelGoal:
-                self.thinkAboutGettingBarrel()
-            else:
-                if self.goal == CTGG.RunAwayGoal:
-                    self.thinkAboutRunAway()
+        elif self.goal == CTGG.BarrelGoal:
+            self.thinkAboutGettingBarrel()
+        elif self.goal == CTGG.RunAwayGoal:
+            self.thinkAboutRunAway()
 
     def thinkAboutCatchingToon(self):
         if not self.game:
@@ -379,13 +377,11 @@ class CogThief(DirectObject):
             av = self.game.getAvatar(self.goalId)
             if av:
                 targetPos = av.getPos()
-        else:
-            if self.goal == CTGG.BarrelGoal:
-                barrel = self.game.barrels[self.goalId]
-                targetPos = barrel.getPos()
-            else:
-                if self.goal == CTGG.RunAwayGoal:
-                    targetPos = CTGG.CogReturnPositions[self.goalId]
+        elif self.goal == CTGG.BarrelGoal:
+            barrel = self.game.barrels[self.goalId]
+            targetPos = barrel.getPos()
+        elif self.goal == CTGG.RunAwayGoal:
+            targetPos = CTGG.CogReturnPositions[self.goalId]
         targetPos.setZ(0)
         myPos = self.suit.getPos()
         diff = targetPos - myPos
@@ -452,12 +448,11 @@ class CogThief(DirectObject):
         if self.distToNearestFlockmate < self.SeparationDistance:
             change.normalize()
             change *= -(1 - ratio)
+        elif self.distToNearestFlockmate > self.SeparationDistance:
+            change.normalize()
+            change *= ratio
         else:
-            if self.distToNearestFlockmate > self.SeparationDistance:
-                change.normalize()
-                change *= ratio
-            else:
-                change = Vec3(0, 0, 0)
+            change = Vec3(0, 0, 0)
         return change
 
     def showKaboom(self):

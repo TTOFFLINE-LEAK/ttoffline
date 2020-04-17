@@ -66,9 +66,10 @@ class Nametag(ClickablePopup):
     def displayAsActive(self):
         if not self.m_active:
             return 0
-        if self.m_group:
-            return self.m_group.displayAsActive()
-        return NametagGlobals._master_nametags_active
+        else:
+            if self.m_group:
+                return self.m_group.displayAsActive()
+            return NametagGlobals._master_nametags_active
 
     def setAvatar(self, avatar):
         self.m_avatar = avatar
@@ -89,9 +90,8 @@ class Nametag(ClickablePopup):
         if self.m_group:
             if not (self.m_active and self.m_group.displayAsActive()):
                 return PGButton.SInactive
-        else:
-            if not (self.m_active and NametagGlobals._master_nametags_active):
-                return PGButton.SInactive
+        elif not (self.m_active and NametagGlobals._master_nametags_active):
+            return PGButton.SInactive
         return self.m_state
 
     def hasGroup(self):
@@ -164,13 +164,12 @@ class Nametag(ClickablePopup):
                 if self.m_mouse_watcher:
                     self.m_mouse_watcher.addRegion(self.m_popup_region)
                 self.m_has_region = True
-        else:
-            if self.m_has_region:
-                if self.m_mouse_watcher and self.m_popup_region:
-                    self.m_mouse_watcher.removeRegion(self.m_popup_region)
-                self.m_has_region = False
-                self.m_mouse_watcher = None
-                self.setState(PGButton.SReady)
+        elif self.m_has_region:
+            if self.m_mouse_watcher and self.m_popup_region:
+                self.m_mouse_watcher.removeRegion(self.m_popup_region)
+            self.m_has_region = False
+            self.m_mouse_watcher = None
+            self.setState(PGButton.SReady)
         return
 
     def upcastToPandaNode(self):

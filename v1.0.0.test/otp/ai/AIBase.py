@@ -108,13 +108,12 @@ class AIBase:
                     affinity = 1
             if affinity != -1:
                 TrueClock.getGlobalPtr().setCpuAffinity(1 << affinity)
-            else:
-                if autoAffinity:
-                    if game.name == 'uberDog':
-                        channelSet = int(minChannel / 1000000)
-                        channelSet -= 240
-                        affinity = channelSet + 3
-                        TrueClock.getGlobalPtr().setCpuAffinity(1 << affinity % 4)
+            elif autoAffinity:
+                if game.name == 'uberDog':
+                    channelSet = int(minChannel / 1000000)
+                    channelSet -= 240
+                    affinity = channelSet + 3
+                    TrueClock.getGlobalPtr().setCpuAffinity(1 << affinity % 4)
 
     def taskManagerDoYield(self, frameStartTime, nextScheuledTaksTime):
         minFinTime = frameStartTime + self.MaxEpockSpeed
@@ -128,14 +127,15 @@ class AIBase:
     def createStats(self, hostname=None, port=None):
         if not self.wantStats:
             return False
-        if PStatClient.isConnected():
-            PStatClient.disconnect()
-        if hostname is None:
-            hostname = ''
-        if port is None:
-            port = -1
-        PStatClient.connect(hostname, port)
-        return PStatClient.isConnected()
+        else:
+            if PStatClient.isConnected():
+                PStatClient.disconnect()
+            if hostname is None:
+                hostname = ''
+            if port is None:
+                port = -1
+            PStatClient.connect(hostname, port)
+            return PStatClient.isConnected()
 
     def __sleepCycleTask(self, task):
         time.sleep(self.AISleep)

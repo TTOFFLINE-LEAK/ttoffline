@@ -323,14 +323,12 @@ class PartyPlanner(DirectFrame, FSM):
         animal = partyPlannerStyle.getAnimal()
         if animal == 'cat' or animal == 'pig':
             headScale = 0.4
+        elif animal == 'dog' or animal == 'bear':
+            headScale = 0.45
+        elif animal == 'rabbit':
+            headScale = 0.35
         else:
-            if animal == 'dog' or animal == 'bear':
-                headScale = 0.45
-            else:
-                if animal == 'rabbit':
-                    headScale = 0.35
-                else:
-                    headScale = 0.3
+            headScale = 0.3
         self.partyPlannerHead.setScale(headScale)
         self.partyPlannerHead.setH(180.0)
         self.partyPlannerHead.reparentTo(page)
@@ -364,12 +362,13 @@ class PartyPlanner(DirectFrame, FSM):
     def positiveTime(self, type, amount):
         if amount is None:
             return getattr(self.partyTime, type)
-        if type == 'hour' or type == 'minute':
-            if amount < 0:
-                return self.timeTypeToMaxValue[type] + 1 + self.timeTypeToChangeAmount[type][1]
-            if amount > self.timeTypeToMaxValue[type]:
-                return 0
-        return amount
+        else:
+            if type == 'hour' or type == 'minute':
+                if amount < 0:
+                    return self.timeTypeToMaxValue[type] + 1 + self.timeTypeToChangeAmount[type][1]
+                if amount > self.timeTypeToMaxValue[type]:
+                    return 0
+            return amount
 
     def _createTimePage(self):
         page = DirectFrame(self.frame)
@@ -424,12 +423,11 @@ class PartyPlanner(DirectFrame, FSM):
                     if self.timeInputAmPmLabel['text'] == TTLocalizer.PartyTimeFormatMeridiemPM:
                         newAmount = newAmount % 12 + 12
                     self.alterPartyTime(hour=newAmount)
+                elif type == 'minute':
+                    newAmount = getattr(self.partyTime, type) + amount
+                    self.alterPartyTime(minute=newAmount)
                 else:
-                    if type == 'minute':
-                        newAmount = getattr(self.partyTime, type) + amount
-                        self.alterPartyTime(minute=newAmount)
-                    else:
-                        PartyPlanner.notify.error('Invalid type for changeValue in PartyPlanner: %s' % type)
+                    PartyPlanner.notify.error('Invalid type for changeValue in PartyPlanner: %s' % type)
                 newAmount = getattr(self.partyTime, type)
                 if newAmount < 10 and type == 'minute':
                     label['text'] = '0%d' % newAmount
@@ -450,7 +448,8 @@ class PartyPlanner(DirectFrame, FSM):
     def getCurrentAmPm(self):
         if self.partyTime.hour < 12:
             return TTLocalizer.PartyTimeFormatMeridiemAM
-        return TTLocalizer.PartyTimeFormatMeridiemPM
+        else:
+            return TTLocalizer.PartyTimeFormatMeridiemPM
 
     def _createGuestPage(self):
         page = DirectFrame(self.frame)
@@ -698,19 +697,16 @@ class PartyPlanner(DirectFrame, FSM):
                 confirmRecapText = TTLocalizer.PartyPlannerConfirmationAllOkTextNoFriends
             else:
                 confirmRecapText = TTLocalizer.PartyPlannerConfirmationAllOkText
-        else:
-            if errorCode == PartyGlobals.AddPartyErrorCode.ValidationError:
-                self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
-                confirmRecapText = TTLocalizer.PartyPlannerConfirmationValidationErrorText
-            else:
-                if errorCode == PartyGlobals.AddPartyErrorCode.DatabaseError:
-                    self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
-                    confirmRecapText = TTLocalizer.PartyPlannerConfirmationDatabaseErrorText
-                else:
-                    if errorCode == PartyGlobals.AddPartyErrorCode.TooManyHostedParties:
-                        goingBackAllowed = False
-                        self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
-                        confirmRecapText = TTLocalizer.PartyPlannerConfirmationTooManyText
+        elif errorCode == PartyGlobals.AddPartyErrorCode.ValidationError:
+            self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
+            confirmRecapText = TTLocalizer.PartyPlannerConfirmationValidationErrorText
+        elif errorCode == PartyGlobals.AddPartyErrorCode.DatabaseError:
+            self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
+            confirmRecapText = TTLocalizer.PartyPlannerConfirmationDatabaseErrorText
+        elif errorCode == PartyGlobals.AddPartyErrorCode.TooManyHostedParties:
+            goingBackAllowed = False
+            self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
+            confirmRecapText = TTLocalizer.PartyPlannerConfirmationTooManyText
         self.nametagGroup.setChat(confirmRecapText, CFSpeech)
         self.request('Farewell', goingBackAllowed)
 
@@ -725,23 +721,24 @@ class PartyPlanner(DirectFrame, FSM):
         if self.state == 'PartyEditor' and self.okWithGroundsGui.doneStatus != 'ok':
             self.okWithGroundsGui.show()
             return
-        if self.state == 'PartyEditor' and self.noFriends:
-            self.request('Date')
-            self.selectedCalendarGuiDay = None
-            self.calendarGuiMonth.clearSelectedDay()
-            return
-        if self.state == 'Guests':
-            self.selectedCalendarGuiDay = None
-            self.calendarGuiMonth.clearSelectedDay()
-        if self.state == 'Time':
-            if self.partyTime < base.cr.toontownTimeManager.getCurServerDateTime():
-                self.okChooseFutureTimeEvent = 'okChooseFutureTimeEvent'
-                self.acceptOnce(self.okChooseFutureTimeEvent, self.okChooseFutureTime)
-                self.chooseFutureTimeDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('chooseFutureTimeDialog'), doneEvent=self.okChooseFutureTimeEvent, message=TTLocalizer.PartyPlannerChooseFutureTime, style=TTDialog.Acknowledge)
-                self.chooseFutureTimeDialog.show()
+        else:
+            if self.state == 'PartyEditor' and self.noFriends:
+                self.request('Date')
+                self.selectedCalendarGuiDay = None
+                self.calendarGuiMonth.clearSelectedDay()
                 return
-        self.requestNext()
-        return
+            if self.state == 'Guests':
+                self.selectedCalendarGuiDay = None
+                self.calendarGuiMonth.clearSelectedDay()
+            if self.state == 'Time':
+                if self.partyTime < base.cr.toontownTimeManager.getCurServerDateTime():
+                    self.okChooseFutureTimeEvent = 'okChooseFutureTimeEvent'
+                    self.acceptOnce(self.okChooseFutureTimeEvent, self.okChooseFutureTime)
+                    self.chooseFutureTimeDialog = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('chooseFutureTimeDialog'), doneEvent=self.okChooseFutureTimeEvent, message=TTLocalizer.PartyPlannerChooseFutureTime, style=TTDialog.Acknowledge)
+                    self.chooseFutureTimeDialog.show()
+                    return
+            self.requestNext()
+            return
 
     def okChooseFutureTime(self):
         if hasattr(self, 'chooseFutureTimeDialog'):
@@ -755,11 +752,12 @@ class PartyPlanner(DirectFrame, FSM):
         if self.state == 'Date' and self.noFriends:
             self.request('PartyEditor')
             return
-        if self.state == 'Invitation' and self.selectedCalendarGuiDay is None:
-            self.request('Guests')
+        else:
+            if self.state == 'Invitation' and self.selectedCalendarGuiDay is None:
+                self.request('Guests')
+                return
+            self.requestPrev()
             return
-        self.requestPrev()
-        return
 
     def __moneyChange(self, newMoney):
         if hasattr(self, 'totalMoney'):

@@ -67,10 +67,9 @@ class ToonVictorySkipper(DirectObject):
 
             if self._battle:
                 self._battle.setSkippingRewardMovie()
-        else:
-            if nextIndex in self._startTimes:
-                for ival in self._ivals:
-                    ival.setT(self._startTimes[nextIndex])
+        elif nextIndex in self._startTimes:
+            for ival in self._ivals:
+                ival.setT(self._startTimes[nextIndex])
 
 
 def doToonVictory(localToonActive, toons, rewardToonIds, rewardDicts, deathList, rpanel, allowGroupShot=1, uberList=[], helpfulToonsList=[], noSkip=False):

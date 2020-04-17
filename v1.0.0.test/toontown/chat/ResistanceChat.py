@@ -123,9 +123,8 @@ def getItemText(textId):
     if menuIndex in (RESISTANCE_TOONUP, RESISTANCE_GREEN):
         if value is -1:
             value = TTL.ResistanceToonupItemMax
-    else:
-        if menuIndex is RESISTANCE_RESTOCK:
-            value = resistanceDict[menuIndex]['extra'][itemIndex]
+    elif menuIndex is RESISTANCE_RESTOCK:
+        value = resistanceDict[menuIndex]['extra'][itemIndex]
     return text % str(value)
 
 
@@ -167,28 +166,28 @@ def doEffect(textId, speakingToon, nearbyToons):
                 p.renderer.setGeomNode(node.node())
 
             fadeColor = VBase4(0, 1, 0, 1)
-        else:
-            if menuIndex == RESISTANCE_RESTOCK:
-                effect = BattleParticles.loadParticleFile('resistanceEffectSprite.ptf')
-                invModel = loader.loadModel('phase_3.5/models/gui/inventory_icons')
-                invModel.setScale(4)
-                invModel.flattenLight()
-                icons = []
-                if itemValue != -1:
-                    for item in xrange(6):
-                        iconName = ToontownBattleGlobals.AvPropsNew[itemValue][item]
-                        icons.append(invModel.find('**/%s' % iconName))
+        elif menuIndex == RESISTANCE_RESTOCK:
+            effect = BattleParticles.loadParticleFile('resistanceEffectSprite.ptf')
+            invModel = loader.loadModel('phase_3.5/models/gui/inventory_icons')
+            invModel.setScale(4)
+            invModel.flattenLight()
+            icons = []
+            if itemValue != -1:
+                for item in xrange(6):
+                    iconName = ToontownBattleGlobals.AvPropsNew[itemValue][item]
+                    icons.append(invModel.find('**/%s' % iconName))
 
-                else:
-                    tracks = range(7)
-                    random.shuffle(tracks)
-                    for i in xrange(6):
-                        track = tracks[i]
-                        item = random.randint(0, 5)
-                        iconName = ToontownBattleGlobals.AvPropsNew[track][item]
-                        icons.append(invModel.find('**/%s' % iconName))
+            else:
+                tracks = range(7)
+                random.shuffle(tracks)
+                for i in xrange(6):
+                    track = tracks[i]
+                    item = random.randint(0, 5)
+                    iconName = ToontownBattleGlobals.AvPropsNew[track][item]
+                    icons.append(invModel.find('**/%s' % iconName))
 
-                iconDict = {'particles-1': icons[0], 'particles-2': icons[1], 'particles-3': icons[2], 
+                iconDict = {'particles-1': icons[0], 'particles-2': icons[1], 
+                   'particles-3': icons[2], 
                    'particles-4': icons[3], 
                    'particles-5': icons[4], 
                    'particles-6': icons[5]}
@@ -196,44 +195,43 @@ def doEffect(textId, speakingToon, nearbyToons):
                     p = effect.getParticlesNamed(name)
                     p.renderer.setFromNode(icon)
 
-                fadeColor = VBase4(0, 0, 1, 1)
-            else:
-                if menuIndex == RESISTANCE_GREEN:
-                    effect = BattleParticles.loadParticleFile('resistanceEffectBean.ptf')
-                    laffModel = loader.loadModel('phase_3/models/gui/laff_o_meter')
-                    laffModel.setScale(0.5)
-                    laffModel.flattenLight()
-                    icons = []
-                    for i in xrange(6):
-                        species = [
-                         'dog', 'cat', 'horse', 'mouse', 'bunny', 'duck', 'monkey', 'bear', 'pig']
-                        speciesName = random.choice(species) + 'head'
-                        model = laffModel.find('**/%s' % speciesName)
-                        model.setBillboardAxis(2.0)
-                        frownModel = laffModel.find('**/frown')
-                        frown = frownModel.copyTo(model)
-                        frown.setY(-0.1)
-                        icons.append(model)
+            fadeColor = VBase4(0, 0, 1, 1)
+        elif menuIndex == RESISTANCE_GREEN:
+            effect = BattleParticles.loadParticleFile('resistanceEffectBean.ptf')
+            laffModel = loader.loadModel('phase_3/models/gui/laff_o_meter')
+            laffModel.setScale(0.5)
+            laffModel.flattenLight()
+            icons = []
+            for i in xrange(6):
+                species = [
+                 'dog', 'cat', 'horse', 'mouse', 'bunny', 'duck', 'monkey', 'bear', 'pig']
+                speciesName = random.choice(species) + 'head'
+                model = laffModel.find('**/%s' % speciesName)
+                model.setBillboardAxis(2.0)
+                frownModel = laffModel.find('**/frown')
+                frown = frownModel.copyTo(model)
+                frown.setY(-0.1)
+                icons.append(model)
 
-                    iconDict = {'particles-1': icons[0], 'particles-2': icons[1], 
-                       'particles-3': icons[2], 
-                       'particles-4': icons[3], 
-                       'particles-5': icons[4]}
-                    for name, icon in iconDict.items():
-                        node = icon.copyTo(NodePath())
-                        node.setColorScale(0.58039216, 0.80392157, 0.34117647, 1.0)
-                        p = effect.getParticlesNamed(name)
-                        p.renderer.setGeomNode(node.node())
+            iconDict = {'particles-1': icons[0], 'particles-2': icons[1], 
+               'particles-3': icons[2], 
+               'particles-4': icons[3], 
+               'particles-5': icons[4]}
+            for name, icon in iconDict.items():
+                node = icon.copyTo(NodePath())
+                node.setColorScale(0.58039216, 0.80392157, 0.34117647, 1.0)
+                p = effect.getParticlesNamed(name)
+                p.renderer.setGeomNode(node.node())
 
-                    fadeColor = VBase4(0, 0, 1, 1)
-                else:
-                    return
-    recolorToons = Parallel()
-    for toonId in nearbyToons:
-        toon = base.cr.doId2do.get(toonId)
-        if toon and not toon.ghostMode:
-            i = Sequence(toon.doToonColorScale(fadeColor, 0.3), toon.doToonColorScale(toon.defaultColorScale, 0.3), Func(toon.restoreDefaultColorScale))
-            recolorToons.append(i)
+            fadeColor = VBase4(0, 0, 1, 1)
+        else:
+            return
+        recolorToons = Parallel()
+        for toonId in nearbyToons:
+            toon = base.cr.doId2do.get(toonId)
+            if toon and not toon.ghostMode:
+                i = Sequence(toon.doToonColorScale(fadeColor, 0.3), toon.doToonColorScale(toon.defaultColorScale, 0.3), Func(toon.restoreDefaultColorScale))
+                recolorToons.append(i)
 
     i = Parallel(ParticleInterval(effect, speakingToon, worldRelative=0, duration=3, cleanup=True), Sequence(Wait(0.2), recolorToons), autoFinish=1)
     i.start()

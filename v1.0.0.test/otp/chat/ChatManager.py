@@ -25,15 +25,17 @@ ThoughtPrefix = '.'
 def isThought(message):
     if len(message) == 0:
         return 0
-    if string.find(message, ThoughtPrefix, 0, len(ThoughtPrefix)) >= 0:
-        return 1
-    return 0
+    else:
+        if string.find(message, ThoughtPrefix, 0, len(ThoughtPrefix)) >= 0:
+            return 1
+        return 0
 
 
 def removeThoughtPrefix(message):
     if isThought(message):
         return message[len(ThoughtPrefix):]
-    return message
+    else:
+        return message
 
 
 class ChatManager(DirectObject.DirectObject):
@@ -171,10 +173,9 @@ class ChatManager(DirectObject.DirectObject):
         if isThought(message):
             message = removeThoughtPrefix(message)
             chatFlags = CFThought
-        else:
-            if isExclaim(message):
-                message = removeExclaimPrefix(message)
-                chatFlags = CFExclaim | CFTimeout
+        elif isExclaim(message):
+            message = removeExclaimPrefix(message)
+            chatFlags = CFExclaim | CFTimeout
         messenger.send(NormalChatEvent)
         self.announceChat()
 
@@ -278,9 +279,8 @@ class ChatManager(DirectObject.DirectObject):
         online = 0
         if avatarId in self.cr.doId2do:
             online = 1
-        else:
-            if self.cr.isFriend(avatarId):
-                online = self.cr.isFriendOnline(avatarId)
+        elif self.cr.isFriend(avatarId):
+            online = self.cr.isFriendOnline(avatarId)
         hasManager = hasattr(base.cr, 'playerFriendsManager')
         if hasManager:
             if base.cr.playerFriendsManager.askAvatarOnline(avatarId):

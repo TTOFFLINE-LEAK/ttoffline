@@ -32,15 +32,15 @@ class HtmlView(DirectObject):
             for errResponse in xrange(400, 600):
                 GlobalWebcore.setCustomResponsePage(errResponse, 'error.html')
 
-        self.webView = GlobalWebcore.createWebView(WEB_WIDTH, WEB_HEIGHT, self.transparency, False, 70)
-        frameName = ''
-        inGameNewsUrl = self.getInGameNewsUrl()
-        self.imgBuffer = array.array('B')
-        for i in xrange(WEB_WIDTH * WEB_HEIGHT):
-            self.imgBuffer.append(0)
-            self.imgBuffer.append(0)
-            self.imgBuffer.append(0)
-            self.imgBuffer.append(255)
+            self.webView = GlobalWebcore.createWebView(WEB_WIDTH, WEB_HEIGHT, self.transparency, False, 70)
+            frameName = ''
+            inGameNewsUrl = self.getInGameNewsUrl()
+            self.imgBuffer = array.array('B')
+            for i in xrange(WEB_WIDTH * WEB_HEIGHT):
+                self.imgBuffer.append(0)
+                self.imgBuffer.append(0)
+                self.imgBuffer.append(0)
+                self.imgBuffer.append(255)
 
         if self.useHalfTexture:
             self.leftBuffer = array.array('B')

@@ -138,11 +138,12 @@ class DiscordManager(DistributedObjectGlobal.DistributedObjectGlobal):
         zoneId = ZoneUtil.getHoodId(zoneId)
         if zoneId in ToontownGlobals.hoodNameMap.keys():
             return ToontownGlobals.hoodNameMap[zoneId][2]
-        if zoneId in TTLocalizer.zone2TitleDict.keys():
-            return TTLocalizer.zone2TitleDict[zoneId][0]
-        if not ZoneUtil.isDynamicZone(zoneId):
-            return TTLocalizer.GlobalStreetNames[zoneId][2]
-        return
+        else:
+            if zoneId in TTLocalizer.zone2TitleDict.keys():
+                return TTLocalizer.zone2TitleDict[zoneId][0]
+            if not ZoneUtil.isDynamicZone(zoneId):
+                return TTLocalizer.GlobalStreetNames[zoneId][2]
+            return
 
     def setSmallImage(self, smallImage):
         self.smallImage = smallImage

@@ -49,8 +49,9 @@ class FishTank:
     def removeFishAtIndex(self, index):
         if index >= len(self.fishList):
             return 0
-        del self.fishList[i]
-        return 1
+        else:
+            del self.fishList[i]
+            return 1
 
     def generateRandomTank(self):
         import random

@@ -56,7 +56,6 @@ class ToontownAccess:
             myHoodId = place.id
         if myHoodId in allowedZones:
             allowed = True
-        else:
-            if zoneId and zoneId in specialZones:
-                allowed = True
+        elif zoneId and zoneId in specialZones:
+            allowed = True
         return allowed

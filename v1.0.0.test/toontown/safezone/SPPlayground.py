@@ -47,8 +47,7 @@ class SPPlayground(Playground.Playground):
         mode = doneStatus['mode']
         if mode == 'reject':
             self.fsm.request('walk')
+        elif mode == 'exit':
+            self.fsm.request('walk')
         else:
-            if mode == 'exit':
-                self.fsm.request('walk')
-            else:
-                self.notify.error('Unknown mode: ' + mode + ' in handlePicnicBasketDone')
+            self.notify.error('Unknown mode: ' + mode + ' in handlePicnicBasketDone')

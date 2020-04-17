@@ -45,22 +45,20 @@ class QuestChoiceGui(DirectFrame):
             self.questChoicePosters[0].setPos(0, 0, 0.1)
             self.cancelButton.setPos(0.15, 0, -0.375)
             self.timer.setPos(-0.2, 0, -0.35)
-        else:
-            if len(quests) == 6:
-                self['geom_scale'] = (1.5, 1, 0.9)
-                self.questChoicePosters[0].setPos(0, 0, -0.2)
-                self.questChoicePosters[1].setPos(0, 0, 0.4)
-                self.cancelButton.setPos(0.15, 0, -0.625)
-                self.timer.setPos(-0.2, 0, -0.6)
-            else:
-                if len(quests) == 9:
-                    self['geom_scale'] = (1.85, 1, 0.9)
-                    map(lambda x: x.setScale(0.95), self.questChoicePosters)
-                    self.questChoicePosters[0].setPos(0, 0, -0.4)
-                    self.questChoicePosters[1].setPos(0, 0, 0.125)
-                    self.questChoicePosters[2].setPos(0, 0, 0.65)
-                    self.cancelButton.setPos(0.15, 0, -0.8)
-                    self.timer.setPos(-0.2, 0, -0.775)
+        elif len(quests) == 6:
+            self['geom_scale'] = (1.5, 1, 0.9)
+            self.questChoicePosters[0].setPos(0, 0, -0.2)
+            self.questChoicePosters[1].setPos(0, 0, 0.4)
+            self.cancelButton.setPos(0.15, 0, -0.625)
+            self.timer.setPos(-0.2, 0, -0.6)
+        elif len(quests) == 9:
+            self['geom_scale'] = (1.85, 1, 0.9)
+            map(lambda x: x.setScale(0.95), self.questChoicePosters)
+            self.questChoicePosters[0].setPos(0, 0, -0.4)
+            self.questChoicePosters[1].setPos(0, 0, 0.125)
+            self.questChoicePosters[2].setPos(0, 0, 0.65)
+            self.cancelButton.setPos(0.15, 0, -0.8)
+            self.timer.setPos(-0.2, 0, -0.775)
         self.timer.countdown(timeout, self.timeout)
 
     def chooseQuest(self, questId):

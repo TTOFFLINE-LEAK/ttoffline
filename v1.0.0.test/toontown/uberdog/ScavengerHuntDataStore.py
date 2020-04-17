@@ -15,12 +15,13 @@ class ScavengerHuntDataStore(DataStore):
             goals = self.__getGoalsForAvatarId(avId)
             return (
              qId, (avId, goal, goals))
-        if qId == self.QueryTypes['AddGoal']:
-            avId, goal = qData
-            self.__addGoalToAvatarId(avId, goal)
-            return (
-             qId, (avId,))
-        return
+        else:
+            if qId == self.QueryTypes['AddGoal']:
+                avId, goal = qData
+                self.__addGoalToAvatarId(avId, goal)
+                return (
+                 qId, (avId,))
+            return
 
     def __addGoalToAvatarId(self, avId, goal):
         if self.wantAnyDbm:

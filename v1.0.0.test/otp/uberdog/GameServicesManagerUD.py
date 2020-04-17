@@ -243,22 +243,18 @@ class GetAvatarsOperation(AvatarOperation):
             nameState = 0
             if wishNameState == 'OPEN':
                 nameState = 1
+            elif wishNameState == 'PENDING':
+                nameState = 2
+            elif wishNameState == 'APPROVED':
+                nameState = 3
+                name = fields['WishName'][0]
+            elif wishNameState == 'REJECTED':
+                nameState = 4
+            elif wishNameState == 'LOCKED':
+                nameState = 0
             else:
-                if wishNameState == 'PENDING':
-                    nameState = 2
-                else:
-                    if wishNameState == 'APPROVED':
-                        nameState = 3
-                        name = fields['WishName'][0]
-                    else:
-                        if wishNameState == 'REJECTED':
-                            nameState = 4
-                        else:
-                            if wishNameState == 'LOCKED':
-                                nameState = 0
-                            else:
-                                self.gameServicesManager.notify.warning('Avatar %s is in unknown name state %s.' % (avId, wishNameState))
-                                nameState = 0
+                self.gameServicesManager.notify.warning('Avatar %s is in unknown name state %s.' % (avId, wishNameState))
+                nameState = 0
             potentialAvatars.append([avId, name, fields['setDNAString'][0], index, nameState])
 
         self.gameServicesManager.sendUpdateToAccountId(self.target, 'avatarListResponse', [potentialAvatars])

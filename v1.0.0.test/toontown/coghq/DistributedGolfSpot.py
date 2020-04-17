@@ -400,18 +400,16 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         self.__cleanupGolfSpotAdvice()
         if pressed:
             self.arrowVert = 1
-        else:
-            if self.arrowVert > 0:
-                self.arrowVert = 0
+        elif self.arrowVert > 0:
+            self.arrowVert = 0
 
     def __downArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupGolfSpotAdvice()
         if pressed:
             self.arrowVert = -1
-        else:
-            if self.arrowVert < 0:
-                self.arrowVert = 0
+        elif self.arrowVert < 0:
+            self.arrowVert = 0
 
     def __rightArrow(self, pressed):
         self.__incrementChangeSeq()
@@ -419,10 +417,9 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         if pressed:
             self.arrowHorz = 1
             self.switchToAnimState('GolfRotateLeft')
-        else:
-            if self.arrowHorz > 0:
-                self.arrowHorz = 0
-                self.switchToAnimState('GolfPuttLoop')
+        elif self.arrowHorz > 0:
+            self.arrowHorz = 0
+            self.switchToAnimState('GolfPuttLoop')
 
     def __leftArrow(self, pressed):
         self.__incrementChangeSeq()
@@ -430,10 +427,9 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         if pressed:
             self.arrowHorz = -1
             self.switchToAnimState('GolfRotateRight')
-        else:
-            if self.arrowHorz < 0:
-                self.arrowHorz = 0
-                self.switchToAnimState('GolfPuttLoop')
+        elif self.arrowHorz < 0:
+            self.arrowHorz = 0
+            self.switchToAnimState('GolfPuttLoop')
 
     def __watchControls(self, task):
         if self.arrowHorz:
@@ -453,35 +449,37 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
     def __beginFireBall(self):
         if self.aimStart != None:
             return
-        if not self.state == 'Controlled':
+        else:
+            if not self.state == 'Controlled':
+                return
+            if not self.avId == localAvatar.doId:
+                return
+            time = globalClock.getFrameTime()
+            self.aimStart = time
+            messenger.send('wakeup')
+            taskMgr.add(self.__updateBallPower, self.ballPowerTaskName)
             return
-        if not self.avId == localAvatar.doId:
-            return
-        time = globalClock.getFrameTime()
-        self.aimStart = time
-        messenger.send('wakeup')
-        taskMgr.add(self.__updateBallPower, self.ballPowerTaskName)
-        return
 
     def __endFireBall(self):
         if self.aimStart == None:
             return
-        if not self.state == 'Controlled':
+        else:
+            if not self.state == 'Controlled':
+                return
+            if not self.avId == localAvatar.doId:
+                return
+            taskMgr.remove(self.ballPowerTaskName)
+            self.disableControlKey()
+            messenger.send('wakeup')
+            self.aimStart = None
+            power = self.power
+            angle = self.root.getH()
+            self.notify.debug('incrementing self.__flyBallSequenceNum')
+            self.__flyBallSequenceNum = (self.__flyBallSequenceNum + 1) % 255
+            self.sendSwingInfo(power, angle, self.__flyBallSequenceNum)
+            self.setSwingInfo(power, angle, self.__flyBallSequenceNum)
+            self.resetPowerBar()
             return
-        if not self.avId == localAvatar.doId:
-            return
-        taskMgr.remove(self.ballPowerTaskName)
-        self.disableControlKey()
-        messenger.send('wakeup')
-        self.aimStart = None
-        power = self.power
-        angle = self.root.getH()
-        self.notify.debug('incrementing self.__flyBallSequenceNum')
-        self.__flyBallSequenceNum = (self.__flyBallSequenceNum + 1) % 255
-        self.sendSwingInfo(power, angle, self.__flyBallSequenceNum)
-        self.setSwingInfo(power, angle, self.__flyBallSequenceNum)
-        self.resetPowerBar()
-        return
 
     def __updateBallPower(self, task):
         if not self.powerBar:
@@ -743,16 +741,15 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         if flyBallCode == ToontownGlobals.PieCodeBossCog and self.avId == localAvatar.doId and self.lastHitSequenceNum != self.__flyBallSequenceNum:
             self.lastHitSequenceNum = self.__flyBallSequenceNum
             self.boss.d_ballHitBoss(1)
-        else:
-            if flyBallCode == ToontownGlobals.PieCodeToon and self.avId == localAvatar.doId and self.lastHitSequenceNum != self.__flyBallSequenceNum:
-                self.lastHitSequenceNum = self.__flyBallSequenceNum
-                avatarDoId = entry.getIntoNodePath().getNetTag('avatarDoId')
-                if avatarDoId == '':
-                    self.notify.warning('Toon %s has no avatarDoId tag.' % repr(entry.getIntoNodePath()))
-                    return
-                doId = int(avatarDoId)
-                if doId != localAvatar.doId:
-                    pass
+        elif flyBallCode == ToontownGlobals.PieCodeToon and self.avId == localAvatar.doId and self.lastHitSequenceNum != self.__flyBallSequenceNum:
+            self.lastHitSequenceNum = self.__flyBallSequenceNum
+            avatarDoId = entry.getIntoNodePath().getNetTag('avatarDoId')
+            if avatarDoId == '':
+                self.notify.warning('Toon %s has no avatarDoId tag.' % repr(entry.getIntoNodePath()))
+                return
+            doId = int(avatarDoId)
+            if doId != localAvatar.doId:
+                pass
 
     def getFlyBallSplatInterval(self, x, y, z, flyBallCode, throwerId):
         from toontown.toonbase import ToontownBattleGlobals

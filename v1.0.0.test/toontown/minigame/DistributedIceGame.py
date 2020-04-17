@@ -432,9 +432,10 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
         def compareDistance(x, y):
             if x[1] - y[1] > 0:
                 return 1
-            if x[1] - y[1] < 0:
-                return -1
-            return 0
+            else:
+                if x[1] - y[1] < 0:
+                    return -1
+                return 0
 
         sortedByDistance.sort(cmp=compareDistance)
         self.scoreMovie = Sequence()
@@ -591,8 +592,9 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
     def localForceArrow(self):
         if self.localAvId in self.forceArrowDict:
             return self.forceArrowDict[self.localAvId]
-        return
-        return
+        else:
+            return
+            return
 
     def setChoices(self, input0, input1, input2, input3):
         pass
@@ -662,10 +664,11 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
     def setTimerStartTime(self, timestamp):
         if not self.hasLocalToon:
             return
-        self.timerStartTime = globalClockDelta.networkToLocalTime(timestamp)
-        if self.timer != None:
-            self.startTimer()
-        return
+        else:
+            self.timerStartTime = globalClockDelta.networkToLocalTime(timestamp)
+            if self.timer != None:
+                self.startTimer()
+            return
 
     def handleChoiceTimeout(self):
         self.sendUpdate('setAvatarChoice', [0, 0])
@@ -737,20 +740,19 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
             arrowUpdate = True
             if oldForce < self.MaxLocalForce:
                 arrowUp = True
-        else:
-            if self.arrowKeys.downPressed() and not self.arrowKeys.upPressed():
-                self.forceMomentum += forceMomentumChange
-                if self.forceMomentum < 0:
-                    self.forceMomentum = 0
-                if self.forceMomentum > 50:
-                    self.forceMomentum = 50
-                oldForce = self.curForce
-                self.curForce -= self.forceMomentum * dt
-                arrowUpdate = True
-                if oldForce > 0.01:
-                    arrowDown = True
-            else:
+        elif self.arrowKeys.downPressed() and not self.arrowKeys.upPressed():
+            self.forceMomentum += forceMomentumChange
+            if self.forceMomentum < 0:
                 self.forceMomentum = 0
+            if self.forceMomentum > 50:
+                self.forceMomentum = 50
+            oldForce = self.curForce
+            self.curForce -= self.forceMomentum * dt
+            arrowUpdate = True
+            if oldForce > 0.01:
+                arrowDown = True
+        else:
+            self.forceMomentum = 0
         if self.arrowKeys.leftPressed() and not self.arrowKeys.rightPressed():
             self.headingMomentum += headingMomentumChange
             if self.headingMomentum < 0:
@@ -760,18 +762,17 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
             self.curHeading += self.headingMomentum * dt
             arrowUpdate = True
             arrowRotating = True
-        else:
-            if self.arrowKeys.rightPressed() and not self.arrowKeys.leftPressed():
-                self.headingMomentum += headingMomentumChange
-                if self.headingMomentum < 0:
-                    self.headingMomentum = 0
-                if self.headingMomentum > 50:
-                    self.headingMomentum = 50
-                self.curHeading -= self.headingMomentum * dt
-                arrowUpdate = True
-                arrowRotating = True
-            else:
+        elif self.arrowKeys.rightPressed() and not self.arrowKeys.leftPressed():
+            self.headingMomentum += headingMomentumChange
+            if self.headingMomentum < 0:
                 self.headingMomentum = 0
+            if self.headingMomentum > 50:
+                self.headingMomentum = 50
+            self.curHeading -= self.headingMomentum * dt
+            arrowUpdate = True
+            arrowRotating = True
+        else:
+            self.headingMomentum = 0
         if arrowUpdate:
             self.normalizeHeadingAndForce()
             self.updateLocalForceArrow()
@@ -918,9 +919,8 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
         curTime = self.getCurrentGameTime()
         if self.sendForceArrowUpdateAsap:
             sendIt = True
-        else:
-            if curTime - self.lastForceArrowUpdateTime > 0.2:
-                sendIt = True
+        elif curTime - self.lastForceArrowUpdateTime > 0.2:
+            sendIt = True
         if sendIt:
             self.sendUpdate('setForceArrowInfo', [avId, force, heading])
             self.sendForceArrowUpdateAsap = False

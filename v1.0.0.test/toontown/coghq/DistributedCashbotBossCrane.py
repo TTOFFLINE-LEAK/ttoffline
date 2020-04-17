@@ -510,36 +510,32 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
         self.__cleanupCraneAdvice()
         if pressed:
             self.arrowVert = 1
-        else:
-            if self.arrowVert > 0:
-                self.arrowVert = 0
+        elif self.arrowVert > 0:
+            self.arrowVert = 0
 
     def __downArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupCraneAdvice()
         if pressed:
             self.arrowVert = -1
-        else:
-            if self.arrowVert < 0:
-                self.arrowVert = 0
+        elif self.arrowVert < 0:
+            self.arrowVert = 0
 
     def __rightArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupCraneAdvice()
         if pressed:
             self.arrowHorz = 1
-        else:
-            if self.arrowHorz > 0:
-                self.arrowHorz = 0
+        elif self.arrowHorz > 0:
+            self.arrowHorz = 0
 
     def __leftArrow(self, pressed):
         self.__incrementChangeSeq()
         self.__cleanupCraneAdvice()
         if pressed:
             self.arrowHorz = -1
-        else:
-            if self.arrowHorz < 0:
-                self.arrowHorz = 0
+        elif self.arrowHorz < 0:
+            self.arrowHorz = 0
 
     def __moveCraneArcHinge(self, xd, yd):
         dt = globalClock.getDt()
@@ -640,21 +636,22 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
     def grabObject(self, obj):
         if self.state == 'Off':
             return
-        if self.heldObject != None:
-            self.releaseObject()
-        self.__deactivateSniffer()
-        obj.wrtReparentTo(self.gripper)
-        if obj.lerpInterval:
-            obj.lerpInterval.finish()
-        obj.lerpInterval = Parallel(obj.posInterval(ToontownGlobals.CashbotBossToMagnetTime, Point3(*obj.grabPos)), obj.quatInterval(ToontownGlobals.CashbotBossToMagnetTime, VBase3(obj.getH(), 0, 0)), obj.toMagnetSoundInterval)
-        obj.lerpInterval.start()
-        self.heldObject = obj
-        self.handler.setDynamicFrictionCoef(obj.craneFrictionCoef)
-        self.slideSpeed = obj.craneSlideSpeed
-        self.rotateSpeed = obj.craneRotateSpeed
-        if self.avId == localAvatar.doId and not self.magnetOn:
-            self.releaseObject()
-        return
+        else:
+            if self.heldObject != None:
+                self.releaseObject()
+            self.__deactivateSniffer()
+            obj.wrtReparentTo(self.gripper)
+            if obj.lerpInterval:
+                obj.lerpInterval.finish()
+            obj.lerpInterval = Parallel(obj.posInterval(ToontownGlobals.CashbotBossToMagnetTime, Point3(*obj.grabPos)), obj.quatInterval(ToontownGlobals.CashbotBossToMagnetTime, VBase3(obj.getH(), 0, 0)), obj.toMagnetSoundInterval)
+            obj.lerpInterval.start()
+            self.heldObject = obj
+            self.handler.setDynamicFrictionCoef(obj.craneFrictionCoef)
+            self.slideSpeed = obj.craneSlideSpeed
+            self.rotateSpeed = obj.craneRotateSpeed
+            if self.avId == localAvatar.doId and not self.magnetOn:
+                self.releaseObject()
+            return
 
     def dropObject(self, obj):
         if obj.lerpInterval:
@@ -692,11 +689,10 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
     def setState(self, state, avId):
         if state == 'C':
             self.demand('Controlled', avId)
+        elif state == 'F':
+            self.demand('Free')
         else:
-            if state == 'F':
-                self.demand('Free')
-            else:
-                self.notify.error('Invalid state from AI: %s' % state)
+            self.notify.error('Invalid state from AI: %s' % state)
 
     def d_requestControl(self):
         self.sendUpdate('requestControl')

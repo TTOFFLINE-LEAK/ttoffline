@@ -128,18 +128,16 @@ class RaceResultsPanel(DirectFrame):
                 bonusSeq.append(Func(flipText, 1))
                 bonusSeq.append(Wait(0.5))
 
-        else:
-            if qualify:
-                qText = TTLocalizer.KartRace_Qualified
-                for i in xrange(0, 12):
-                    bonusSeq.append(Func(flipText, i % 2, recStr=qText))
-                    bonusSeq.append(Wait(0.5))
+        elif qualify:
+            qText = TTLocalizer.KartRace_Qualified
+            for i in xrange(0, 12):
+                bonusSeq.append(Func(flipText, i % 2, recStr=qText))
+                bonusSeq.append(Wait(0.5))
 
-            else:
-                if bonus:
-                    for i in xrange(0, 12):
-                        bonusSeq.append(Func(flipText, i % 2))
-                        bonusSeq.append(Wait(0.5))
+        elif bonus:
+            for i in xrange(0, 12):
+                bonusSeq.append(Func(flipText, i % 2))
+                bonusSeq.append(Wait(0.5))
 
         if trophies:
             DirectFrame(parent=headFrame, relief=None, image=loader.loadModel('phase_6/models/karting/trophy'), image_pos=(0.25,
@@ -466,29 +464,30 @@ class RaceEndPanel(DirectFrame):
     def startWinningsPanel(self, entryFee, winnings, track, bonus=None, trophies=(), endOfCircuitRace=False):
         if not self.enabled:
             return
-        taskMgr.remove('showExitButton')
-        try:
-            if self.seq:
-                self.seq.pause()
-            self.seq = None
-        except AttributeError:
-            pass
+        else:
+            taskMgr.remove('showExitButton')
+            try:
+                if self.seq:
+                    self.seq.pause()
+                self.seq = None
+            except AttributeError:
+                pass
 
-        tSeq, wSeq = self.winnings.generateDisplaySequences(track, entryFee, winnings, bonus, trophies, endOfCircuitRace)
+            tSeq, wSeq = self.winnings.generateDisplaySequences(track, entryFee, winnings, bonus, trophies, endOfCircuitRace)
 
-        def showButton(s=self, w=wSeq):
-            s.seq.finish()
-            s.seq = Sequence(Func(self.closeButton.show), wSeq)
-            s.seq.loop()
+            def showButton(s=self, w=wSeq):
+                s.seq.finish()
+                s.seq = Sequence(Func(self.closeButton.show), wSeq)
+                s.seq.loop()
 
-        self.seq = Sequence(tSeq, wSeq)
-        if self.race.raceType != RaceGlobals.Circuit:
-            if self.seq.getDuration() < 5.0:
-                taskMgr.doMethodLater(5.0, showButton, 'showExitButton', extraArgs=[])
-            else:
-                taskMgr.doMethodLater(self.seq.getDuration(), showButton, 'showExitButton', extraArgs=[])
-        self.seq.start()
-        return
+            self.seq = Sequence(tSeq, wSeq)
+            if self.race.raceType != RaceGlobals.Circuit:
+                if self.seq.getDuration() < 5.0:
+                    taskMgr.doMethodLater(5.0, showButton, 'showExitButton', extraArgs=[])
+                else:
+                    taskMgr.doMethodLater(self.seq.getDuration(), showButton, 'showExitButton', extraArgs=[])
+            self.seq.start()
+            return
 
     def circuitFinished(self, placeFixup):
         self.closeButton.show()

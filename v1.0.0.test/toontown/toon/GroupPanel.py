@@ -284,25 +284,26 @@ class GroupPanel(DirectObject.DirectObject):
         toon = base.cr.doId2do.get(avId)
         if not toon:
             return
-        toonName = toon.getName()
-        inBattle = 0
-        buttonImage = self.availableButtonImage
-        if toon.battleId:
-            inBattle = 1
-            buttonImage = self.battleButtonImage
-            if avId == localAvatar.doId:
-                self.__forceHide()
         else:
-            if avId == self.leaderId:
-                buttonImage = self.leaderButtonImage
-            if avId == localAvatar.doId:
-                self.__forceShow()
-        return DirectButton(parent=self.frame, relief=None, image=buttonImage, image_scale=(0.06,
-                                                                                            1.0,
-                                                                                            0.06), text=toonName, text_align=TextNode.ALeft, text_wordwrap=16, text_scale=0.04, text_pos=(0.05,
-                                                                                                                                                                                          -0.015), text_fg=self.textFgcolor, text1_bg=self.textBgDownColor, text2_bg=self.textBgRolloverColor, text3_fg=self.textBgDisabledColor, pos=(0,
-                                                                                                                                                                                                                                                                                                                                       0,
-                                                                                                                                                                                                                                                                                                                                       0.2), command=self.__openToonAvatarPanel, extraArgs=[toon, avId])
+            toonName = toon.getName()
+            inBattle = 0
+            buttonImage = self.availableButtonImage
+            if toon.battleId:
+                inBattle = 1
+                buttonImage = self.battleButtonImage
+                if avId == localAvatar.doId:
+                    self.__forceHide()
+            else:
+                if avId == self.leaderId:
+                    buttonImage = self.leaderButtonImage
+                if avId == localAvatar.doId:
+                    self.__forceShow()
+            return DirectButton(parent=self.frame, relief=None, image=buttonImage, image_scale=(0.06,
+                                                                                                1.0,
+                                                                                                0.06), text=toonName, text_align=TextNode.ALeft, text_wordwrap=16, text_scale=0.04, text_pos=(0.05,
+                                                                                                                                                                                              -0.015), text_fg=self.textFgcolor, text1_bg=self.textBgDownColor, text2_bg=self.textBgRolloverColor, text3_fg=self.textBgDisabledColor, pos=(0,
+                                                                                                                                                                                                                                                                                                                                           0,
+                                                                                                                                                                                                                                                                                                                                           0.2), command=self.__openToonAvatarPanel, extraArgs=[toon, avId])
 
     def __openToonAvatarPanel(self, avatar, avId):
         if avId != localAvatar.doId and avatar:
@@ -318,7 +319,8 @@ class GroupPanel(DirectObject.DirectObject):
     def __isForcedHidden(self):
         if self.forcedHidden and self.frame.isHidden():
             return True
-        return False
+        else:
+            return False
 
     def hide(self):
         self.frame.hide()

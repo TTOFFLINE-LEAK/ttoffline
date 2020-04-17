@@ -107,11 +107,10 @@ class NameTumbler(DirectFrame):
         alig = others[0]
         if alig == TextNode.ARight:
             newpos = (0.44, 0, 0)
+        elif alig == TextNode.ALeft:
+            newpos = (0, 0, 0)
         else:
-            if alig == TextNode.ALeft:
-                newpos = (0, 0, 0)
-            else:
-                newpos = (0.2, 0, 0)
+            newpos = (0.2, 0, 0)
         df = DirectFrame(state='normal', relief=None, text=te, text_scale=0.1, text_pos=newpos, text_align=alig, textMayChange=0)
         df.bind(DGG.B1PRESS, lambda x, df=df: self.nameClickedOn(index))
         return df

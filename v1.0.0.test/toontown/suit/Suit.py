@@ -430,258 +430,224 @@ class Suit(Avatar.Avatar):
             self.generateHead('flunky')
             self.generateHead('glasses')
             self.setHeight(4.88)
-        else:
-            if dna.name == 'p':
-                self.scale = 3.35 / bSize
-                self.handColor = SuitDNA.corpPolyColor
-                self.generateBody()
-                self.generateHead('pencilpusher')
-                self.setHeight(5.0)
-            else:
-                if dna.name == 'ym':
-                    self.scale = 4.125 / aSize
-                    self.handColor = SuitDNA.corpPolyColor
-                    self.generateBody()
-                    self.generateHead('yesman')
-                    self.setHeight(5.28)
-                else:
-                    if dna.name == 'mm':
-                        self.scale = 2.5 / cSize
-                        self.handColor = SuitDNA.corpPolyColor
-                        self.generateBody()
-                        self.generateHead('micromanager')
-                        self.setHeight(3.25)
-                    else:
-                        if dna.name == 'ds':
-                            self.scale = 4.5 / bSize
-                            self.handColor = SuitDNA.corpPolyColor
-                            self.generateBody()
-                            self.generateHead('beancounter')
-                            self.setHeight(6.08)
-                        else:
-                            if dna.name == 'hh':
-                                self.scale = 6.5 / aSize
-                                self.handColor = SuitDNA.corpPolyColor
-                                self.generateBody()
-                                self.generateHead('headhunter')
-                                self.setHeight(7.45)
-                            else:
-                                if dna.name == 'cr':
-                                    self.scale = 6.75 / cSize
-                                    self.handColor = VBase4(0.85, 0.55, 0.55, 1.0)
-                                    self.generateBody()
-                                    self.headTexture = 'corporate-raider.jpg'
-                                    self.generateHead('flunky')
-                                    self.setHeight(8.23)
-                                else:
-                                    if dna.name == 'tbc':
-                                        self.scale = 7.0 / aSize
-                                        self.handColor = VBase4(0.75, 0.95, 0.75, 1.0)
-                                        self.generateBody()
-                                        self.generateHead('bigcheese')
-                                        self.setHeight(9.34)
-                                    else:
-                                        if dna.name == 'bf':
-                                            self.scale = 4.0 / cSize
-                                            self.handColor = SuitDNA.legalPolyColor
-                                            self.generateBody()
-                                            self.headTexture = 'bottom-feeder.jpg'
-                                            self.generateHead('tightwad')
-                                            self.setHeight(4.81)
-                                        else:
-                                            if dna.name == 'b':
-                                                self.scale = 4.375 / bSize
-                                                self.handColor = VBase4(0.95, 0.95, 1.0, 1.0)
-                                                self.generateBody()
-                                                self.headTexture = 'blood-sucker.jpg'
-                                                self.generateHead('movershaker')
-                                                self.setHeight(6.17)
-                                            else:
-                                                if dna.name == 'dt':
-                                                    self.scale = 4.25 / aSize
-                                                    self.handColor = SuitDNA.legalPolyColor
-                                                    self.generateBody()
-                                                    self.headTexture = 'double-talker.jpg'
-                                                    self.generateHead('twoface')
-                                                    self.setHeight(5.63)
-                                                else:
-                                                    if dna.name == 'ac':
-                                                        self.scale = 4.35 / bSize
-                                                        self.handColor = SuitDNA.legalPolyColor
-                                                        self.generateBody()
-                                                        self.generateHead('ambulancechaser')
-                                                        self.setHeight(6.39)
-                                                    else:
-                                                        if dna.name == 'bs':
-                                                            self.scale = 4.5 / aSize
-                                                            self.handColor = SuitDNA.legalPolyColor
-                                                            self.generateBody()
-                                                            self.generateHead('backstabber')
-                                                            self.setHeight(6.71)
-                                                        else:
-                                                            if dna.name == 'sd':
-                                                                self.scale = 5.65 / bSize
-                                                                self.handColor = VBase4(0.5, 0.8, 0.75, 1.0)
-                                                                self.generateBody()
-                                                                self.headTexture = 'spin-doctor.jpg'
-                                                                self.generateHead('telemarketer')
-                                                                self.setHeight(7.9)
-                                                            else:
-                                                                if dna.name == 'le':
-                                                                    self.scale = 7.125 / aSize
-                                                                    self.handColor = VBase4(0.25, 0.25, 0.5, 1.0)
-                                                                    self.generateBody()
-                                                                    self.generateHead('legaleagle')
-                                                                    self.setHeight(8.27)
-                                                                else:
-                                                                    if dna.name == 'bw':
-                                                                        self.scale = 7.0 / aSize
-                                                                        self.handColor = SuitDNA.legalPolyColor
-                                                                        self.generateBody()
-                                                                        self.generateHead('bigwig')
-                                                                        self.setHeight(8.69)
-                                                                    else:
-                                                                        if dna.name == 'sc':
-                                                                            self.scale = 3.6 / cSize
-                                                                            self.handColor = SuitDNA.moneyPolyColor
-                                                                            self.generateBody()
-                                                                            self.generateHead('coldcaller')
-                                                                            self.setHeight(4.77)
-                                                                        else:
-                                                                            if dna.name == 'pp':
-                                                                                self.scale = 3.55 / aSize
-                                                                                self.handColor = VBase4(1.0, 0.5, 0.6, 1.0)
-                                                                                self.generateBody()
-                                                                                self.generateHead('pennypincher')
-                                                                                self.setHeight(5.26)
-                                                                            else:
-                                                                                if dna.name == 'tw':
-                                                                                    self.scale = 4.5 / cSize
-                                                                                    self.handColor = SuitDNA.moneyPolyColor
-                                                                                    self.generateBody()
-                                                                                    self.generateHead('tightwad')
-                                                                                    self.setHeight(5.41)
-                                                                                else:
-                                                                                    if dna.name == 'bc':
-                                                                                        self.scale = 4.4 / bSize
-                                                                                        self.handColor = SuitDNA.moneyPolyColor
-                                                                                        self.generateBody()
-                                                                                        self.generateHead('beancounter')
-                                                                                        self.setHeight(5.95)
-                                                                                    else:
-                                                                                        if dna.name == 'nc':
-                                                                                            self.scale = 5.25 / aSize
-                                                                                            self.handColor = SuitDNA.moneyPolyColor
-                                                                                            self.generateBody()
-                                                                                            self.generateHead('numbercruncher')
-                                                                                            self.setHeight(7.22)
-                                                                                        else:
-                                                                                            if dna.name == 'mb':
-                                                                                                self.scale = 5.3 / cSize
-                                                                                                self.handColor = SuitDNA.moneyPolyColor
-                                                                                                self.generateBody()
-                                                                                                self.generateHead('moneybags')
-                                                                                                self.setHeight(6.97)
-                                                                                            else:
-                                                                                                if dna.name == 'ls':
-                                                                                                    self.scale = 6.5 / bSize
-                                                                                                    self.handColor = VBase4(0.5, 0.85, 0.75, 1.0)
-                                                                                                    self.generateBody()
-                                                                                                    self.generateHead('loanshark')
-                                                                                                    self.setHeight(8.58)
-                                                                                                else:
-                                                                                                    if dna.name == 'rb':
-                                                                                                        self.scale = 7.0 / aSize
-                                                                                                        self.handColor = SuitDNA.moneyPolyColor
-                                                                                                        self.generateBody()
-                                                                                                        self.headTexture = 'robber-baron.jpg'
-                                                                                                        self.generateHead('yesman')
-                                                                                                        self.setHeight(8.95)
-                                                                                                    else:
-                                                                                                        if dna.name == 'cc':
-                                                                                                            self.scale = 3.5 / cSize
-                                                                                                            self.handColor = VBase4(0.55, 0.65, 1.0, 1.0)
-                                                                                                            self.headColor = VBase4(0.25, 0.35, 1.0, 1.0)
-                                                                                                            self.generateBody()
-                                                                                                            self.generateHead('coldcaller')
-                                                                                                            self.setHeight(4.63)
-                                                                                                        else:
-                                                                                                            if dna.name == 'tm':
-                                                                                                                self.scale = 3.75 / bSize
-                                                                                                                self.handColor = SuitDNA.salesPolyColor
-                                                                                                                self.generateBody()
-                                                                                                                self.generateHead('telemarketer')
-                                                                                                                self.setHeight(5.24)
-                                                                                                            else:
-                                                                                                                if dna.name == 'nd':
-                                                                                                                    self.scale = 4.35 / aSize
-                                                                                                                    self.handColor = SuitDNA.salesPolyColor
-                                                                                                                    self.generateBody()
-                                                                                                                    self.headTexture = 'name-dropper.jpg'
-                                                                                                                    self.generateHead('numbercruncher')
-                                                                                                                    self.setHeight(5.98)
-                                                                                                                else:
-                                                                                                                    if dna.name == 'gh':
-                                                                                                                        self.scale = 4.75 / cSize
-                                                                                                                        self.handColor = SuitDNA.salesPolyColor
-                                                                                                                        self.generateBody()
-                                                                                                                        self.generateHead('gladhander')
-                                                                                                                        self.setHeight(6.4)
-                                                                                                                    else:
-                                                                                                                        if dna.name == 'ms':
-                                                                                                                            self.scale = 4.75 / bSize
-                                                                                                                            self.handColor = SuitDNA.salesPolyColor
-                                                                                                                            self.generateBody()
-                                                                                                                            self.generateHead('movershaker')
-                                                                                                                            self.setHeight(6.7)
-                                                                                                                        else:
-                                                                                                                            if dna.name == 'tf':
-                                                                                                                                self.scale = 5.25 / aSize
-                                                                                                                                self.handColor = SuitDNA.salesPolyColor
-                                                                                                                                self.generateBody()
-                                                                                                                                self.generateHead('twoface')
-                                                                                                                                self.setHeight(6.95)
-                                                                                                                            else:
-                                                                                                                                if dna.name == 'm':
-                                                                                                                                    self.scale = 5.75 / aSize
-                                                                                                                                    self.handColor = SuitDNA.salesPolyColor
-                                                                                                                                    self.generateBody()
-                                                                                                                                    self.headTexture = 'mingler.jpg'
-                                                                                                                                    self.generateHead('twoface')
-                                                                                                                                    self.setHeight(7.61)
-                                                                                                                                else:
-                                                                                                                                    if dna.name == 'mh':
-                                                                                                                                        self.scale = 7.0 / aSize
-                                                                                                                                        self.handColor = SuitDNA.salesPolyColor
-                                                                                                                                        self.generateBody()
-                                                                                                                                        self.generateHead('yesman')
-                                                                                                                                        self.setHeight(8.95)
-                                                                                                                                    else:
-                                                                                                                                        if dna.name == 'sf':
-                                                                                                                                            self.scale = 5.75 / aSize
-                                                                                                                                            self.handColor = SuitDNA.salesPolyColor
-                                                                                                                                            self.generateBody()
-                                                                                                                                            self.headTexture = 'mingler.jpg'
-                                                                                                                                            self.generateHead('twoface')
-                                                                                                                                            self.setHeight(7.61)
-                                                                                                                                            self.makeSkeleton()
-                                                                                                                                            self.makeCustomCog(dna.name)
-                                                                                                                                        else:
-                                                                                                                                            if dna.name == 'sm':
-                                                                                                                                                self.scale = 7.0 / aSize
-                                                                                                                                                self.handColor = SuitDNA.salesPolyColor
-                                                                                                                                                self.generateBody()
-                                                                                                                                                self.generateHead('yesman', 'phase_14.5/models/char/stormish-head')
-                                                                                                                                                self.generateHead('warpighelm', 'phase_14.5/models/char/stormish-head')
-                                                                                                                                                self.setHeight(9.2)
-                                                                                                                                                self.makeCustomCog(dna.name)
-                                                                                                                                            else:
-                                                                                                                                                if dna.name == 'mdr':
-                                                                                                                                                    self.scale = 8.125 / aSize
-                                                                                                                                                    self.handColor = VBase4(1, 0, 0, 0.5)
-                                                                                                                                                    self.generateBody()
-                                                                                                                                                    self.generateHead('mole_cog', 'phase_12/models/bossbotHQ/mole_cog')
-                                                                                                                                                    self.setHeight(9.5)
+        elif dna.name == 'p':
+            self.scale = 3.35 / bSize
+            self.handColor = SuitDNA.corpPolyColor
+            self.generateBody()
+            self.generateHead('pencilpusher')
+            self.setHeight(5.0)
+        elif dna.name == 'ym':
+            self.scale = 4.125 / aSize
+            self.handColor = SuitDNA.corpPolyColor
+            self.generateBody()
+            self.generateHead('yesman')
+            self.setHeight(5.28)
+        elif dna.name == 'mm':
+            self.scale = 2.5 / cSize
+            self.handColor = SuitDNA.corpPolyColor
+            self.generateBody()
+            self.generateHead('micromanager')
+            self.setHeight(3.25)
+        elif dna.name == 'ds':
+            self.scale = 4.5 / bSize
+            self.handColor = SuitDNA.corpPolyColor
+            self.generateBody()
+            self.generateHead('beancounter')
+            self.setHeight(6.08)
+        elif dna.name == 'hh':
+            self.scale = 6.5 / aSize
+            self.handColor = SuitDNA.corpPolyColor
+            self.generateBody()
+            self.generateHead('headhunter')
+            self.setHeight(7.45)
+        elif dna.name == 'cr':
+            self.scale = 6.75 / cSize
+            self.handColor = VBase4(0.85, 0.55, 0.55, 1.0)
+            self.generateBody()
+            self.headTexture = 'corporate-raider.jpg'
+            self.generateHead('flunky')
+            self.setHeight(8.23)
+        elif dna.name == 'tbc':
+            self.scale = 7.0 / aSize
+            self.handColor = VBase4(0.75, 0.95, 0.75, 1.0)
+            self.generateBody()
+            self.generateHead('bigcheese')
+            self.setHeight(9.34)
+        elif dna.name == 'bf':
+            self.scale = 4.0 / cSize
+            self.handColor = SuitDNA.legalPolyColor
+            self.generateBody()
+            self.headTexture = 'bottom-feeder.jpg'
+            self.generateHead('tightwad')
+            self.setHeight(4.81)
+        elif dna.name == 'b':
+            self.scale = 4.375 / bSize
+            self.handColor = VBase4(0.95, 0.95, 1.0, 1.0)
+            self.generateBody()
+            self.headTexture = 'blood-sucker.jpg'
+            self.generateHead('movershaker')
+            self.setHeight(6.17)
+        elif dna.name == 'dt':
+            self.scale = 4.25 / aSize
+            self.handColor = SuitDNA.legalPolyColor
+            self.generateBody()
+            self.headTexture = 'double-talker.jpg'
+            self.generateHead('twoface')
+            self.setHeight(5.63)
+        elif dna.name == 'ac':
+            self.scale = 4.35 / bSize
+            self.handColor = SuitDNA.legalPolyColor
+            self.generateBody()
+            self.generateHead('ambulancechaser')
+            self.setHeight(6.39)
+        elif dna.name == 'bs':
+            self.scale = 4.5 / aSize
+            self.handColor = SuitDNA.legalPolyColor
+            self.generateBody()
+            self.generateHead('backstabber')
+            self.setHeight(6.71)
+        elif dna.name == 'sd':
+            self.scale = 5.65 / bSize
+            self.handColor = VBase4(0.5, 0.8, 0.75, 1.0)
+            self.generateBody()
+            self.headTexture = 'spin-doctor.jpg'
+            self.generateHead('telemarketer')
+            self.setHeight(7.9)
+        elif dna.name == 'le':
+            self.scale = 7.125 / aSize
+            self.handColor = VBase4(0.25, 0.25, 0.5, 1.0)
+            self.generateBody()
+            self.generateHead('legaleagle')
+            self.setHeight(8.27)
+        elif dna.name == 'bw':
+            self.scale = 7.0 / aSize
+            self.handColor = SuitDNA.legalPolyColor
+            self.generateBody()
+            self.generateHead('bigwig')
+            self.setHeight(8.69)
+        elif dna.name == 'sc':
+            self.scale = 3.6 / cSize
+            self.handColor = SuitDNA.moneyPolyColor
+            self.generateBody()
+            self.generateHead('coldcaller')
+            self.setHeight(4.77)
+        elif dna.name == 'pp':
+            self.scale = 3.55 / aSize
+            self.handColor = VBase4(1.0, 0.5, 0.6, 1.0)
+            self.generateBody()
+            self.generateHead('pennypincher')
+            self.setHeight(5.26)
+        elif dna.name == 'tw':
+            self.scale = 4.5 / cSize
+            self.handColor = SuitDNA.moneyPolyColor
+            self.generateBody()
+            self.generateHead('tightwad')
+            self.setHeight(5.41)
+        elif dna.name == 'bc':
+            self.scale = 4.4 / bSize
+            self.handColor = SuitDNA.moneyPolyColor
+            self.generateBody()
+            self.generateHead('beancounter')
+            self.setHeight(5.95)
+        elif dna.name == 'nc':
+            self.scale = 5.25 / aSize
+            self.handColor = SuitDNA.moneyPolyColor
+            self.generateBody()
+            self.generateHead('numbercruncher')
+            self.setHeight(7.22)
+        elif dna.name == 'mb':
+            self.scale = 5.3 / cSize
+            self.handColor = SuitDNA.moneyPolyColor
+            self.generateBody()
+            self.generateHead('moneybags')
+            self.setHeight(6.97)
+        elif dna.name == 'ls':
+            self.scale = 6.5 / bSize
+            self.handColor = VBase4(0.5, 0.85, 0.75, 1.0)
+            self.generateBody()
+            self.generateHead('loanshark')
+            self.setHeight(8.58)
+        elif dna.name == 'rb':
+            self.scale = 7.0 / aSize
+            self.handColor = SuitDNA.moneyPolyColor
+            self.generateBody()
+            self.headTexture = 'robber-baron.jpg'
+            self.generateHead('yesman')
+            self.setHeight(8.95)
+        elif dna.name == 'cc':
+            self.scale = 3.5 / cSize
+            self.handColor = VBase4(0.55, 0.65, 1.0, 1.0)
+            self.headColor = VBase4(0.25, 0.35, 1.0, 1.0)
+            self.generateBody()
+            self.generateHead('coldcaller')
+            self.setHeight(4.63)
+        elif dna.name == 'tm':
+            self.scale = 3.75 / bSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.generateHead('telemarketer')
+            self.setHeight(5.24)
+        elif dna.name == 'nd':
+            self.scale = 4.35 / aSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.headTexture = 'name-dropper.jpg'
+            self.generateHead('numbercruncher')
+            self.setHeight(5.98)
+        elif dna.name == 'gh':
+            self.scale = 4.75 / cSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.generateHead('gladhander')
+            self.setHeight(6.4)
+        elif dna.name == 'ms':
+            self.scale = 4.75 / bSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.generateHead('movershaker')
+            self.setHeight(6.7)
+        elif dna.name == 'tf':
+            self.scale = 5.25 / aSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.generateHead('twoface')
+            self.setHeight(6.95)
+        elif dna.name == 'm':
+            self.scale = 5.75 / aSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.headTexture = 'mingler.jpg'
+            self.generateHead('twoface')
+            self.setHeight(7.61)
+        elif dna.name == 'mh':
+            self.scale = 7.0 / aSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.generateHead('yesman')
+            self.setHeight(8.95)
+        elif dna.name == 'sf':
+            self.scale = 5.75 / aSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.headTexture = 'mingler.jpg'
+            self.generateHead('twoface')
+            self.setHeight(7.61)
+            self.makeSkeleton()
+            self.makeCustomCog(dna.name)
+        elif dna.name == 'sm':
+            self.scale = 7.0 / aSize
+            self.handColor = SuitDNA.salesPolyColor
+            self.generateBody()
+            self.generateHead('yesman', 'phase_14.5/models/char/stormish-head')
+            self.generateHead('warpighelm', 'phase_14.5/models/char/stormish-head')
+            self.setHeight(9.2)
+            self.makeCustomCog(dna.name)
+        elif dna.name == 'mdr':
+            self.scale = 8.125 / aSize
+            self.handColor = VBase4(1, 0, 0, 0.5)
+            self.generateBody()
+            self.generateHead('mole_cog', 'phase_12/models/bossbotHQ/mole_cog')
+            self.setHeight(9.5)
         self.setName(SuitBattleGlobals.SuitAttributes[dna.name]['name'])
         self.getGeomNode().setScale(self.scale)
         self.generateHealthBar()
@@ -754,9 +720,9 @@ class Suit(Avatar.Avatar):
             except NameError:
                 animList = ()
 
-        for anim in animList:
-            phase = 'phase_' + str(anim[2])
-            animDict[anim[0]] = phase + filePrefix + anim[1]
+            for anim in animList:
+                phase = 'phase_' + str(anim[2])
+                animDict[anim[0]] = phase + filePrefix + anim[1]
 
         return animDict
 
@@ -799,15 +765,12 @@ class Suit(Avatar.Avatar):
         if base.config.GetBool('want-new-cogs', 0):
             if dept == 'c':
                 texType = 'bossbot'
-            else:
-                if dept == 'm':
-                    texType = 'cashbot'
-                else:
-                    if dept == 'l':
-                        texType = 'lawbot'
-                    else:
-                        if dept == 's':
-                            texType = 'sellbot'
+            elif dept == 'm':
+                texType = 'cashbot'
+            elif dept == 'l':
+                texType = 'lawbot'
+            elif dept == 's':
+                texType = 'sellbot'
             if self.find('**/body').isEmpty():
                 __doItTheOldWay__()
             else:
@@ -868,15 +831,12 @@ class Suit(Avatar.Avatar):
             return
         if dept == 'c':
             tieTex = loader.loadTexture('phase_5/maps/cog_robot_tie_boss.jpg')
-        else:
-            if dept == 's':
-                tieTex = loader.loadTexture('phase_5/maps/cog_robot_tie_sales.jpg')
-            else:
-                if dept == 'l':
-                    tieTex = loader.loadTexture('phase_5/maps/cog_robot_tie_legal.jpg')
-                else:
-                    if dept == 'm':
-                        tieTex = loader.loadTexture('phase_5/maps/cog_robot_tie_money.jpg')
+        elif dept == 's':
+            tieTex = loader.loadTexture('phase_5/maps/cog_robot_tie_sales.jpg')
+        elif dept == 'l':
+            tieTex = loader.loadTexture('phase_5/maps/cog_robot_tie_legal.jpg')
+        elif dept == 'm':
+            tieTex = loader.loadTexture('phase_5/maps/cog_robot_tie_money.jpg')
         tieTex.setMinfilter(Texture.FTLinearMipmapLinear)
         tieTex.setMagfilter(Texture.FTLinear)
         tie.setTexture(tieTex, 1)
@@ -892,15 +852,12 @@ class Suit(Avatar.Avatar):
             chestNull = self.find('**/joint_attachMeter')
         if dept == 'c':
             self.corpMedallion = icons.find('**/CorpIcon').copyTo(chestNull)
-        else:
-            if dept == 's':
-                self.corpMedallion = icons.find('**/SalesIcon').copyTo(chestNull)
-            else:
-                if dept == 'l':
-                    self.corpMedallion = icons.find('**/LegalIcon').copyTo(chestNull)
-                else:
-                    if dept == 'm':
-                        self.corpMedallion = icons.find('**/MoneyIcon').copyTo(chestNull)
+        elif dept == 's':
+            self.corpMedallion = icons.find('**/SalesIcon').copyTo(chestNull)
+        elif dept == 'l':
+            self.corpMedallion = icons.find('**/LegalIcon').copyTo(chestNull)
+        elif dept == 'm':
+            self.corpMedallion = icons.find('**/MoneyIcon').copyTo(chestNull)
         self.corpMedallion.setPosHprScale(0.02, 0.05, 0.04, 180.0, 0.0, 0.0, 0.51, 0.51, 0.51)
         self.corpMedallion.setColor(self.medallionColors[dept])
         icons.removeNode()
@@ -943,35 +900,30 @@ class Suit(Avatar.Avatar):
         health = float(self.currHP) / float(self.maxHP)
         if health > 0.95:
             condition = 0
+        elif health > 0.7:
+            condition = 1
+        elif health > 0.3:
+            condition = 2
+        elif health > 0.05:
+            condition = 3
+        elif health > 0.0:
+            condition = 4
         else:
-            if health > 0.7:
-                condition = 1
-            else:
-                if health > 0.3:
-                    condition = 2
-                else:
-                    if health > 0.05:
-                        condition = 3
-                    else:
-                        if health > 0.0:
-                            condition = 4
-                        else:
-                            condition = 5
+            condition = 5
         if self.healthCondition != condition or forceUpdate:
             if condition == 4:
                 taskMgr.remove(self.uniqueName('blink-task'))
                 blinkTask = Task.loop(Task(self.__blinkRed), Task.pause(0.75), Task(self.__blinkGray), Task.pause(0.1))
                 taskMgr.add(blinkTask, self.uniqueName('blink-task'))
-            else:
-                if condition == 5:
-                    if self.healthCondition == 4:
-                        taskMgr.remove(self.uniqueName('blink-task'))
-                    blinkTask = Task.loop(Task(self.__blinkRed), Task.pause(0.25), Task(self.__blinkGray), Task.pause(0.1))
-                    taskMgr.add(blinkTask, self.uniqueName('blink-task'))
-                else:
-                    self.healthBar.setColor(self.healthColors[condition], 1)
-                    self.healthBarGlow.setColor(self.healthGlowColors[condition], 1)
+            elif condition == 5:
+                if self.healthCondition == 4:
                     taskMgr.remove(self.uniqueName('blink-task'))
+                blinkTask = Task.loop(Task(self.__blinkRed), Task.pause(0.25), Task(self.__blinkGray), Task.pause(0.1))
+                taskMgr.add(blinkTask, self.uniqueName('blink-task'))
+            else:
+                self.healthBar.setColor(self.healthColors[condition], 1)
+                self.healthBarGlow.setColor(self.healthGlowColors[condition], 1)
+                taskMgr.remove(self.uniqueName('blink-task'))
             self.healthCondition = condition
 
     def uniqueName(self, name):
@@ -1074,13 +1026,12 @@ class Suit(Avatar.Avatar):
                 self.particles[0].disable()
                 self.particles[0].cleanup()
                 self.particles = []
-        else:
-            if self.style.name == 'sm' and isSkeleton:
-                self.loseActor.getGeomNode().setColor(0.45, 0.65, 1, 1)
-                self.loseActor.find('**/tie').setColorScale(0.45, 0.65, 1, 1)
-                helmet = self.find('**/' + self.style.name + '_helmet')
-                if helmet:
-                    helmet.reparentTo(self.loseActor.find('**/joint_head'))
+        elif self.style.name == 'sm' and isSkeleton:
+            self.loseActor.getGeomNode().setColor(0.45, 0.65, 1, 1)
+            self.loseActor.find('**/tie').setColorScale(0.45, 0.65, 1, 1)
+            helmet = self.find('**/' + self.style.name + '_helmet')
+            if helmet:
+                helmet.reparentTo(self.loseActor.find('**/joint_head'))
 
     def makeSkeleton(self):
         model = 'phase_5/models/char/cog' + string.upper(self.style.body) + '_robot-zero'
@@ -1212,13 +1163,15 @@ class Suit(Avatar.Avatar):
         if self.isSkeleton:
             loadSkelDialog()
             return SkelSuitDialogArray
-        return SuitDialogArray
+        else:
+            return SuitDialogArray
 
     def getStyleDept(self):
         if hasattr(self, 'dna') and self.dna:
             return SuitDNA.getDeptFullname(self.dna.dept)
-        self.notify.error('called getStyleDept() before dna was set!')
-        return 'unknown'
+        else:
+            self.notify.error('called getStyleDept() before dna was set!')
+            return 'unknown'
 
     def getActualLevel(self):
         if hasattr(self, 'dna'):
@@ -1227,14 +1180,16 @@ class Suit(Avatar.Avatar):
                 return ToontownGlobals.SuitLevels[lv]
             lv = SuitBattleGlobals.getActualFromRelativeLevel(self.getStyleName(), SuitDNA.suitDepts.index(SuitDNA.getSuitDept(self.dna.name)))
             return ToontownGlobals.SuitLevels[lv]
-        self.notify.warning('called getActualLevel with no DNA, returning 1 for level')
-        return 1
+        else:
+            self.notify.warning('called getActualLevel with no DNA, returning 1 for level')
+            return 1
 
     def getStyleName(self):
         if hasattr(self, 'dna') and self.dna:
             return self.dna.name
-        self.notify.error('called getStyleName() before dna was set!')
-        return 'unknown'
+        else:
+            self.notify.error('called getStyleName() before dna was set!')
+            return 'unknown'
 
     def attachPropeller(self):
         if self.prop == None:
@@ -1292,12 +1247,13 @@ class Suit(Avatar.Avatar):
             self.attachPropeller()
             propTrack = Parallel(SoundInterval(self.propInSound, duration=waitTime + dur, node=self), Sequence(ActorInterval(self.prop, 'propeller', constrainedLoop=1, duration=waitTime + spinTime, startTime=0.0, endTime=spinTime), ActorInterval(self.prop, 'propeller', duration=propDur - openTime, startTime=openTime), Func(self.detachPropeller)))
             return Parallel(lerpPosTrack, shadowTrack, fadeInTrack, animTrack, propTrack, name=trackName)
-        lerpPosTrack = Sequence(Wait(impactLength), LerpPosInterval(self, timeTillLanding, skyPos, startPos=pos))
-        shadowTrack = Sequence(Func(self.dropShadow.reparentTo, render), Func(self.dropShadow.setPos, pos), self.dropShadow.scaleInterval(timeTillLanding, Vec3(0.01, 0.01, 1.0), startScale=self.scale), Func(self.dropShadow.reparentTo, self.getShadowJoint()), Func(self.dropShadow.setPos, 0, 0, 0))
-        fadeOutTrack = Sequence(Func(self.setTransparency, 1), self.colorScaleInterval(1, colorScale=VBase4(1, 1, 1, 0), startColorScale=VBase4(1, 1, 1, 1)), Func(self.clearColorScale), Func(self.clearTransparency), Func(self.reparentTo, hidden))
-        actInt = ActorInterval(self, 'landing', loop=0, startTime=dur, endTime=0.0)
-        self.attachPropeller()
-        self.prop.hide()
-        propTrack = Parallel(SoundInterval(self.propOutSound, duration=waitTime + dur, node=self), Sequence(Func(self.prop.show), ActorInterval(self.prop, 'propeller', endTime=openTime, startTime=propDur), ActorInterval(self.prop, 'propeller', constrainedLoop=1, duration=propDur - openTime, startTime=spinTime, endTime=0.0), Func(self.detachPropeller)))
-        return Parallel(ParallelEndTogether(lerpPosTrack, shadowTrack, fadeOutTrack), actInt, propTrack, name=trackName)
-        return
+        else:
+            lerpPosTrack = Sequence(Wait(impactLength), LerpPosInterval(self, timeTillLanding, skyPos, startPos=pos))
+            shadowTrack = Sequence(Func(self.dropShadow.reparentTo, render), Func(self.dropShadow.setPos, pos), self.dropShadow.scaleInterval(timeTillLanding, Vec3(0.01, 0.01, 1.0), startScale=self.scale), Func(self.dropShadow.reparentTo, self.getShadowJoint()), Func(self.dropShadow.setPos, 0, 0, 0))
+            fadeOutTrack = Sequence(Func(self.setTransparency, 1), self.colorScaleInterval(1, colorScale=VBase4(1, 1, 1, 0), startColorScale=VBase4(1, 1, 1, 1)), Func(self.clearColorScale), Func(self.clearTransparency), Func(self.reparentTo, hidden))
+            actInt = ActorInterval(self, 'landing', loop=0, startTime=dur, endTime=0.0)
+            self.attachPropeller()
+            self.prop.hide()
+            propTrack = Parallel(SoundInterval(self.propOutSound, duration=waitTime + dur, node=self), Sequence(Func(self.prop.show), ActorInterval(self.prop, 'propeller', endTime=openTime, startTime=propDur), ActorInterval(self.prop, 'propeller', constrainedLoop=1, duration=propDur - openTime, startTime=spinTime, endTime=0.0), Func(self.detachPropeller)))
+            return Parallel(ParallelEndTogether(lerpPosTrack, shadowTrack, fadeOutTrack), actInt, propTrack, name=trackName)
+            return

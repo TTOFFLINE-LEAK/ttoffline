@@ -149,13 +149,12 @@ class FurnitureItemPanel(DirectButton):
             else:
                 color = DeletePickerPanelColor
                 relief = DGG.RAISED
+        elif self['state'] == DGG.DISABLED:
+            color = DisabledPickerPanelColor
+            relief = DGG.SUNKEN
         else:
-            if self['state'] == DGG.DISABLED:
-                color = DisabledPickerPanelColor
-                relief = DGG.SUNKEN
-            else:
-                color = NormalPickerPanelColor
-                relief = DGG.RAISED
+            color = NormalPickerPanelColor
+            relief = DGG.RAISED
         self['frameColor'] = color
 
 
@@ -271,12 +270,14 @@ class MovableObject(NodePath, DirectObject):
     def getFloorBitmask(self):
         if self.getOnTable():
             return ToontownGlobals.FloorBitmask | ToontownGlobals.FurnitureTopBitmask
-        return ToontownGlobals.FloorBitmask
+        else:
+            return ToontownGlobals.FloorBitmask
 
     def getWallBitmask(self):
         if self.getIsRug() or self.getOnWall():
             return ToontownGlobals.WallBitmask
-        return ToontownGlobals.WallBitmask | ToontownGlobals.FurnitureSideBitmask
+        else:
+            return ToontownGlobals.WallBitmask | ToontownGlobals.FurnitureSideBitmask
 
     def makeCollisionBox(self):
         self.collisionNodePath = self.attachNewNode('furnitureCollisionNode')
@@ -364,70 +365,72 @@ class ObjectManager(NodePath, DirectObject):
             return
         if furnitureManager == self.furnitureManager:
             return
-        if self.furnitureManager != None:
-            self.exitFurnitureMode(self.furnitureManager)
-        self.notify.info('enterFurnitureMode, fDirector = %s' % fDirector)
-        self.furnitureManager = furnitureManager
-        self.furnitureManager.d_avatarEnter()
-        house = furnitureManager.getInteriorObject()
-        house.hideExteriorWindows()
-        self.setTargetNodePath(house.interior)
-        self.createAtticPicker()
-        self.initializeDistributedFurnitureItems(furnitureManager.dfitems)
-        self.setCamPosIndex(DEFAULT_CAM_INDEX)
-        base.localAvatar.setGhostMode(1)
-        taskMgr.remove('editModeTransition')
-        self.orientCamH(base.localAvatar.getH(self.targetNodePath))
-        self.accept('mouse1', self.moveObjectStart)
-        self.accept('mouse1-up', self.moveObjectStop)
-        self.furnitureGui.show()
-        self.deleteMode = 0
-        self.__updateDeleteButtons()
-        self.showAtticPicker()
-        base.localAvatar.laffMeter.stop()
-        base.setCellsAvailable(base.leftCells + [base.bottomCells[0]], 0)
-        if self.guiInterval:
-            self.guiInterval.finish()
-        self.guiInterval = self.furnitureGui.posHprScaleInterval(1.0, Point3(0.173333, 1, -1.03), Vec3(0), Vec3(0.06), startPos=Point3(0.143333, 1, -0.67), startHpr=Vec3(0), startScale=Vec3(0.04), blendType='easeInOut', name='lerpFurnitureButton')
-        self.guiInterval.start()
-        taskMgr.add(self.recenterButtonFrameTask, 'recenterButtonFrameTask', 10)
-        messenger.send('wakeup')
-        return
+        else:
+            if self.furnitureManager != None:
+                self.exitFurnitureMode(self.furnitureManager)
+            self.notify.info('enterFurnitureMode, fDirector = %s' % fDirector)
+            self.furnitureManager = furnitureManager
+            self.furnitureManager.d_avatarEnter()
+            house = furnitureManager.getInteriorObject()
+            house.hideExteriorWindows()
+            self.setTargetNodePath(house.interior)
+            self.createAtticPicker()
+            self.initializeDistributedFurnitureItems(furnitureManager.dfitems)
+            self.setCamPosIndex(DEFAULT_CAM_INDEX)
+            base.localAvatar.setGhostMode(1)
+            taskMgr.remove('editModeTransition')
+            self.orientCamH(base.localAvatar.getH(self.targetNodePath))
+            self.accept('mouse1', self.moveObjectStart)
+            self.accept('mouse1-up', self.moveObjectStop)
+            self.furnitureGui.show()
+            self.deleteMode = 0
+            self.__updateDeleteButtons()
+            self.showAtticPicker()
+            base.localAvatar.laffMeter.stop()
+            base.setCellsAvailable(base.leftCells + [base.bottomCells[0]], 0)
+            if self.guiInterval:
+                self.guiInterval.finish()
+            self.guiInterval = self.furnitureGui.posHprScaleInterval(1.0, Point3(0.173333, 1, -1.03), Vec3(0), Vec3(0.06), startPos=Point3(0.143333, 1, -0.67), startHpr=Vec3(0), startScale=Vec3(0.04), blendType='easeInOut', name='lerpFurnitureButton')
+            self.guiInterval.start()
+            taskMgr.add(self.recenterButtonFrameTask, 'recenterButtonFrameTask', 10)
+            messenger.send('wakeup')
+            return
 
     def exitFurnitureMode(self, furnitureManager):
         if furnitureManager != self.furnitureManager:
             return
-        self.notify.info('exitFurnitureMode')
-        house = furnitureManager.getInteriorObject()
-        if house:
-            house.showExteriorWindows()
-        self.furnitureManager.d_avatarExit()
-        self.furnitureManager = None
-        base.localAvatar.setCameraPositionByIndex(0)
-        self.exitDeleteMode()
-        self.houseExtents.detachNode()
-        self.doorBlocker.detachNode()
-        self.deselectObject()
-        self.ignore('mouse1')
-        self.ignore('mouse1-up')
-        if self.atticPicker:
-            self.atticPicker.destroy()
-            self.atticPicker = None
-        if self.inRoomPicker:
-            self.inRoomPicker.destroy()
-            self.inRoomPicker = None
-        if self.inTrashPicker:
-            self.inTrashPicker.destroy()
-            self.inTrashPicker = None
-        self.__cleanupVerifyDelete()
-        self.furnitureGui.hide()
-        base.setCellsAvailable(base.leftCells + [base.bottomCells[0]], 1)
-        base.localAvatar.laffMeter.start()
-        taskMgr.remove('recenterButtonFrameTask')
-        self.cleanupDialog()
-        taskMgr.remove('showHelpTextDoLater')
-        messenger.send('wakeup')
-        return
+        else:
+            self.notify.info('exitFurnitureMode')
+            house = furnitureManager.getInteriorObject()
+            if house:
+                house.showExteriorWindows()
+            self.furnitureManager.d_avatarExit()
+            self.furnitureManager = None
+            base.localAvatar.setCameraPositionByIndex(0)
+            self.exitDeleteMode()
+            self.houseExtents.detachNode()
+            self.doorBlocker.detachNode()
+            self.deselectObject()
+            self.ignore('mouse1')
+            self.ignore('mouse1-up')
+            if self.atticPicker:
+                self.atticPicker.destroy()
+                self.atticPicker = None
+            if self.inRoomPicker:
+                self.inRoomPicker.destroy()
+                self.inRoomPicker = None
+            if self.inTrashPicker:
+                self.inTrashPicker.destroy()
+                self.inTrashPicker = None
+            self.__cleanupVerifyDelete()
+            self.furnitureGui.hide()
+            base.setCellsAvailable(base.leftCells + [base.bottomCells[0]], 1)
+            base.localAvatar.laffMeter.start()
+            taskMgr.remove('recenterButtonFrameTask')
+            self.cleanupDialog()
+            taskMgr.remove('showHelpTextDoLater')
+            messenger.send('wakeup')
+            return
 
     def initializeDistributedFurnitureItems(self, dfitems):
         self.objectDict = {}
@@ -529,8 +532,9 @@ class ObjectManager(NodePath, DirectObject):
         np = nodePath.findNetTag('movableObject')
         if np.isEmpty():
             return
-        return self.objectDict.get(np.getKey(), None)
-        return
+        else:
+            return self.objectDict.get(np.getKey(), None)
+            return
 
     def moveObjectStop(self, *args):
         if self.movingObject:
@@ -651,74 +655,75 @@ class ObjectManager(NodePath, DirectObject):
         entry = self.segmentCollision()
         if not entry:
             return 1
-        offsetDict = {}
-        while entry:
-            offset = self.computeSegmentOffset(entry)
-            if offset:
-                eid = entry.getInto()
-                maxOffsetVec = offsetDict.get(eid, Vec3(0))
-                if offset.length() > maxOffsetVec.length():
-                    maxOffsetVec.assign(offset)
-                offsetDict[eid] = maxOffsetVec
-            entry = self.iSegment.findNextCollisionEntry(skipFlags=SKIP_CAMERA | SKIP_UNPICKABLE)
+        else:
+            offsetDict = {}
+            while entry:
+                offset = self.computeSegmentOffset(entry)
+                if offset:
+                    eid = entry.getInto()
+                    maxOffsetVec = offsetDict.get(eid, Vec3(0))
+                    if offset.length() > maxOffsetVec.length():
+                        maxOffsetVec.assign(offset)
+                    offsetDict[eid] = maxOffsetVec
+                entry = self.iSegment.findNextCollisionEntry(skipFlags=SKIP_CAMERA | SKIP_UNPICKABLE)
 
-        if offsetDict:
-            keys = offsetDict.keys()
-            ortho1 = offsetDict[keys[0]]
-            ortho2 = Vec3(0)
-            v1 = Vec3(ortho1)
-            v1.normalize()
-            for key in keys[1:]:
-                offset = offsetDict[key]
-                v2 = Vec3(offset)
-                v2.normalize()
-                dp = v1.dot(v2)
-                if abs(dp) > 0.95:
-                    if offset.length() > ortho1.length():
-                        ortho1.assign(offset)
-                elif abs(dp) < 0.05:
-                    if offset.length() > ortho2.length():
-                        ortho2.assign(offset)
-                else:
-                    o1Len = ortho1.length()
-                    parallelVec = Vec3(ortho1 * offset.dot(ortho1) / (o1Len * o1Len))
-                    perpVec = Vec3(offset - parallelVec)
-                    if parallelVec.length() > o1Len:
-                        ortho1.assign(parallelVec)
-                    if perpVec.length() > ortho2.length():
-                        ortho2.assign(perpVec)
+            if offsetDict:
+                keys = offsetDict.keys()
+                ortho1 = offsetDict[keys[0]]
+                ortho2 = Vec3(0)
+                v1 = Vec3(ortho1)
+                v1.normalize()
+                for key in keys[1:]:
+                    offset = offsetDict[key]
+                    v2 = Vec3(offset)
+                    v2.normalize()
+                    dp = v1.dot(v2)
+                    if abs(dp) > 0.95:
+                        if offset.length() > ortho1.length():
+                            ortho1.assign(offset)
+                    elif abs(dp) < 0.05:
+                        if offset.length() > ortho2.length():
+                            ortho2.assign(offset)
+                    else:
+                        o1Len = ortho1.length()
+                        parallelVec = Vec3(ortho1 * offset.dot(ortho1) / (o1Len * o1Len))
+                        perpVec = Vec3(offset - parallelVec)
+                        if parallelVec.length() > o1Len:
+                            ortho1.assign(parallelVec)
+                        if perpVec.length() > ortho2.length():
+                            ortho2.assign(perpVec)
 
-            totalOffset = ortho1 + ortho2
-            self.collisionOffsetNP.setPos(self.collisionOffsetNP, totalOffset)
+                totalOffset = ortho1 + ortho2
+                self.collisionOffsetNP.setPos(self.collisionOffsetNP, totalOffset)
+                if not self.segmentCollision():
+                    return 1
+            m = self.startPose.getMat(so)
+            deltaMove = Vec3(m.getRow3(3))
+            if deltaMove.length() == 0:
+                return 1
+            self.iSegment4.setParentNP(so)
+            entry = self.iSegment4.pickBitMask(bitMask=so.getWallBitmask(), targetNodePath=target, endPointList=[(so.c0, Point3(m.xformPoint(so.c0))),
+             (
+              so.c1, Point3(m.xformPoint(so.c1))),
+             (
+              so.c2, Point3(m.xformPoint(so.c2))),
+             (
+              so.c3, Point3(m.xformPoint(so.c3)))], skipFlags=SKIP_CAMERA | SKIP_UNPICKABLE)
+            maxLen = 0
+            maxOffset = None
+            while entry:
+                offset = Vec3(entry.getSurfacePoint(entry.getFromNodePath()) - entry.getFrom().getPointA())
+                offsetLen = Vec3(offset).length()
+                if offsetLen > maxLen:
+                    maxLen = offsetLen
+                    maxOffset = offset
+                entry = self.iSegment4.findNextCollisionEntry(skipFlags=SKIP_CAMERA | SKIP_UNPICKABLE)
+
+            if maxOffset:
+                self.collisionOffsetNP.setPos(self.collisionOffsetNP, maxOffset)
             if not self.segmentCollision():
                 return 1
-        m = self.startPose.getMat(so)
-        deltaMove = Vec3(m.getRow3(3))
-        if deltaMove.length() == 0:
-            return 1
-        self.iSegment4.setParentNP(so)
-        entry = self.iSegment4.pickBitMask(bitMask=so.getWallBitmask(), targetNodePath=target, endPointList=[(so.c0, Point3(m.xformPoint(so.c0))),
-         (
-          so.c1, Point3(m.xformPoint(so.c1))),
-         (
-          so.c2, Point3(m.xformPoint(so.c2))),
-         (
-          so.c3, Point3(m.xformPoint(so.c3)))], skipFlags=SKIP_CAMERA | SKIP_UNPICKABLE)
-        maxLen = 0
-        maxOffset = None
-        while entry:
-            offset = Vec3(entry.getSurfacePoint(entry.getFromNodePath()) - entry.getFrom().getPointA())
-            offsetLen = Vec3(offset).length()
-            if offsetLen > maxLen:
-                maxLen = offsetLen
-                maxOffset = offset
-            entry = self.iSegment4.findNextCollisionEntry(skipFlags=SKIP_CAMERA | SKIP_UNPICKABLE)
-
-        if maxOffset:
-            self.collisionOffsetNP.setPos(self.collisionOffsetNP, maxOffset)
-        if not self.segmentCollision():
-            return 1
-        return 0
+            return 0
 
     def segmentCollision(self):
         so = self.selectedObject
@@ -749,43 +754,45 @@ class ObjectManager(NodePath, DirectObject):
         hitPointVec = Vec3(hp - self.selectedObject.dragPoint)
         if hitPointVec.dot(hpn) > 0:
             return
-        nLen = normal.length()
-        offsetVecA = hitPoint - entry.getFrom().getPointA()
-        offsetA = normal * offsetVecA.dot(normal) / (nLen * nLen)
-        if offsetA.dot(normal) > 0:
-            return offsetA * 1.01
-        offsetVecB = hitPoint - entry.getFrom().getPointB()
-        offsetB = normal * offsetVecB.dot(normal) / (nLen * nLen)
-        return offsetB * 1.01
-        return
+        else:
+            nLen = normal.length()
+            offsetVecA = hitPoint - entry.getFrom().getPointA()
+            offsetA = normal * offsetVecA.dot(normal) / (nLen * nLen)
+            if offsetA.dot(normal) > 0:
+                return offsetA * 1.01
+            offsetVecB = hitPoint - entry.getFrom().getPointB()
+            offsetB = normal * offsetVecB.dot(normal) / (nLen * nLen)
+            return offsetB * 1.01
+            return
 
     def alignObject(self, entry, target, fClosest=0, wallOffset=None):
         if not entry.hasSurfaceNormal():
             return 0
-        normal = entry.getSurfaceNormal(target)
-        if abs(normal.dot(Vec3(0, 0, 1))) < 0.1:
-            tempNP = target.attachNewNode('temp')
-            normal.setZ(0)
-            normal.normalize()
-            lookAtNormal = Point3(normal)
-            lookAtNormal *= -1
-            tempNP.lookAt(lookAtNormal)
-            realAngle = ROUND_TO(self.gridSnapNP.getH(tempNP), 90.0)
-            if fClosest:
-                angle = realAngle
-            else:
-                angle = 0
-            self.gridSnapNP.setHpr(tempNP, angle, 0, 0)
-            hitPoint = entry.getSurfacePoint(target)
-            tempNP.setPos(hitPoint)
-            if wallOffset == None:
-                wallOffset = self.selectedObject.getWallOffset()
-            self.gridSnapNP.setPos(tempNP, 0, -wallOffset, 0)
-            tempNP.removeNode()
-            if realAngle == 180.0:
-                self.gridSnapNP.setH(self.gridSnapNP.getH() + 180.0)
-            return 1
-        return 0
+        else:
+            normal = entry.getSurfaceNormal(target)
+            if abs(normal.dot(Vec3(0, 0, 1))) < 0.1:
+                tempNP = target.attachNewNode('temp')
+                normal.setZ(0)
+                normal.normalize()
+                lookAtNormal = Point3(normal)
+                lookAtNormal *= -1
+                tempNP.lookAt(lookAtNormal)
+                realAngle = ROUND_TO(self.gridSnapNP.getH(tempNP), 90.0)
+                if fClosest:
+                    angle = realAngle
+                else:
+                    angle = 0
+                self.gridSnapNP.setHpr(tempNP, angle, 0, 0)
+                hitPoint = entry.getSurfacePoint(target)
+                tempNP.setPos(hitPoint)
+                if wallOffset == None:
+                    wallOffset = self.selectedObject.getWallOffset()
+                self.gridSnapNP.setPos(tempNP, 0, -wallOffset, 0)
+                tempNP.removeNode()
+                if realAngle == 180.0:
+                    self.gridSnapNP.setH(self.gridSnapNP.getH() + 180.0)
+                return 1
+            return 0
 
     def rotateLeft(self):
         if not self.selectedObject:
@@ -944,7 +951,8 @@ class ObjectManager(NodePath, DirectObject):
         origin = nodePath.getPos(camera)
         if origin[1] != 0.0:
             return origin * (base.camLens.getNear() / origin[1])
-        return Point3(0, base.camLens.getNear(), 0)
+        else:
+            return Point3(0, base.camLens.getNear(), 0)
 
     def getSelectedObjectScreenXY(self):
         tNodePath = self.selectedObject.attachNewNode('temp')
@@ -1287,22 +1295,23 @@ class ObjectManager(NodePath, DirectObject):
         if retcode < 0:
             self.notify.info('Unable to send item %s to attic, reason %s.' % (item.getName(), retcode))
             return
-        del self.objectDict[objectId]
-        if self.selectedObject != None and self.selectedObject.getKey() == objectId:
-            self.selectedObject.detachNode()
-            self.deselectObject()
-        itemIndex = len(self.atticItemPanels)
-        panel = FurnitureItemPanel(item, itemIndex, command=self.bringItemFromAttic, deleteMode=self.deleteMode, helpCategory='FurnitureItemPanelAttic')
-        self.atticItemPanels.append(panel)
-        self.regenerateAtticPicker()
-        if self.inRoomPicker:
-            for i in xrange(len(self.inRoomPanels)):
-                if self.inRoomPanels[i].itemId == objectId:
-                    del self.inRoomPanels[i]
-                    self.regenerateInRoomPicker()
-                    return
+        else:
+            del self.objectDict[objectId]
+            if self.selectedObject != None and self.selectedObject.getKey() == objectId:
+                self.selectedObject.detachNode()
+                self.deselectObject()
+            itemIndex = len(self.atticItemPanels)
+            panel = FurnitureItemPanel(item, itemIndex, command=self.bringItemFromAttic, deleteMode=self.deleteMode, helpCategory='FurnitureItemPanelAttic')
+            self.atticItemPanels.append(panel)
+            self.regenerateAtticPicker()
+            if self.inRoomPicker:
+                for i in xrange(len(self.inRoomPanels)):
+                    if self.inRoomPanels[i].itemId == objectId:
+                        del self.inRoomPanels[i]
+                        self.regenerateInRoomPicker()
+                        return
 
-        return
+            return
 
     def cleanupDialog(self, buttonValue=None):
         if self.dialog:
@@ -1322,31 +1331,32 @@ class ObjectManager(NodePath, DirectObject):
     def __updateDeleteMode(self):
         if not self.atticPicker:
             return
-        self.notify.debug('__updateDeleteMode deleteMode=%s' % self.deleteMode)
-        if self.deleteMode:
-            framePanelColor = DeletePickerPanelColor
-            atticText = TTLocalizer.HDDeletePickerLabel
-            inRoomText = TTLocalizer.HDDeletePickerLabel
-            helpCategory = 'FurnitureItemPanelDelete'
         else:
-            framePanelColor = NormalPickerPanelColor
-            atticText = TTLocalizer.HDAtticPickerLabel
-            inRoomText = TTLocalizer.HDInRoomPickerLabel
-            helpCategory = None
-        if self.inRoomPicker:
-            self.inRoomPicker['text'] = inRoomText
-            for panel in self.inRoomPicker['items']:
-                panel.setDeleteMode(self.deleteMode)
-                panel.bindHelpText(helpCategory)
+            self.notify.debug('__updateDeleteMode deleteMode=%s' % self.deleteMode)
+            if self.deleteMode:
+                framePanelColor = DeletePickerPanelColor
+                atticText = TTLocalizer.HDDeletePickerLabel
+                inRoomText = TTLocalizer.HDDeletePickerLabel
+                helpCategory = 'FurnitureItemPanelDelete'
+            else:
+                framePanelColor = NormalPickerPanelColor
+                atticText = TTLocalizer.HDAtticPickerLabel
+                inRoomText = TTLocalizer.HDInRoomPickerLabel
+                helpCategory = None
+            if self.inRoomPicker:
+                self.inRoomPicker['text'] = inRoomText
+                for panel in self.inRoomPicker['items']:
+                    panel.setDeleteMode(self.deleteMode)
+                    panel.bindHelpText(helpCategory)
 
-        if self.atticPicker:
-            self.atticPicker['text'] = atticText
-            for panel in self.atticPicker['items']:
-                panel.setDeleteMode(self.deleteMode)
-                panel.bindHelpText(helpCategory)
+            if self.atticPicker:
+                self.atticPicker['text'] = atticText
+                for panel in self.atticPicker['items']:
+                    panel.setDeleteMode(self.deleteMode)
+                    panel.bindHelpText(helpCategory)
 
-        self.__updateDeleteButtons()
-        return
+            self.__updateDeleteButtons()
+            return
 
     def __updateDeleteButtons(self):
         if self.deleteMode:
@@ -1366,14 +1376,15 @@ class ObjectManager(NodePath, DirectObject):
         if retcode < 0:
             self.notify.info('Unable to delete item %s from room, reason %s.' % (item.getName(), retcode))
             return
-        del self.objectDict[objectId]
-        if self.selectedObject != None and self.selectedObject.getKey() == objectId:
-            self.selectedObject.detachNode()
-            self.deselectObject()
-        if self.inRoomPicker and itemIndex is not None:
-            del self.inRoomPanels[itemIndex]
-            self.regenerateInRoomPicker()
-        return
+        else:
+            del self.objectDict[objectId]
+            if self.selectedObject != None and self.selectedObject.getKey() == objectId:
+                self.selectedObject.detachNode()
+                self.deselectObject()
+            if self.inRoomPicker and itemIndex is not None:
+                del self.inRoomPanels[itemIndex]
+                self.regenerateInRoomPicker()
+            return
 
     def bringItemFromAttic(self, item, itemIndex):
         if base.config.GetBool('want-qa-regression', 0):
@@ -1700,9 +1711,10 @@ class ObjectManager(NodePath, DirectObject):
             dfitem = self.objectDict[objectId].dfitem
             self.requestRoomDelete(dfitem, objectId, itemIndex)
             return
-        self.createVerifyDialog(item, TTLocalizer.HDReturnVerify, self.__handleVerifyReturnOK, self.__resetAndCleanup)
-        self.verifyItems = (item, objectId)
-        return
+        else:
+            self.createVerifyDialog(item, TTLocalizer.HDReturnVerify, self.__handleVerifyReturnOK, self.__resetAndCleanup)
+            self.verifyItems = (item, objectId)
+            return
 
     def __handleVerifyReturnOK(self):
         item, objectId = self.verifyItems
@@ -1745,21 +1757,19 @@ class ObjectManager(NodePath, DirectObject):
         if itemType == CatalogItemTypes.WALLPAPER_ITEM or itemType == CatalogItemTypes.FLOORING_ITEM or itemType == CatalogItemTypes.MOULDING_ITEM or itemType == CatalogItemTypes.WAINSCOTING_ITEM:
             itemIndex = len(self.atticWallpaperPanels)
             bringCommand = self.bringWallpaperFromAttic
+        elif itemType == CatalogItemTypes.WINDOW_ITEM:
+            itemIndex = len(self.atticWindowPanels)
+            bringCommand = self.bringWindowFromAttic
         else:
-            if itemType == CatalogItemTypes.WINDOW_ITEM:
-                itemIndex = len(self.atticWindowPanels)
-                bringCommand = self.bringWindowFromAttic
-            else:
-                itemIndex = len(self.atticItemPanels)
-                bringCommand = self.bringItemFromAttic
+            itemIndex = len(self.atticItemPanels)
+            bringCommand = self.bringItemFromAttic
         panel = FurnitureItemPanel(item, itemIndex, command=bringCommand, deleteMode=self.deleteMode, helpCategory='FurnitureItemPanelAttic')
         if itemType == CatalogItemTypes.WALLPAPER_ITEM or itemType == CatalogItemTypes.FLOORING_ITEM or itemType == CatalogItemTypes.MOULDING_ITEM or itemType == CatalogItemTypes.WAINSCOTING_ITEM:
             self.atticWallpaperPanels.append(panel)
+        elif itemType == CatalogItemTypes.WINDOW_ITEM:
+            self.atticWindowPanels.append(panel)
         else:
-            if itemType == CatalogItemTypes.WINDOW_ITEM:
-                self.atticWindowPanels.append(panel)
-            else:
-                self.atticItemPanels.append(panel)
+            self.atticItemPanels.append(panel)
         self.regenerateAtticPicker()
 
     def showHouseFullDialog(self):

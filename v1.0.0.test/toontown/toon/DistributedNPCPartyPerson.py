@@ -104,17 +104,17 @@ class DistributedNPCPartyPerson(DistributedNPCToonBase):
         self.isInteractingWithLocalToon = avId == base.localAvatar.doId
         if mode == NPCToons.PARTY_MOVIE_CLEAR:
             return
-        if mode == NPCToons.PARTY_MOVIE_TIMEOUT:
-            taskMgr.remove(self.uniqueName('lerpCamera'))
-            if self.isInteractingWithLocalToon:
-                self.ignore(self.planPartyQuestionGuiDoneEvent)
-                if self.askGui:
-                    self.askGui.hide()
-                    self.ignore(self.planPartyQuestionGuiDoneEvent)
-            self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
-            self.resetPartyPerson()
         else:
-            if mode == NPCToons.PARTY_MOVIE_START:
+            if mode == NPCToons.PARTY_MOVIE_TIMEOUT:
+                taskMgr.remove(self.uniqueName('lerpCamera'))
+                if self.isInteractingWithLocalToon:
+                    self.ignore(self.planPartyQuestionGuiDoneEvent)
+                    if self.askGui:
+                        self.askGui.hide()
+                        self.ignore(self.planPartyQuestionGuiDoneEvent)
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
+                self.resetPartyPerson()
+            elif mode == NPCToons.PARTY_MOVIE_START:
                 self.av = base.cr.doId2do.get(avId)
                 if self.av is None:
                     self.notify.warning('Avatar %d not found in doId' % avId)
@@ -127,57 +127,51 @@ class DistributedNPCPartyPerson(DistributedNPCToonBase):
                     taskMgr.doMethodLater(1.0, self.popupAskGUI, self.uniqueName('popupAskGUI'))
                 else:
                     self.setChatAbsolute(TTLocalizer.PartyDoYouWantToPlan, CFSpeech | CFTimeout)
-            else:
-                if mode == NPCToons.PARTY_MOVIE_COMPLETE:
-                    chatStr = TTLocalizer.PartyPlannerOnYourWay
-                    self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
-                    self.resetPartyPerson()
-                    if self.isInteractingWithLocalToon:
-                        base.localAvatar.aboutToPlanParty = True
-                        base.cr.partyManager.setPartyPlannerStyle(self.style)
-                        base.cr.partyManager.setPartyPlannerName(self.name)
-                        base.localAvatar.creatingNewPartyWithMagicWord = False
-                        loaderId = 'safeZoneLoader'
-                        whereId = 'party'
-                        hoodId, zoneId = extraArgs
-                        avId = -1
-                        place = base.cr.playGame.getPlace()
-                        requestStatus = {'loader': loaderId, 'where': whereId, 
-                           'how': 'teleportIn', 
-                           'hoodId': hoodId, 
-                           'zoneId': zoneId, 
-                           'shardId': None, 
-                           'avId': avId}
-                        place.requestLeave(requestStatus)
-                else:
-                    if mode == NPCToons.PARTY_MOVIE_MAYBENEXTTIME:
-                        self.av = base.cr.doId2do.get(avId)
-                        if self.av is None:
-                            self.notify.warning('Avatar %d not found in doId' % avId)
-                            return
-                        self.setChatAbsolute(TTLocalizer.PartyPlannerMaybeNextTime, CFSpeech | CFTimeout)
-                        self.resetPartyPerson()
-                    else:
-                        if mode == NPCToons.PARTY_MOVIE_ALREADYHOSTING:
-                            chatStr = TTLocalizer.PartyPlannerHostingTooMany
-                            self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
-                            self.resetPartyPerson()
-                        else:
-                            if mode == NPCToons.PARTY_MOVIE_ONLYPAID:
-                                chatStr = TTLocalizer.PartyPlannerOnlyPaid
-                                self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
-                                self.resetPartyPerson()
-                            else:
-                                if mode == NPCToons.PARTY_MOVIE_COMINGSOON:
-                                    chatStr = TTLocalizer.PartyPlannerNpcComingSoon
-                                    self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
-                                    self.resetPartyPerson()
-                                else:
-                                    if mode == NPCToons.PARTY_MOVIE_MINCOST:
-                                        chatStr = TTLocalizer.PartyPlannerNpcMinCost % PartyGlobals.MinimumPartyCost
-                                        self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
-                                        self.resetPartyPerson()
-        return
+            elif mode == NPCToons.PARTY_MOVIE_COMPLETE:
+                chatStr = TTLocalizer.PartyPlannerOnYourWay
+                self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
+                self.resetPartyPerson()
+                if self.isInteractingWithLocalToon:
+                    base.localAvatar.aboutToPlanParty = True
+                    base.cr.partyManager.setPartyPlannerStyle(self.style)
+                    base.cr.partyManager.setPartyPlannerName(self.name)
+                    base.localAvatar.creatingNewPartyWithMagicWord = False
+                    loaderId = 'safeZoneLoader'
+                    whereId = 'party'
+                    hoodId, zoneId = extraArgs
+                    avId = -1
+                    place = base.cr.playGame.getPlace()
+                    requestStatus = {'loader': loaderId, 'where': whereId, 
+                       'how': 'teleportIn', 
+                       'hoodId': hoodId, 
+                       'zoneId': zoneId, 
+                       'shardId': None, 
+                       'avId': avId}
+                    place.requestLeave(requestStatus)
+            elif mode == NPCToons.PARTY_MOVIE_MAYBENEXTTIME:
+                self.av = base.cr.doId2do.get(avId)
+                if self.av is None:
+                    self.notify.warning('Avatar %d not found in doId' % avId)
+                    return
+                self.setChatAbsolute(TTLocalizer.PartyPlannerMaybeNextTime, CFSpeech | CFTimeout)
+                self.resetPartyPerson()
+            elif mode == NPCToons.PARTY_MOVIE_ALREADYHOSTING:
+                chatStr = TTLocalizer.PartyPlannerHostingTooMany
+                self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
+                self.resetPartyPerson()
+            elif mode == NPCToons.PARTY_MOVIE_ONLYPAID:
+                chatStr = TTLocalizer.PartyPlannerOnlyPaid
+                self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
+                self.resetPartyPerson()
+            elif mode == NPCToons.PARTY_MOVIE_COMINGSOON:
+                chatStr = TTLocalizer.PartyPlannerNpcComingSoon
+                self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
+                self.resetPartyPerson()
+            elif mode == NPCToons.PARTY_MOVIE_MINCOST:
+                chatStr = TTLocalizer.PartyPlannerNpcMinCost % PartyGlobals.MinimumPartyCost
+                self.setChatAbsolute(chatStr, CFSpeech | CFTimeout)
+                self.resetPartyPerson()
+            return
 
     def __handleAskDone(self):
         self.ignore(self.planPartyQuestionGuiDoneEvent)

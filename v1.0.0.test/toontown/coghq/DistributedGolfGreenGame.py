@@ -553,21 +553,21 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             self.countTimeOld = currentTime
         if currentTime - self.countTimeOld < 1.0:
             return task.cont
-        self.countTimeOld = currentTime
-        self.countDown -= 1
-        if self.countDown in (3, 2, 1):
-            for sprite in self.sprites:
-                sprite.warningBump()
-
         else:
-            if self.countDown == 0:
+            self.countTimeOld = currentTime
+            self.countDown -= 1
+            if self.countDown in (3, 2, 1):
+                for sprite in self.sprites:
+                    sprite.warningBump()
+
+            elif self.countDown == 0:
                 self.countDown = self.countTime
                 self.spriteNotchPos += 1
                 self.lerpSpritePos()
                 self.checkForTooLow()
-        self.timerLabel['text'] = '%s' % self.countDown
-        return task.cont
-        return
+            self.timerLabel['text'] = '%s' % self.countDown
+            return task.cont
+            return
 
     def checkForTooLow(self):
         low = self.findLowestSprite()
@@ -596,10 +596,9 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         if success:
             if self.soundWin:
                 self.soundWin.play()
-        else:
-            if self.soundLose:
-                self.soundLose.play()
-                self.giftId = None
+        elif self.soundLose:
+            self.soundLose.play()
+            self.giftId = None
         self.attackPattern = None
         self.stopCountDown()
         self.clearGrid()
@@ -684,24 +683,18 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
                 gotNeighbor = cellZ - 1
             elif self.testGridfull(self.getValidGrid(cellX + 1, cellZ - 1)):
                 gotNeighbor = cellZ - 1
-        else:
-            if self.testGridfull(self.getValidGrid(cellX - 1, cellZ)):
-                gotNeighbor = cellZ
-            else:
-                if self.testGridfull(self.getValidGrid(cellX + 1, cellZ)):
-                    gotNeighbor = cellZ
-                else:
-                    if self.testGridfull(self.getValidGrid(cellX, cellZ + 1)):
-                        gotNeighbor = cellZ + 1
-                    else:
-                        if self.testGridfull(self.getValidGrid(cellX - 1, cellZ + 1)):
-                            gotNeighbor = cellZ + 1
-                        else:
-                            if self.testGridfull(self.getValidGrid(cellX, cellZ - 1)):
-                                gotNeighbor = cellZ - 1
-                            else:
-                                if self.testGridfull(self.getValidGrid(cellX - 1, cellZ - 1)):
-                                    gotNeighbor = cellZ - 1
+        elif self.testGridfull(self.getValidGrid(cellX - 1, cellZ)):
+            gotNeighbor = cellZ
+        elif self.testGridfull(self.getValidGrid(cellX + 1, cellZ)):
+            gotNeighbor = cellZ
+        elif self.testGridfull(self.getValidGrid(cellX, cellZ + 1)):
+            gotNeighbor = cellZ + 1
+        elif self.testGridfull(self.getValidGrid(cellX - 1, cellZ + 1)):
+            gotNeighbor = cellZ + 1
+        elif self.testGridfull(self.getValidGrid(cellX, cellZ - 1)):
+            gotNeighbor = cellZ - 1
+        elif self.testGridfull(self.getValidGrid(cellX - 1, cellZ - 1)):
+            gotNeighbor = cellZ - 1
         return gotNeighbor
 
     def clearFloaters(self):
@@ -770,30 +763,24 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             elif (
              cellX + 1, cellZ - 1) in self.grounded:
                 gotNeighbor = cellZ - 1
-        else:
-            if (
-             cellX - 1, cellZ) in self.grounded:
-                gotNeighbor = cellZ
-            else:
-                if (
-                 cellX + 1, cellZ) in self.grounded:
-                    gotNeighbor = cellZ
-                else:
-                    if (
-                     cellX, cellZ + 1) in self.grounded:
-                        gotNeighbor = cellZ + 1
-                    else:
-                        if (
-                         cellX - 1, cellZ + 1) in self.grounded:
-                            gotNeighbor = cellZ + 1
-                        else:
-                            if (
-                             cellX, cellZ - 1) in self.grounded:
-                                gotNeighbor = cellZ - 1
-                            else:
-                                if (
-                                 cellX - 1, cellZ - 1) in self.grounded:
-                                    gotNeighbor = cellZ - 1
+        elif (
+         cellX - 1, cellZ) in self.grounded:
+            gotNeighbor = cellZ
+        elif (
+         cellX + 1, cellZ) in self.grounded:
+            gotNeighbor = cellZ
+        elif (
+         cellX, cellZ + 1) in self.grounded:
+            gotNeighbor = cellZ + 1
+        elif (
+         cellX - 1, cellZ + 1) in self.grounded:
+            gotNeighbor = cellZ + 1
+        elif (
+         cellX, cellZ - 1) in self.grounded:
+            gotNeighbor = cellZ - 1
+        elif (
+         cellX - 1, cellZ - 1) in self.grounded:
+            gotNeighbor = cellZ - 1
         return gotNeighbor
 
     def clearMatchList(self, typeClear=0):
@@ -803,9 +790,8 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             sprite = gridEntry[0]
             if typeClear == self.wildIndex:
                 self.questionSprite(sprite)
-            else:
-                if typeClear == 0:
-                    pass
+            elif typeClear == 0:
+                pass
             self.killSprite(sprite)
 
     def shakeList(self, neighbors):
@@ -822,11 +808,12 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         spriteType = self.getColorType(x, z)
         if not self.getBreakable(x, z):
             return 0
-        if spriteType != -1 and spriteType == self.wildIndex:
-            return 1
-        if spriteType != -1 and color == self.wildIndex:
-            return 1
-        return 0
+        else:
+            if spriteType != -1 and spriteType == self.wildIndex:
+                return 1
+            if spriteType != -1 and color == self.wildIndex:
+                return 1
+            return 0
 
     def bombNeighbors(self, cellX, cellZ):
         self.soundBomb.play()
@@ -930,10 +917,13 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
     def testGridfull(self, cell):
         if not cell:
             return 0
-        if cell[0] != None:
-            return 1
-        return 0
-        return
+        else:
+            if cell[0] != None:
+                return 1
+            else:
+                return 0
+
+            return
 
     def getValidGrid(self, x, z):
         if x < 0 or x >= self.gridDimX:
@@ -950,8 +940,9 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             return -1
         if self.grid[x][z][0] == None:
             return -1
-        return self.grid[x][z][0].colorType
-        return
+        else:
+            return self.grid[x][z][0].colorType
+            return
 
     def getBreakable(self, x, z):
         if x < 0 or x >= self.gridDimX:
@@ -960,8 +951,9 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             return -1
         if self.grid[x][z][0] == None:
             return -1
-        return self.grid[x][z][0].breakable
-        return
+        else:
+            return self.grid[x][z][0].breakable
+            return
 
     def findGridCog(self):
         self.cogX = 0
@@ -1001,27 +993,29 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
     def killSprite(self, sprite):
         if sprite == None:
             return
-        if sprite.giftId != None:
-            self.giftId = sprite.giftId
-        if sprite.foundation:
-            self.foundCount -= 1
-        if self.controlSprite == sprite:
-            self.controlSprite = None
-        if sprite in self.sprites:
-            self.sprites.remove(sprite)
-        if sprite.gridPosX != None:
-            self.grid[sprite.gridPosX][sprite.gridPosZ][0] = None
-            self.grid[sprite.gridPosX][sprite.gridPosZ][5].setColorScale(self.blankColor)
-            sprite.deathEffect()
-        sprite.delete()
-        self.hasChanged = 1
-        return
+        else:
+            if sprite.giftId != None:
+                self.giftId = sprite.giftId
+            if sprite.foundation:
+                self.foundCount -= 1
+            if self.controlSprite == sprite:
+                self.controlSprite = None
+            if sprite in self.sprites:
+                self.sprites.remove(sprite)
+            if sprite.gridPosX != None:
+                self.grid[sprite.gridPosX][sprite.gridPosZ][0] = None
+                self.grid[sprite.gridPosX][sprite.gridPosZ][5].setColorScale(self.blankColor)
+                sprite.deathEffect()
+            sprite.delete()
+            self.hasChanged = 1
+            return
 
     def shakeSprite(self, sprite):
         if sprite == None:
             return
-        sprite.shake()
-        return
+        else:
+            sprite.shake()
+            return
 
     def questionSprite(self, sprite):
         newSprite = self.addSprite(self.block, found=0, color=1)
@@ -1156,17 +1150,15 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
                 outputZ = 0.0001
             if inputX > 0.0:
                 self.aimRadian = -1.0 * pi + math.atan(outputZ / (inputX * self.XtoZ))
+            elif inputX < 0.0:
+                self.aimRadian = math.atan(outputZ / (inputX * self.XtoZ))
             else:
-                if inputX < 0.0:
-                    self.aimRadian = math.atan(outputZ / (inputX * self.XtoZ))
-                else:
-                    self.aimRadian = pi * -0.5
+                self.aimRadian = pi * -0.5
             margin = 0.2
             if self.aimRadian >= -margin:
                 self.aimRadian = -margin
-            else:
-                if self.aimRadian <= margin - pi:
-                    self.aimRadian = margin - pi
+            elif self.aimRadian <= margin - pi:
+                self.aimRadian = margin - pi
             degrees = self.__toDegrees(self.aimRadian)
             self.aimer.setH(degrees)
         self.wallMaxX = self.maxX - self.radiusBall

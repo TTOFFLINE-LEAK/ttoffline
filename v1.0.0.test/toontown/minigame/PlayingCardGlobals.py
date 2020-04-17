@@ -26,9 +26,10 @@ CardColors = (UpColor,
 def getCardName(value):
     if value == Unknown:
         return TTLocalizer.PlayingCardUnknown
-    rank = value % MaxRank
-    suit = value / MaxRank
-    return TTLocalizer.getPlayingCardName(suit, rank)
+    else:
+        rank = value % MaxRank
+        suit = value / MaxRank
+        return TTLocalizer.getPlayingCardName(suit, rank)
 
 
 Styles = [

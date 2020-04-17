@@ -137,40 +137,35 @@ class ShardPage(ShtikerPage.ShtikerPage):
             if popPercent > 1:
                 popPercent = 1
             newColor = color2 * popPercent + color1 * (1 - popPercent)
+        elif pop <= self.lowPop:
+            newColor = POP_COLORS[0]
+        elif pop <= self.midPop:
+            newColor = POP_COLORS[1]
         else:
-            if pop <= self.lowPop:
-                newColor = POP_COLORS[0]
-            else:
-                if pop <= self.midPop:
-                    newColor = POP_COLORS[1]
-                else:
-                    newColor = POP_COLORS[2]
+            newColor = POP_COLORS[2]
         return newColor
 
     def getPopText(self, pop):
         if pop <= self.lowPop:
             popText = TTLocalizer.ShardPageLow
+        elif pop <= self.midPop:
+            popText = TTLocalizer.ShardPageMed
         else:
-            if pop <= self.midPop:
-                popText = TTLocalizer.ShardPageMed
-            else:
-                popText = TTLocalizer.ShardPageHigh
+            popText = TTLocalizer.ShardPageHigh
         return popText
 
     def getPopChoiceHandler(self, pop):
         if base.cr.productName == 'JP':
             handler = self.choseShard
-        else:
-            if pop <= self.midPop:
-                if self.noTeleport and not self.showPop:
-                    handler = self.shardChoiceReject
-                else:
-                    handler = self.choseShard
+        elif pop <= self.midPop:
+            if self.noTeleport and not self.showPop:
+                handler = self.shardChoiceReject
             else:
-                if self.showPop:
-                    handler = self.choseShard
-                else:
-                    handler = self.shardChoiceReject
+                handler = self.choseShard
+        elif self.showPop:
+            handler = self.choseShard
+        else:
+            handler = self.shardChoiceReject
         return handler
 
     def getCurrentZoneId(self):
@@ -185,8 +180,9 @@ class ShardPage(ShtikerPage.ShtikerPage):
         zoneId = self.getCurrentZoneId()
         if zoneId != None and ZoneUtil.isWelcomeValley(zoneId):
             return ToontownGlobals.WelcomeValleyToken
-        return base.localAvatar.defaultShard
-        return
+        else:
+            return base.localAvatar.defaultShard
+            return
 
     def updateScrollList(self):
         curShardTuples = base.cr.listActiveShards()
@@ -194,9 +190,10 @@ class ShardPage(ShtikerPage.ShtikerPage):
         def compareShardTuples(a, b):
             if a[1] < b[1]:
                 return -1
-            if b[1] < a[1]:
-                return 1
-            return 0
+            else:
+                if b[1] < a[1]:
+                    return 1
+                return 0
 
         curShardTuples.sort(compareShardTuples)
         if base.cr.welcomeValleyManager:
@@ -224,15 +221,14 @@ class ShardPage(ShtikerPage.ShtikerPage):
                 buttonTuple = self.makeShardButton(shardId, name, pop)
                 self.shardButtonMap[shardId] = buttonTuple
                 anyChanges = 1
+            elif self.showPop:
+                buttonTuple[1]['text'] = str(pop)
             else:
-                if self.showPop:
-                    buttonTuple[1]['text'] = str(pop)
-                else:
-                    buttonTuple[1]['image_color'] = self.getPopColor(pop)
-                    if not base.cr.productName == 'JP':
-                        buttonTuple[1]['text'] = self.getPopText(pop)
-                        buttonTuple[1]['command'] = self.getPopChoiceHandler(pop)
-                        buttonTuple[2]['command'] = self.getPopChoiceHandler(pop)
+                buttonTuple[1]['image_color'] = self.getPopColor(pop)
+                if not base.cr.productName == 'JP':
+                    buttonTuple[1]['text'] = self.getPopText(pop)
+                    buttonTuple[1]['command'] = self.getPopChoiceHandler(pop)
+                    buttonTuple[2]['command'] = self.getPopChoiceHandler(pop)
             self.shardButtons.append(buttonTuple[0])
             if shardId == currentShardId or self.book.safeMode:
                 buttonTuple[1]['state'] = DGG.DISABLED
@@ -307,17 +303,16 @@ class ShardPage(ShtikerPage.ShtikerPage):
         if shardId == ToontownGlobals.WelcomeValleyToken:
             self.doneStatus = {'mode': 'teleport', 'hood': ToontownGlobals.WelcomeValleyToken}
             messenger.send(self.doneEvent)
+        elif shardId == base.localAvatar.defaultShard:
+            self.doneStatus = {'mode': 'teleport', 'hood': canonicalHoodId}
+            messenger.send(self.doneEvent)
         else:
-            if shardId == base.localAvatar.defaultShard:
-                self.doneStatus = {'mode': 'teleport', 'hood': canonicalHoodId}
-                messenger.send(self.doneEvent)
-            else:
+            try:
+                place = base.cr.playGame.getPlace()
+            except:
                 try:
-                    place = base.cr.playGame.getPlace()
+                    place = base.cr.playGame.hood.loader.place
                 except:
-                    try:
-                        place = base.cr.playGame.hood.loader.place
-                    except:
-                        place = base.cr.playGame.hood.place
+                    place = base.cr.playGame.hood.place
 
-                place.requestTeleport(canonicalHoodId, canonicalHoodId, shardId, -1)
+            place.requestTeleport(canonicalHoodId, canonicalHoodId, shardId, -1)

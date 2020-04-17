@@ -232,34 +232,31 @@ class DistributedPhone(DistributedFurnitureItem.DistributedFurnitureItem):
             if self.phoneInUse:
                 self.clearInterval()
             self.phoneInUse = 0
-        else:
-            if mode == PhoneGlobals.PHONE_MOVIE_EMPTY:
-                self.notify.debug('setMovie: empty')
+        elif mode == PhoneGlobals.PHONE_MOVIE_EMPTY:
+            self.notify.debug('setMovie: empty')
+            if isLocalToon:
+                self.phoneDialog = TTDialog.TTDialog(dialogName='PhoneEmpty', style=TTDialog.Acknowledge, text=TTLocalizer.DistributedPhoneEmpty, text_wordwrap=15, fadeScreen=1, command=self.__clearDialog)
+            self.numHouseItems = None
+            self.phoneInUse = 0
+        elif mode == PhoneGlobals.PHONE_MOVIE_PICKUP:
+            self.notify.debug('setMovie: gui')
+            if avatar:
+                interval = self.takePhoneInterval(avatar)
                 if isLocalToon:
-                    self.phoneDialog = TTDialog.TTDialog(dialogName='PhoneEmpty', style=TTDialog.Acknowledge, text=TTLocalizer.DistributedPhoneEmpty, text_wordwrap=15, fadeScreen=1, command=self.__clearDialog)
-                self.numHouseItems = None
-                self.phoneInUse = 0
-            else:
-                if mode == PhoneGlobals.PHONE_MOVIE_PICKUP:
-                    self.notify.debug('setMovie: gui')
-                    if avatar:
-                        interval = self.takePhoneInterval(avatar)
-                        if isLocalToon:
-                            self.setupCamera(mode)
-                            interval.setDoneEvent(self.pickupMovieDoneEvent)
-                            self.acceptOnce(self.pickupMovieDoneEvent, self.__showPhoneGui)
-                        self.playInterval(interval, elapsed, avatar)
-                        self.phoneInUse = 1
-                else:
-                    if mode == PhoneGlobals.PHONE_MOVIE_HANGUP:
-                        self.notify.debug('setMovie: gui')
-                        if avatar:
-                            interval = self.replacePhoneInterval(avatar)
-                            self.playInterval(interval, elapsed, avatar)
-                        self.numHouseItems = None
-                        self.phoneInUse = 0
-                    else:
-                        self.notify.warning('unknown mode in setMovie: %s' % mode)
+                    self.setupCamera(mode)
+                    interval.setDoneEvent(self.pickupMovieDoneEvent)
+                    self.acceptOnce(self.pickupMovieDoneEvent, self.__showPhoneGui)
+                self.playInterval(interval, elapsed, avatar)
+                self.phoneInUse = 1
+        elif mode == PhoneGlobals.PHONE_MOVIE_HANGUP:
+            self.notify.debug('setMovie: gui')
+            if avatar:
+                interval = self.replacePhoneInterval(avatar)
+                self.playInterval(interval, elapsed, avatar)
+            self.numHouseItems = None
+            self.phoneInUse = 0
+        else:
+            self.notify.warning('unknown mode in setMovie: %s' % mode)
         return
 
     def __showPhoneGui(self):
@@ -382,14 +379,15 @@ class DistributedPhone(DistributedFurnitureItem.DistributedFurnitureItem):
     def ring(self):
         if self.phoneInUse:
             return 0
-        phone = self.find('**/prop_phone')
-        r = 2.0
-        w = 0.05
-        shakeOnce = Sequence(Func(phone.setR, r), Wait(w), Func(phone.setR, -r), Wait(w))
-        shakeSeq = Sequence()
-        for i in xrange(16):
-            shakeSeq.append(shakeOnce)
+        else:
+            phone = self.find('**/prop_phone')
+            r = 2.0
+            w = 0.05
+            shakeOnce = Sequence(Func(phone.setR, r), Wait(w), Func(phone.setR, -r), Wait(w))
+            shakeSeq = Sequence()
+            for i in xrange(16):
+                shakeSeq.append(shakeOnce)
 
-        ringIval = Parallel(Func(base.playSfx, self.ringSfx), shakeSeq, Func(phone.setR, 0))
-        self.playInterval(ringIval, 0.0, None)
-        return
+            ringIval = Parallel(Func(base.playSfx, self.ringSfx), shakeSeq, Func(phone.setR, 0))
+            self.playInterval(ringIval, 0.0, None)
+            return

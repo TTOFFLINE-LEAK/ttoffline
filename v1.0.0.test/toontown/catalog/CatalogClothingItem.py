@@ -585,7 +585,8 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
         forBoys = article == ABoysShirt or article == ABoysShorts
         if avatar.getStyle().getGender() == 'm':
             return not forBoys
-        return forBoys
+        else:
+            return forBoys
 
     def forBoysOnly(self):
         article = ClothingTypes[self.clothingType][CTArticle]
@@ -626,10 +627,10 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
             defn = ToonDNA.BottomStyles[str]
             if dna.botTex == defn[0] and dna.botTexColor == defn[1][self.colorIndex]:
                 return 1
-        l = avatar.clothesBottomsList
-        for i in xrange(0, len(l), 2):
-            if l[i] == defn[0] and l[(i + 1)] == defn[1][self.colorIndex]:
-                return 1
+            l = avatar.clothesBottomsList
+            for i in xrange(0, len(l), 2):
+                if l[i] == defn[0] and l[(i + 1)] == defn[1][self.colorIndex]:
+                    return 1
 
         return 0
 
@@ -640,8 +641,9 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
         typeName = TTLocalizer.ClothingTypeNames.get(self.clothingType, 0)
         if typeName:
             return typeName
-        article = ClothingTypes[self.clothingType][CTArticle]
-        return TTLocalizer.ClothingArticleNames[article]
+        else:
+            article = ClothingTypes[self.clothingType][CTArticle]
+            return TTLocalizer.ClothingArticleNames[article]
 
     def recordPurchase(self, avatar, optional):
         if avatar.isClosetFull():
@@ -752,19 +754,21 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
         if retcode == ToontownGlobals.P_ItemAvailable:
             if self.isShirt():
                 return TTLocalizer.CatalogAcceptShirt
-            if self.isSkirt():
-                return TTLocalizer.CatalogAcceptSkirt
-            return TTLocalizer.CatalogAcceptShorts
-        else:
-            if retcode == ToontownGlobals.P_NoRoomForItem:
-                return TTLocalizer.CatalogAcceptClosetFull
+            else:
+                if self.isSkirt():
+                    return TTLocalizer.CatalogAcceptSkirt
+                return TTLocalizer.CatalogAcceptShorts
+
+        elif retcode == ToontownGlobals.P_NoRoomForItem:
+            return TTLocalizer.CatalogAcceptClosetFull
         return CatalogItem.CatalogItem.getAcceptItemErrorText(self, retcode)
 
     def getColorChoices(self):
         str = ClothingTypes[self.clothingType][CTString]
         if self.isShirt():
             return ToonDNA.ShirtStyles[str][2]
-        return ToonDNA.BottomStyles[str][1]
+        else:
+            return ToonDNA.BottomStyles[str][1]
 
     def isShirt(self):
         article = ClothingTypes[self.clothingType][CTArticle]
@@ -783,12 +787,13 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
             defn = ToonDNA.ShirtStyles[str]
             topTex = defn[0]
             return ToonDNA.Shirts[topTex]
-        defn = ToonDNA.BottomStyles[str]
-        botTex = defn[0]
-        article = ClothingTypes[self.clothingType][CTArticle]
-        if article == ABoysShorts:
-            return ToonDNA.BoyShorts[botTex]
-        return ToonDNA.GirlBottoms[botTex][0]
+        else:
+            defn = ToonDNA.BottomStyles[str]
+            botTex = defn[0]
+            article = ClothingTypes[self.clothingType][CTArticle]
+            if article == ABoysShorts:
+                return ToonDNA.BoyShorts[botTex]
+            return ToonDNA.GirlBottoms[botTex][0]
 
     def getColor(self):
         str = ClothingTypes[self.clothingType][CTString]
@@ -796,9 +801,10 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
             defn = ToonDNA.ShirtStyles[str]
             topTexColor = defn[2][self.colorIndex][0]
             return ToonDNA.ClothesColors[topTexColor]
-        defn = ToonDNA.BottomStyles[str]
-        botTexColor = defn[1][self.colorIndex]
-        return ToonDNA.ClothesColors[botTexColor]
+        else:
+            defn = ToonDNA.BottomStyles[str]
+            botTexColor = defn[1][self.colorIndex]
+            return ToonDNA.ClothesColors[botTexColor]
 
     def compareTo(self, other):
         if self.clothingType != other.clothingType:
@@ -842,11 +848,12 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
     def isGift(self):
         if self.getEmblemPrices():
             return 0
-        if self.loyaltyRequirement() > 0:
-            return 0
-        if self.clothingType in LoyaltyClothingItems:
-            return 0
-        return 1
+        else:
+            if self.loyaltyRequirement() > 0:
+                return 0
+            if self.clothingType in LoyaltyClothingItems:
+                return 0
+            return 1
 
 
 def getAllClothes(*clothingTypes):

@@ -58,12 +58,14 @@ def getSoundIval(trickId):
         if type(sounds) == types.StringType:
             sound = loader.loadSfx(sounds)
             return SoundInterval(sound)
-        soundIval = Sequence()
-        for s in sounds:
-            sound = loader.loadSfx(s)
-            soundIval.append(SoundInterval(sound))
+        else:
+            soundIval = Sequence()
+            for s in sounds:
+                sound = loader.loadSfx(s)
+                soundIval.append(SoundInterval(sound))
 
-        return soundIval
+            return soundIval
+
     return
 
 

@@ -41,39 +41,40 @@ class TwoDEnemy(DirectObject):
     def destroy(self):
         if self.isDestroyed:
             return
-        self.isDestroyed = True
-        if hasattr(self.suit, 'prop') and self.suit.prop:
-            self.suit.prop.stash()
-        if self.propTrack:
-            self.propTrack.finish()
-            self.propTrack = None
-        if self.suitSound:
-            self.suitSound.stop()
-            del self.suitSound
-        if self.animTrack:
-            self.animTrack.finish()
-            self.animTrack = None
-        if self.shotTrack != None:
-            self.shotTrack.finish()
-            self.shotTrack = None
-        if self.deathTrack != None:
-            self.deathTrack.finish()
-            self.deathTrack = None
-        if self.deathSuit:
-            self.deathSuit.detachNode()
-            self.suit.cleanupLoseActor()
-            self.deathSuit = None
-        if self.moveIval:
-            self.moveIval.pause()
-            del self.moveIval
-        if self.suit:
-            self.suit.delete()
-            self.suit = None
-        BattleParticles.unloadParticles()
-        self.ignore(self.game.uniqueName('enter' + self.suitName))
-        self.game = None
-        self.enemyMgr = None
-        return
+        else:
+            self.isDestroyed = True
+            if hasattr(self.suit, 'prop') and self.suit.prop:
+                self.suit.prop.stash()
+            if self.propTrack:
+                self.propTrack.finish()
+                self.propTrack = None
+            if self.suitSound:
+                self.suitSound.stop()
+                del self.suitSound
+            if self.animTrack:
+                self.animTrack.finish()
+                self.animTrack = None
+            if self.shotTrack != None:
+                self.shotTrack.finish()
+                self.shotTrack = None
+            if self.deathTrack != None:
+                self.deathTrack.finish()
+                self.deathTrack = None
+            if self.deathSuit:
+                self.deathSuit.detachNode()
+                self.suit.cleanupLoseActor()
+                self.deathSuit = None
+            if self.moveIval:
+                self.moveIval.pause()
+                del self.moveIval
+            if self.suit:
+                self.suit.delete()
+                self.suit = None
+            BattleParticles.unloadParticles()
+            self.ignore(self.game.uniqueName('enter' + self.suitName))
+            self.game = None
+            self.enemyMgr = None
+            return
 
     def setupEnemy(self, suitAttribs):
         suitType = suitAttribs[0]
@@ -152,11 +153,10 @@ class TwoDEnemy(DirectObject):
             self.moveIval.setT(elapsedTime)
         if self.isMovingLeftRight:
             self.suit.loop('walk')
-        else:
-            if self.isMovingUpDown:
-                self.propTrack.loop()
-                self.animTrack.loop()
-                base.playSfx(self.suitSound, node=self.suit, looping=1)
+        elif self.isMovingUpDown:
+            self.propTrack.loop()
+            self.animTrack.loop()
+            base.playSfx(self.suitSound, node=self.suit, looping=1)
 
     def enterPause(self):
         if hasattr(self, 'moveIval') and self.moveIval:
@@ -251,23 +251,22 @@ class TwoDEnemy(DirectObject):
             soundTrack = Sequence(SoundInterval(spinningSound, duration=1.6, startTime=0.6, volume=0.8, node=self.deathSuit), SoundInterval(deathSound, volume=0.32, node=self.deathSuit))
             gears1Track = Sequence(ParticleInterval(smallGears, self.deathSuit, worldRelative=0, duration=4.3, cleanup=True), name='gears1Track')
             gears2MTrack = Track((0.0, explosionTrack), (0.7, ParticleInterval(singleGear, self.deathSuit, worldRelative=0, duration=5.7, cleanup=True)), (5.2, ParticleInterval(smallGearExplosion, self.deathSuit, worldRelative=0, duration=1.2, cleanup=True)), (5.4, ParticleInterval(bigGearExplosion, self.deathSuit, worldRelative=0, duration=1.0, cleanup=True)), name='gears2MTrack')
-        else:
-            if self.isMovingUpDown:
+        elif self.isMovingUpDown:
 
-                def getFinalPos():
-                    if self.isGoingUp:
-                        direction = 1.0
-                    else:
-                        direction = -1.0
-                    pos = Point3(self.deathSuit.getX(), self.deathSuit.getY(), self.deathSuit.getZ() + 2.0 * direction)
-                    return pos
+            def getFinalPos():
+                if self.isGoingUp:
+                    direction = 1.0
+                else:
+                    direction = -1.0
+                pos = Point3(self.deathSuit.getX(), self.deathSuit.getY(), self.deathSuit.getZ() + 2.0 * direction)
+                return pos
 
-                deathMoveIval = LerpPosInterval(self.deathSuit, 1.5, pos=getFinalPos(), name='%s-deathSuitMove' % self.suitName, blendType='easeInOut', fluid=1)
-                suitTrack = Sequence(Func(self.collNodePath.stash), Parallel(ActorInterval(self.deathSuit, 'lose', startFrame=80, endFrame=140), deathMoveIval), Func(removeDeathSuit, self.suit, self.deathSuit, name='remove-death-suit'))
-                explosionTrack = Sequence(Wait(1.5), MovieUtil.createKapowExplosionTrack(self.deathSuit, explosionPoint=gearPoint))
-                soundTrack = Sequence(SoundInterval(spinningSound, duration=1.6, startTime=0.6, volume=0.8, node=self.deathSuit), SoundInterval(deathSound, volume=0.32, node=self.deathSuit))
-                gears1Track = Sequence(ParticleInterval(smallGears, self.deathSuit, worldRelative=0, duration=4.3, cleanup=True), name='gears1Track')
-                gears2MTrack = Track((0.0, explosionTrack), (0.0, ParticleInterval(singleGear, self.deathSuit, worldRelative=0, duration=5.7, cleanup=True)), (2.7, ParticleInterval(smallGearExplosion, self.deathSuit, worldRelative=0, duration=1.2, cleanup=True)), (2.9, ParticleInterval(bigGearExplosion, self.deathSuit, worldRelative=0, duration=1.0, cleanup=True)), name='gears2MTrack')
+            deathMoveIval = LerpPosInterval(self.deathSuit, 1.5, pos=getFinalPos(), name='%s-deathSuitMove' % self.suitName, blendType='easeInOut', fluid=1)
+            suitTrack = Sequence(Func(self.collNodePath.stash), Parallel(ActorInterval(self.deathSuit, 'lose', startFrame=80, endFrame=140), deathMoveIval), Func(removeDeathSuit, self.suit, self.deathSuit, name='remove-death-suit'))
+            explosionTrack = Sequence(Wait(1.5), MovieUtil.createKapowExplosionTrack(self.deathSuit, explosionPoint=gearPoint))
+            soundTrack = Sequence(SoundInterval(spinningSound, duration=1.6, startTime=0.6, volume=0.8, node=self.deathSuit), SoundInterval(deathSound, volume=0.32, node=self.deathSuit))
+            gears1Track = Sequence(ParticleInterval(smallGears, self.deathSuit, worldRelative=0, duration=4.3, cleanup=True), name='gears1Track')
+            gears2MTrack = Track((0.0, explosionTrack), (0.0, ParticleInterval(singleGear, self.deathSuit, worldRelative=0, duration=5.7, cleanup=True)), (2.7, ParticleInterval(smallGearExplosion, self.deathSuit, worldRelative=0, duration=1.2, cleanup=True)), (2.9, ParticleInterval(bigGearExplosion, self.deathSuit, worldRelative=0, duration=1.0, cleanup=True)), name='gears2MTrack')
 
         def removeParticle(particle):
             if particle and hasattr(particle, 'renderParent'):

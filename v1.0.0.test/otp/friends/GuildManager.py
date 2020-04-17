@@ -138,7 +138,8 @@ class GuildManager(DistributedObjectGlobal):
     def getMemberInfo(self, avId):
         if self.isInGuild(avId):
             return GuildMemberInfo(self.id2Name[avId], self.id2Online[avId], self.id2Rank[avId], self.id2BandId[avId])
-        return
+        else:
+            return
 
     def getOptionsFor(self, avId):
         if self.isInGuild(avId):
@@ -154,8 +155,9 @@ class GuildManager(DistributedObjectGlobal):
             if myRank > GUILDRANK_MEMBER and myRank != GUILDRANK_VETERAN and (hisRank <= GUILDRANK_MEMBER or hisRank == GUILDRANK_VETERAN):
                 cankick = True
             return (canpromote, candemote, cankick)
-        return
-        return
+        else:
+            return
+            return
 
     def updateTokenRValue(self, tokenString, rValue):
         rValue = int(rValue)

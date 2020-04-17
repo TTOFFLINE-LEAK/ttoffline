@@ -283,22 +283,23 @@ class InteractiveAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
         if not hasattr(self, 'node') or not self.node:
             self.notify.warning("startNextIdleAnim returning hasattr(self,'node')=%s" % hasattr(self, 'node'))
             return
-        self.curIval = None
-        if self.okToStartNextAnim:
-            self.notify.debug('got pass okToStartNextAnim')
-            whichAnim = self.chooseIdleAnimToRun()
-            if self.visId == localAvatar.zoneId:
-                self.notify.debug('whichAnim=%s' % whichAnim)
-                if __dev__:
-                    self.notify.info('whichAnim=%s %s' % (whichAnim, self.getOrigIdleAnimName(whichAnim)))
-            self.lastPlayingAnimPhase = whichAnim
-            self.curIval = self.createIdleAnimSequence(whichAnim)
-            self.notify.debug('starting curIval of length %s' % self.curIval.getDuration())
-            self.curIval.start()
         else:
-            self.curIval = Wait(10)
-            self.notify.debug('false self.okToStartNextAnim=%s' % self.okToStartNextAnim)
-        return
+            self.curIval = None
+            if self.okToStartNextAnim:
+                self.notify.debug('got pass okToStartNextAnim')
+                whichAnim = self.chooseIdleAnimToRun()
+                if self.visId == localAvatar.zoneId:
+                    self.notify.debug('whichAnim=%s' % whichAnim)
+                    if __dev__:
+                        self.notify.info('whichAnim=%s %s' % (whichAnim, self.getOrigIdleAnimName(whichAnim)))
+                self.lastPlayingAnimPhase = whichAnim
+                self.curIval = self.createIdleAnimSequence(whichAnim)
+                self.notify.debug('starting curIval of length %s' % self.curIval.getDuration())
+                self.curIval.start()
+            else:
+                self.curIval = Wait(10)
+                self.notify.debug('false self.okToStartNextAnim=%s' % self.okToStartNextAnim)
+            return
 
     def createIdleAnimAndSoundInterval(self, whichIdleAnim, startingTime=0):
         animIval = self.node.actorInterval('idle%d' % whichIdleAnim, startTime=startingTime)

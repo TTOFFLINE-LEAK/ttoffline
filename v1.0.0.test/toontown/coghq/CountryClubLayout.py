@@ -244,10 +244,9 @@ class CountryClubLayout:
                 newNumBattlesLeft = numBattlesLeft - CountryClubRoomSpecs.middleRoomId2numBattles[nextRoomId]
                 if newNumBattlesLeft < 0:
                     continue
-                else:
-                    if newNumBattlesLeft == 0:
-                        chosenBattleRooms.append(nextRoomId)
-                        return chosenBattleRooms
+                elif newNumBattlesLeft == 0:
+                    chosenBattleRooms.append(nextRoomId)
+                    return chosenBattleRooms
                 chosenBattleRooms.append(nextRoomId)
                 result = self._chooseBattleRooms(newNumBattlesLeft, allBattleRoomIds, baseIndex, chosenBattleRooms)
                 if result is not None:

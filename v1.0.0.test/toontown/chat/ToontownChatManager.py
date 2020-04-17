@@ -394,15 +394,14 @@ class ToontownChatManager(ChatManager.ChatManager):
             self.dcb1['indicatorValue'] = 0
             self.dcb2['indicatorValue'] = 0
             self.dcb3['indicatorValue'] = 1
+        elif base.cr.secretChatAllowed and base.cr.secretChatNeedsParentPassword:
+            self.dcb1['indicatorValue'] = 0
+            self.dcb2['indicatorValue'] = 1
+            self.dcb3['indicatorValue'] = 0
         else:
-            if base.cr.secretChatAllowed and base.cr.secretChatNeedsParentPassword:
-                self.dcb1['indicatorValue'] = 0
-                self.dcb2['indicatorValue'] = 1
-                self.dcb3['indicatorValue'] = 0
-            else:
-                self.dcb1['indicatorValue'] = 1
-                self.dcb2['indicatorValue'] = 0
-                self.dcb3['indicatorValue'] = 0
+            self.dcb1['indicatorValue'] = 1
+            self.dcb2['indicatorValue'] = 0
+            self.dcb3['indicatorValue'] = 0
 
     def __updateCheckBoxen(self, value, checkBox):
         if value == 0:
@@ -410,13 +409,12 @@ class ToontownChatManager(ChatManager.ChatManager):
         if checkBox == 1:
             self.dcb2['indicatorValue'] = 0
             self.dcb3['indicatorValue'] = 0
+        elif checkBox == 2:
+            self.dcb1['indicatorValue'] = 0
+            self.dcb3['indicatorValue'] = 0
         else:
-            if checkBox == 2:
-                self.dcb1['indicatorValue'] = 0
-                self.dcb3['indicatorValue'] = 0
-            else:
-                self.dcb1['indicatorValue'] = 0
-                self.dcb2['indicatorValue'] = 0
+            self.dcb1['indicatorValue'] = 0
+            self.dcb2['indicatorValue'] = 0
 
     def exitActivateChat(self):
         self.activateChatGui.hide()
@@ -424,11 +422,10 @@ class ToontownChatManager(ChatManager.ChatManager):
     def enterSecretChatActivated(self, mode=2):
         if mode == 0:
             modeText = OTPLocalizer.SecretChatDeactivated
+        elif mode == 1:
+            modeText = OTPLocalizer.RestrictedSecretChatActivated
         else:
-            if mode == 1:
-                modeText = OTPLocalizer.RestrictedSecretChatActivated
-            else:
-                modeText = OTPLocalizer.SecretChatActivated
+            modeText = OTPLocalizer.SecretChatActivated
         if self.secretChatActivated == None:
             guiButton = loader.loadModel('phase_3/models/gui/quit_button')
             optionsButtonImage = (guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR'))
@@ -489,31 +486,29 @@ class ToontownChatManager(ChatManager.ChatManager):
                 self.fsm.request('openChatWarning')
             else:
                 self.fsm.request('normalChat')
-        else:
-            if base.cr.productName == 'Terra-DMC':
-                if not base.cr.allowSecretChat():
-                    self.fsm.request('noSecretChatWarning')
-                elif not base.localAvatar.canChat():
-                    self.fsm.request('openChatWarning')
-                else:
-                    self.fsm.request('normalChat')
+        elif base.cr.productName == 'Terra-DMC':
+            if not base.cr.allowSecretChat():
+                self.fsm.request('noSecretChatWarning')
+            elif not base.localAvatar.canChat():
+                self.fsm.request('openChatWarning')
             else:
-                if base.cr.productName in ('DisneyOnline-UK', 'DisneyOnline-AP', 'JP',
-                                           'BR', 'FR'):
-                    if base.cr.whiteListChatEnabled:
-                        self.fsm.request('normalChat')
-                    elif not base.cr.isParentPasswordSet():
-                        self.paidNoParentPassword = 1
-                        self.fsm.request('unpaidChatWarning')
-                    elif not base.cr.allowSecretChat():
-                        self.paidNoParentPassword = 1
-                        self.fsm.request('unpaidChatWarning')
-                    elif not base.localAvatar.canChat():
-                        self.fsm.request('openChatWarning')
-                    else:
-                        self.fsm.request('normalChat')
-                else:
-                    print 'ChatManager: productName: %s not recognized' % base.cr.productName
+                self.fsm.request('normalChat')
+        elif base.cr.productName in ('DisneyOnline-UK', 'DisneyOnline-AP', 'JP', 'BR',
+                                     'FR'):
+            if base.cr.whiteListChatEnabled:
+                self.fsm.request('normalChat')
+            elif not base.cr.isParentPasswordSet():
+                self.paidNoParentPassword = 1
+                self.fsm.request('unpaidChatWarning')
+            elif not base.cr.allowSecretChat():
+                self.paidNoParentPassword = 1
+                self.fsm.request('unpaidChatWarning')
+            elif not base.localAvatar.canChat():
+                self.fsm.request('openChatWarning')
+            else:
+                self.fsm.request('normalChat')
+        else:
+            print 'ChatManager: productName: %s not recognized' % base.cr.productName
 
     def __scButtonPressed(self):
         if base.config.GetBool('want-qa-regression', 0):
@@ -628,12 +623,11 @@ class ToontownChatManager(ChatManager.ChatManager):
                 self.fsm.request('whisper', [avatarName, avatarId, playerId])
             else:
                 self.fsm.request('whisperSpeedChat', [avatarId])
-        else:
-            if playerId:
-                if self.fsm.getCurrentState().getName() == 'whisperSpeedChatPlayer':
-                    self.fsm.request('whisper', [avatarName, avatarId, playerId])
-                else:
-                    self.fsm.request('whisperSpeedChatPlayer', [playerId])
+        elif playerId:
+            if self.fsm.getCurrentState().getName() == 'whisperSpeedChatPlayer':
+                self.fsm.request('whisper', [avatarName, avatarId, playerId])
+            else:
+                self.fsm.request('whisperSpeedChatPlayer', [playerId])
 
     def __whisperCancelPressed(self):
         self.fsm.request('mainMenu')
@@ -665,14 +659,13 @@ class ToontownChatManager(ChatManager.ChatManager):
         okflag, message = tt.authenticateParentPassword(base.cr.userName, base.cr.password, password)
         if okflag:
             self.fsm.request('activateChat')
+        elif message:
+            self.fsm.request('problemActivatingChat')
+            self.problemActivatingChat['text'] = OTPLocalizer.ProblemActivatingChat % message
         else:
-            if message:
-                self.fsm.request('problemActivatingChat')
-                self.problemActivatingChat['text'] = OTPLocalizer.ProblemActivatingChat % message
-            else:
-                self.noSecretChatWarning['text'] = OTPLocalizer.NoSecretChatWarningWrongPassword
-                self.passwordEntry['focus'] = 1
-                self.passwordEntry.enterText('')
+            self.noSecretChatWarning['text'] = OTPLocalizer.NoSecretChatWarningWrongPassword
+            self.passwordEntry['focus'] = 1
+            self.passwordEntry.enterText('')
 
     def __handleNoSecretChatWarningCancel(self):
         self.fsm.request('mainMenu')
@@ -683,15 +676,14 @@ class ToontownChatManager(ChatManager.ChatManager):
         if self.dcb1['indicatorValue']:
             base.cr.secretChatAllowed = 0
             mode = 0
+        elif self.dcb2['indicatorValue']:
+            base.cr.secretChatAllowed = 1
+            base.cr.secretChatNeedsParentPassword = 1
+            mode = 1
         else:
-            if self.dcb2['indicatorValue']:
-                base.cr.secretChatAllowed = 1
-                base.cr.secretChatNeedsParentPassword = 1
-                mode = 1
-            else:
-                base.cr.secretChatAllowed = 1
-                base.cr.secretChatNeedsParentPassword = 0
-                mode = 2
+            base.cr.secretChatAllowed = 1
+            base.cr.secretChatNeedsParentPassword = 0
+            mode = 2
         okflag, message = tt.enableSecretFriends(base.cr.userName, base.cr.password, password)
         if okflag:
             tt.resendPlayToken()

@@ -89,7 +89,8 @@ class DistributedFactorySuit(DistributedSuitBase.DistributedSuitBase, DelayDelet
     def getCogSpec(self, cogId):
         if self.reserve:
             return self.factory.getReserveCogSpec(cogId)
-        return self.factory.getCogSpec(cogId)
+        else:
+            return self.factory.getCogSpec(cogId)
 
     def announceGenerate(self):
         self.notify.debug('announceGenerate %s' % self.doId)
@@ -160,11 +161,12 @@ class DistributedFactorySuit(DistributedSuitBase.DistributedSuitBase, DelayDelet
                 return
         if not base.localAvatar.wantBattles:
             return
-        toonId = base.localAvatar.getDoId()
-        self.notify.debug('Distributed suit %d: requesting a Battle with toon: %d' % (self.doId, toonId))
-        self.d_requestBattle(self.getPos(), self.getHpr())
-        self.setState('WaitForBattle')
-        return
+        else:
+            toonId = base.localAvatar.getDoId()
+            self.notify.debug('Distributed suit %d: requesting a Battle with toon: %d' % (self.doId, toonId))
+            self.d_requestBattle(self.getPos(), self.getHpr())
+            self.setState('WaitForBattle')
+            return
 
     def setPath(self):
         self.notify.debug('setPath %s' % self.doId)
@@ -273,33 +275,34 @@ class DistributedFactorySuit(DistributedSuitBase.DistributedSuitBase, DelayDelet
     def chaseTask(self, task):
         if not self.chasing:
             return Task.done
-        av = base.cr.doId2do.get(self.chasing, None)
-        if not av:
-            self.notify.warning("avatar %s isn't here to chase" % self.chasing)
-            return Task.done
-        if globalClock.getFrameTime() - self.startChaseTime > 3.0:
-            self.setReturn()
-            return Task.done
-        toonPos = av.getPos(self.getParent())
-        suitPos = self.getPos()
-        distance = Vec3(suitPos - toonPos).length()
-        if self.chaseTrack:
-            self.chaseTrack.pause()
-            del self.chaseTrack
-            self.chaseTrack = None
-        import random
-        rand1 = 0.5
-        rand2 = 0.5
-        rand3 = 0.5
-        targetPos = Vec3(toonPos[0] + 4.0 * (rand1 - 0.5), toonPos[1] + 4.0 * (rand2 - 0.5), suitPos[2])
-        track = Sequence(Func(self.headsUp, targetPos[0], targetPos[1], targetPos[2]), Func(self.loop, 'walk', 0))
-        chaseSpeed = 4.0
-        duration = distance / chaseSpeed
-        track.extend([LerpPosInterval(self, duration=duration, pos=Point3(targetPos), startPos=Point3(suitPos))])
-        self.chaseTrack = track
-        self.chaseTrack.start()
-        self.startChaseTask(1.0)
-        return
+        else:
+            av = base.cr.doId2do.get(self.chasing, None)
+            if not av:
+                self.notify.warning("avatar %s isn't here to chase" % self.chasing)
+                return Task.done
+            if globalClock.getFrameTime() - self.startChaseTime > 3.0:
+                self.setReturn()
+                return Task.done
+            toonPos = av.getPos(self.getParent())
+            suitPos = self.getPos()
+            distance = Vec3(suitPos - toonPos).length()
+            if self.chaseTrack:
+                self.chaseTrack.pause()
+                del self.chaseTrack
+                self.chaseTrack = None
+            import random
+            rand1 = 0.5
+            rand2 = 0.5
+            rand3 = 0.5
+            targetPos = Vec3(toonPos[0] + 4.0 * (rand1 - 0.5), toonPos[1] + 4.0 * (rand2 - 0.5), suitPos[2])
+            track = Sequence(Func(self.headsUp, targetPos[0], targetPos[1], targetPos[2]), Func(self.loop, 'walk', 0))
+            chaseSpeed = 4.0
+            duration = distance / chaseSpeed
+            track.extend([LerpPosInterval(self, duration=duration, pos=Point3(targetPos), startPos=Point3(suitPos))])
+            self.chaseTrack = track
+            self.chaseTrack.start()
+            self.startChaseTask(1.0)
+            return
 
     def startCheckStrayTask(self, on=1):
         taskMgr.remove(self.taskName('checkStray'))

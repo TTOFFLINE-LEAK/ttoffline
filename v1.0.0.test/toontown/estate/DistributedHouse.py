@@ -163,22 +163,23 @@ class DistributedHouse(DistributedObject.DistributedObject):
         numLines = 0
         if self.name == '':
             return
-        houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(self.name)
-        nameText.setText(houseName)
-        self.nameText = nameText
-        textHeight = nameText.getHeight() - 2
-        textWidth = nameText.getWidth()
-        xScale = 1.0
-        if textWidth > 16:
-            xScale = 16.0 / textWidth
-        sign_origin = self.house.find('**/sign_origin')
-        pos = sign_origin.getPos()
-        sign_origin.setPosHpr(pos[0], pos[1], pos[2] + 0.15 * textHeight, 90, 0, 0)
-        self.namePlate = sign_origin.attachNewNode(self.nameText)
-        self.namePlate.setDepthWrite(0)
-        self.namePlate.setPos(0, -0.05, 0)
-        self.namePlate.setScale(xScale)
-        return nameText
+        else:
+            houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(self.name)
+            nameText.setText(houseName)
+            self.nameText = nameText
+            textHeight = nameText.getHeight() - 2
+            textWidth = nameText.getWidth()
+            xScale = 1.0
+            if textWidth > 16:
+                xScale = 16.0 / textWidth
+            sign_origin = self.house.find('**/sign_origin')
+            pos = sign_origin.getPos()
+            sign_origin.setPosHpr(pos[0], pos[1], pos[2] + 0.15 * textHeight, 90, 0, 0)
+            self.namePlate = sign_origin.attachNewNode(self.nameText)
+            self.namePlate.setDepthWrite(0)
+            self.namePlate.setPos(0, -0.05, 0)
+            self.namePlate.setScale(xScale)
+            return nameText
 
     def __setupFloorMat(self, changeColor=True):
         if self.floorMat:
@@ -202,22 +203,23 @@ class DistributedHouse(DistributedObject.DistributedObject):
         numLines = 0
         if self.name == '':
             return
-        houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(self.name)
-        matText.setText(houseName)
-        self.matText = matText
-        textHeight = matText.getHeight() - 2
-        textWidth = matText.getWidth()
-        xScale = 1.0
-        if textWidth > 8:
-            xScale = 8.0 / textWidth
-        mat_origin = self.house.find('**/mat_origin')
-        pos = mat_origin.getPos()
-        mat_origin.setPosHpr(pos[0] - 0.15 * textHeight, pos[1], pos[2], 90, -90, 0)
-        self.floorMat = mat_origin.attachNewNode(self.matText)
-        self.floorMat.setDepthWrite(0)
-        self.floorMat.setPos(0, -0.025, 0)
-        self.floorMat.setScale(0.45 * xScale)
-        return
+        else:
+            houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(self.name)
+            matText.setText(houseName)
+            self.matText = matText
+            textHeight = matText.getHeight() - 2
+            textWidth = matText.getWidth()
+            xScale = 1.0
+            if textWidth > 8:
+                xScale = 8.0 / textWidth
+            mat_origin = self.house.find('**/mat_origin')
+            pos = mat_origin.getPos()
+            mat_origin.setPosHpr(pos[0] - 0.15 * textHeight, pos[1], pos[2], 90, -90, 0)
+            self.floorMat = mat_origin.attachNewNode(self.matText)
+            self.floorMat.setDepthWrite(0)
+            self.floorMat.setPos(0, -0.025, 0)
+            self.floorMat.setScale(0.45 * xScale)
+            return
 
     def __setupNametag(self):
         if self.nametag:
@@ -351,19 +353,20 @@ class DistributedHouse(DistributedObject.DistributedObject):
         numLines = 0
         if self.name == '':
             return
-        houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(self.name)
-        nameText.setText(houseName)
-        self.nameText = nameText
-        textHeight = nameText.getHeight() - 2
-        textWidth = nameText.getWidth()
-        xScale = 1.0
-        if textWidth > 16:
-            xScale = 16.0 / textWidth
-        sign_origin = self.house.find('**/sign_origin')
-        pos = sign_origin.getPos()
-        sign_origin.setPosHpr(pos[0], pos[1], pos[2] + 0.15 * textHeight, 90, 0, 0)
-        self.namePlate = sign_origin.attachNewNode(self.nameText)
-        self.namePlate.setDepthWrite(0)
-        self.namePlate.setPos(0, -0.05, 0)
-        self.namePlate.setScale(xScale)
-        return nameText
+        else:
+            houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(self.name)
+            nameText.setText(houseName)
+            self.nameText = nameText
+            textHeight = nameText.getHeight() - 2
+            textWidth = nameText.getWidth()
+            xScale = 1.0
+            if textWidth > 16:
+                xScale = 16.0 / textWidth
+            sign_origin = self.house.find('**/sign_origin')
+            pos = sign_origin.getPos()
+            sign_origin.setPosHpr(pos[0], pos[1], pos[2] + 0.15 * textHeight, 90, 0, 0)
+            self.namePlate = sign_origin.attachNewNode(self.nameText)
+            self.namePlate.setDepthWrite(0)
+            self.namePlate.setPos(0, -0.05, 0)
+            self.namePlate.setScale(xScale)
+            return nameText

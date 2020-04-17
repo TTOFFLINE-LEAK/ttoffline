@@ -219,11 +219,12 @@ class DistributedCountryClub(DistributedObject.DistributedObject):
     def setBossConfronted(self, avId):
         if avId == base.localAvatar.doId:
             return
-        av = base.cr.identifyFriend(avId)
-        if av is None:
+        else:
+            av = base.cr.identifyFriend(avId)
+            if av is None:
+                return
+            base.localAvatar.setSystemMessage(avId, TTLocalizer.CountryClubBossConfrontedMsg % av.getName())
             return
-        base.localAvatar.setSystemMessage(avId, TTLocalizer.CountryClubBossConfrontedMsg % av.getName())
-        return
 
     def warpToRoom(self, roomId):
         for i in xrange(len(self.rooms)):

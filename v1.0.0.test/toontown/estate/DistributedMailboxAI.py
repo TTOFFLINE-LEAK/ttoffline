@@ -58,24 +58,24 @@ class DistributedMailboxAI(DistributedObjectAI):
             self.d_setMovie(MailboxGlobals.MAILBOX_MOVIE_READY, avId)
             self.user = avId
             self.busy = True
+        elif len(av.onOrder):
+            self.d_setMovie(MailboxGlobals.MAILBOX_MOVIE_WAITING, avId)
         else:
-            if len(av.onOrder):
-                self.d_setMovie(MailboxGlobals.MAILBOX_MOVIE_WAITING, avId)
-            else:
-                self.d_setMovie(MailboxGlobals.MAILBOX_MOVIE_EMPTY, avId)
+            self.d_setMovie(MailboxGlobals.MAILBOX_MOVIE_EMPTY, avId)
         self.resetMovie()
 
     def avatarExit(self):
         avId = self.air.getAvatarIdFromSender()
         if avId != self.user:
             return
-        self.user = None
-        self.busy = False
-        self.updateIndicatorFlag()
-        self.d_setMovie(MailboxGlobals.MAILBOX_MOVIE_EXIT, avId)
-        self.d_freeAvatar(avId)
-        self.resetMovie()
-        return
+        else:
+            self.user = None
+            self.busy = False
+            self.updateIndicatorFlag()
+            self.d_setMovie(MailboxGlobals.MAILBOX_MOVIE_EXIT, avId)
+            self.d_freeAvatar(avId)
+            self.resetMovie()
+            return
 
     def d_freeAvatar(self, avId):
         self.sendUpdateToAvatarId(avId, 'freeAvatar', [])

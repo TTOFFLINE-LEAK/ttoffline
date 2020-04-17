@@ -45,12 +45,10 @@ class CatalogNametagItem(CatalogItem.CatalogItem):
         return name
         if self.nametagStyle == 0:
             name = TTLocalizer.NametagPaid
-        else:
-            if self.nametagStyle == 1:
-                name = TTLocalizer.NametagAction
-            else:
-                if self.nametagStyle == 2:
-                    name = TTLocalizer.NametagFrilly
+        elif self.nametagStyle == 1:
+            name = TTLocalizer.NametagAction
+        elif self.nametagStyle == 2:
+            name = TTLocalizer.NametagFrilly
 
     def recordPurchase(self, avatar, optional):
         if avatar:
@@ -88,15 +86,12 @@ class CatalogNametagItem(CatalogItem.CatalogItem):
         cost = 500
         if self.nametagStyle == 0:
             cost = 600
-        else:
-            if self.nametagStyle == 1:
-                cost = 600
-            else:
-                if self.nametagStyle == 2:
-                    cost = 600
-                else:
-                    if self.nametagStyle == 100:
-                        cost = 50
+        elif self.nametagStyle == 1:
+            cost = 600
+        elif self.nametagStyle == 2:
+            cost = 600
+        elif self.nametagStyle == 100:
+            cost = 50
         return cost
 
     def decodeDatagram(self, di, versionNumber, store):

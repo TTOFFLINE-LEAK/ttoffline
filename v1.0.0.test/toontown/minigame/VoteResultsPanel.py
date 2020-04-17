@@ -97,12 +97,10 @@ class VoteResultsPanel(DirectFrame):
         reasonStr = ''
         if self.directionReason == TravelGameGlobals.ReasonVote:
             reasonStr = TTLocalizer.TravelGameReasonVotes % {'dir': TTLocalizer.TravelGameDirections[self.directionToGo], 'numVotes': self.directionTotals[self.directionToGo]}
-        else:
-            if self.directionReason == TravelGameGlobals.ReasonRandom:
-                reasonStr = TTLocalizer.TravelGameReasonRandom % {'dir': TTLocalizer.TravelGameDirections[self.directionToGo], 'numVotes': self.directionTotals[self.directionToGo]}
-            else:
-                if self.directionReason == TravelGameGlobals.ReasonPlaceDecider:
-                    reasonStr = TravelGameReasonPlace % {'name': 'TODO NAME', 'dir': TTLocalizer.TravelGameDirections[self.directionToGo]}
+        elif self.directionReason == TravelGameGlobals.ReasonRandom:
+            reasonStr = TTLocalizer.TravelGameReasonRandom % {'dir': TTLocalizer.TravelGameDirections[self.directionToGo], 'numVotes': self.directionTotals[self.directionToGo]}
+        elif self.directionReason == TravelGameGlobals.ReasonPlaceDecider:
+            reasonStr = TravelGameReasonPlace % {'name': 'TODO NAME', 'dir': TTLocalizer.TravelGameDirections[self.directionToGo]}
         self.resultLabel['text'] = reasonStr
         self.resultLabel.hide()
 

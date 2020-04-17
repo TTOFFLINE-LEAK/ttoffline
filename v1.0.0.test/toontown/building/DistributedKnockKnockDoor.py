@@ -70,18 +70,15 @@ class DistributedKnockKnockDoor(DistributedAnimatedProp.DistributedAnimatedProp)
             if branch == ToontownGlobals.SillyStreet:
                 if self.propId == 44:
                     joke = KnockKnockContestJokes[ToontownGlobals.SillyStreet]
-            else:
-                if branch == ToontownGlobals.LoopyLane:
-                    if self.propId in KnockKnockContestJokes[ToontownGlobals.LoopyLane].keys():
-                        joke = KnockKnockContestJokes[ToontownGlobals.LoopyLane][self.propId]
-                else:
-                    if branch == ToontownGlobals.PunchlinePlace:
-                        if self.propId == 1:
-                            joke = KnockKnockContestJokes[ToontownGlobals.PunchlinePlace]
-                    else:
-                        if branch == ToontownGlobals.PolarPlace:
-                            if self.propId in KnockKnockContestJokes[ToontownGlobals.PolarPlace].keys():
-                                joke = KnockKnockContestJokes[ToontownGlobals.PolarPlace][self.propId]
+            elif branch == ToontownGlobals.LoopyLane:
+                if self.propId in KnockKnockContestJokes[ToontownGlobals.LoopyLane].keys():
+                    joke = KnockKnockContestJokes[ToontownGlobals.LoopyLane][self.propId]
+            elif branch == ToontownGlobals.PunchlinePlace:
+                if self.propId == 1:
+                    joke = KnockKnockContestJokes[ToontownGlobals.PunchlinePlace]
+            elif branch == ToontownGlobals.PolarPlace:
+                if self.propId in KnockKnockContestJokes[ToontownGlobals.PolarPlace].keys():
+                    joke = KnockKnockContestJokes[ToontownGlobals.PolarPlace][self.propId]
         self.nametag = None
         self.nametagNP = None
         doorNP = render.find('**/KnockKnockDoorSphere_' + str(self.propId) + ';+s')

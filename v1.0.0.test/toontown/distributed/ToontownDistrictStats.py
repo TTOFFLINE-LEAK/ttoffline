@@ -36,9 +36,8 @@ def open(event=None):
 
         _trashObject.acceptOnce(EventName(), _CompleteProc)
         _ToonTownDistrictStatInterest = base.cr.addInterest(OTP_DO_ID_TOONTOWN, OTP_ZONE_ID_DISTRICTS_STATS, EventName(), EventName())
-    else:
-        if isComplete():
-            messenger.send(EventName())
+    elif isComplete():
+        messenger.send(EventName())
 
 
 def refresh(event=None):

@@ -69,7 +69,8 @@ class SCMenuHolder(SCElement):
     def getMenuOverlap(self):
         if self.parentMenu.isTopLevel():
             return self.getTopLevelOverlap()
-        return self.getSubmenuOverlap()
+        else:
+            return self.getSubmenuOverlap()
 
     def getMenuOffset(self):
         xOffset = self.width * (1.0 - self.getMenuOverlap())
@@ -103,14 +104,15 @@ class SCMenuHolder(SCElement):
         if self.menu is None:
             self.setViewable(0)
             return
-        isViewable = False
-        for child in self.menu:
-            if child.isViewable():
-                isViewable = True
-                break
+        else:
+            isViewable = False
+            for child in self.menu:
+                if child.isViewable():
+                    isViewable = True
+                    break
 
-        self.setViewable(isViewable)
-        return
+            self.setViewable(isViewable)
+            return
 
     def getMinSubmenuWidth(self):
         parentMenu = self.getParentMenu()
@@ -135,24 +137,25 @@ class SCMenuHolder(SCElement):
     def finalize(self, dbArgs={}):
         if not self.isDirty():
             return
-        r, g, b = self.getColorScheme().getArrowColor()
-        a = self.getColorScheme().getAlpha()
-        self.scArrow.setColorScale(r, g, b, a)
-        if self.menu is not None:
-            self.menu.setPos(self.getMenuOffset())
-        if self.isActive():
-            r, g, b = self.getColorScheme().getMenuHolderActiveColor()
-            a = self.getColorScheme().getAlpha()
-            frameColor = (r,
-             g,
-             b,
-             a)
         else:
-            frameColor = SCMenuHolder.DefaultFrameColor
-        args = {'image': self.scArrow, 'image_pos': (self.width - 0.5, 0, -self.height * 0.5), 'frameColor': frameColor}
-        args.update(dbArgs)
-        SCElement.finalize(self, dbArgs=args)
-        return
+            r, g, b = self.getColorScheme().getArrowColor()
+            a = self.getColorScheme().getAlpha()
+            self.scArrow.setColorScale(r, g, b, a)
+            if self.menu is not None:
+                self.menu.setPos(self.getMenuOffset())
+            if self.isActive():
+                r, g, b = self.getColorScheme().getMenuHolderActiveColor()
+                a = self.getColorScheme().getAlpha()
+                frameColor = (r,
+                 g,
+                 b,
+                 a)
+            else:
+                frameColor = SCMenuHolder.DefaultFrameColor
+            args = {'image': self.scArrow, 'image_pos': (self.width - 0.5, 0, -self.height * 0.5), 'frameColor': frameColor}
+            args.update(dbArgs)
+            SCElement.finalize(self, dbArgs=args)
+            return
 
     def hasStickyFocus(self):
         return 1

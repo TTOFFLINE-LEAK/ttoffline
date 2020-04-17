@@ -98,8 +98,8 @@ class Functor():
                 argStr = repr(arg)
             except:
                 argStr = 'bad repr: %s' % arg.__class__
-            else:
-                s += ', %s' % argStr
+
+            s += ', %s' % argStr
 
         for karg, value in self._kargs.items():
             s += ', %s=%s' % (karg, repr(value))
@@ -192,12 +192,11 @@ def nonRepeatingRandomList(vals, max):
 def writeFsmTree(instance, indent=0):
     if hasattr(instance, 'parentFSM'):
         writeFsmTree(instance.parentFSM, indent - 2)
-    else:
-        if hasattr(instance, 'fsm'):
-            name = ''
-            if hasattr(instance.fsm, 'state'):
-                name = instance.fsm.state.name
-            print '%s: %s' % (instance.fsm.name, name)
+    elif hasattr(instance, 'fsm'):
+        name = ''
+        if hasattr(instance.fsm, 'state'):
+            name = instance.fsm.state.name
+        print '%s: %s' % (instance.fsm.name, name)
 
 
 class StackTrace():
@@ -307,15 +306,12 @@ def tron():
 def trace(frame, event, arg):
     if event == 'line':
         pass
-    else:
-        if event == 'call':
-            print traceFunctionCall(sys._getframe(1))
-        else:
-            if event == 'return':
-                print 'returning'
-            else:
-                if event == 'exception':
-                    print 'exception'
+    elif event == 'call':
+        print traceFunctionCall(sys._getframe(1))
+    elif event == 'return':
+        print 'returning'
+    elif event == 'exception':
+        print 'exception'
     return trace
 
 
@@ -328,19 +324,20 @@ def getClassLineage(obj):
     if type(obj) == types.DictionaryType:
         return [
          obj]
-    if type(obj) == types.InstanceType:
-        return [
-         obj] + getClassLineage(obj.__class__)
-    if type(obj) == types.ClassType or type(obj) == types.TypeType:
-        lineage = [obj]
-        for c in obj.__bases__:
-            lineage = lineage + getClassLineage(c)
+    else:
+        if type(obj) == types.InstanceType:
+            return [
+             obj] + getClassLineage(obj.__class__)
+        if type(obj) == types.ClassType or type(obj) == types.TypeType:
+            lineage = [obj]
+            for c in obj.__bases__:
+                lineage = lineage + getClassLineage(c)
 
-        return lineage
-    if hasattr(obj, '__class__'):
-        return [
-         obj] + getClassLineage(obj.__class__)
-    return []
+            return lineage
+        if hasattr(obj, '__class__'):
+            return [
+             obj] + getClassLineage(obj.__class__)
+        return []
 
 
 def pdir(obj, str=None, width=None, fTruncate=1, lineWidth=75, wantPrivate=0):
@@ -386,58 +383,57 @@ def _pdir(obj, str=None, width=None, fTruncate=1, lineWidth=75, wantPrivate=0):
         else:
             if type(obj) == types.DictionaryType:
                 printDictionaryHeader(obj)
-    if type(obj) == types.DictionaryType:
-        dict = obj
-    else:
-        if not hasattr(obj, '__dict__'):
-            dict = {}
-        else:
-            dict = obj.__dict__
-    if width:
-        maxWidth = width
-    else:
-        maxWidth = 10
-    keyWidth = 0
-    aproposKeys = []
-    privateKeys = []
-    remainingKeys = []
-    for key in dict.keys():
-        if not width:
-            keyWidth = len(key)
-        if str:
-            if re.search(str, key, re.I):
-                aproposKeys.append(key)
-                if not width and keyWidth > maxWidth:
-                    maxWidth = keyWidth
-        elif key[:1] == '_':
-            if wantPrivate:
-                privateKeys.append(key)
-                if not width and keyWidth > maxWidth:
-                    maxWidth = keyWidth
-        else:
-            remainingKeys.append(key)
-            if not width and keyWidth > maxWidth:
-                maxWidth = keyWidth
+            if type(obj) == types.DictionaryType:
+                dict = obj
+            elif not hasattr(obj, '__dict__'):
+                dict = {}
+            else:
+                dict = obj.__dict__
+            if width:
+                maxWidth = width
+            else:
+                maxWidth = 10
+            keyWidth = 0
+            aproposKeys = []
+            privateKeys = []
+            remainingKeys = []
+            for key in dict.keys():
+                if not width:
+                    keyWidth = len(key)
+                if str:
+                    if re.search(str, key, re.I):
+                        aproposKeys.append(key)
+                        if not width and keyWidth > maxWidth:
+                            maxWidth = keyWidth
+                elif key[:1] == '_':
+                    if wantPrivate:
+                        privateKeys.append(key)
+                        if not width and keyWidth > maxWidth:
+                            maxWidth = keyWidth
+                else:
+                    remainingKeys.append(key)
+                    if not width and keyWidth > maxWidth:
+                        maxWidth = keyWidth
 
-    if str:
-        aproposKeys.sort()
-    else:
-        privateKeys.sort()
-        remainingKeys.sort()
-    if wantPrivate:
-        keys = aproposKeys + privateKeys + remainingKeys
-    else:
-        keys = aproposKeys + remainingKeys
-    format = '%-' + repr(maxWidth) + 's'
-    for key in keys:
-        value = dict[key]
-        if callable(value):
-            strvalue = repr(Signature(value))
+        if str:
+            aproposKeys.sort()
         else:
-            strvalue = repr(value)
-        if fTruncate:
-            strvalue = strvalue[:max(1, lineWidth - maxWidth)]
-        print (format % key)[:maxWidth] + '\t' + strvalue
+            privateKeys.sort()
+            remainingKeys.sort()
+        if wantPrivate:
+            keys = aproposKeys + privateKeys + remainingKeys
+        else:
+            keys = aproposKeys + remainingKeys
+        format = '%-' + repr(maxWidth) + 's'
+        for key in keys:
+            value = dict[key]
+            if callable(value):
+                strvalue = repr(Signature(value))
+            else:
+                strvalue = repr(value)
+            if fTruncate:
+                strvalue = strvalue[:max(1, lineWidth - maxWidth)]
+            print (format % key)[:maxWidth] + '\t' + strvalue
 
 
 _POS_LIST = 4
@@ -480,11 +476,11 @@ def _getcode(f):
     def class_get(f):
         if hasattr(f, '__init__'):
             return (f.__name__, f.__init__.im_func)
-        return (
-         f.__name__, lambda : None)
+        else:
+            return (
+             f.__name__, lambda : None)
 
-    codedict = {types.UnboundMethodType: method_get, types.MethodType: method_get, 
-       types.FunctionType: function_get, 
+    codedict = {types.UnboundMethodType: method_get, types.MethodType: method_get, types.FunctionType: function_get, 
        types.InstanceType: instance_get, 
        types.ClassType: class_get}
     try:
@@ -516,9 +512,8 @@ class Signature():
             x['positional'] = _varnames(self.func)[n]
             if _has_keywordargs(self.func):
                 x['keyword'] = _varnames(self.func)[(n + 1)]
-        else:
-            if _has_keywordargs(self.func):
-                x['keyword'] = _varnames(self.func)[n]
+        elif _has_keywordargs(self.func):
+            x['keyword'] = _varnames(self.func)[n]
         return x
 
     def full_arglist(self):
@@ -556,7 +551,8 @@ class Signature():
             if 'keyword' in specials:
                 l.append('**' + specials['keyword'])
             return '%s(%s)' % (self.name, (', ').join(l))
-        return '%s(?)' % self.name
+        else:
+            return '%s(?)' % self.name
 
 
 def doc(obj):
@@ -639,19 +635,21 @@ def sameElements(a, b):
 def makeList(x):
     if type(x) is types.ListType:
         return x
-    if type(x) is types.TupleType:
-        return list(x)
-    return [
-     x]
+    else:
+        if type(x) is types.TupleType:
+            return list(x)
+        return [
+         x]
 
 
 def makeTuple(x):
     if type(x) is types.ListType:
         return tuple(x)
-    if type(x) is types.TupleType:
-        return x
-    return (
-     x,)
+    else:
+        if type(x) is types.TupleType:
+            return x
+        return (
+         x,)
 
 
 def list2dict(L, value=None):
@@ -719,17 +717,18 @@ def contains(whole, sub):
 def replace(list, old, new, all=0):
     if old not in list:
         return 0
-    if not all:
-        i = list.index(old)
-        list[i] = new
-        return 1
-    numReplaced = 0
-    for i in xrange(len(list)):
-        if list[i] == old:
-            numReplaced += 1
+    else:
+        if not all:
+            i = list.index(old)
             list[i] = new
+            return 1
+        numReplaced = 0
+        for i in xrange(len(list)):
+            if list[i] == old:
+                numReplaced += 1
+                list[i] = new
 
-    return numReplaced
+        return numReplaced
 
 
 rad90 = math.pi / 2.0
@@ -753,18 +752,20 @@ def closestDestAngle2(src, dest):
     diff = src - dest
     if diff > 180:
         return dest - 360
-    if diff < -180:
-        return dest + 360
-    return dest
+    else:
+        if diff < -180:
+            return dest + 360
+        return dest
 
 
 def closestDestAngle(src, dest):
     diff = src - dest
     if diff > 180:
         return src - (diff - 360)
-    if diff < -180:
-        return src - (360 + diff)
-    return dest
+    else:
+        if diff < -180:
+            return src - (360 + diff)
+        return dest
 
 
 def binaryRepr(number, max_length=32):
@@ -817,21 +818,22 @@ def profileFunc(callback, name, terse, log=True):
         base.notify.warning('PythonUtil.profileStart(%s): aborted, already profiling %s' % (
          name, __builtin__.globalProfileFunc))
         return
-    __builtin__.globalProfileFunc = callback
-    __builtin__.globalProfileResult = [None]
-    prefix = '***** START PROFILE: %s *****' % name
-    if log:
-        print prefix
-    startProfile(cmd='globalProfileResult[0]=globalProfileFunc()', callInfo=not terse, silent=not log)
-    suffix = '***** END PROFILE: %s *****' % name
-    if log:
-        print suffix
     else:
-        _ProfileResultStr = '%s\n%s\n%s' % (prefix, _ProfileResultStr, suffix)
-    result = globalProfileResult[0]
-    del __builtin__.__dict__['globalProfileFunc']
-    del __builtin__.__dict__['globalProfileResult']
-    return result
+        __builtin__.globalProfileFunc = callback
+        __builtin__.globalProfileResult = [None]
+        prefix = '***** START PROFILE: %s *****' % name
+        if log:
+            print prefix
+        startProfile(cmd='globalProfileResult[0]=globalProfileFunc()', callInfo=not terse, silent=not log)
+        suffix = '***** END PROFILE: %s *****' % name
+        if log:
+            print suffix
+        else:
+            _ProfileResultStr = '%s\n%s\n%s' % (prefix, _ProfileResultStr, suffix)
+        result = globalProfileResult[0]
+        del __builtin__.__dict__['globalProfileFunc']
+        del __builtin__.__dict__['globalProfileResult']
+        return result
 
 
 def profiled(category=None, terse=False):
@@ -843,8 +845,9 @@ def profiled(category=None, terse=False):
             name = '(%s) %s from %s' % (category, f.func_name, f.__module__)
             if category is None or ConfigVariableBool('want-profile-%s' % category, 0).getValue():
                 return profileFunc(Functor(f, *args, **kArgs), name, terse)
-            return f(*args, **kArgs)
-            return
+            else:
+                return f(*args, **kArgs)
+                return
 
         _profiled.__doc__ = f.__doc__
         return _profiled
@@ -1085,61 +1088,61 @@ class ParamObj():
         else:
             if len(kwArgs) > 0:
                 params = self.ParamSet(**kwArgs)
-        self._paramLockRefCount = 0
-        self._curParamStack = []
-        self._priorValuesStack = []
-        for param in self.ParamSet.getParams():
-            setattr(self, param, self.ParamSet.getDefaultValue(param))
-            setterName = getSetterName(param)
-            getterName = getSetterName(param, 'get')
-            if not hasattr(self, setterName):
+            self._paramLockRefCount = 0
+            self._curParamStack = []
+            self._priorValuesStack = []
+            for param in self.ParamSet.getParams():
+                setattr(self, param, self.ParamSet.getDefaultValue(param))
+                setterName = getSetterName(param)
+                getterName = getSetterName(param, 'get')
+                if not hasattr(self, setterName):
 
-                def defaultSetter(self, value, param=param):
-                    setattr(self, param, value)
+                    def defaultSetter(self, value, param=param):
+                        setattr(self, param, value)
 
-                self.__class__.__dict__[setterName] = defaultSetter
-            if not hasattr(self, getterName):
+                    self.__class__.__dict__[setterName] = defaultSetter
+                if not hasattr(self, getterName):
 
-                def defaultGetter(self, param=param, default=self.ParamSet.getDefaultValue(param)):
-                    return getattr(self, param, default)
+                    def defaultGetter(self, param=param, default=self.ParamSet.getDefaultValue(param)):
+                        return getattr(self, param, default)
 
-                self.__class__.__dict__[getterName] = defaultGetter
-            origSetterName = '%s_ORIG' % (setterName,)
-            if not hasattr(self, origSetterName):
-                origSetterFunc = getattr(self.__class__, setterName)
-                setattr(self.__class__, origSetterName, origSetterFunc)
+                    self.__class__.__dict__[getterName] = defaultGetter
+                origSetterName = '%s_ORIG' % (setterName,)
+                if not hasattr(self, origSetterName):
+                    origSetterFunc = getattr(self.__class__, setterName)
+                    setattr(self.__class__, origSetterName, origSetterFunc)
 
-                def setterStub(self, value, param=param, origSetterName=origSetterName):
-                    if self._paramLockRefCount > 0:
-                        priorValues = self._priorValuesStack[(-1)]
-                        if param not in priorValues:
+                    def setterStub(self, value, param=param, origSetterName=origSetterName):
+                        if self._paramLockRefCount > 0:
+                            priorValues = self._priorValuesStack[(-1)]
+                            if param not in priorValues:
+                                try:
+                                    priorValue = getSetter(self, param, 'get')()
+                                except:
+                                    priorValue = None
+
+                                priorValues[param] = priorValue
+                            self._paramsSet[param] = None
+                            getattr(self, origSetterName)(value)
+                        else:
                             try:
                                 priorValue = getSetter(self, param, 'get')()
                             except:
                                 priorValue = None
 
-                            priorValues[param] = priorValue
-                        self._paramsSet[param] = None
+                        self._priorValuesStack.append({param: priorValue})
                         getattr(self, origSetterName)(value)
-                    else:
-                        try:
-                            priorValue = getSetter(self, param, 'get')()
-                        except:
-                            priorValue = None
+                        applier = getattr(self, getSetterName(param, 'apply'), None)
+                        if applier is not None:
+                            self._curParamStack.append(param)
+                            applier()
+                            self._curParamStack.pop()
+                        self._priorValuesStack.pop()
+                        if hasattr(self, 'handleParamChange'):
+                            self.handleParamChange((param,))
+                        return
 
-                    self._priorValuesStack.append({param: priorValue})
-                    getattr(self, origSetterName)(value)
-                    applier = getattr(self, getSetterName(param, 'apply'), None)
-                    if applier is not None:
-                        self._curParamStack.append(param)
-                        applier()
-                        self._curParamStack.pop()
-                    self._priorValuesStack.pop()
-                    if hasattr(self, 'handleParamChange'):
-                        self.handleParamChange((param,))
-                    return
-
-                setattr(self.__class__, setterName, setterStub)
+                    setattr(self.__class__, setterName, setterStub)
 
         if params is not None:
             params.applyTo(self)
@@ -1198,8 +1201,8 @@ class ParamObj():
                 value = getSetter(self, param, 'get')()
             except:
                 value = '<unknown>'
-            else:
-                argStr += '%s=%s,' % (param, repr(value))
+
+            argStr += '%s=%s,' % (param, repr(value))
 
         return '%s(%s)' % (self.__class__.__name__, argStr)
 
@@ -1330,7 +1333,8 @@ if 0 and __name__ == '__main__':
 def bound(value, bound1, bound2):
     if bound1 > bound2:
         return min(max(value, bound2), bound1)
-    return min(max(value, bound1), bound2)
+    else:
+        return min(max(value, bound1), bound2)
 
 
 clamp = bound
@@ -1406,29 +1410,31 @@ def formatElapsedSeconds(seconds):
     if hours > 36:
         days = math.floor((hours + 12) / 24)
         return '%s%d days' % (sign, days)
-    seconds -= hours * 3600
-    minutes = int(seconds / 60)
-    seconds -= minutes * 60
-    if hours != 0:
-        return '%s%d:%02d:%02d hours' % (sign, hours, minutes, seconds)
-    return '%s%d:%02d minutes' % (sign, minutes, seconds)
+    else:
+        seconds -= hours * 3600
+        minutes = int(seconds / 60)
+        seconds -= minutes * 60
+        if hours != 0:
+            return '%s%d:%02d:%02d hours' % (sign, hours, minutes, seconds)
+        return '%s%d:%02d minutes' % (sign, minutes, seconds)
 
 
 def solveQuadratic(a, b, c):
     if a == 0.0:
         return
-    D = b * b - 4.0 * a * c
-    if D < 0:
+    else:
+        D = b * b - 4.0 * a * c
+        if D < 0:
+            return
+        if D == 0:
+            return -b / (2.0 * a)
+        sqrtD = math.sqrt(D)
+        twoA = 2.0 * a
+        root1 = (-b - sqrtD) / twoA
+        root2 = (-b + sqrtD) / twoA
+        return [
+         root1, root2]
         return
-    if D == 0:
-        return -b / (2.0 * a)
-    sqrtD = math.sqrt(D)
-    twoA = 2.0 * a
-    root1 = (-b - sqrtD) / twoA
-    root2 = (-b + sqrtD) / twoA
-    return [
-     root1, root2]
-    return
 
 
 def stackEntryInfo(depth=0, baseFileName=1):
@@ -1466,11 +1472,14 @@ def lineTag(baseFileName=1, verbose=0, separator=':'):
     fileName, lineNum, funcName = callerInfo(baseFileName)
     if fileName is None:
         return ''
-    if verbose:
-        return 'File "%s", line %s, in %s' % (fileName, lineNum, funcName)
-    return '%s%s%s%s%s' % (fileName, separator, lineNum, separator,
-     funcName)
-    return
+    else:
+        if verbose:
+            return 'File "%s", line %s, in %s' % (fileName, lineNum, funcName)
+        else:
+            return '%s%s%s%s%s' % (fileName, separator, lineNum, separator,
+             funcName)
+
+        return
 
 
 def findPythonModule(module):
@@ -1526,15 +1535,18 @@ def clampScalar(value, a, b):
     if a < b:
         if value < a:
             return a
-        if value > b:
-            return b
-        return value
+        else:
+            if value > b:
+                return b
+            return value
+
     else:
         if value < b:
             return b
-        if value > a:
-            return a
-        return value
+        else:
+            if value > a:
+                return a
+            return value
 
 
 def pivotScalar(scalar, pivot):
@@ -1770,12 +1782,13 @@ def safeReprTypeOnFail(obj):
         _getSafeReprNotify()
     if isinstance(obj, dtoolSuperBase):
         return type(obj)
-    try:
-        return repr(obj)
-    except:
-        return '<** FAILED REPR OF %s instance at %s **>' % (obj.__class__.__name__, hex(id(obj)))
+    else:
+        try:
+            return repr(obj)
+        except:
+            return '<** FAILED REPR OF %s instance at %s **>' % (obj.__class__.__name__, hex(id(obj)))
 
-    return
+        return
 
 
 def fastRepr(obj, maxLen=200, strFactor=10, _visitedIds=None):
@@ -1964,29 +1977,30 @@ def r_add_chain(objId, objList, objTree, idList, num):
     obj = idList.get(objId)
     if not obj:
         return
-    refList = gc.get_referrers(obj)
-    for ref in refList:
-        refId = id(ref)
-        if ref == __builtins__:
-            continue
-        if ref == objList:
-            continue
-        if refId in objList:
-            continue
-        if ref == idList:
-            continue
-        if itype(ref) == ftype:
-            continue
-        if itype(ref) == itype(sys):
-            continue
-        objList.append(refId)
-        objTree[refId] = {}
+    else:
+        refList = gc.get_referrers(obj)
+        for ref in refList:
+            refId = id(ref)
+            if ref == __builtins__:
+                continue
+            if ref == objList:
+                continue
+            if refId in objList:
+                continue
+            if ref == idList:
+                continue
+            if itype(ref) == ftype:
+                continue
+            if itype(ref) == itype(sys):
+                continue
+            objList.append(refId)
+            objTree[refId] = {}
 
-    refList = None
-    for refId in objTree:
-        r_add_chain(refId, objList, objTree[refId], idList, num)
+        refList = None
+        for refId in objTree:
+            r_add_chain(refId, objList, objTree[refId], idList, num)
 
-    return
+        return
 
 
 def tagRepr(obj, tag):
@@ -2018,7 +2032,8 @@ def isDefaultValue(x):
 def notNone(A, B):
     if A is None:
         return B
-    return A
+    else:
+        return A
 
 
 def appendStr(obj, st):
@@ -2124,7 +2139,8 @@ class Sync():
             self._series = other._series
             self._value = other._value
             return True
-        return False
+        else:
+            return False
 
     def isSynced(self, other):
         return self._series == other._series and self._value == other._value
@@ -2166,13 +2182,14 @@ def itype(obj):
     if t is types.InstanceType:
         return '%s of <class %s>>' % (repr(types.InstanceType)[:-1],
          str(obj.__class__))
-    if dtoolSuperBase is None:
-        _getDtoolSuperBase()
-    if isinstance(obj, dtoolSuperBase):
-        return '%s of %s>' % (repr(types.InstanceType)[:-1],
-         str(obj.__class__))
-    return t
-    return
+    else:
+        if dtoolSuperBase is None:
+            _getDtoolSuperBase()
+        if isinstance(obj, dtoolSuperBase):
+            return '%s of %s>' % (repr(types.InstanceType)[:-1],
+             str(obj.__class__))
+        return t
+        return
 
 
 def deeptype(obj, maxLen=100, _visitedIds=None):
@@ -2180,45 +2197,46 @@ def deeptype(obj, maxLen=100, _visitedIds=None):
         _visitedIds = set()
     if id(obj) in _visitedIds:
         return '<ALREADY-VISITED %s>' % itype(obj)
-    t = type(obj)
-    if t in (types.TupleType, types.ListType):
-        s = ''
-        s += {types.TupleType: '(', types.ListType: '['}[type(obj)]
-        if maxLen is not None and len(obj) > maxLen:
-            o = obj[:maxLen]
-            ellips = '...'
-        else:
-            o = obj
-            ellips = ''
-        _visitedIds.add(id(obj))
-        for item in o:
-            s += deeptype(item, maxLen, _visitedIds=_visitedIds)
-            s += ', '
+    else:
+        t = type(obj)
+        if t in (types.TupleType, types.ListType):
+            s = ''
+            s += {types.TupleType: '(', types.ListType: '['}[type(obj)]
+            if maxLen is not None and len(obj) > maxLen:
+                o = obj[:maxLen]
+                ellips = '...'
+            else:
+                o = obj
+                ellips = ''
+            _visitedIds.add(id(obj))
+            for item in o:
+                s += deeptype(item, maxLen, _visitedIds=_visitedIds)
+                s += ', '
 
-        _visitedIds.remove(id(obj))
-        s += ellips
-        s += {types.TupleType: ')', types.ListType: ']'}[type(obj)]
-        return s
-    if type(obj) is types.DictType:
-        s = '{'
-        if maxLen is not None and len(obj) > maxLen:
-            o = obj.keys()[:maxLen]
-            ellips = '...'
-        else:
-            o = obj.keys()
-            ellips = ''
-        _visitedIds.add(id(obj))
-        for key in o:
-            value = obj[key]
-            s += '%s: %s, ' % (deeptype(key, maxLen, _visitedIds=_visitedIds),
-             deeptype(value, maxLen, _visitedIds=_visitedIds))
+            _visitedIds.remove(id(obj))
+            s += ellips
+            s += {types.TupleType: ')', types.ListType: ']'}[type(obj)]
+            return s
+        if type(obj) is types.DictType:
+            s = '{'
+            if maxLen is not None and len(obj) > maxLen:
+                o = obj.keys()[:maxLen]
+                ellips = '...'
+            else:
+                o = obj.keys()
+                ellips = ''
+            _visitedIds.add(id(obj))
+            for key in o:
+                value = obj[key]
+                s += '%s: %s, ' % (deeptype(key, maxLen, _visitedIds=_visitedIds),
+                 deeptype(value, maxLen, _visitedIds=_visitedIds))
 
-        _visitedIds.remove(id(obj))
-        s += ellips
-        s += '}'
-        return s
-    return str(itype(obj))
-    return
+            _visitedIds.remove(id(obj))
+            s += ellips
+            s += '}'
+            return s
+        return str(itype(obj))
+        return
 
 
 def getNumberedTypedString(items, maxLen=5000, numPrefix=''):
@@ -2692,11 +2710,10 @@ def report(types=[], prefix='', xform=None, notifyFunc=None, dConfigParam=[]):
                     else:
                         print indent(outStr % (prefix,))
 
+            elif notifyFunc:
+                notifyFunc(outStr)
             else:
-                if notifyFunc:
-                    notifyFunc(outStr)
-                else:
-                    print indent(outStr)
+                print indent(outStr)
             if 'interests' in types:
                 base.cr.printInterestSets()
             if 'stackTrace' in types:
@@ -2742,13 +2759,13 @@ def exceptionLogged(append=True):
         null = not __dev__
     except:
         null = not 0
-    else:
-        if null:
 
-            def nullDecorator(f):
-                return f
+    if null:
 
-            return nullDecorator
+        def nullDecorator(f):
+            return f
+
+        return nullDecorator
 
     def _decoratorFunc(f, append=append):
         global exceptionLoggedNotify
@@ -2848,8 +2865,8 @@ def logMethodCalls(cls):
                             argStr = repr(arg)
                         except:
                             argStr = 'bad repr: %s' % arg.__class__
-                        else:
-                            s += '%s, ' % argStr
+
+                        s += '%s, ' % argStr
 
                     for karg, value in kArgs.items():
                         s += '%s=%s, ' % (karg, repr(value))
@@ -2922,7 +2939,8 @@ class HotkeyBreaker():
     def clearBreakPt(self, breakKey):
         if __dev__:
             return bool(self.breakKeys.pop(breakKey, None))
-        return
+        else:
+            return
 
 
 def nullGen():
@@ -3059,7 +3077,8 @@ def getAnnounceGenerateTime(stat):
 def choice(condition, ifTrue, ifFalse):
     if condition:
         return ifTrue
-    return ifFalse
+    else:
+        return ifFalse
 
 
 class MiniLog():
@@ -3365,7 +3384,8 @@ def configIsToday(configName):
 def typeName(o):
     if hasattr(o, '__class__'):
         return o.__class__.__name__
-    return o.__name__
+    else:
+        return o.__name__
 
 
 def safeTypeName(o):
@@ -3373,11 +3393,11 @@ def safeTypeName(o):
         return typeName(o)
     except:
         pass
-    else:
-        try:
-            return type(o)
-        except:
-            pass
+
+    try:
+        return type(o)
+    except:
+        pass
 
     return '<failed safeTypeName()>'
 
@@ -3398,12 +3418,11 @@ def unescapeHtmlString(s):
         char = s[i]
         if char == '+':
             char = ' '
-        else:
-            if char == '%':
-                if i < len(s) - 2:
-                    num = int(s[i + 1:i + 3], 16)
-                    char = chr(num)
-                    i += 2
+        elif char == '%':
+            if i < len(s) - 2:
+                num = int(s[i + 1:i + 3], 16)
+                char = chr(num)
+                i += 2
         i += 1
         result += char
 
@@ -3444,13 +3463,15 @@ if 0 and __name__ == '__main__':
 def u2ascii(s):
     if type(s) is types.UnicodeType:
         return unicodedata.normalize('NFKD', s).encode('ascii', 'backslashreplace')
-    return str(s)
+    else:
+        return str(s)
 
 
 def unicodeUtf8(s):
     if type(s) is types.UnicodeType:
         return s
-    return unicode(str(s), 'utf-8')
+    else:
+        return unicode(str(s), 'utf-8')
 
 
 def encodedUtf8(s):
@@ -3557,13 +3578,12 @@ class deprecated(object):
             fmt = 'Call to deprecated function or method {name}. {reason}.'
             filename = _code.co_filename
             lineno = _code.co_firstlineno + 1
+        elif inspect.isclass(cls_or_func):
+            fmt = 'Call to deprecated class {name}. {reason}.'
+            filename = cls_or_func.__module__
+            lineno = 1
         else:
-            if inspect.isclass(cls_or_func):
-                fmt = 'Call to deprecated class {name}. {reason}.'
-                filename = cls_or_func.__module__
-                lineno = 1
-            else:
-                raise TypeError(type(cls_or_func))
+            raise TypeError(type(cls_or_func))
         msg = fmt.format(name=cls_or_func.__name__, reason=self.reason)
 
         @functools.wraps(cls_or_func)

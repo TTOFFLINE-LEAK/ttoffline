@@ -35,41 +35,42 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
         if not self.pendingAvId:
             self.notify.warning('chooseQuest: not expecting an answer from any avatar: %s' % avId)
             return
-        if self.pendingAvId != avId:
-            self.notify.warning('chooseQuest: not expecting an answer from this avatar: %s' % avId)
-            return
-        if self.pendingQuests is None:
-            self.notify.warning('chooseQuest: not expecting a quest choice from this avatar: %s' % avId)
-            self.air.writeServerEvent('suspicious', avId, 'unexpected chooseQuest')
-            return
-        if questId == 0:
-            self.pendingAvId = None
-            self.pendingQuests = None
-            self.air.questManager.avatarCancelled(avId)
-            self.cancelChoseQuest(avId)
-            return
-        if questId == 401:
-            av = self.air.getDo(avId)
-            if not av:
-                self.notify.warning('chooseQuest: av not present: %s' % avId)
+        else:
+            if self.pendingAvId != avId:
+                self.notify.warning('chooseQuest: not expecting an answer from this avatar: %s' % avId)
                 return
-            if av.getGameAccess() != ToontownGlobals.AccessFull:
-                simbase.air.writeServerEvent('suspicious', avId, 'NPCToonAI.chooseQuest: non-paid player choosing task beyond velvet rope')
-                self.sendTimeoutMovie(None)
-                if self.FourthGagVelvetRopeBan:
-                    av.ban('fourth gag track velvet rope hacking')
+            if self.pendingQuests is None:
+                self.notify.warning('chooseQuest: not expecting a quest choice from this avatar: %s' % avId)
+                self.air.writeServerEvent('suspicious', avId, 'unexpected chooseQuest')
                 return
-        for quest in self.pendingQuests:
-            if questId == quest[0]:
+            if questId == 0:
                 self.pendingAvId = None
                 self.pendingQuests = None
-                self.air.questManager.avatarChoseQuest(avId, self, *quest)
+                self.air.questManager.avatarCancelled(avId)
+                self.cancelChoseQuest(avId)
                 return
+            if questId == 401:
+                av = self.air.getDo(avId)
+                if not av:
+                    self.notify.warning('chooseQuest: av not present: %s' % avId)
+                    return
+                if av.getGameAccess() != ToontownGlobals.AccessFull:
+                    simbase.air.writeServerEvent('suspicious', avId, 'NPCToonAI.chooseQuest: non-paid player choosing task beyond velvet rope')
+                    self.sendTimeoutMovie(None)
+                    if self.FourthGagVelvetRopeBan:
+                        av.ban('fourth gag track velvet rope hacking')
+                    return
+            for quest in self.pendingQuests:
+                if questId == quest[0]:
+                    self.pendingAvId = None
+                    self.pendingQuests = None
+                    self.air.questManager.avatarChoseQuest(avId, self, *quest)
+                    return
 
-        self.notify.warning('chooseQuest: avatar: %s chose a quest not offered: %s' % (avId, questId))
-        self.pendingAvId = None
-        self.pendingQuests = None
-        return
+            self.notify.warning('chooseQuest: avatar: %s chose a quest not offered: %s' % (avId, questId))
+            self.pendingAvId = None
+            self.pendingQuests = None
+            return
 
     def chooseTrack(self, trackId):
         avId = self.air.getAvatarIdFromSender()
@@ -77,33 +78,34 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
         if not self.pendingAvId:
             self.notify.warning('chooseTrack: not expecting an answer from any avatar: %s' % avId)
             return
-        if self.pendingAvId != avId:
-            self.notify.warning('chooseTrack: not expecting an answer from this avatar: %s' % avId)
-            return
-        if self.pendingTracks is None:
-            self.notify.warning('chooseTrack: not expecting a track choice from this avatar: %s' % avId)
-            self.air.writeServerEvent('suspicious', avId, 'unexpected chooseTrack')
-            return
-        if trackId == -1:
-            self.pendingAvId = None
-            self.pendingTracks = None
-            self.pendingTrackQuest = None
-            self.air.questManager.avatarCancelled(avId)
-            self.cancelChoseTrack(avId)
-            return
-        for track in self.pendingTracks:
-            if trackId == track:
-                self.air.questManager.avatarChoseTrack(avId, self, self.pendingTrackQuest, trackId)
+        else:
+            if self.pendingAvId != avId:
+                self.notify.warning('chooseTrack: not expecting an answer from this avatar: %s' % avId)
+                return
+            if self.pendingTracks is None:
+                self.notify.warning('chooseTrack: not expecting a track choice from this avatar: %s' % avId)
+                self.air.writeServerEvent('suspicious', avId, 'unexpected chooseTrack')
+                return
+            if trackId == -1:
                 self.pendingAvId = None
                 self.pendingTracks = None
                 self.pendingTrackQuest = None
+                self.air.questManager.avatarCancelled(avId)
+                self.cancelChoseTrack(avId)
                 return
+            for track in self.pendingTracks:
+                if trackId == track:
+                    self.air.questManager.avatarChoseTrack(avId, self, self.pendingTrackQuest, trackId)
+                    self.pendingAvId = None
+                    self.pendingTracks = None
+                    self.pendingTrackQuest = None
+                    return
 
-        self.notify.warning('chooseTrack: avatar: %s chose a track not offered: %s' % (avId, trackId))
-        self.pendingAvId = None
-        self.pendingTracks = None
-        self.pendingTrackQuest = None
-        return
+            self.notify.warning('chooseTrack: avatar: %s chose a track not offered: %s' % (avId, trackId))
+            self.pendingAvId = None
+            self.pendingTracks = None
+            self.pendingTrackQuest = None
+            return
 
     def sendTimeoutMovie(self, task):
         self.pendingAvId = None
@@ -236,8 +238,7 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
         if self.busy == avId:
             taskMgr.remove(self.uniqueName('clearMovie'))
             self.sendClearMovie(None)
-        else:
-            if self.busy:
-                self.air.writeServerEvent('suspicious', avId, 'DistributedNPCToonAI.setMovieDone busy with %s' % self.busy)
-                self.notify.warning('somebody called setMovieDone that I was not busy with! avId: %s' % avId)
+        elif self.busy:
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCToonAI.setMovieDone busy with %s' % self.busy)
+            self.notify.warning('somebody called setMovieDone that I was not busy with! avId: %s' % avId)
         return

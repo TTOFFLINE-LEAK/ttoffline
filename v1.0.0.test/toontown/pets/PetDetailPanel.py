@@ -54,44 +54,45 @@ class PetDetailPanel(DirectFrame):
     def update(self, pet):
         if not pet:
             return
-        for trickId in PetTricks.TrickId2scIds.keys():
-            trickText = TTLocalizer.PetTrickStrings[trickId]
-            if trickId < len(pet.trickAptitudes):
-                aptitude = pet.trickAptitudes[trickId]
-                bar = self.bars.get(trickId)
-                label = self.bars.get(trickId)
-                if aptitude != 0:
-                    healRange = PetTricks.TrickHeals[trickId]
-                    hp = lerp(healRange[0], healRange[1], aptitude)
-                    if hp == healRange[1]:
-                        hp = healRange[1]
-                        length = 1
-                        barColor = (0.7, 0.8, 0.5, 1)
-                    else:
-                        hp, length = divmod(hp, 1)
-                        barColor = (0.9, 1, 0.7, 1)
-                    if not label:
-                        self.labels[trickId] = DirectLabel(parent=self, relief=None, pos=(0, 0, 0.43 - trickId * 0.155), scale=0.7, text=trickText, text_scale=TTLocalizer.PDPtrickText, text_fg=(0.05,
-                                                                                                                                                                                                  0.14,
-                                                                                                                                                                                                  0.4,
-                                                                                                                                                                                                  1), text_align=TextNode.ALeft, text_pos=(-1.4,
-                                                                                                                                                                                                                                           -0.05))
-                    else:
-                        label['text'] = trickText
-                    if not bar:
-                        self.bars[trickId] = DirectWaitBar(parent=self, pos=(0, 0, 0.43 - trickId * 0.155), relief=DGG.SUNKEN, frameSize=(-0.5,
-                                                                                                                                          0.9,
-                                                                                                                                          -0.1,
-                                                                                                                                          0.1), borderWidth=(0.025,
-                                                                                                                                                             0.025), scale=0.7, frameColor=(0.4,
-                                                                                                                                                                                            0.6,
-                                                                                                                                                                                            0.4,
-                                                                                                                                                                                            1), barColor=barColor, range=1.0 + FUDGE_FACTOR, value=length + FUDGE_FACTOR, text=str(int(hp)) + ' ' + TTLocalizer.Laff, text_scale=TTLocalizer.PDPlaff, text_fg=(0.05,
-                                                                                                                                                                                                                                                                                                                                                               0.14,
-                                                                                                                                                                                                                                                                                                                                                               0.4,
-                                                                                                                                                                                                                                                                                                                                                               1), text_align=TextNode.ALeft, text_pos=TTLocalizer.PDPlaffPos)
-                    else:
-                        bar['value'] = length + FUDGE_FACTOR
-                        bar['text'] = (str(int(hp)) + ' ' + TTLocalizer.Laff,)
+        else:
+            for trickId in PetTricks.TrickId2scIds.keys():
+                trickText = TTLocalizer.PetTrickStrings[trickId]
+                if trickId < len(pet.trickAptitudes):
+                    aptitude = pet.trickAptitudes[trickId]
+                    bar = self.bars.get(trickId)
+                    label = self.bars.get(trickId)
+                    if aptitude != 0:
+                        healRange = PetTricks.TrickHeals[trickId]
+                        hp = lerp(healRange[0], healRange[1], aptitude)
+                        if hp == healRange[1]:
+                            hp = healRange[1]
+                            length = 1
+                            barColor = (0.7, 0.8, 0.5, 1)
+                        else:
+                            hp, length = divmod(hp, 1)
+                            barColor = (0.9, 1, 0.7, 1)
+                        if not label:
+                            self.labels[trickId] = DirectLabel(parent=self, relief=None, pos=(0, 0, 0.43 - trickId * 0.155), scale=0.7, text=trickText, text_scale=TTLocalizer.PDPtrickText, text_fg=(0.05,
+                                                                                                                                                                                                      0.14,
+                                                                                                                                                                                                      0.4,
+                                                                                                                                                                                                      1), text_align=TextNode.ALeft, text_pos=(-1.4,
+                                                                                                                                                                                                                                               -0.05))
+                        else:
+                            label['text'] = trickText
+                        if not bar:
+                            self.bars[trickId] = DirectWaitBar(parent=self, pos=(0, 0, 0.43 - trickId * 0.155), relief=DGG.SUNKEN, frameSize=(-0.5,
+                                                                                                                                              0.9,
+                                                                                                                                              -0.1,
+                                                                                                                                              0.1), borderWidth=(0.025,
+                                                                                                                                                                 0.025), scale=0.7, frameColor=(0.4,
+                                                                                                                                                                                                0.6,
+                                                                                                                                                                                                0.4,
+                                                                                                                                                                                                1), barColor=barColor, range=1.0 + FUDGE_FACTOR, value=length + FUDGE_FACTOR, text=str(int(hp)) + ' ' + TTLocalizer.Laff, text_scale=TTLocalizer.PDPlaff, text_fg=(0.05,
+                                                                                                                                                                                                                                                                                                                                                                   0.14,
+                                                                                                                                                                                                                                                                                                                                                                   0.4,
+                                                                                                                                                                                                                                                                                                                                                                   1), text_align=TextNode.ALeft, text_pos=TTLocalizer.PDPlaffPos)
+                        else:
+                            bar['value'] = length + FUDGE_FACTOR
+                            bar['text'] = (str(int(hp)) + ' ' + TTLocalizer.Laff,)
 
-        return
+            return

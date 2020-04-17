@@ -28,7 +28,8 @@ class DistributedTTCHQEventMgr(DistributedObject.DistributedObject):
         if hq:
             self.placeHQ(hq)
             return task.done
-        return task.cont
+        else:
+            return task.cont
 
     def placeHQ(self, hq):
         self.oldHQ = hq

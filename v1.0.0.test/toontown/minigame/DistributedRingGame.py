@@ -936,10 +936,11 @@ class DistributedRingGame(DistributedMinigame):
             if isPerfect(self.resultTable, [self.RT_SUCCESS, self.RT_GROUPSUCCESS]):
                 return makeSuccessTrack(TTLocalizer.RingGamePerfect, 1.5, perfect=1)
             return Wait(1.0)
-        if not self.isSinglePlayer():
-            if self.resultTable[groupIndex] == self.RT_GROUPSUCCESS:
-                return makeSuccessTrack(TTLocalizer.RingGameGroupBonus, 0.0, fadeDuration=0.4)
-        return
+        else:
+            if not self.isSinglePlayer():
+                if self.resultTable[groupIndex] == self.RT_GROUPSUCCESS:
+                    return makeSuccessTrack(TTLocalizer.RingGameGroupBonus, 0.0, fadeDuration=0.4)
+            return
 
     def __processRingGroupResults(self, results):
         groupIndex = self.__nextRingGroupResultIndex

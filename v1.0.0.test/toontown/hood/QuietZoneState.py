@@ -106,10 +106,11 @@ class QuietZoneState(StateData.StateData):
     def addLeftQuietZoneCallback(self, callback, priority=None):
         if self._leftQuietZoneCallbacks:
             return self._leftQuietZoneCallbacks.add(callback, priority)
-        token = PriorityCallbacks.GetToken()
-        fdc = SubframeCall(callback, taskMgr.getCurrentTask().getPriority() - 1)
-        self._leftQuietZoneLocalCallbacks[token] = fdc
-        return token
+        else:
+            token = PriorityCallbacks.GetToken()
+            fdc = SubframeCall(callback, taskMgr.getCurrentTask().getPriority() - 1)
+            self._leftQuietZoneLocalCallbacks[token] = fdc
+            return token
 
     def removeLeftQuietZoneCallback(self, token):
         if token is not None:
@@ -123,10 +124,11 @@ class QuietZoneState(StateData.StateData):
     def addSetZoneCompleteCallback(self, callback, priority=None):
         if self._setZoneCompleteCallbacks:
             return self._setZoneCompleteCallbacks.add(callback, priority)
-        token = PriorityCallbacks.GetToken()
-        fdc = SubframeCall(callback, taskMgr.getCurrentTask().getPriority() - 1)
-        self._setZoneCompleteLocalCallbacks[token] = fdc
-        return token
+        else:
+            token = PriorityCallbacks.GetToken()
+            fdc = SubframeCall(callback, taskMgr.getCurrentTask().getPriority() - 1)
+            self._setZoneCompleteLocalCallbacks[token] = fdc
+            return token
 
     def removeSetZoneCompleteCallback(self, token):
         if token is not None:
@@ -141,30 +143,25 @@ class QuietZoneState(StateData.StateData):
         self.notify.debug('handleWaitForQuietZoneResponse(' + 'msgType=' + str(msgType) + ', di=' + str(di) + ')')
         if msgType == CLIENT_ENTER_OBJECT_REQUIRED:
             base.cr.handleQuietZoneGenerateWithRequired(di)
+        elif msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
+            base.cr.handleQuietZoneGenerateWithRequiredOther(di)
+        elif msgType == CLIENT_OBJECT_SET_FIELD:
+            base.cr.handleQuietZoneUpdateField(di)
+        elif msgType in QUIET_ZONE_IGNORED_LIST:
+            self.notify.debug('ignoring unwanted message from previous zone')
         else:
-            if msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
-                base.cr.handleQuietZoneGenerateWithRequiredOther(di)
-            else:
-                if msgType == CLIENT_OBJECT_SET_FIELD:
-                    base.cr.handleQuietZoneUpdateField(di)
-                else:
-                    if msgType in QUIET_ZONE_IGNORED_LIST:
-                        self.notify.debug('ignoring unwanted message from previous zone')
-                    else:
-                        base.cr.handlePlayGame(msgType, di)
+            base.cr.handlePlayGame(msgType, di)
 
     def handleWaitForZoneRedirect(self, msgType, di):
         self.notify.debug('handleWaitForZoneRedirect(' + 'msgType=' + str(msgType) + ', di=' + str(di) + ')')
         if msgType == CLIENT_ENTER_OBJECT_REQUIRED:
             base.cr.handleQuietZoneGenerateWithRequired(di)
+        elif msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
+            base.cr.handleQuietZoneGenerateWithRequiredOther(di)
+        elif msgType == CLIENT_OBJECT_SET_FIELD:
+            base.cr.handleQuietZoneUpdateField(di)
         else:
-            if msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
-                base.cr.handleQuietZoneGenerateWithRequiredOther(di)
-            else:
-                if msgType == CLIENT_OBJECT_SET_FIELD:
-                    base.cr.handleQuietZoneUpdateField(di)
-                else:
-                    base.cr.handlePlayGame(msgType, di)
+            base.cr.handlePlayGame(msgType, di)
 
     def enterOff(self):
         self.notify.debug('enterOff()')
@@ -332,20 +329,21 @@ class QuietZoneState(StateData.StateData):
         if base.endlessQuietZone:
             self._dequeue()
             return
-        doneEvent = self.doneEvent
-        requestStatus = self._requestStatus
-        self._setZoneCompleteCallbacks()
-        self._setZoneCompleteCallbacks = None
-        fdcs = self._setZoneCompleteLocalCallbacks.values()
-        self._setZoneCompleteLocalCallbacks = {}
-        for fdc in fdcs:
-            if not fdc.isFinished():
-                fdc.finish()
+        else:
+            doneEvent = self.doneEvent
+            requestStatus = self._requestStatus
+            self._setZoneCompleteCallbacks()
+            self._setZoneCompleteCallbacks = None
+            fdcs = self._setZoneCompleteLocalCallbacks.values()
+            self._setZoneCompleteLocalCallbacks = {}
+            for fdc in fdcs:
+                if not fdc.isFinished():
+                    fdc.finish()
 
-        messenger.send(self.getSetZoneCompleteEvent(), [requestStatus])
-        messenger.send(doneEvent)
-        self._dequeue()
-        return
+            messenger.send(self.getSetZoneCompleteEvent(), [requestStatus])
+            messenger.send(doneEvent)
+            self._dequeue()
+            return
 
     def exitWaitForLocalAvatarOnShard(self):
         self.notify.debug('exitWaitForLocalAvatarOnShard()')

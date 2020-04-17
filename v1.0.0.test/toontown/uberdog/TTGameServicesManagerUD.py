@@ -225,13 +225,12 @@ class AcknowledgeNameOperation(AvatarOperation):
             wishNameState = 'LOCKED'
             name = wishName
             wishName = ''
+        elif wishNameState == 'REJECTED':
+            wishNameState = 'OPEN'
+            wishName = ''
         else:
-            if wishNameState == 'REJECTED':
-                wishNameState = 'OPEN'
-                wishName = ''
-            else:
-                self.demand('Kill', 'Tried to acknowledge name on an avatar in invalid state (%s) !' % wishNameState)
-                return
+            self.demand('Kill', 'Tried to acknowledge name on an avatar in invalid state (%s) !' % wishNameState)
+            return
         self.gameServicesManager.air.dbInterface.updateObject(self.gameServicesManager.air.dbId, self.avId, self.gameServicesManager.air.dclassesByName['DistributedToonUD'], {'WishNameState': (wishNameState,), 'WishName': (
                       wishName,), 
            'setName': (

@@ -118,126 +118,122 @@ class AvatarChoice(DirectButton):
             else:
                 self.logo = logo
                 upsellModel.removeNode()
+        elif self.mode is AvatarChoice.MODE_CREATE:
+            self['command'] = self.__handleCreate
+            self['text'] = (TTLocalizer.AvatarChoiceMakeAToon,)
+            self['text_pos'] = (0, 0)
+            self['text0_scale'] = 0.1
+            self['text1_scale'] = TTLocalizer.ACmakeAToon
+            self['text2_scale'] = TTLocalizer.ACmakeAToon
+            self['text0_fg'] = (0, 1, 0.8, 0.5)
+            self['text1_fg'] = (0, 1, 0.8, 1)
+            self['text2_fg'] = (0.3, 1, 0.9, 1)
         else:
-            if self.mode is AvatarChoice.MODE_CREATE:
-                self['command'] = self.__handleCreate
-                self['text'] = (TTLocalizer.AvatarChoiceMakeAToon,)
-                self['text_pos'] = (0, 0)
-                self['text0_scale'] = 0.1
-                self['text1_scale'] = TTLocalizer.ACmakeAToon
-                self['text2_scale'] = TTLocalizer.ACmakeAToon
-                self['text0_fg'] = (0, 1, 0.8, 0.5)
-                self['text1_fg'] = (0, 1, 0.8, 1)
-                self['text2_fg'] = (0.3, 1, 0.9, 1)
+            self['command'] = self.__handleChoice
+            if base.classicVisuals == 2:
+                self['text'] = (
+                 '', TTLocalizer.AvatarChoicePlayThisToon, TTLocalizer.AvatarChoicePlayThisToon)
+                self['text_scale'] = 0.12
+                self['text_fg'] = (1, 0.9, 0.1, 1)
+                self.nameText = DirectLabel(parent=self, relief=None, scale=0.089, pos=(0,
+                                                                                        0,
+                                                                                        0.27), text=self.name, text_fg=(1,
+                                                                                                                        1,
+                                                                                                                        1,
+                                                                                                                        1), text_shadow=(0,
+                                                                                                                                         0,
+                                                                                                                                         0,
+                                                                                                                                         1), text_wordwrap=7.5, text_font=ToontownGlobals.getToonFont(), state=DGG.DISABLED)
             else:
-                self['command'] = self.__handleChoice
-                if base.classicVisuals == 2:
-                    self['text'] = (
-                     '', TTLocalizer.AvatarChoicePlayThisToon, TTLocalizer.AvatarChoicePlayThisToon)
-                    self['text_scale'] = 0.12
-                    self['text_fg'] = (1, 0.9, 0.1, 1)
-                    self.nameText = DirectLabel(parent=self, relief=None, scale=0.089, pos=(0,
-                                                                                            0,
-                                                                                            0.27), text=self.name, text_fg=(1,
-                                                                                                                            1,
-                                                                                                                            1,
-                                                                                                                            1), text_shadow=(0,
-                                                                                                                                             0,
-                                                                                                                                             0,
-                                                                                                                                             1), text_wordwrap=7.5, text_font=ToontownGlobals.getToonFont(), state=DGG.DISABLED)
-                else:
-                    self['text'] = (
-                     '', TTLocalizer.AvatarChoicePlayThisToon, TTLocalizer.AvatarChoicePlayThisToon)
-                    self['text_scale'] = TTLocalizer.ACplayThisToon
-                    self['text_fg'] = (1, 0.9, 0.1, 1)
-                    self.nameText = DirectLabel(parent=self, relief=None, scale=0.08, pos=NAME_POSITIONS[position], text=self.name, hpr=(0, 0, NAME_ROTATIONS[position]), text_fg=(1,
-                                                                                                                                                                                   1,
-                                                                                                                                                                                   1,
-                                                                                                                                                                                   1), text_shadow=(0,
-                                                                                                                                                                                                    0,
-                                                                                                                                                                                                    0,
-                                                                                                                                                                                                    1), text_wordwrap=8, text_font=ToontownGlobals.getToonFont(), state=DGG.DISABLED)
-                if self.approvedName != '':
-                    self.nameText['text'] = self.approvedName
-                guiButton = loader.loadModel('phase_3/models/gui/quit_button')
-                self.nameYourToonButton = DirectButton(parent=self, relief=None, image=(guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR')), text=(TTLocalizer.AvatarChoiceNameYourToon, TTLocalizer.AvatarChoiceNameYourToon, TTLocalizer.AvatarChoiceNameYourToon), text_fg=(1,
-                                                                                                                                                                                                                                                                                                                                1,
-                                                                                                                                                                                                                                                                                                                                1,
-                                                                                                                                                                                                                                                                                                                                1), text_shadow=(0,
-                                                                                                                                                                                                                                                                                                                                                 0,
-                                                                                                                                                                                                                                                                                                                                                 0,
-                                                                                                                                                                                                                                                                                                                                                 1), text_scale=0.15, text_pos=(0,
-                                                                                                                                                                                                                                                                                                                                                                                0.03), text_font=ToontownGlobals.getInterfaceFont(), pos=(-0.2,
-                                                                                                                                                                                                                                                                                                                                                                                                                                          0,
-                                                                                                                                                                                                                                                                                                                                                                                                                                          -0.3), scale=0.45, image_scale=(2,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          1,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          3), command=self.__handleNameYourToon)
-                guiButton.removeNode()
-                self.statusText = DirectLabel(parent=self, relief=None, scale=0.09, pos=(0,
-                                                                                         0,
-                                                                                         -0.24), text='', text_fg=(1,
-                                                                                                                   1,
-                                                                                                                   1,
-                                                                                                                   1), text_shadow=(0,
-                                                                                                                                    0,
-                                                                                                                                    0,
-                                                                                                                                    1), text_wordwrap=7.5, text_scale=TTLocalizer.ACstatusText, text_font=ToontownGlobals.getToonFont(), state=DGG.DISABLED)
-                if self.wantName != '':
-                    self.nameYourToonButton.hide()
-                    self.statusText['text'] = TTLocalizer.AvatarChoiceNameReview
-                else:
-                    if self.approvedName != '':
-                        self.nameYourToonButton.hide()
-                        self.statusText['text'] = TTLocalizer.AvatarChoiceNameApproved
-                    else:
-                        if self.rejectedName != '':
-                            self.nameYourToonButton.hide()
-                            self.statusText['text'] = TTLocalizer.AvatarChoiceNameRejected
-                        else:
-                            if self.allowedName == 1 and (base.cr.allowFreeNames() or self.hasPaid):
-                                self.nameYourToonButton.show()
-                                self.statusText['text'] = ''
-                            else:
-                                self.nameYourToonButton.hide()
-                                self.statusText['text'] = ''
-                self.head = hidden.attachNewNode('head')
-                self.head.setPosHprScale(0, 5, -0.1, 180, 0, 0, 0.24, 0.24, 0.24)
-                self.head.reparentTo(self.stateNodePath[0], 20)
-                self.head.instanceTo(self.stateNodePath[1], 20)
-                self.head.instanceTo(self.stateNodePath[2], 20)
-                self.headModel = ToonHead.ToonHead()
-                self.headModel.setupHead(self.dna, forGui=1)
-                self.headModel.reparentTo(self.head)
-                animalStyle = self.dna.getAnimal()
-                bodyScale = ToontownGlobals.toonBodyScales[animalStyle]
-                self.headModel.setScale(bodyScale / 0.75)
-                self.headModel.startBlink()
-                self.headModel.startLookAround()
-                trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui')
-                if base.classicVisuals == 2:
-                    self.deleteButton = DirectButton(parent=self, image=(
-                     trashcanGui.find('**/TrashCan_CLSD'), trashcanGui.find('**/TrashCan_OPEN'),
-                     trashcanGui.find('**/TrashCan_RLVR')), text=(
-                     '', TTLocalizer.AvatarChoiceDelete, TTLocalizer.AvatarChoiceDelete), text_fg=(1,
-                                                                                                   1,
-                                                                                                   1,
-                                                                                                   1), text_shadow=(0,
-                                                                                                                    0,
-                                                                                                                    0,
-                                                                                                                    1), text_scale=0.15, text_pos=(0,
-                                                                                                                                                   -0.1), text_font=ToontownGlobals.getInterfaceFont(), relief=None, pos=(0.27,
-                                                                                                                                                                                                                          0,
-                                                                                                                                                                                                                          -0.25), scale=0.45, command=self.__handleDelete)
-                else:
-                    self.deleteButton = DirectButton(parent=self, image=(trashcanGui.find('**/TrashCan_CLSD'), trashcanGui.find('**/TrashCan_OPEN'), trashcanGui.find('**/TrashCan_RLVR')), text=('', TTLocalizer.AvatarChoiceDelete, TTLocalizer.AvatarChoiceDelete), text_fg=(1,
-                                                                                                                                                                                                                                                                                1,
-                                                                                                                                                                                                                                                                                1,
-                                                                                                                                                                                                                                                                                1), text_shadow=(0,
-                                                                                                                                                                                                                                                                                                 0,
-                                                                                                                                                                                                                                                                                                 0,
-                                                                                                                                                                                                                                                                                                 1), text_scale=0.15, text_pos=(0,
-                                                                                                                                                                                                                                                                                                                                -0.1), text_font=ToontownGlobals.getInterfaceFont(), relief=None, pos=DELETE_POSITIONS[position], scale=0.45, command=self.__handleDelete)
-                trashcanGui.removeNode()
+                self['text'] = (
+                 '', TTLocalizer.AvatarChoicePlayThisToon, TTLocalizer.AvatarChoicePlayThisToon)
+                self['text_scale'] = TTLocalizer.ACplayThisToon
+                self['text_fg'] = (1, 0.9, 0.1, 1)
+                self.nameText = DirectLabel(parent=self, relief=None, scale=0.08, pos=NAME_POSITIONS[position], text=self.name, hpr=(0, 0, NAME_ROTATIONS[position]), text_fg=(1,
+                                                                                                                                                                               1,
+                                                                                                                                                                               1,
+                                                                                                                                                                               1), text_shadow=(0,
+                                                                                                                                                                                                0,
+                                                                                                                                                                                                0,
+                                                                                                                                                                                                1), text_wordwrap=8, text_font=ToontownGlobals.getToonFont(), state=DGG.DISABLED)
+            if self.approvedName != '':
+                self.nameText['text'] = self.approvedName
+            guiButton = loader.loadModel('phase_3/models/gui/quit_button')
+            self.nameYourToonButton = DirectButton(parent=self, relief=None, image=(guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR')), text=(TTLocalizer.AvatarChoiceNameYourToon, TTLocalizer.AvatarChoiceNameYourToon, TTLocalizer.AvatarChoiceNameYourToon), text_fg=(1,
+                                                                                                                                                                                                                                                                                                                            1,
+                                                                                                                                                                                                                                                                                                                            1,
+                                                                                                                                                                                                                                                                                                                            1), text_shadow=(0,
+                                                                                                                                                                                                                                                                                                                                             0,
+                                                                                                                                                                                                                                                                                                                                             0,
+                                                                                                                                                                                                                                                                                                                                             1), text_scale=0.15, text_pos=(0,
+                                                                                                                                                                                                                                                                                                                                                                            0.03), text_font=ToontownGlobals.getInterfaceFont(), pos=(-0.2,
+                                                                                                                                                                                                                                                                                                                                                                                                                                      0,
+                                                                                                                                                                                                                                                                                                                                                                                                                                      -0.3), scale=0.45, image_scale=(2,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                      1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                      3), command=self.__handleNameYourToon)
+            guiButton.removeNode()
+            self.statusText = DirectLabel(parent=self, relief=None, scale=0.09, pos=(0,
+                                                                                     0,
+                                                                                     -0.24), text='', text_fg=(1,
+                                                                                                               1,
+                                                                                                               1,
+                                                                                                               1), text_shadow=(0,
+                                                                                                                                0,
+                                                                                                                                0,
+                                                                                                                                1), text_wordwrap=7.5, text_scale=TTLocalizer.ACstatusText, text_font=ToontownGlobals.getToonFont(), state=DGG.DISABLED)
+            if self.wantName != '':
+                self.nameYourToonButton.hide()
+                self.statusText['text'] = TTLocalizer.AvatarChoiceNameReview
+            elif self.approvedName != '':
+                self.nameYourToonButton.hide()
+                self.statusText['text'] = TTLocalizer.AvatarChoiceNameApproved
+            elif self.rejectedName != '':
+                self.nameYourToonButton.hide()
+                self.statusText['text'] = TTLocalizer.AvatarChoiceNameRejected
+            elif self.allowedName == 1 and (base.cr.allowFreeNames() or self.hasPaid):
+                self.nameYourToonButton.show()
+                self.statusText['text'] = ''
+            else:
+                self.nameYourToonButton.hide()
+                self.statusText['text'] = ''
+            self.head = hidden.attachNewNode('head')
+            self.head.setPosHprScale(0, 5, -0.1, 180, 0, 0, 0.24, 0.24, 0.24)
+            self.head.reparentTo(self.stateNodePath[0], 20)
+            self.head.instanceTo(self.stateNodePath[1], 20)
+            self.head.instanceTo(self.stateNodePath[2], 20)
+            self.headModel = ToonHead.ToonHead()
+            self.headModel.setupHead(self.dna, forGui=1)
+            self.headModel.reparentTo(self.head)
+            animalStyle = self.dna.getAnimal()
+            bodyScale = ToontownGlobals.toonBodyScales[animalStyle]
+            self.headModel.setScale(bodyScale / 0.75)
+            self.headModel.startBlink()
+            self.headModel.startLookAround()
+            trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui')
+            if base.classicVisuals == 2:
+                self.deleteButton = DirectButton(parent=self, image=(
+                 trashcanGui.find('**/TrashCan_CLSD'), trashcanGui.find('**/TrashCan_OPEN'),
+                 trashcanGui.find('**/TrashCan_RLVR')), text=(
+                 '', TTLocalizer.AvatarChoiceDelete, TTLocalizer.AvatarChoiceDelete), text_fg=(1,
+                                                                                               1,
+                                                                                               1,
+                                                                                               1), text_shadow=(0,
+                                                                                                                0,
+                                                                                                                0,
+                                                                                                                1), text_scale=0.15, text_pos=(0,
+                                                                                                                                               -0.1), text_font=ToontownGlobals.getInterfaceFont(), relief=None, pos=(0.27,
+                                                                                                                                                                                                                      0,
+                                                                                                                                                                                                                      -0.25), scale=0.45, command=self.__handleDelete)
+            else:
+                self.deleteButton = DirectButton(parent=self, image=(trashcanGui.find('**/TrashCan_CLSD'), trashcanGui.find('**/TrashCan_OPEN'), trashcanGui.find('**/TrashCan_RLVR')), text=('', TTLocalizer.AvatarChoiceDelete, TTLocalizer.AvatarChoiceDelete), text_fg=(1,
+                                                                                                                                                                                                                                                                            1,
+                                                                                                                                                                                                                                                                            1,
+                                                                                                                                                                                                                                                                            1), text_shadow=(0,
+                                                                                                                                                                                                                                                                                             0,
+                                                                                                                                                                                                                                                                                             0,
+                                                                                                                                                                                                                                                                                             1), text_scale=0.15, text_pos=(0,
+                                                                                                                                                                                                                                                                                                                            -0.1), text_font=ToontownGlobals.getInterfaceFont(), relief=None, pos=DELETE_POSITIONS[position], scale=0.45, command=self.__handleDelete)
+            trashcanGui.removeNode()
         self.resetFrameSize()
         self.avForLogging = None
         if av:

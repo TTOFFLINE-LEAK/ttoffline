@@ -603,14 +603,16 @@ def getAccessoryAttachNode(accId):
     accInfo = AccessoryDict.get(accId)
     if len(accInfo) == 5:
         return accInfo[4]
-    return
+    else:
+        return
 
 
 def getTexCardNode(accId):
     accInfo = AccessoryDict.get(accId)
     if len(accInfo) <= 5:
         return accInfo[3]
-    return
+    else:
+        return
 
 
 def checkKartDNAValidity(dna):
@@ -645,9 +647,10 @@ def getDefaultRim():
 def getDefaultAccessory(category):
     if category in [KartDNA.bodyColor, KartDNA.accColor]:
         return getDefaultColor()
-    if category == KartDNA.rimsType:
-        return getDefaultRim()
-    return InvalidEntry
+    else:
+        if category == KartDNA.rimsType:
+            return getDefaultRim()
+        return InvalidEntry
 
 
 def getAccessoryItemList(accessoryType):
@@ -684,7 +687,8 @@ def getAccessoryDictFromOwned(accessoryOwnedList, pType=-1):
 
     if pType != -1:
         return accessDict[pType]
-    return accessDict
+    else:
+        return accessDict
 
 
 def getAccessDictByType(accessoryOwnedList):
@@ -705,7 +709,8 @@ def getAccessDictByType(accessoryOwnedList):
 def getKartCost(kartID):
     if kartID in KartDict:
         return KartDict[kartID][KartInfo.cost]
-    return 'key error'
+    else:
+        return 'key error'
 
 
 def getAccCost(accID):

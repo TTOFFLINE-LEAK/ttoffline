@@ -128,17 +128,20 @@ def getSuitDept(name):
     index = suitHeadTypes.index(name)
     if index < suitsPerDept:
         return suitDepts[0]
-    if index < suitsPerDept * 2:
-        return suitDepts[1]
-    if index < suitsPerDept * 3:
-        return suitDepts[2]
-    if index < suitsPerDept * 4:
-        return suitDepts[3]
-    if name in extraSuits:
-        return extraSuits.get(name)
-    print 'Unknown dept for suit name: ', name
-    return
-    return
+    else:
+        if index < suitsPerDept * 2:
+            return suitDepts[1]
+        else:
+            if index < suitsPerDept * 3:
+                return suitDepts[2]
+            if index < suitsPerDept * 4:
+                return suitDepts[3]
+            if name in extraSuits:
+                return extraSuits.get(name)
+            print 'Unknown dept for suit name: ', name
+            return
+
+        return
 
 
 def getDeptFullname(dept):
@@ -157,7 +160,8 @@ def getSuitType(name):
     index = suitHeadTypes.index(name)
     if name in extraSuits:
         return 8
-    return index % suitsPerDept + 1
+    else:
+        return index % suitsPerDept + 1
 
 
 def getRandomSuitType(level, rng=random):
@@ -174,12 +178,11 @@ class SuitDNA(AvatarDNA.AvatarDNA):
     def __init__(self, str=None, type=None, dna=None, r=None, b=None, g=None):
         if str != None:
             self.makeFromNetString(str)
+        elif type != None:
+            if type == 's':
+                self.newSuit()
         else:
-            if type != None:
-                if type == 's':
-                    self.newSuit()
-            else:
-                self.type = 'u'
+            self.type = 'u'
         return
 
     def __str__(self):
@@ -188,9 +191,10 @@ class SuitDNA(AvatarDNA.AvatarDNA):
              self.body,
              self.dept,
              self.name)
-        if self.type == 'b':
-            return 'type = boss cog\ndept = %s' % self.dept
-        return 'type undefined'
+        else:
+            if self.type == 'b':
+                return 'type = boss cog\ndept = %s' % self.dept
+            return 'type undefined'
 
     def makeNetString(self):
         dg = PyDatagram()
@@ -198,14 +202,12 @@ class SuitDNA(AvatarDNA.AvatarDNA):
         if self.type == 's':
             dg.addFixedString(self.name, 3)
             dg.addFixedString(self.dept, 1)
+        elif self.type == 'b':
+            dg.addFixedString(self.dept, 1)
+        elif self.type == 'u':
+            notify.error('undefined avatar')
         else:
-            if self.type == 'b':
-                dg.addFixedString(self.dept, 1)
-            else:
-                if self.type == 'u':
-                    notify.error('undefined avatar')
-                else:
-                    notify.error('unknown avatar type: ', self.type)
+            notify.error('unknown avatar type: ', self.type)
         return dg.getMessage()
 
     def makeFromNetString(self, string):
@@ -216,11 +218,10 @@ class SuitDNA(AvatarDNA.AvatarDNA):
             self.name = dgi.getFixedString(3)
             self.dept = dgi.getFixedString(1)
             self.body = getSuitBodyType(self.name)
+        elif self.type == 'b':
+            self.dept = dgi.getFixedString(1)
         else:
-            if self.type == 'b':
-                self.dept = dgi.getFixedString(1)
-            else:
-                notify.error('unknown avatar type: ', self.type)
+            notify.error('unknown avatar type: ', self.type)
         return
 
     def __defaultGoon(self):
@@ -251,9 +252,8 @@ class SuitDNA(AvatarDNA.AvatarDNA):
         self.type = 's'
         if level == None:
             level = random.choice(xrange(1, len(suitsPerLevel)))
-        else:
-            if level < 0 or level > len(suitsPerLevel):
-                notify.error('Invalid suit level: %d' % level)
+        elif level < 0 or level > len(suitsPerLevel):
+            notify.error('Invalid suit level: %d' % level)
         if dept == None:
             dept = random.choice(suitDepts)
         self.dept = dept
@@ -284,9 +284,8 @@ class SuitDNA(AvatarDNA.AvatarDNA):
     def getType(self):
         if self.type == 's':
             type = 'suit'
+        elif self.type == 'b':
+            type = 'boss'
         else:
-            if self.type == 'b':
-                type = 'boss'
-            else:
-                notify.error('Invalid DNA type: ', self.type)
+            notify.error('Invalid DNA type: ', self.type)
         return type

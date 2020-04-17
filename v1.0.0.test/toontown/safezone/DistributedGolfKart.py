@@ -297,7 +297,8 @@ class DistributedGolfKart(DistributedObject.DistributedObject):
             self.clockNode.setText(timeStr)
         if task.time >= task.duration:
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def countdown(self, duration):
         countdownTask = Task(self.timerTask)
@@ -373,22 +374,21 @@ class DistributedGolfKart(DistributedObject.DistributedObject):
                 h = (green - blue) / (red - blue)
             else:
                 h = (green - blue) / (red - green)
-        else:
-            if green >= blue:
-                s = (green - blue) / float(green)
-                v = green
-                if red > blue:
-                    h = 2 + (blue - red) / (green - blue)
-                else:
-                    h = 2 + (blue - red) / (green - red)
+        elif green >= blue:
+            s = (green - blue) / float(green)
+            v = green
+            if red > blue:
+                h = 2 + (blue - red) / (green - blue)
             else:
-                if red > green:
-                    s = (blue - green) / blue
-                    h = 4 + (red - green) / (blue - green)
-                else:
-                    s = (blue - red) / blue
-                    h = 4 + (red - green) / (blue - red)
-                v = blue
+                h = 2 + (blue - red) / (green - red)
+        else:
+            if red > green:
+                s = (blue - green) / blue
+                h = 4 + (red - green) / (blue - green)
+            else:
+                s = (blue - red) / blue
+                h = 4 + (red - green) / (blue - red)
+            v = blue
         if h < 0:
             h *= 60
             h += 360
@@ -406,31 +406,26 @@ class DistributedGolfKart(DistributedObject.DistributedObject):
                 red = v
                 green = t
                 blue = p
-            else:
-                if i == 1:
-                    red = q
-                    green = v
-                    blue = p
-                else:
-                    if i == 2:
-                        red = p
-                        green = v
-                        blue = t
-                    else:
-                        if i == 3:
-                            red = p
-                            green = q
-                            blue = v
-                        else:
-                            if i == 4:
-                                red = t
-                                green = p
-                                blue = v
-                            else:
-                                if i == 5:
-                                    red = v
-                                    green = p
-                                    blue = q
+            elif i == 1:
+                red = q
+                green = v
+                blue = p
+            elif i == 2:
+                red = p
+                green = v
+                blue = t
+            elif i == 3:
+                red = p
+                green = q
+                blue = v
+            elif i == 4:
+                red = t
+                green = p
+                blue = v
+            elif i == 5:
+                red = v
+                green = p
+                blue = q
         cartBase.setColorScale(red, green, blue, 1)
 
     def generateToonJumpTrack(self, av, seatIndex):
@@ -473,13 +468,11 @@ class DistributedGolfKart(DistributedObject.DistributedObject):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(LerpHprInterval(av, hpr=getJumpHpr, duration=0.9), ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 
@@ -507,13 +500,11 @@ class DistributedGolfKart(DistributedObject.DistributedObject):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 

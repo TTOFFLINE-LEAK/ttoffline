@@ -28,9 +28,10 @@ class DistributedNPCBlockerAI(DistributedNPCToonBaseAI):
         if av is None:
             self.notify.warning('toon isnt there! toon: %s' % avId)
             return
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
-        self.sendStartMovie(avId)
-        return
+        else:
+            self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
+            self.sendStartMovie(avId)
+            return
 
     def sendStartMovie(self, avId):
         self.busy = avId

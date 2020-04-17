@@ -68,12 +68,10 @@ class OTPTimer(DirectFrame):
                 self.setTimeStr(timeStr, 0.34, (-0.025, -0.125), Vec4(1, 0, 0, 1))
             else:
                 self.setTimeStr(timeStr, 0.34, (-0.025, -0.125))
-        else:
-            if timeStrLen == 2:
-                self.setTimeStr(timeStr, 0.27, (-0.025, -0.1))
-            else:
-                if timeStrLen == 3:
-                    self.setTimeStr(timeStr, 0.2, (-0.01, -0.08))
+        elif timeStrLen == 2:
+            self.setTimeStr(timeStr, 0.27, (-0.025, -0.1))
+        elif timeStrLen == 3:
+            self.setTimeStr(timeStr, 0.2, (-0.01, -0.08))
 
     def setTimeStr(self, timeStr, scale=0.2, pos=(-0.01, -0.08), fg=None):
         self['text'] = ''
@@ -94,7 +92,8 @@ class OTPTimer(DirectFrame):
             if task.callback:
                 task.callback()
             return Task.done
-        return Task.cont
+        else:
+            return Task.cont
 
     def countdown(self, duration, callback=None):
         self.countdownTask = Task.Task(self._timerTask)

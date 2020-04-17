@@ -49,34 +49,35 @@ class DistributedTrunk(DistributedCloset.DistributedCloset):
         if mode == ClosetGlobals.CLOSED:
             self.fsm.request('closed')
             return
-        if mode == ClosetGlobals.OPEN:
-            self.customerId = avId
-            self.av = self.cr.doId2do.get(self.customerId, None)
-            if self.av:
-                if self.av.getGameAccess() != ToontownGlobals.AccessFull:
-                    self.isOwner = 0
-                    self.isFreePlayer = 1
-                else:
-                    self.isFreePlayer = 0
-                if base.localAvatar.getDoId() == self.customerId:
-                    self.gender = self.av.style.gender
-                    self.hatList = hatList
-                    self.glassesList = glassesList
-                    self.backpackList = backpackList
-                    self.shoesList = shoesList
-                    self.oldHatList = self.hatList[0:]
-                    self.oldGlassesList = self.glassesList[0:]
-                    self.oldBackpackList = self.backpackList[0:]
-                    self.oldShoesList = self.shoesList[0:]
-                    print '-----------Starting trunk interaction-----------'
-                    self.printInfo()
-                    print '-------------------------------------------------'
-                    if not self.isOwner:
-                        self.__popupNotOwnerPanel()
+        else:
+            if mode == ClosetGlobals.OPEN:
+                self.customerId = avId
+                self.av = self.cr.doId2do.get(self.customerId, None)
+                if self.av:
+                    if self.av.getGameAccess() != ToontownGlobals.AccessFull:
+                        self.isOwner = 0
+                        self.isFreePlayer = 1
                     else:
-                        taskMgr.doMethodLater(0.5, self.popupChangeClothesGUI, self.uniqueName('popupChangeClothesGUI'))
-                self.fsm.request('open')
-        return
+                        self.isFreePlayer = 0
+                    if base.localAvatar.getDoId() == self.customerId:
+                        self.gender = self.av.style.gender
+                        self.hatList = hatList
+                        self.glassesList = glassesList
+                        self.backpackList = backpackList
+                        self.shoesList = shoesList
+                        self.oldHatList = self.hatList[0:]
+                        self.oldGlassesList = self.glassesList[0:]
+                        self.oldBackpackList = self.backpackList[0:]
+                        self.oldShoesList = self.shoesList[0:]
+                        print '-----------Starting trunk interaction-----------'
+                        self.printInfo()
+                        print '-------------------------------------------------'
+                        if not self.isOwner:
+                            self.__popupNotOwnerPanel()
+                        else:
+                            taskMgr.doMethodLater(0.5, self.popupChangeClothesGUI, self.uniqueName('popupChangeClothesGUI'))
+                    self.fsm.request('open')
+            return
 
     def load(self):
         lNode = self.find('**/lid_origin')
@@ -197,33 +198,30 @@ class DistributedTrunk(DistributedCloset.DistributedCloset):
             removeFunc = self.closetGUI.removeHat
             trashItem = self.av.getHat()
             self.hatDeleted = self.hatDeleted | 1
+        elif which == ToonDNA.GLASSES:
+            itemList = self.closetGUI.glasses
+            trashIndex = self.closetGUI.glassesChoice
+            swapFunc = self.closetGUI.swapGlasses
+            removeFunc = self.closetGUI.removeGlasses
+            trashItem = self.av.getGlasses()
+            self.glassesDeleted = self.glassesDeleted | 1
+        elif which == ToonDNA.BACKPACK:
+            itemList = self.closetGUI.backpacks
+            trashIndex = self.closetGUI.backpackChoice
+            swapFunc = self.closetGUI.swapBackpack
+            removeFunc = self.closetGUI.removeBackpack
+            trashItem = self.av.getBackpack()
+            self.backpackDeleted = self.backpackDeleted | 1
+        elif which == ToonDNA.SHOES:
+            itemList = self.closetGUI.shoes
+            trashIndex = self.closetGUI.shoesChoice
+            swapFunc = self.closetGUI.swapShoes
+            removeFunc = self.closetGUI.removeShoes
+            trashItem = self.av.getShoes()
+            self.shoesDeleted = self.shoesDeleted | 1
         else:
-            if which == ToonDNA.GLASSES:
-                itemList = self.closetGUI.glasses
-                trashIndex = self.closetGUI.glassesChoice
-                swapFunc = self.closetGUI.swapGlasses
-                removeFunc = self.closetGUI.removeGlasses
-                trashItem = self.av.getGlasses()
-                self.glassesDeleted = self.glassesDeleted | 1
-            else:
-                if which == ToonDNA.BACKPACK:
-                    itemList = self.closetGUI.backpacks
-                    trashIndex = self.closetGUI.backpackChoice
-                    swapFunc = self.closetGUI.swapBackpack
-                    removeFunc = self.closetGUI.removeBackpack
-                    trashItem = self.av.getBackpack()
-                    self.backpackDeleted = self.backpackDeleted | 1
-                else:
-                    if which == ToonDNA.SHOES:
-                        itemList = self.closetGUI.shoes
-                        trashIndex = self.closetGUI.shoesChoice
-                        swapFunc = self.closetGUI.swapShoes
-                        removeFunc = self.closetGUI.removeShoes
-                        trashItem = self.av.getShoes()
-                        self.shoesDeleted = self.shoesDeleted | 1
-                    else:
-                        self.notify.warning("we don't know about this item(type = %s)" % which)
-                        return
+            self.notify.warning("we don't know about this item(type = %s)" % which)
+            return
         if len(itemList) > 1:
             if trashIndex == 0:
                 swapFunc(1)

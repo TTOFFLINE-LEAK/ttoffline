@@ -80,11 +80,10 @@ class TwoDDrive:
                 if not self.game.isHeadInFloor:
                     if localAvatar.controlManager.currentControls == localAvatar.controlManager.get('twoD'):
                         base.localAvatar.controlManager.currentControls.jumpPressed()
-        else:
-            if self.arrowKeys.upPressed():
-                if not self.game.isHeadInFloor:
-                    if localAvatar.controlManager.currentControls == localAvatar.controlManager.get('twoD'):
-                        base.localAvatar.controlManager.currentControls.jumpPressed()
+        elif self.arrowKeys.upPressed():
+            if not self.game.isHeadInFloor:
+                if localAvatar.controlManager.currentControls == localAvatar.controlManager.get('twoD'):
+                    base.localAvatar.controlManager.currentControls.jumpPressed()
         if self.arrowKeys.leftPressed():
             xVel -= 1
         if self.arrowKeys.rightPressed():
@@ -97,10 +96,9 @@ class TwoDDrive:
             if not self.isMovingX:
                 self.isMovingX = True
                 messenger.send('avatarMovingX')
-        else:
-            if self.isMovingX:
-                self.isMovingX = False
-                messenger.send('avatarStoppedX')
+        elif self.isMovingX:
+            self.isMovingX = False
+            messenger.send('avatarStoppedX')
         speed = vel.length()
         action = self.lt.setSpeed(speed, 0)
         if action != self.lastAction:

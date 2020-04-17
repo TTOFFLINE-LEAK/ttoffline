@@ -176,11 +176,10 @@ class DistributedClubElevator(DistributedElevatorFSM.DistributedElevatorFSM):
         self.entranceId = entranceId
         if self.entranceId == 0:
             self.elevatorModel.setPosHpr(62.74, -85.31, 0.0, 2.0, 0.0, 0.0)
+        elif self.entranceId == 1:
+            self.elevatorModel.setPosHpr(-162.25, 26.43, 0.0, 269.0, 0.0, 0.0)
         else:
-            if self.entranceId == 1:
-                self.elevatorModel.setPosHpr(-162.25, 26.43, 0.0, 269.0, 0.0, 0.0)
-            else:
-                self.notify.error('Invalid entranceId: %s' % entranceId)
+            self.notify.error('Invalid entranceId: %s' % entranceId)
 
     def gotBldg(self, buildingList):
         pass
@@ -270,9 +269,8 @@ class DistributedClubElevator(DistributedElevatorFSM.DistributedElevatorFSM):
         self.lastState = self.state
         if self.wantState == 'closed':
             self.demand('Closing')
-        else:
-            if self.wantState == 'waitEmpty':
-                self.demand('WaitEmpty')
+        elif self.wantState == 'waitEmpty':
+            self.demand('WaitEmpty')
         DistributedElevatorFSM.DistributedElevatorFSM.enterOff(self)
 
     def exitOff(self):
@@ -386,29 +384,27 @@ class DistributedClubElevator(DistributedElevatorFSM.DistributedElevatorFSM):
             del self.toonRequests[index]
         if avId == 0:
             pass
+        elif avId not in self.cr.doId2do:
+            func = PythonUtil.Functor(self.gotToon, index, avId)
+            self.toonRequests[index] = self.cr.relatedObjectMgr.requestObjects([avId], allCallback=func)
+        elif not self.isSetup:
+            self.deferredSlots.append((index, avId))
         else:
-            if avId not in self.cr.doId2do:
-                func = PythonUtil.Functor(self.gotToon, index, avId)
-                self.toonRequests[index] = self.cr.relatedObjectMgr.requestObjects([avId], allCallback=func)
-            else:
-                if not self.isSetup:
-                    self.deferredSlots.append((index, avId))
-                else:
-                    if avId == base.localAvatar.getDoId():
-                        self.localToonOnBoard = 1
-                        elevator = self.getPlaceElevator()
-                        elevator.fsm.request('boarding', [self.getElevatorModel()])
-                        elevator.fsm.request('boarded')
-                    toon = self.cr.doId2do[avId]
-                    toon.stopSmooth()
-                    toon.wrtReparentTo(self.golfKart)
-                    sitStartDuration = toon.getDuration('sit-start')
-                    jumpTrack = self.generateToonJumpTrack(toon, index)
-                    track = Sequence(jumpTrack, Func(toon.setAnimState, 'Sit', 1.0), Func(self.clearToonTrack, avId), name=toon.uniqueName('fillElevator'), autoPause=1)
-                    track.delayDelete = DelayDelete.DelayDelete(toon, 'fillSlot')
-                    self.storeToonTrack(avId, track)
-                    track.start()
-                    self.boardedAvIds[avId] = None
+            if avId == base.localAvatar.getDoId():
+                self.localToonOnBoard = 1
+                elevator = self.getPlaceElevator()
+                elevator.fsm.request('boarding', [self.getElevatorModel()])
+                elevator.fsm.request('boarded')
+            toon = self.cr.doId2do[avId]
+            toon.stopSmooth()
+            toon.wrtReparentTo(self.golfKart)
+            sitStartDuration = toon.getDuration('sit-start')
+            jumpTrack = self.generateToonJumpTrack(toon, index)
+            track = Sequence(jumpTrack, Func(toon.setAnimState, 'Sit', 1.0), Func(self.clearToonTrack, avId), name=toon.uniqueName('fillElevator'), autoPause=1)
+            track.delayDelete = DelayDelete.DelayDelete(toon, 'fillSlot')
+            self.storeToonTrack(avId, track)
+            track.start()
+            self.boardedAvIds[avId] = None
         return
 
     def generateToonJumpTrack(self, av, seatIndex):
@@ -451,13 +447,11 @@ class DistributedClubElevator(DistributedElevatorFSM.DistributedElevatorFSM):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(LerpHprInterval(av, hpr=getJumpHpr, duration=0.9), ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 
@@ -473,35 +467,33 @@ class DistributedClubElevator(DistributedElevatorFSM.DistributedElevatorFSM):
     def emptySlot(self, index, avId, bailFlag, timestamp):
         if avId == 0:
             pass
-        else:
-            if not self.isSetup:
-                newSlots = []
-                for slot in self.deferredSlots:
-                    if slot[0] != index:
-                        newSlots.append(slot)
+        elif not self.isSetup:
+            newSlots = []
+            for slot in self.deferredSlots:
+                if slot[0] != index:
+                    newSlots.append(slot)
 
-                self.deferredSlots = newSlots
-            else:
-                if avId in self.cr.doId2do:
-                    if bailFlag == 1 and hasattr(self, 'clockNode'):
-                        if timestamp < self.countdownTime and timestamp >= 0:
-                            self.countdown(self.countdownTime - timestamp)
-                        else:
-                            self.countdown(self.countdownTime)
-                    toon = self.cr.doId2do[avId]
-                    toon.stopSmooth()
-                    sitStartDuration = toon.getDuration('sit-start')
-                    jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
-                    track = Sequence(jumpOutTrack, Func(self.clearToonTrack, avId), Func(self.notifyToonOffElevator, toon), name=toon.uniqueName('emptyElevator'), autoPause=1)
-                    track.delayDelete = DelayDelete.DelayDelete(toon, 'ClubElevator.emptySlot')
-                    self.storeToonTrack(avId, track)
-                    track.start()
-                    if avId == base.localAvatar.getDoId():
-                        messenger.send('exitElevator')
-                    if avId in self.boardedAvIds:
-                        del self.boardedAvIds[avId]
+            self.deferredSlots = newSlots
+        elif avId in self.cr.doId2do:
+            if bailFlag == 1 and hasattr(self, 'clockNode'):
+                if timestamp < self.countdownTime and timestamp >= 0:
+                    self.countdown(self.countdownTime - timestamp)
                 else:
-                    self.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the elevator!')
+                    self.countdown(self.countdownTime)
+            toon = self.cr.doId2do[avId]
+            toon.stopSmooth()
+            sitStartDuration = toon.getDuration('sit-start')
+            jumpOutTrack = self.generateToonReverseJumpTrack(toon, index)
+            track = Sequence(jumpOutTrack, Func(self.clearToonTrack, avId), Func(self.notifyToonOffElevator, toon), name=toon.uniqueName('emptyElevator'), autoPause=1)
+            track.delayDelete = DelayDelete.DelayDelete(toon, 'ClubElevator.emptySlot')
+            self.storeToonTrack(avId, track)
+            track.start()
+            if avId == base.localAvatar.getDoId():
+                messenger.send('exitElevator')
+            if avId in self.boardedAvIds:
+                del self.boardedAvIds[avId]
+        else:
+            self.notify.warning('toon: ' + str(avId) + " doesn't exist, and" + ' cannot exit the elevator!')
 
     def generateToonReverseJumpTrack(self, av, seatIndex):
         self.notify.debug('av.getH() = %s' % av.getH())
@@ -525,13 +517,11 @@ class DistributedClubElevator(DistributedElevatorFSM.DistributedElevatorFSM):
                 delay = 0
                 if av.suit.style.body == 'a':
                     seq = ActorInterval(av.suit, 'slip-forward', startFrame=55)
-                else:
-                    if av.suit.style.body == 'b':
-                        seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
-                        delay = 0.1
-                    else:
-                        if av.suit.style.body == 'c':
-                            seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
+                elif av.suit.style.body == 'b':
+                    seq = Sequence(ActorInterval(av.suit, 'quick-jump', playRate=5, endFrame=15), ActorInterval(av.suit, 'quick-jump', startFrame=15, endFrame=30), ActorInterval(av.suit, 'quick-jump', startFrame=107))
+                    delay = 0.1
+                elif av.suit.style.body == 'c':
+                    seq = ActorInterval(av.suit, 'slip-forward', startFrame=59)
                 toonJumpTrack = Parallel(seq, Sequence(Wait(delay), Parallel(ProjectileInterval(av, endPos=getJumpDest, duration=0.9))))
             return toonJumpTrack
 

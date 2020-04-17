@@ -38,17 +38,19 @@ class InviteInfo(InviteInfoBase):
         InviteInfo.notify.debug('getAcceptItemErrorText')
         if retcode == ToontownGlobals.P_InvalidIndex:
             return TTLocalizer.InviteAcceptInvalidError
-        if retcode == ToontownGlobals.P_ItemAvailable:
-            return TTLocalizer.InviteAcceptAllOk
-        return TTLocalizer.CatalogAcceptGeneralError % retcode
+        else:
+            if retcode == ToontownGlobals.P_ItemAvailable:
+                return TTLocalizer.InviteAcceptAllOk
+            return TTLocalizer.CatalogAcceptGeneralError % retcode
 
     def getDiscardItemErrorText(self, retcode):
         InviteInfo.notify.debug('getDiscardItemErrorText')
         if retcode == ToontownGlobals.P_InvalidIndex:
             return TTLocalizer.InviteAcceptInvalidError
-        if retcode == ToontownGlobals.P_ItemAvailable:
-            return TTLocalizer.InviteRejectAllOk
-        return TTLocalizer.CatalogAcceptGeneralError % retcode
+        else:
+            if retcode == ToontownGlobals.P_ItemAvailable:
+                return TTLocalizer.InviteRejectAllOk
+            return TTLocalizer.CatalogAcceptGeneralError % retcode
 
     def output(self, store=-1):
         return 'InviteInfo %s' % str(self)

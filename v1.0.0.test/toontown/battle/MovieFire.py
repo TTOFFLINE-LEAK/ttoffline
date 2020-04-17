@@ -28,56 +28,57 @@ def addHit(dict, suitId, hitCount):
 def doFires(fires):
     if len(fires) == 0:
         return (None, None)
-    suitFiresDict = {}
-    for fire in fires:
-        suitId = fire['target']['suit'].doId
-        if suitId in suitFiresDict:
-            suitFiresDict[suitId].append(fire)
-        else:
-            suitFiresDict[suitId] = [
-             fire]
+    else:
+        suitFiresDict = {}
+        for fire in fires:
+            suitId = fire['target']['suit'].doId
+            if suitId in suitFiresDict:
+                suitFiresDict[suitId].append(fire)
+            else:
+                suitFiresDict[suitId] = [
+                 fire]
 
-    suitFires = suitFiresDict.values()
+        suitFires = suitFiresDict.values()
 
-    def compFunc(a, b):
-        if len(a) > len(b):
-            return 1
-        if len(a) < len(b):
-            return -1
-        return 0
+        def compFunc(a, b):
+            if len(a) > len(b):
+                return 1
+            if len(a) < len(b):
+                return -1
+            return 0
 
-    suitFires.sort(compFunc)
-    totalHitDict = {}
-    singleHitDict = {}
-    groupHitDict = {}
-    for fire in fires:
-        suitId = fire['target']['suit'].doId
-        if fire['target']['hp'] > 0:
-            addHit(singleHitDict, suitId, 1)
-            addHit(totalHitDict, suitId, 1)
-        else:
-            addHit(singleHitDict, suitId, 0)
-            addHit(totalHitDict, suitId, 0)
+        suitFires.sort(compFunc)
+        totalHitDict = {}
+        singleHitDict = {}
+        groupHitDict = {}
+        for fire in fires:
+            suitId = fire['target']['suit'].doId
+            if fire['target']['hp'] > 0:
+                addHit(singleHitDict, suitId, 1)
+                addHit(totalHitDict, suitId, 1)
+            else:
+                addHit(singleHitDict, suitId, 0)
+                addHit(totalHitDict, suitId, 0)
 
-    notify.debug('singleHitDict = %s' % singleHitDict)
-    notify.debug('groupHitDict = %s' % groupHitDict)
-    notify.debug('totalHitDict = %s' % totalHitDict)
-    delay = 0.0
-    mtrack = Parallel()
-    firedTargets = []
-    for sf in suitFires:
-        if len(sf) > 0:
-            ival = __doSuitFires(sf)
-            if ival:
-                mtrack.append(Sequence(Wait(delay), ival))
-            delay = delay + TOON_FIRE_SUIT_DELAY
+        notify.debug('singleHitDict = %s' % singleHitDict)
+        notify.debug('groupHitDict = %s' % groupHitDict)
+        notify.debug('totalHitDict = %s' % totalHitDict)
+        delay = 0.0
+        mtrack = Parallel()
+        firedTargets = []
+        for sf in suitFires:
+            if len(sf) > 0:
+                ival = __doSuitFires(sf)
+                if ival:
+                    mtrack.append(Sequence(Wait(delay), ival))
+                delay = delay + TOON_FIRE_SUIT_DELAY
 
-    retTrack = Sequence()
-    retTrack.append(mtrack)
-    camDuration = retTrack.getDuration()
-    camTrack = MovieCamera.chooseFireShot(fires, suitFiresDict, camDuration)
-    return (
-     retTrack, camTrack)
+        retTrack = Sequence()
+        retTrack.append(mtrack)
+        camDuration = retTrack.getDuration()
+        camTrack = MovieCamera.chooseFireShot(fires, suitFiresDict, camDuration)
+        return (
+         retTrack, camTrack)
 
 
 def __doSuitFires(fires):
@@ -121,11 +122,10 @@ def __animProp(props, propName, propType):
         for prop in props:
             prop.play(propName)
 
+    elif 'model' == propType:
+        pass
     else:
-        if 'model' == propType:
-            pass
-        else:
-            notify.error('No such propType as: %s' % propType)
+        notify.error('No such propType as: %s' % propType)
 
 
 def __billboardProp(prop):

@@ -108,19 +108,20 @@ class TTAccount:
         if errorMsg:
             self.notify.warning('getAccountData error: %s' % errorMsg)
             return errorMsg
-        if self.response.hasKey('errorMsg'):
-            self.notify.warning("error field is: '%s'" % self.response.getString('errorMsg'))
-        self.accountData = copy.deepcopy(self.response)
-        fieldNameMap = {'em': 'email', 'l1': 'addr1', 
-           'l2': 'addr2', 
-           'l3': 'addr3'}
-        dict = self.accountData.dict
-        for fieldName in dict.keys():
-            if fieldName in fieldNameMap:
-                dict[fieldNameMap[fieldName]] = dict[fieldName]
-                del dict[fieldName]
+        else:
+            if self.response.hasKey('errorMsg'):
+                self.notify.warning("error field is: '%s'" % self.response.getString('errorMsg'))
+            self.accountData = copy.deepcopy(self.response)
+            fieldNameMap = {'em': 'email', 'l1': 'addr1', 
+               'l2': 'addr2', 
+               'l3': 'addr3'}
+            dict = self.accountData.dict
+            for fieldName in dict.keys():
+                if fieldName in fieldNameMap:
+                    dict[fieldNameMap[fieldName]] = dict[fieldName]
+                    del dict[fieldName]
 
-        return
+            return
 
     def getLastErrorMsg(self, forceCustServNum=0):
         errCode = self.response.getInt('errorCode')
@@ -128,18 +129,16 @@ class TTAccount:
             msg = self.response.getString('errorMsg')
             if forceCustServNum:
                 msg += ' ' + OTPLocalizer.TTAccountCustomerServiceHelp % self.cr.accountServerConstants.getString('customerServicePhoneNumber')
+        elif errCode < 200:
+            msg = self.response.getString('errorMsg')
+            msg += ' ' + OTPLocalizer.TTAccountCustomerServiceHelp % self.cr.accountServerConstants.getString('customerServicePhoneNumber')
+        elif errCode >= 500:
+            msg = OTPLocalizer.TTAccountIntractibleError
+            msg += ' ' + OTPLocalizer.TTAccountCallCustomerService % self.cr.accountServerConstants.getString('customerServicePhoneNumber')
         else:
-            if errCode < 200:
-                msg = self.response.getString('errorMsg')
-                msg += ' ' + OTPLocalizer.TTAccountCustomerServiceHelp % self.cr.accountServerConstants.getString('customerServicePhoneNumber')
-            else:
-                if errCode >= 500:
-                    msg = OTPLocalizer.TTAccountIntractibleError
-                    msg += ' ' + OTPLocalizer.TTAccountCallCustomerService % self.cr.accountServerConstants.getString('customerServicePhoneNumber')
-                else:
-                    self.notify.warning('unknown error code class: %s: %s' % (self.response.getInt('errorCode'), self.response.getString('errorMsg')))
-                    msg = self.response.getString('errorMsg')
-                    msg += ' ' + OTPLocalizer.TTAccountCallCustomerService % self.cr.accountServerConstants.getString('customerServicePhoneNumber')
+            self.notify.warning('unknown error code class: %s: %s' % (self.response.getInt('errorCode'), self.response.getString('errorMsg')))
+            msg = self.response.getString('errorMsg')
+            msg += ' ' + OTPLocalizer.TTAccountCallCustomerService % self.cr.accountServerConstants.getString('customerServicePhoneNumber')
         return msg
 
     def __makeLoginDict(self, loginName, password, data=None):
@@ -165,96 +164,90 @@ class TTAccount:
             else:
                 if operation == 'forgotPassword':
                     pass
-                else:
-                    if operation == 'setParentPassword':
+                elif operation == 'setParentPassword':
+                    pass
+                elif operation == 'setSecretChat':
+                    pass
+                elif operation == 'create':
+                    pass
+                elif operation == 'purchase':
+                    if 'newPassword' in data:
                         pass
+                else:
+                    self.notify.error("Internal TTAccount error: need to add 'required data' checking for %s operation" % operation)
+                op2Php = {'play': 'play', 'get': 'get', 'cancel': 'cancel', 
+                   'create': 'create', 
+                   'purchase': 'purchase', 
+                   'setParentPassword': 'setSecrets', 
+                   'authenticateParentPassword': 'authenticateChat', 
+                   'authenticateDelete': 'authDelete', 
+                   'setSecretChat': 'setChat', 
+                   'forgotPassword': 'forgotPw', 
+                   'authenticateParentPasswordNewStyle': 'api/authChat', 
+                   'authenticateParentUsernameAndPassword': 'api/authParentChat', 
+                   'authenticateDeleteNewStyle': 'api/authDelete'}
+                newWebOperations = ('authenticateParentPasswordNewStyle', 'authenticateParentUsernameAndPassword',
+                                    'authenticateDeleteNewStyle')
+                url = URLSpec(getAccountServer())
+                if operation in newWebOperations:
+                    url.setPath('/%s' % op2Php[operation])
+                else:
+                    url.setPath('/%s.php' % op2Php[operation])
+                body = ''
+                if 'accountName' in data:
+                    if operation not in newWebOperations:
+                        url.setQuery('n=%s' % URLSpec.quote(data['accountName']))
+                serverFields = {'accountName': 'n', 'password': 'p', 
+                   'parentPassword': 'sp', 
+                   'newPassword': 'np', 
+                   'chat': 'chat', 
+                   'email': 'em', 
+                   'dobYear': 'doby', 
+                   'dobMonth': 'dobm', 
+                   'dobDay': 'dobd', 
+                   'ccNumber': 'ccn', 
+                   'ccMonth': 'ccm', 
+                   'ccYear': 'ccy', 
+                   'nameOnCard': 'noc', 
+                   'addr1': 'l1', 
+                   'addr2': 'l2', 
+                   'addr3': 'l3', 
+                   'city': 'city', 
+                   'state': 'state', 
+                   'country': 'country', 
+                   'zip': 'zip', 
+                   'referrer': 'ref', 
+                   'secretsNeedParentPassword': 'secretsNeedsParentPassword', 
+                   'parentPasswordNewStyle': 'pp', 
+                   'parentUsername': 'pu', 
+                   'userid': 'userid'}
+                ignoredFields = ('ccType', )
+                outBoundFields = {}
+                for fieldName in data.keys():
+                    if fieldName not in serverFields:
+                        if fieldName not in ignoredFields:
+                            self.notify.error('unknown data field: %s' % fieldName)
                     else:
-                        if operation == 'setSecretChat':
-                            pass
-                        else:
-                            if operation == 'create':
-                                pass
-                            else:
-                                if operation == 'purchase':
-                                    if 'newPassword' in data:
-                                        pass
-                                else:
-                                    self.notify.error("Internal TTAccount error: need to add 'required data' checking for %s operation" % operation)
-        op2Php = {'play': 'play', 'get': 'get', 
-           'cancel': 'cancel', 
-           'create': 'create', 
-           'purchase': 'purchase', 
-           'setParentPassword': 'setSecrets', 
-           'authenticateParentPassword': 'authenticateChat', 
-           'authenticateDelete': 'authDelete', 
-           'setSecretChat': 'setChat', 
-           'forgotPassword': 'forgotPw', 
-           'authenticateParentPasswordNewStyle': 'api/authChat', 
-           'authenticateParentUsernameAndPassword': 'api/authParentChat', 
-           'authenticateDeleteNewStyle': 'api/authDelete'}
-        newWebOperations = ('authenticateParentPasswordNewStyle', 'authenticateParentUsernameAndPassword',
-                            'authenticateDeleteNewStyle')
-        url = URLSpec(getAccountServer())
-        if operation in newWebOperations:
-            url.setPath('/%s' % op2Php[operation])
-        else:
-            url.setPath('/%s.php' % op2Php[operation])
-        body = ''
-        if 'accountName' in data:
-            if operation not in newWebOperations:
-                url.setQuery('n=%s' % URLSpec.quote(data['accountName']))
-        serverFields = {'accountName': 'n', 'password': 'p', 
-           'parentPassword': 'sp', 
-           'newPassword': 'np', 
-           'chat': 'chat', 
-           'email': 'em', 
-           'dobYear': 'doby', 
-           'dobMonth': 'dobm', 
-           'dobDay': 'dobd', 
-           'ccNumber': 'ccn', 
-           'ccMonth': 'ccm', 
-           'ccYear': 'ccy', 
-           'nameOnCard': 'noc', 
-           'addr1': 'l1', 
-           'addr2': 'l2', 
-           'addr3': 'l3', 
-           'city': 'city', 
-           'state': 'state', 
-           'country': 'country', 
-           'zip': 'zip', 
-           'referrer': 'ref', 
-           'secretsNeedParentPassword': 'secretsNeedsParentPassword', 
-           'parentPasswordNewStyle': 'pp', 
-           'parentUsername': 'pu', 
-           'userid': 'userid'}
-        ignoredFields = ('ccType', )
-        outBoundFields = {}
-        for fieldName in data.keys():
-            if fieldName not in serverFields:
-                if fieldName not in ignoredFields:
-                    self.notify.error('unknown data field: %s' % fieldName)
-            else:
-                outBoundFields[serverFields[fieldName]] = data[fieldName]
+                        outBoundFields[serverFields[fieldName]] = data[fieldName]
 
-        orderedFields = outBoundFields.keys()
-        orderedFields.sort()
-        for fieldName in orderedFields:
-            if len(body):
-                body += '&'
-            body += '%s=%s' % (fieldName, URLSpec.quotePlus(outBoundFields[fieldName]))
+            orderedFields = outBoundFields.keys()
+            orderedFields.sort()
+            for fieldName in orderedFields:
+                if len(body):
+                    body += '&'
+                body += '%s=%s' % (fieldName, URLSpec.quotePlus(outBoundFields[fieldName]))
 
         self.notify.debug('url=' + url.cStr())
         self.notify.debug('body=' + body)
         if operation in ('get', ):
             expectedHeader = 'ACCOUNT INFO'
+        elif operation in ('play', 'cancel', 'create', 'purchase', 'setParentPassword',
+                           'setSecretChat', 'authenticateParentPassword', 'authenticateDelete',
+                           'forgotPassword', 'authenticateParentPasswordNewStyle',
+                           'authenticateParentUsernameAndPassword', 'authenticateDeleteNewStyle'):
+            expectedHeader = 'ACCOUNT SERVER RESPONSE'
         else:
-            if operation in ('play', 'cancel', 'create', 'purchase', 'setParentPassword',
-                             'setSecretChat', 'authenticateParentPassword', 'authenticateDelete',
-                             'forgotPassword', 'authenticateParentPasswordNewStyle',
-                             'authenticateParentUsernameAndPassword', 'authenticateDeleteNewStyle'):
-                expectedHeader = 'ACCOUNT SERVER RESPONSE'
-            else:
-                self.notify.error("Internal TTAccount error: need to set expected response header for '%s' operation" % operation)
+            self.notify.error("Internal TTAccount error: need to set expected response header for '%s' operation" % operation)
         self.response = RemoteValueSet.RemoteValueSet(url, self.cr.http, body=body, expectedHeader=expectedHeader)
         self.notify.debug('    self.response=' + str(self.response))
         if self.response.hasKey('errorCode'):
@@ -264,18 +257,18 @@ class TTAccount:
                 self.cr.freeTimeExpiresAt = 0
         if self.response.hasKey('errorMsg'):
             return self.getLastErrorMsg()
-        if operation in ('get', 'forgotPassword', 'authenticateDelete', 'play', 'cancel',
-                         'create', 'purchase', 'setParentPassword', 'authenticateParentPassword',
-                         'authenticateParentPasswordNewStyle', 'authenticateParentUsernameAndPassword',
-                         'authenticateDeleteNewStyle'):
-            pass
         else:
-            if operation == 'setSecretChat':
+            if operation in ('get', 'forgotPassword', 'authenticateDelete', 'play',
+                             'cancel', 'create', 'purchase', 'setParentPassword',
+                             'authenticateParentPassword', 'authenticateParentPasswordNewStyle',
+                             'authenticateParentUsernameAndPassword', 'authenticateDeleteNewStyle'):
+                pass
+            elif operation == 'setSecretChat':
                 self.playToken = self.response.getString('playToken')
                 self.playTokenIsEncrypted = 1
             else:
                 self.notify.error('Internal TTAccount error: need to extract useful data for %s operation' % operation)
-        return
+            return
 
     def authenticateParentUsernameAndPassword(self, loginName, password, parentUsername, parentPassword):
         try:

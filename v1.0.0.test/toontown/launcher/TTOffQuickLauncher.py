@@ -74,13 +74,15 @@ class TTOffQuickLauncher(TTOffLauncherBase):
         if self.useTTOffSpecificLogin:
             self.notify.info('getNeedPwForSecretKey using ttoff-specific-login')
             return False
-        return self.secretNeedsParentPasswordKey
+        else:
+            return self.secretNeedsParentPasswordKey
 
     def getParentPasswordSet(self):
         if self.useTTOffSpecificLogin:
             self.notify.info('getParentPasswordSet using ttoff-specific-login')
             return True
-        return self.chatEligibleKey
+        else:
+            return self.chatEligibleKey
 
     def startGame(self):
         self.newTaskManager()

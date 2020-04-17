@@ -324,22 +324,21 @@ class Playground(Place.Place):
         mode = doneStatus['mode']
         if mode == 'reject':
             self.fsm.request('walk')
+        elif mode == 'exit':
+            self.fsm.request('walk')
+        elif mode == 'minigame':
+            self.doneStatus = {'loader': 'minigame', 'where': 'minigame', 'hoodId': self.loader.hood.id, 
+               'zoneId': doneStatus['zoneId'], 
+               'shardId': None, 
+               'minigameId': doneStatus['minigameId']}
+            messenger.send(self.doneEvent)
         else:
-            if mode == 'exit':
-                self.fsm.request('walk')
-            else:
-                if mode == 'minigame':
-                    self.doneStatus = {'loader': 'minigame', 'where': 'minigame', 'hoodId': self.loader.hood.id, 
-                       'zoneId': doneStatus['zoneId'], 
-                       'shardId': None, 
-                       'minigameId': doneStatus['minigameId']}
-                    messenger.send(self.doneEvent)
-                else:
-                    self.notify.error('Unknown mode: ' + mode + ' in handleTrolleyDone')
+            self.notify.error('Unknown mode: ' + mode + ' in handleTrolleyDone')
         return
 
     def debugStartMinigame(self, zoneId, minigameId):
-        self.doneStatus = {'loader': 'minigame', 'where': 'minigame', 'hoodId': self.loader.hood.id, 
+        self.doneStatus = {'loader': 'minigame', 'where': 'minigame', 
+           'hoodId': self.loader.hood.id, 
            'zoneId': zoneId, 
            'shardId': None, 
            'minigameId': minigameId}
@@ -352,11 +351,10 @@ class Playground(Place.Place):
         doneStatusMode = doneStatus['mode']
         if doneStatusMode == 'complete':
             self.requestLeave(requestStatus)
+        elif doneStatusMode == 'incomplete':
+            self.fsm.request('TFAReject')
         else:
-            if doneStatusMode == 'incomplete':
-                self.fsm.request('TFAReject')
-            else:
-                self.notify.error('Unknown mode: %s' % doneStatusMode)
+            self.notify.error('Unknown mode: %s' % doneStatusMode)
 
     def enterDFACallback(self, requestStatus, doneStatus):
         self.dfa.exit()
@@ -364,11 +362,10 @@ class Playground(Place.Place):
         ds = doneStatus['mode']
         if ds == 'complete':
             self.fsm.request('NPCFA', [requestStatus])
+        elif ds == 'incomplete':
+            self.fsm.request('DFAReject')
         else:
-            if ds == 'incomplete':
-                self.fsm.request('DFAReject')
-            else:
-                self.notify.error('Unknown done status for DownloadForceAcknowledge: ' + `doneStatus`)
+            self.notify.error('Unknown done status for DownloadForceAcknowledge: ' + `doneStatus`)
 
     def enterHFA(self, requestStatus):
         self.acceptOnce(self.hfaDoneEvent, self.enterHFACallback, [requestStatus])
@@ -389,11 +386,10 @@ class Playground(Place.Place):
                    'doorIn': 'doorOut', 
                    'portalIn': 'portalOut'}
             self.fsm.request(outHow[requestStatus['how']], [requestStatus])
+        elif doneStatus['mode'] == 'incomplete':
+            self.fsm.request('HFAReject')
         else:
-            if doneStatus['mode'] == 'incomplete':
-                self.fsm.request('HFAReject')
-            else:
-                self.notify.error('Unknown done status for HealthForceAcknowledge: ' + `doneStatus`)
+            self.notify.error('Unknown done status for HealthForceAcknowledge: ' + `doneStatus`)
 
     def enterHFAReject(self):
         self.fsm.request('walk')
@@ -414,11 +410,10 @@ class Playground(Place.Place):
         del self.npcfa
         if doneStatus['mode'] == 'complete':
             self.fsm.request('HFA', [requestStatus])
+        elif doneStatus['mode'] == 'incomplete':
+            self.fsm.request('NPCFAReject')
         else:
-            if doneStatus['mode'] == 'incomplete':
-                self.fsm.request('NPCFAReject')
-            else:
-                self.notify.error('Unknown done status for NPCForceAcknowledge: ' + `doneStatus`)
+            self.notify.error('Unknown done status for NPCForceAcknowledge: ' + `doneStatus`)
 
     def enterNPCFAReject(self):
         self.fsm.request('walk')
@@ -450,73 +445,68 @@ class Playground(Place.Place):
         imgScale = 0.25
         if self.dialog:
             x, y, z, h, p, r = base.cr.hoodMgr.getPlaygroundCenterFromId(self.loader.hood.id)
-        else:
-            if base.localAvatar.hp < 1:
-                requestStatus['nextState'] = 'popup'
-                x, y, z, h, p, r = base.cr.hoodMgr.getPlaygroundCenterFromId(self.loader.hood.id)
-                self.accept('deathAck', self.__handleDeathAck, extraArgs=[requestStatus])
-                self.deathAckBox = DeathForceAcknowledge.DeathForceAcknowledge(doneEvent='deathAck')
-            else:
-                if base.localAvatar.hp > 0 and (Quests.avatarHasTrolleyQuest(base.localAvatar) or Quests.avatarHasFirstCogQuest(base.localAvatar) or Quests.avatarHasFriendQuest(base.localAvatar) or Quests.avatarHasPhoneQuest(base.localAvatar) and Quests.avatarHasCompletedPhoneQuest(base.localAvatar)) and self.loader.hood.id == ToontownGlobals.ToontownCentral:
-                    requestStatus['nextState'] = 'popup'
-                    imageModel = loader.loadModel('phase_4/models/gui/tfa_images')
-                    if base.localAvatar.quests[0][0] == Quests.TROLLEY_QUEST_ID:
-                        if not Quests.avatarHasCompletedTrolleyQuest(base.localAvatar):
-                            x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralInitialDropPoints)
-                            msg = TTLocalizer.NPCForceAcknowledgeMessage3
-                            imgNodePath = imageModel.find('**/trolley-dialog-image')
-                            imgPos = (0, 0, 0.04)
-                            imgScale = 0.5
-                        else:
-                            x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
-                            msg = TTLocalizer.NPCForceAcknowledgeMessage4
-                            imgNodePath = imageModel.find('**/hq-dialog-image')
-                            imgPos = (0, 0, -0.02)
-                            imgScale = 0.5
-                    else:
-                        if base.localAvatar.quests[0][0] == Quests.FIRST_COG_QUEST_ID:
-                            if not Quests.avatarHasCompletedFirstCogQuest(base.localAvatar):
-                                x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralTunnelDropPoints)
-                                msg = TTLocalizer.NPCForceAcknowledgeMessage5
-                                imgNodePath = imageModel.find('**/tunnelSignA')
-                                imgPos = (0, 0, 0.04)
-                                imgScale = 0.5
-                            else:
-                                x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
-                                msg = TTLocalizer.NPCForceAcknowledgeMessage6
-                                imgNodePath = imageModel.find('**/hq-dialog-image')
-                                imgPos = (0, 0, 0.05)
-                                imgScale = 0.5
-                        else:
-                            if base.localAvatar.quests[0][0] == Quests.FRIEND_QUEST_ID:
-                                if not Quests.avatarHasCompletedFriendQuest(base.localAvatar):
-                                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralInitialDropPoints)
-                                    msg = TTLocalizer.NPCForceAcknowledgeMessage7
-                                    gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
-                                    imgNodePath = gui.find('**/FriendsBox_Closed')
-                                    imgPos = (0, 0, 0.04)
-                                    imgScale = 1.0
-                                    gui.removeNode()
-                                else:
-                                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
-                                    msg = TTLocalizer.NPCForceAcknowledgeMessage8
-                                    imgNodePath = imageModel.find('**/hq-dialog-image')
-                                    imgPos = (0, 0, 0.05)
-                                    imgScale = 0
-                            else:
-                                if base.localAvatar.quests[0][0] == Quests.PHONE_QUEST_ID:
-                                    if Quests.avatarHasCompletedPhoneQuest(base.localAvatar):
-                                        x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
-                                        msg = TTLocalizer.NPCForceAcknowledgeMessage9
-                                        imgNodePath = imageModel.find('**/hq-dialog-image')
-                                        imgPos = (0, 0, 0.05)
-                                        imgScale = 0.5
-                    self.dialog = TTDialog.TTDialog(text=msg, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
-                    imgLabel = DirectLabel.DirectLabel(parent=self.dialog, relief=None, pos=imgPos, scale=TTLocalizer.PimgLabel, image=imgNodePath, image_scale=imgScale)
-                    imageModel.removeNode()
+        elif base.localAvatar.hp < 1:
+            requestStatus['nextState'] = 'popup'
+            x, y, z, h, p, r = base.cr.hoodMgr.getPlaygroundCenterFromId(self.loader.hood.id)
+            self.accept('deathAck', self.__handleDeathAck, extraArgs=[requestStatus])
+            self.deathAckBox = DeathForceAcknowledge.DeathForceAcknowledge(doneEvent='deathAck')
+        elif base.localAvatar.hp > 0 and (Quests.avatarHasTrolleyQuest(base.localAvatar) or Quests.avatarHasFirstCogQuest(base.localAvatar) or Quests.avatarHasFriendQuest(base.localAvatar) or Quests.avatarHasPhoneQuest(base.localAvatar) and Quests.avatarHasCompletedPhoneQuest(base.localAvatar)) and self.loader.hood.id == ToontownGlobals.ToontownCentral:
+            requestStatus['nextState'] = 'popup'
+            imageModel = loader.loadModel('phase_4/models/gui/tfa_images')
+            if base.localAvatar.quests[0][0] == Quests.TROLLEY_QUEST_ID:
+                if not Quests.avatarHasCompletedTrolleyQuest(base.localAvatar):
+                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralInitialDropPoints)
+                    msg = TTLocalizer.NPCForceAcknowledgeMessage3
+                    imgNodePath = imageModel.find('**/trolley-dialog-image')
+                    imgPos = (0, 0, 0.04)
+                    imgScale = 0.5
                 else:
-                    requestStatus['nextState'] = 'walk'
-                    x, y, z, h, p, r = base.cr.hoodMgr.getPlaygroundCenterFromId(self.loader.hood.id)
+                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
+                    msg = TTLocalizer.NPCForceAcknowledgeMessage4
+                    imgNodePath = imageModel.find('**/hq-dialog-image')
+                    imgPos = (0, 0, -0.02)
+                    imgScale = 0.5
+            elif base.localAvatar.quests[0][0] == Quests.FIRST_COG_QUEST_ID:
+                if not Quests.avatarHasCompletedFirstCogQuest(base.localAvatar):
+                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralTunnelDropPoints)
+                    msg = TTLocalizer.NPCForceAcknowledgeMessage5
+                    imgNodePath = imageModel.find('**/tunnelSignA')
+                    imgPos = (0, 0, 0.04)
+                    imgScale = 0.5
+                else:
+                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
+                    msg = TTLocalizer.NPCForceAcknowledgeMessage6
+                    imgNodePath = imageModel.find('**/hq-dialog-image')
+                    imgPos = (0, 0, 0.05)
+                    imgScale = 0.5
+            elif base.localAvatar.quests[0][0] == Quests.FRIEND_QUEST_ID:
+                if not Quests.avatarHasCompletedFriendQuest(base.localAvatar):
+                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralInitialDropPoints)
+                    msg = TTLocalizer.NPCForceAcknowledgeMessage7
+                    gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
+                    imgNodePath = gui.find('**/FriendsBox_Closed')
+                    imgPos = (0, 0, 0.04)
+                    imgScale = 1.0
+                    gui.removeNode()
+                else:
+                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
+                    msg = TTLocalizer.NPCForceAcknowledgeMessage8
+                    imgNodePath = imageModel.find('**/hq-dialog-image')
+                    imgPos = (0, 0, 0.05)
+                    imgScale = 0
+            elif base.localAvatar.quests[0][0] == Quests.PHONE_QUEST_ID:
+                if Quests.avatarHasCompletedPhoneQuest(base.localAvatar):
+                    x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralHQDropPoints)
+                    msg = TTLocalizer.NPCForceAcknowledgeMessage9
+                    imgNodePath = imageModel.find('**/hq-dialog-image')
+                    imgPos = (0, 0, 0.05)
+                    imgScale = 0.5
+            self.dialog = TTDialog.TTDialog(text=msg, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
+            imgLabel = DirectLabel.DirectLabel(parent=self.dialog, relief=None, pos=imgPos, scale=TTLocalizer.PimgLabel, image=imgNodePath, image_scale=imgScale)
+            imageModel.removeNode()
+        else:
+            requestStatus['nextState'] = 'walk'
+            x, y, z, h, p, r = base.cr.hoodMgr.getPlaygroundCenterFromId(self.loader.hood.id)
         base.localAvatar.detachNode()
         base.localAvatar.setPosHpr(render, x, y, z, h, p, r)
         Place.Place.enterTeleportIn(self, requestStatus)
@@ -572,14 +562,13 @@ class Playground(Place.Place):
         if hoodId == self.loader.hood.hoodId and zoneId == self.loader.hood.hoodId and shardId == None:
             teleportDebug(requestStatus, 'same playground')
             self.fsm.request('deathAck', [requestStatus])
+        elif hoodId == ToontownGlobals.MyEstate:
+            teleportDebug(requestStatus, 'estate')
+            self.getEstateZoneAndGoHome(requestStatus)
         else:
-            if hoodId == ToontownGlobals.MyEstate:
-                teleportDebug(requestStatus, 'estate')
-                self.getEstateZoneAndGoHome(requestStatus)
-            else:
-                teleportDebug(requestStatus, 'different hood/zone')
-                self.doneStatus = requestStatus
-                messenger.send(self.doneEvent)
+            teleportDebug(requestStatus, 'different hood/zone')
+            self.doneStatus = requestStatus
+            messenger.send(self.doneEvent)
         return
 
     def exitTeleportOut(self):

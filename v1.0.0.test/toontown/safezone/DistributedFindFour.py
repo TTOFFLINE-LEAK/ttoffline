@@ -380,13 +380,12 @@ class DistributedFindFour(DistributedNode.DistributedNode):
         if self.playerNum == 1:
             message = 'You are Red'
             color = Vec4(1, 0, 0, 1)
+        elif self.playerNum == 2:
+            message = 'You are Yellow'
+            color = Vec4(1, 1, 0, 1)
         else:
-            if self.playerNum == 2:
-                message = 'You are Yellow'
-                color = Vec4(1, 1, 0, 1)
-            else:
-                message = TTLocalizer.CheckersObserver
-                color = Vec4(0, 0, 0, 1)
+            message = TTLocalizer.CheckersObserver
+            color = Vec4(0, 0, 0, 1)
         self.screenText = OnscreenText(text=message, pos=defaultPos, scale=0.1, fg=color, align=TextNode.ACenter, mayChange=1)
 
     def enableStartButton(self):
@@ -433,14 +432,12 @@ class DistributedFindFour(DistributedNode.DistributedNode):
         if player == self.playerNum:
             message2 = TTLocalizer.ChineseCheckersYourTurn
             color = (0, 0, 0, 1)
-        else:
-            if player == 1:
-                message2 = "Red's Turn"
-                color = (1, 0, 0, 1)
-            else:
-                if player == 2:
-                    message2 = "Yellow's Turn"
-                    color = (1, 1, 0, 1)
+        elif player == 1:
+            message2 = "Red's Turn"
+            color = (1, 0, 0, 1)
+        elif player == 2:
+            message2 = "Yellow's Turn"
+            color = (1, 1, 0, 1)
         self.turnText = OnscreenText(text=message1 + message2, pos=(-0.7, -0.39), scale=0.092, fg=color, align=TextNode.ACenter, mayChange=1)
         return
 
@@ -473,32 +470,33 @@ class DistributedFindFour(DistributedNode.DistributedNode):
     def turnTask(self, task):
         if base.mouseWatcherNode.hasMouse() == False:
             return task.cont
-        if self.isMyTurn == False:
-            return task.cont
-        if self.moveSequence.isPlaying():
-            return task.cont
-        mpos = base.mouseWatcherNode.getMouse()
-        self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())
-        self.traverser.traverse(render)
-        if self.myHandler.getNumEntries() > 0:
-            self.myHandler.sortEntries()
-            pickedObj = self.myHandler.getEntry(0).getIntoNodePath()
-            pickedObj = pickedObj.getNetTag('StartLocator')
-            if pickedObj:
-                colVal = int(pickedObj)
-                if colVal == self.moveCol:
-                    return task.cont
-                if self.board[0][colVal] == 0:
-                    if self.moveCol != None:
-                        for x in self.startingPositions[self.moveCol].getChild(1).getChildren():
-                            x.hide()
+        else:
+            if self.isMyTurn == False:
+                return task.cont
+            if self.moveSequence.isPlaying():
+                return task.cont
+            mpos = base.mouseWatcherNode.getMouse()
+            self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())
+            self.traverser.traverse(render)
+            if self.myHandler.getNumEntries() > 0:
+                self.myHandler.sortEntries()
+                pickedObj = self.myHandler.getEntry(0).getIntoNodePath()
+                pickedObj = pickedObj.getNetTag('StartLocator')
+                if pickedObj:
+                    colVal = int(pickedObj)
+                    if colVal == self.moveCol:
+                        return task.cont
+                    if self.board[0][colVal] == 0:
+                        if self.moveCol != None:
+                            for x in self.startingPositions[self.moveCol].getChild(1).getChildren():
+                                x.hide()
 
-                    self.moveCol = colVal
-                    if self.playerNum == 1:
-                        self.startingPositions[self.moveCol].getChild(1).getChild(2).show()
-                    elif self.playerNum == 2:
-                        self.startingPositions[self.moveCol].getChild(1).getChild(3).show()
-        return task.cont
+                        self.moveCol = colVal
+                        if self.playerNum == 1:
+                            self.startingPositions[self.moveCol].getChild(1).getChild(2).show()
+                        elif self.playerNum == 2:
+                            self.startingPositions[self.moveCol].getChild(1).getChild(3).show()
+            return task.cont
 
     def d_requestMove(self, moveCol):
         self.sendUpdate('requestMove', [moveCol])
@@ -573,12 +571,10 @@ class DistributedFindFour(DistributedNode.DistributedNode):
         self.clockNode.hide()
         if winDirection == 0:
             blinkList = self.findHorizontal(x, y, playerNum)
-        else:
-            if winDirection == 1:
-                blinkList = self.findVertical(x, y, playerNum)
-            else:
-                if winDirection == 2:
-                    blinkList = self.findDiagonal(x, y, playerNum)
+        elif winDirection == 1:
+            blinkList = self.findVertical(x, y, playerNum)
+        elif winDirection == 2:
+            blinkList = self.findDiagonal(x, y, playerNum)
         if blinkList != []:
             print blinkList
             val0 = x * 7 + y
@@ -626,10 +622,9 @@ class DistributedFindFour(DistributedNode.DistributedNode):
         if turn == 0:
             peice = self.startingPositions[moveCol].getChild(1).getChildren()[2]
             peice.show()
-        else:
-            if turn == 1:
-                peice = self.startingPositions[moveCol].getChild(1).getChildren()[3]
-                peice.show()
+        elif turn == 1:
+            peice = self.startingPositions[moveCol].getChild(1).getChildren()[3]
+            peice.show()
         self.moveSequence = Sequence()
         startPos = self.startingPositions[moveCol].getPos()
         arrayLoc = movePos * 7 + moveCol
@@ -735,53 +730,52 @@ class DistributedFindFour(DistributedNode.DistributedNode):
                         return True
 
                 return False
+        elif cVal >= 4:
+            if rVal == 2:
+                for x in xrange(1, 4):
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return True
+
+                return False
+            if rVal == 3:
+                for x in xrange(1, 4):
+                    if self.board[(rVal - x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
+                        return True
+
+                return False
         else:
-            if cVal >= 4:
-                if rVal == 2:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+            if rVal == 3 or rVal == 4 or rVal == 5:
+                for x in xrange(1, 4):
+                    if self.board[(rVal - x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
+                        return True
 
-                    return False
-                if rVal == 3:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal - x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+                for x in xrange(1, 4):
+                    if self.board[(rVal - x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
+                        return True
 
-                    return False
-            else:
-                if rVal == 3 or rVal == 4 or rVal == 5:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal - x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+                return False
+            if rVal == 0 or rVal == 1 or rVal == 2:
+                for x in xrange(1, 4):
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return True
 
-                    for x in xrange(1, 4):
-                        if self.board[(rVal - x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
-                            return True
+                for x in xrange(1, 4):
+                    if self.board[(rVal + x)][(cVal + x)] != playerNum:
+                        break
+                    if self.board[(rVal + x)][(cVal + x)] == playerNum and x == 3:
+                        return True
 
-                    return False
-                if rVal == 0 or rVal == 1 or rVal == 2:
-                    for x in xrange(1, 4):
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return True
-
-                    for x in xrange(1, 4):
-                        if self.board[(rVal + x)][(cVal + x)] != playerNum:
-                            break
-                        if self.board[(rVal + x)][(cVal + x)] == playerNum and x == 3:
-                            return True
-
-                    return False
+                return False
         return False
 
     def findHorizontal(self, rVal, cVal, playerNum):
@@ -876,63 +870,62 @@ class DistributedFindFour(DistributedNode.DistributedNode):
                         return retList
 
                 return []
+        elif cVal >= 4:
+            if rVal == 2:
+                for x in xrange(1, 4):
+                    retList.append([rVal + x, cVal - x])
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        retList = []
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return retList
+
+                return []
+            if rVal == 3:
+                for x in xrange(1, 4):
+                    retList.append([rVal - x, cVal - x])
+                    if self.board[(rVal - x)][(cVal - x)] != playerNum:
+                        retList = []
+                        break
+                    if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
+                        return retList
+
+                return []
         else:
-            if cVal >= 4:
-                if rVal == 2:
-                    for x in xrange(1, 4):
-                        retList.append([rVal + x, cVal - x])
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            retList = []
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return retList
+            if rVal == 3 or rVal == 4 or rVal == 5:
+                for x in xrange(1, 4):
+                    retList.append([rVal - x, cVal - x])
+                    if self.board[(rVal - x)][(cVal - x)] != playerNum:
+                        retList = []
+                        break
+                    if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
+                        return retList
 
-                    return []
-                if rVal == 3:
-                    for x in xrange(1, 4):
-                        retList.append([rVal - x, cVal - x])
-                        if self.board[(rVal - x)][(cVal - x)] != playerNum:
-                            retList = []
-                            break
-                        if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
-                            return retList
+                for x in xrange(1, 4):
+                    retList.append([rVal + x, cVal - x])
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        retList = []
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return retList
 
-                    return []
-            else:
-                if rVal == 3 or rVal == 4 or rVal == 5:
-                    for x in xrange(1, 4):
-                        retList.append([rVal - x, cVal - x])
-                        if self.board[(rVal - x)][(cVal - x)] != playerNum:
-                            retList = []
-                            break
-                        if self.board[(rVal - x)][(cVal - x)] == playerNum and x == 3:
-                            return retList
+                return []
+            if rVal == 0 or rVal == 1 or rVal == 2:
+                for x in xrange(1, 4):
+                    retList.append([rVal + x, cVal - x])
+                    if self.board[(rVal + x)][(cVal - x)] != playerNum:
+                        retList = []
+                        break
+                    if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
+                        return retList
 
-                    for x in xrange(1, 4):
-                        retList.append([rVal + x, cVal - x])
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            retList = []
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return retList
+                for x in xrange(1, 4):
+                    retList.append([rVal + x, cVal + x])
+                    if self.board[(rVal + x)][(cVal + x)] != playerNum:
+                        retList = []
+                        break
+                    if self.board[(rVal + x)][(cVal + x)] == playerNum and x == 3:
+                        return retList
 
-                    return []
-                if rVal == 0 or rVal == 1 or rVal == 2:
-                    for x in xrange(1, 4):
-                        retList.append([rVal + x, cVal - x])
-                        if self.board[(rVal + x)][(cVal - x)] != playerNum:
-                            retList = []
-                            break
-                        if self.board[(rVal + x)][(cVal - x)] == playerNum and x == 3:
-                            return retList
-
-                    for x in xrange(1, 4):
-                        retList.append([rVal + x, cVal + x])
-                        if self.board[(rVal + x)][(cVal + x)] != playerNum:
-                            retList = []
-                            break
-                        if self.board[(rVal + x)][(cVal + x)] == playerNum and x == 3:
-                            return retList
-
-                    return []
+                return []
         return []

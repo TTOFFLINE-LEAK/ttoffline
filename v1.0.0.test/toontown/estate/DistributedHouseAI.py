@@ -298,40 +298,42 @@ class DistributedHouseAI(DistributedObjectAI):
     def placeStarterGarden(self):
         if not config.GetBool('want-gardening', False):
             return
-        if not self.estate:
+        else:
+            if not self.estate:
+                return
+            av = self.air.doId2do.get(self.getAvatarId())
+            if av is None:
+                return
+            if av.getGardenStarted():
+                self.notify.warning('Avatar %s tried to start their garden twice!' % self.getAvatarId())
+                return
+            av.b_setGardenStarted(1)
+            self.gardenManager = GardenManagerAI(self.air, self.estate)
+            self.gardenManager.loadGarden(av.doId)
             return
-        av = self.air.doId2do.get(self.getAvatarId())
-        if av is None:
-            return
-        if av.getGardenStarted():
-            self.notify.warning('Avatar %s tried to start their garden twice!' % self.getAvatarId())
-            return
-        av.b_setGardenStarted(1)
-        self.gardenManager = GardenManagerAI(self.air, self.estate)
-        self.gardenManager.loadGarden(av.doId)
-        return
 
     def createGardenManager(self):
         if not config.GetBool('want-gardening', False):
             return
-        if not self.estate:
-            return
-        if not self.getAvatarId():
-            return
-        av = self.air.doId2do.get(self.getAvatarId())
-        if av is not None:
-            if av.getGardenStarted():
-                self.gardenManager = GardenManagerAI(self.air, self.estate)
-                self.gardenManager.loadGarden(av.doId)
-            return
-
-        def __gotOwner(dclass, fields, self=self):
-            if dclass != self.air.dclassesByName['DistributedToonAI']:
+        else:
+            if not self.estate:
                 return
-            gardenStarted = fields['setGardenStarted'][0]
-            if gardenStarted:
-                self.gardenManager = GardenManagerAI(self.air, self.estate)
-                self.gardenManager.loadGarden(self.getAvatarId())
+            if not self.getAvatarId():
+                return
+            av = self.air.doId2do.get(self.getAvatarId())
+            if av is not None:
+                if av.getGardenStarted():
+                    self.gardenManager = GardenManagerAI(self.air, self.estate)
+                    self.gardenManager.loadGarden(av.doId)
+                return
 
-        self.air.dbInterface.queryObject(self.air.dbId, self.getAvatarId(), __gotOwner)
-        return
+            def __gotOwner(dclass, fields, self=self):
+                if dclass != self.air.dclassesByName['DistributedToonAI']:
+                    return
+                gardenStarted = fields['setGardenStarted'][0]
+                if gardenStarted:
+                    self.gardenManager = GardenManagerAI(self.air, self.estate)
+                    self.gardenManager.loadGarden(self.getAvatarId())
+
+            self.air.dbInterface.queryObject(self.air.dbId, self.getAvatarId(), __gotOwner)
+            return

@@ -123,20 +123,16 @@ class DistributedPondBingoManager(DistributedObject.DistributedObject, FSM.FSM):
         if (self.state != 'Off' or self.state != 'CloseEvent') and self.card.getGame():
             self.card.loadCard()
             self.card.show()
-        else:
-            if self.state == 'GameOver':
-                self.card.show()
-            else:
-                if self.state == 'Reward':
-                    self.card.show()
-                else:
-                    if self.state == 'WaitCountdown':
-                        self.card.show()
-                        self.card.showNextGameTimer(TTLocalizer.FishBingoNextGame)
-                    else:
-                        if self.state == 'Intermission':
-                            self.card.showNextGameTimer(TTLocalizer.FishBingoIntermission)
-                            self.card.show()
+        elif self.state == 'GameOver':
+            self.card.show()
+        elif self.state == 'Reward':
+            self.card.show()
+        elif self.state == 'WaitCountdown':
+            self.card.show()
+            self.card.showNextGameTimer(TTLocalizer.FishBingoNextGame)
+        elif self.state == 'Intermission':
+            self.card.showNextGameTimer(TTLocalizer.FishBingoIntermission)
+            self.card.show()
         self.hasEntered = 1
 
     def __cardChoice(self):

@@ -76,7 +76,8 @@ class DistributedPlantBase(DistributedLawnDecor.DistributedLawnDecor):
     def getShovelAction(self):
         if self.isFruiting() and not self.isWilted() and self.canBeHarvested():
             return TTLocalizer.GardeningPick
-        return TTLocalizer.GardeningRemove
+        else:
+            return TTLocalizer.GardeningRemove
 
     def getShovelCommand(self):
         return self.handlePicking
@@ -157,25 +158,21 @@ class DistributedPlantBase(DistributedLawnDecor.DistributedLawnDecor):
     def getModelName(self):
         if self.growthLevel >= self.growthThresholds[1]:
             modelName = self.fullGrownModel
+        elif self.growthLevel >= self.growthThresholds[1]:
+            modelName = self.fullGrownModel
+        elif self.growthLevel >= self.growthThresholds[0]:
+            modelName = self.establishedModel
         else:
-            if self.growthLevel >= self.growthThresholds[1]:
-                modelName = self.fullGrownModel
-            else:
-                if self.growthLevel >= self.growthThresholds[0]:
-                    modelName = self.establishedModel
-                else:
-                    modelName = self.seedlingModel
+            modelName = self.seedlingModel
         return modelName
 
     def setMovie(self, mode, avId):
         if mode == GardenGlobals.MOVIE_WATER:
             self.doWaterTrack(avId)
-        else:
-            if mode == GardenGlobals.MOVIE_FINISHPLANTING:
-                self.doFinishPlantingTrack(avId)
-            else:
-                if mode == GardenGlobals.MOVIE_REMOVE:
-                    self.doDigupTrack(avId)
+        elif mode == GardenGlobals.MOVIE_FINISHPLANTING:
+            self.doFinishPlantingTrack(avId)
+        elif mode == GardenGlobals.MOVIE_REMOVE:
+            self.doDigupTrack(avId)
 
     def doWaterTrack(self, avId):
         toon = base.cr.doId2do.get(avId)

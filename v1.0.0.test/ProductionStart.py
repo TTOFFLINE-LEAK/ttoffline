@@ -80,13 +80,11 @@ loadPhases()
 try:
     if args.uberdog:
         pass
+    elif args.ai:
+        pass
+    elif args.dedicated:
+        pass
     else:
-        if args.ai:
-            pass
-        else:
-            if args.dedicated:
-                pass
-            else:
-                import toontown.launcher.TTOffQuickStartLauncher
+        import toontown.launcher.TTOffQuickStartLauncher
 except:
     traceback.print_exc()

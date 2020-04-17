@@ -478,9 +478,8 @@ class DistributedToonHallInterior(DistributedToonInterior):
         phaseDuration = self.calculatePhaseDuration()
         if phaseDuration < 0:
             phaseDuration = 604800
-        else:
-            if phaseDuration > 2000000:
-                phaseDuration = 2000000
+        elif phaseDuration > 2000000:
+            phaseDuration = 2000000
         self.animSeq = Sequence(Sequence(ActorInterval(self.sillyMeter, 'arrowTube', partName='arrow', constrainedLoop=0, startFrame=441, endFrame=452), Func(self.arrowSfx.play)), Parallel(ActorInterval(self.sillyMeter, 'arrowTube', partName='arrow', duration=phaseDuration, constrainedLoop=1, startFrame=452, endFrame=481), Sequence(Func(self.phase4Sfx.play), Func(self.audio3d.attachSoundToObject, self.phase4Sfx, self.sillyMeter))))
         self.animSeq.start()
         self.smPhase2.show()

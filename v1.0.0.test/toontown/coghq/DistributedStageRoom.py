@@ -227,7 +227,8 @@ class DistributedStageRoom(DistributedLevel.DistributedLevel, StageRoomBase.Stag
     def __str__(self):
         if hasattr(self, 'roomId'):
             return '%s %s: %s' % (self.__class__.__name__, self.roomId, StageRoomSpecs.CashbotStageRoomId2RoomName[self.roomId])
-        return 'DistributedStageRoom'
+        else:
+            return 'DistributedStageRoom'
 
     def __repr__(self):
         return str(self)

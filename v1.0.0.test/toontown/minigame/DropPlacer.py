@@ -1135,26 +1135,25 @@ class PathDropPlacer(DropPlacer):
          redirectBottomRight]
         if col == 0:
             colIndex = 1
+        elif col == self.game.DropColumns - 1:
+            colIndex = 2
         else:
-            if col == self.game.DropColumns - 1:
-                colIndex = 2
-            else:
-                colIndex = 0
+            colIndex = 0
         if row == 0:
             rowIndex = 1
+        elif row == self.game.DropRows - 1:
+            rowIndex = 2
         else:
-            if row == self.game.DropRows - 1:
-                rowIndex = 2
-            else:
-                rowIndex = 0
+            rowIndex = 0
         index = (colIndex << 2) + rowIndex
         redirectTable = tables[index]
         if not redirectTable:
             return dir
-        newDir = redirectTable[dir]
-        if type(newDir) != type(1):
-            newDir = self.rng.choice(newDir)
-        return newDir
+        else:
+            newDir = redirectTable[dir]
+            if type(newDir) != type(1):
+                newDir = self.rng.choice(newDir)
+            return newDir
 
     def getNextDrop(self):
         path = self.paths[self.curPathIndex]

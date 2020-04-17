@@ -53,9 +53,8 @@ class CogdoGameMessageDisplay:
             if self.messageLabel.isStashed():
                 self.transitionInterval.append(Func(self.messageLabel.setAlphaScale, 0.0))
                 self.transitionInterval.append(Func(self.messageLabel.unstash))
-            else:
-                if transition in ('fade', 'blink'):
-                    self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=1.0, toData=0.0, duration=CogdoGameConsts.MessageLabelFadeTime, extraArgs=[]))
+            elif transition in ('fade', 'blink'):
+                self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=1.0, toData=0.0, duration=CogdoGameConsts.MessageLabelFadeTime, extraArgs=[]))
             self.transitionInterval.append(Func(self.messageLabel.setPos, self.pos))
             self.transitionInterval.append(Func(self.messageLabel.node().setText, message))
             self.transitionInterval.append(Func(self.messageLabel.node().setTextColor, color))
@@ -63,13 +62,12 @@ class CogdoGameMessageDisplay:
                 self.transitionInterval.append(Func(self._displaySfx.play))
             if transition == 'fade':
                 self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=0.0, toData=1.0, duration=CogdoGameConsts.MessageLabelFadeTime, extraArgs=[]))
+            elif transition == 'blink':
+                self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=0.0, toData=1.0, duration=CogdoGameConsts.MessageLabelBlinkTime, extraArgs=[]))
+                self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=1.0, toData=0.0, duration=CogdoGameConsts.MessageLabelBlinkTime, extraArgs=[]))
+                self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=0.0, toData=1.0, duration=CogdoGameConsts.MessageLabelBlinkTime, extraArgs=[]))
             else:
-                if transition == 'blink':
-                    self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=0.0, toData=1.0, duration=CogdoGameConsts.MessageLabelBlinkTime, extraArgs=[]))
-                    self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=1.0, toData=0.0, duration=CogdoGameConsts.MessageLabelBlinkTime, extraArgs=[]))
-                    self.transitionInterval.append(LerpFunc(self.messageLabel.setAlphaScale, fromData=0.0, toData=1.0, duration=CogdoGameConsts.MessageLabelBlinkTime, extraArgs=[]))
-                else:
-                    self.transitionInterval.append(Func(self.messageLabel.setAlphaScale, 1.0))
+                self.transitionInterval.append(Func(self.messageLabel.setAlphaScale, 1.0))
         self.transitionInterval.start()
         return
 

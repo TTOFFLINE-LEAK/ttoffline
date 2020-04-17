@@ -156,32 +156,34 @@ class PetAvatarPanel(AvatarPanel.AvatarPanel):
     def feedButtonState(self):
         if base.localAvatar.getMoney() >= PetConstants.FEED_AMOUNT:
             return DGG.NORMAL
-        return DGG.DISABLED
+        else:
+            return DGG.DISABLED
 
     def cleanup(self):
         self.notify.debug('cleanup(): doId=%s' % self.avatar.doId)
         if self.frame == None:
             return
-        self.cancelListenForInteractionDone()
-        taskMgr.remove('petpanel-proximity-check')
-        if hasattr(self, 'toonDetail'):
-            del self.toonDetail
-        self.frame.destroy()
-        del self.frame
-        self.frame = None
-        self.petView.removeNode()
-        del self.petView
-        self.petModel.delete()
-        del self.petModel
-        base.localAvatar.obscureFriendsListButton(-1)
-        self.ignore('petStateUpdated')
-        self.ignore('petNameChanged')
-        if self.avatar.bFake:
-            self.avatar.disable()
-            self.avatar.delete()
-        AvatarPanel.AvatarPanel.cleanup(self)
-        base.panel = None
-        return
+        else:
+            self.cancelListenForInteractionDone()
+            taskMgr.remove('petpanel-proximity-check')
+            if hasattr(self, 'toonDetail'):
+                del self.toonDetail
+            self.frame.destroy()
+            del self.frame
+            self.frame = None
+            self.petView.removeNode()
+            del self.petView
+            self.petModel.delete()
+            del self.petModel
+            base.localAvatar.obscureFriendsListButton(-1)
+            self.ignore('petStateUpdated')
+            self.ignore('petNameChanged')
+            if self.avatar.bFake:
+                self.avatar.disable()
+                self.avatar.delete()
+            AvatarPanel.AvatarPanel.cleanup(self)
+            base.panel = None
+            return
 
     def disableAll(self):
         self.disableInteractionButtons()
@@ -299,13 +301,14 @@ class PetAvatarPanel(AvatarPanel.AvatarPanel):
         if avatar.doId != self.avatar.doId:
             self.notify.warning('avatar not self!')
             return
-        if self.frame == None:
+        else:
+            if self.frame == None:
+                return
+            if not self.petIsLocal:
+                self.avatar.updateOfflineMood()
+            mood = self.avatar.getDominantMood()
+            self.stateLabel['text'] = TTLocalizer.PetMoodAdjectives[mood]
+            self.nameLabel['text'] = avatar.getName()
+            if self.petDetailPanel != None:
+                self.petDetailPanel.update(avatar)
             return
-        if not self.petIsLocal:
-            self.avatar.updateOfflineMood()
-        mood = self.avatar.getDominantMood()
-        self.stateLabel['text'] = TTLocalizer.PetMoodAdjectives[mood]
-        self.nameLabel['text'] = avatar.getName()
-        if self.petDetailPanel != None:
-            self.petDetailPanel.update(avatar)
-        return

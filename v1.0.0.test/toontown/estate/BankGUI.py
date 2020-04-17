@@ -136,12 +136,13 @@ class BankGui(DirectFrame):
     def __runCounter(self, task):
         if task.time - task.prevTime < task.delayTime:
             return Task.cont
-        task.delayTime = max(0.05, task.delayTime * 0.75)
-        task.prevTime = task.time
-        hitLimit, jar, bank, trans = self.__updateTransaction(task.delta)
-        if hitLimit:
-            return Task.done
-        return Task.cont
+        else:
+            task.delayTime = max(0.05, task.delayTime * 0.75)
+            task.prevTime = task.time
+            hitLimit, jar, bank, trans = self.__updateTransaction(task.delta)
+            if hitLimit:
+                return Task.done
+            return Task.cont
 
     def __depositButtonUp(self, event):
         messenger.send('wakeup')

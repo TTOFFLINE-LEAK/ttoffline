@@ -45,19 +45,20 @@ class TownBattleToonPanel(DirectFrame):
         if self.avatar == avatar:
             messenger.send(self.avatar.uniqueName('hpChange'), [avatar.hp, avatar.maxHp, 1])
             return
-        if self.avatar:
-            self.cleanupLaffMeter()
-        self.avatar = avatar
-        self.laffMeter = LaffMeter.LaffMeter(avatar.style, avatar.hp, avatar.maxHp)
-        self.laffMeter.setAvatar(self.avatar)
-        self.laffMeter.reparentTo(self)
-        self.laffMeter.setPos(-0.06, 0, 0.05)
-        self.laffMeter.setScale(0.045)
-        self.laffMeter.start()
-        self.setHealthText(avatar.hp, avatar.maxHp)
-        self.hpChangeEvent = self.avatar.uniqueName('hpChange')
-        self.accept(self.hpChangeEvent, self.setHealthText)
-        return
+        else:
+            if self.avatar:
+                self.cleanupLaffMeter()
+            self.avatar = avatar
+            self.laffMeter = LaffMeter.LaffMeter(avatar.style, avatar.hp, avatar.maxHp)
+            self.laffMeter.setAvatar(self.avatar)
+            self.laffMeter.reparentTo(self)
+            self.laffMeter.setPos(-0.06, 0, 0.05)
+            self.laffMeter.setScale(0.045)
+            self.laffMeter.start()
+            self.setHealthText(avatar.hp, avatar.maxHp)
+            self.hpChangeEvent = self.avatar.uniqueName('hpChange')
+            self.accept(self.hpChangeEvent, self.setHealthText)
+            return
 
     def setHealthText(self, hp, maxHp, quietly=0):
         self.healthText['text'] = TTLocalizer.TownBattleHealthText % {'hitPoints': hp, 'maxHit': maxHp}
@@ -95,32 +96,28 @@ class TownBattleToonPanel(DirectFrame):
             self.hasGag = 0
         if track == BattleBase.NO_ATTACK or track == BattleBase.UN_ATTACK:
             self.undecidedText.show()
+        elif track == BattleBase.PASS_ATTACK:
+            self.passNode.show()
+        elif track == BattleBase.FIRE:
+            self.fireText.show()
+            self.whichText.show()
+            self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, localNum, index)
+        elif track == BattleBase.SOS or track == BattleBase.NPCSOS or track == BattleBase.PETSOS:
+            self.sosText.show()
+        elif track >= MIN_TRACK_INDEX and track <= MAX_TRACK_INDEX:
+            self.undecidedText.hide()
+            self.passNode.hide()
+            self.gagNode.show()
+            invButton = base.localAvatar.inventory.buttonLookup(track, level)
+            self.gag = invButton.instanceUnderNode(self.gagNode, 'gag')
+            self.gag.setScale(0.8)
+            self.gag.setPos(0, 0, 0.02)
+            self.hasGag = 1
+            if numTargets is not None and targetIndex is not None and localNum is not None:
+                self.whichText.show()
+                self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, localNum, index)
         else:
-            if track == BattleBase.PASS_ATTACK:
-                self.passNode.show()
-            else:
-                if track == BattleBase.FIRE:
-                    self.fireText.show()
-                    self.whichText.show()
-                    self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, localNum, index)
-                else:
-                    if track == BattleBase.SOS or track == BattleBase.NPCSOS or track == BattleBase.PETSOS:
-                        self.sosText.show()
-                    else:
-                        if track >= MIN_TRACK_INDEX and track <= MAX_TRACK_INDEX:
-                            self.undecidedText.hide()
-                            self.passNode.hide()
-                            self.gagNode.show()
-                            invButton = base.localAvatar.inventory.buttonLookup(track, level)
-                            self.gag = invButton.instanceUnderNode(self.gagNode, 'gag')
-                            self.gag.setScale(0.8)
-                            self.gag.setPos(0, 0, 0.02)
-                            self.hasGag = 1
-                            if numTargets is not None and targetIndex is not None and localNum is not None:
-                                self.whichText.show()
-                                self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, localNum, index)
-                        else:
-                            self.notify.error('Bad track value: %s' % track)
+            self.notify.error('Bad track value: %s' % track)
         return
 
     def determineWhichText(self, numTargets, targetIndex, localNum, index):

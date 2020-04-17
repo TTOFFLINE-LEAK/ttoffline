@@ -71,29 +71,30 @@ class ChatInputNormal(DirectObject.DirectObject):
         if self.checkForOverRide():
             self.chatEntry.enterText('')
             return
-        self.deactivate()
-        self.chatMgr.fsm.request('mainMenu')
-        if text:
-            if self.toPlayer:
-                if self.whisperAvatarId:
+        else:
+            self.deactivate()
+            self.chatMgr.fsm.request('mainMenu')
+            if text:
+                if self.toPlayer:
+                    if self.whisperAvatarId:
+                        self.whisperAvatarName = None
+                        self.whisperAvatarId = None
+                        self.toPlayer = 0
+                elif self.whisperAvatarId:
+                    self.chatMgr.sendWhisperString(text, self.whisperAvatarId)
                     self.whisperAvatarName = None
                     self.whisperAvatarId = None
-                    self.toPlayer = 0
-            elif self.whisperAvatarId:
-                self.chatMgr.sendWhisperString(text, self.whisperAvatarId)
-                self.whisperAvatarName = None
-                self.whisperAvatarId = None
-            else:
-                if self.chatMgr.execChat:
-                    if text[0] == '>':
-                        text = self.__execMessage(text[1:])
-                        base.localAvatar.setChatAbsolute(text, CFSpeech | CFTimeout)
-                        base.localAvatar.sendUpdate('execChatUse', [])
-                        return
-                base.talkAssistant.sendOpenTalk(text)
-                if self.wantHistory:
-                    self.addToHistory(text)
-        return
+                else:
+                    if self.chatMgr.execChat:
+                        if text[0] == '>':
+                            text = self.__execMessage(text[1:])
+                            base.localAvatar.setChatAbsolute(text, CFSpeech | CFTimeout)
+                            base.localAvatar.sendUpdate('execChatUse', [])
+                            return
+                    base.talkAssistant.sendOpenTalk(text)
+                    if self.wantHistory:
+                        self.addToHistory(text)
+            return
 
     def chatOverflow(self, overflowText):
         self.sendChat(self.chatEntry.get())

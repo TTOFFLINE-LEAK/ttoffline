@@ -104,18 +104,17 @@ class NameGenerator:
                  3, name)
                 newtu[1] = (4, name)
                 newtu[2] = (5, name)
+            elif listnumber == 2:
+                newtu[0] = (
+                 6, name)
+                newtu[1] = (7, name)
             else:
-                if listnumber == 2:
-                    newtu[0] = (
-                     6, name)
-                    newtu[1] = (7, name)
-                else:
-                    newtu[0] = (
-                     8, name)
-        for tu in self.nameDictionary.items():
-            for g in newtu:
-                if tu[1] == g:
-                    return tu[0]
+                newtu[0] = (
+                 8, name)
+            for tu in self.nameDictionary.items():
+                for g in newtu:
+                    if tu[1] == g:
+                        return tu[0]
 
         return -1
 
@@ -214,21 +213,19 @@ class NameGenerator:
             titleList = self.neutralTitles[:]
             if boy:
                 titleList += self.boyTitles
+            elif girl:
+                titleList += self.girlTitles
             else:
-                if girl:
-                    titleList += self.girlTitles
-                else:
-                    self.error('Must be boy or girl.')
+                self.error('Must be boy or girl.')
             retString += random.choice(titleList) + ' '
         if firstFlag:
             firstList = self.neutralFirsts[:]
             if boy:
                 firstList += self.boyFirsts
+            elif girl:
+                firstList += self.girlFirsts
             else:
-                if girl:
-                    firstList += self.girlFirsts
-                else:
-                    self.error('Must be boy or girl.')
+                self.error('Must be boy or girl.')
             retString += random.choice(firstList)
             if lastFlag:
                 retString += ' '
@@ -275,20 +272,18 @@ class NameGenerator:
         titleList = self.neutralTitles[:]
         if boy:
             titleList += self.boyTitles
+        elif girl:
+            titleList += self.girlTitles
         else:
-            if girl:
-                titleList += self.girlTitles
-            else:
-                self.error('Must be boy or girl.')
+            self.error('Must be boy or girl.')
         uberReturn[3] = random.choice(titleList)
         firstList = self.neutralFirsts[:]
         if boy:
             firstList += self.boyFirsts
+        elif girl:
+            firstList += self.girlFirsts
         else:
-            if girl:
-                firstList += self.girlFirsts
-            else:
-                self.error('Must be boy or girl.')
+            self.error('Must be boy or girl.')
         uberReturn[4] = random.choice(firstList)
         lastPrefix = random.choice(self.lastPrefixes)
         lastSuffix = random.choice(self.lastSuffixes)

@@ -52,13 +52,12 @@ class CashbotCogHQLoader(CogHQLoader.CogHQLoader):
                                                                                                                                         1), mayChange=False, parent=backgroundGeom)
             signText.setPosHpr(locator, 0, 0, 0, 0, 0, 0)
             signText.setDepthWrite(0)
+        elif zoneId == ToontownGlobals.CashbotLobby:
+            if base.config.GetBool('want-qa-regression', 0):
+                self.notify.info('QA-REGRESSION: COGHQ: Visit CashbotLobby')
+            self.geom = loader.loadModel(self.cogHQLobbyModelPath)
         else:
-            if zoneId == ToontownGlobals.CashbotLobby:
-                if base.config.GetBool('want-qa-regression', 0):
-                    self.notify.info('QA-REGRESSION: COGHQ: Visit CashbotLobby')
-                self.geom = loader.loadModel(self.cogHQLobbyModelPath)
-            else:
-                self.notify.warning('loadPlaceGeom: unclassified zone %s' % zoneId)
+            self.notify.warning('loadPlaceGeom: unclassified zone %s' % zoneId)
         CogHQLoader.CogHQLoader.loadPlaceGeom(self, zoneId)
 
     def unload(self):

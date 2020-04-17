@@ -257,10 +257,11 @@ class DistributedRaceGame(DistributedMinigame):
     def setTimerStartTime(self, timestamp):
         if not self.hasLocalToon:
             return
-        self.timerStartTime = globalClockDelta.networkToLocalTime(timestamp)
-        if self.timer != None:
-            self.startTimer()
-        return
+        else:
+            self.timerStartTime = globalClockDelta.networkToLocalTime(timestamp)
+            if self.timer != None:
+                self.startTimer()
+            return
 
     def exitInputChoice(self):
         for button in self.diceButtonList:
@@ -293,7 +294,8 @@ class DistributedRaceGame(DistributedMinigame):
         if localToonPosition >= RaceGameGlobals.NumberToWin:
             self.notify.debug('localToon won')
             return 1
-        return 0
+        else:
+            return 0
 
     def anyAvatarWon(self):
         for position in self.avatarPositions.values():

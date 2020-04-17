@@ -25,9 +25,8 @@ class ServerEventBuffer:
     def considerFlush(self):
         if self.lastFlushTime is None:
             self.lastFlushTime = globalClock.getFrameTime()
-        else:
-            if globalClock.getFrameTime() - self.lastFlushTime > self.period * 60.0:
-                self.flush()
+        elif globalClock.getFrameTime() - self.lastFlushTime > self.period * 60.0:
+            self.flush()
         return
 
 

@@ -523,11 +523,10 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
         if not self.isBossFloor(self.currentFloor):
             self.elevatorModelOut.detachNode()
             messenger.send('sellbotFieldOfficeChanged', [True])
-        else:
-            if self.FOType == 's':
-                self._movie = CogdoElevatorMovie()
-                self._movie.load()
-                self._movie.play()
+        elif self.FOType == 's':
+            self._movie = CogdoElevatorMovie()
+            self._movie.load()
+            self._movie.play()
         self.__playElevator(ts, self.elevatorName, self.__handleElevatorDone)
         mult = ToontownBattleGlobals.getCreditMultiplier(self.currentFloor)
         base.localAvatar.inventory.setBattleCreditMultiplier(mult)
@@ -749,16 +748,17 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
     def exitCogdoBuilding(self):
         if base.localAvatar.hp < 0:
             return
-        base.localAvatar.b_setParent(ToontownGlobals.SPHidden)
-        request = {'loader': ZoneUtil.getBranchLoaderName(self.extZoneId), 'where': ZoneUtil.getToonWhereName(self.extZoneId), 
-           'how': 'elevatorIn', 
-           'hoodId': ZoneUtil.getHoodId(self.extZoneId), 
-           'zoneId': self.extZoneId, 
-           'shardId': None, 
-           'avId': -1, 
-           'bldgDoId': self.distBldgDoId}
-        messenger.send('DSIDoneEvent', [request])
-        return
+        else:
+            base.localAvatar.b_setParent(ToontownGlobals.SPHidden)
+            request = {'loader': ZoneUtil.getBranchLoaderName(self.extZoneId), 'where': ZoneUtil.getToonWhereName(self.extZoneId), 
+               'how': 'elevatorIn', 
+               'hoodId': ZoneUtil.getHoodId(self.extZoneId), 
+               'zoneId': self.extZoneId, 
+               'shardId': None, 
+               'avId': -1, 
+               'bldgDoId': self.distBldgDoId}
+            messenger.send('DSIDoneEvent', [request])
+            return
 
     def displayBadges(self):
         numFloors = self.layout.getNumGameFloors()

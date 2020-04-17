@@ -115,30 +115,29 @@ class BattleCalculatorAI:
                 if allLured:
                     attack[TOON_ACCBONUS_COL] = 1
                     return (0, 0)
-            else:
-                if atkTrack == PETSOS:
-                    return self.__calculatePetTrickSuccess(attack)
-        tgtDef = 0
-        numLured = 0
-        if atkTrack != HEAL:
-            for currTarget in atkTargets:
-                thisSuitDef = self.__targetDefense(currTarget, atkTrack)
-                if debug:
-                    self.notify.debug('Examining suit def for toon attack: ' + str(thisSuitDef))
-                tgtDef = min(thisSuitDef, tgtDef)
-                if self.__suitIsLured(currTarget.getDoId()):
-                    numLured += 1
-
-        trackExp = self.__toonTrackExp(attack[TOON_ID_COL], atkTrack)
-        for currOtherAtk in self.toonAtkOrder:
-            if currOtherAtk != attack[TOON_ID_COL]:
-                nextAttack = self.battle.toonAttacks[currOtherAtk]
-                nextAtkTrack = self.__getActualTrack(nextAttack)
-                if atkTrack == nextAtkTrack and attack[TOON_TGT_COL] == nextAttack[TOON_TGT_COL]:
-                    currTrackExp = self.__toonTrackExp(nextAttack[TOON_ID_COL], atkTrack)
+            elif atkTrack == PETSOS:
+                return self.__calculatePetTrickSuccess(attack)
+            tgtDef = 0
+            numLured = 0
+            if atkTrack != HEAL:
+                for currTarget in atkTargets:
+                    thisSuitDef = self.__targetDefense(currTarget, atkTrack)
                     if debug:
-                        self.notify.debug('Examining toon track exp bonus: ' + str(currTrackExp))
-                    trackExp = max(currTrackExp, trackExp)
+                        self.notify.debug('Examining suit def for toon attack: ' + str(thisSuitDef))
+                    tgtDef = min(thisSuitDef, tgtDef)
+                    if self.__suitIsLured(currTarget.getDoId()):
+                        numLured += 1
+
+            trackExp = self.__toonTrackExp(attack[TOON_ID_COL], atkTrack)
+            for currOtherAtk in self.toonAtkOrder:
+                if currOtherAtk != attack[TOON_ID_COL]:
+                    nextAttack = self.battle.toonAttacks[currOtherAtk]
+                    nextAtkTrack = self.__getActualTrack(nextAttack)
+                    if atkTrack == nextAtkTrack and attack[TOON_TGT_COL] == nextAttack[TOON_TGT_COL]:
+                        currTrackExp = self.__toonTrackExp(nextAttack[TOON_ID_COL], atkTrack)
+                        if debug:
+                            self.notify.debug('Examining toon track exp bonus: ' + str(currTrackExp))
+                        trackExp = max(currTrackExp, trackExp)
 
         if debug:
             if atkTrack == HEAL:
@@ -176,10 +175,9 @@ class BattleCalculatorAI:
                 if prevAttack[TOON_ACCBONUS_COL] == 1:
                     if debug:
                         self.notify.debug('DODGE: Toon attack track dodged')
-                else:
-                    if prevAttack[TOON_ACCBONUS_COL] == 0:
-                        if debug:
-                            self.notify.debug('HIT: Toon attack track hit')
+                elif prevAttack[TOON_ACCBONUS_COL] == 0:
+                    if debug:
+                        self.notify.debug('HIT: Toon attack track hit')
                 attack[TOON_ACCBONUS_COL] = prevAttack[TOON_ACCBONUS_COL]
                 return (
                  not attack[TOON_ACCBONUS_COL], attackAcc)
@@ -199,12 +197,11 @@ class BattleCalculatorAI:
                 if accAdjust > 0 and debug:
                     self.notify.debug(str(numLured) + ' out of ' + str(len(atkTargets)) + ' targets are lured, so adding ' + str(accAdjust) + ' to attack accuracy')
                 acc += accAdjust
-            else:
-                if numLured == len(atkTargets):
-                    if debug:
-                        self.notify.debug('all targets are lured, attack misses')
-                    attack[TOON_ACCBONUS_COL] = 0
-                    return (0, 0)
+            elif numLured == len(atkTargets):
+                if debug:
+                    self.notify.debug('all targets are lured, attack misses')
+                attack[TOON_ACCBONUS_COL] = 0
+                return (0, 0)
         if acc > MaxToonAcc:
             acc = MaxToonAcc
         if randChoice < acc:
@@ -226,15 +223,17 @@ class BattleCalculatorAI:
                 exp = exp * 0.5
             self.notify.debug('Toon track exp: ' + str(toonExpLvl) + ' and resulting acc bonus: ' + str(exp))
             return exp
-        return 0
-        return
+        else:
+            return 0
+            return
 
     def __toonCheckGagBonus(self, toonId, track, level):
         toon = self.battle.getToon(toonId)
         if toon != None:
             return toon.checkGagBonus(track, level)
-        return False
-        return
+        else:
+            return False
+            return
 
     def __checkPropBonus(self, track):
         result = False
@@ -254,15 +253,15 @@ class BattleCalculatorAI:
         targetList = []
         if atkTrack == NPCSOS:
             return targetList
-        if not attackAffectsGroup(atkTrack, atkLevel, attack[TOON_TRACK_COL]):
-            if atkTrack == HEAL:
-                target = attack[TOON_TGT_COL]
-            else:
-                target = self.battle.findSuit(attack[TOON_TGT_COL])
-            if target != None:
-                targetList.append(target)
         else:
-            if atkTrack == HEAL or atkTrack == PETSOS:
+            if not attackAffectsGroup(atkTrack, atkLevel, attack[TOON_TRACK_COL]):
+                if atkTrack == HEAL:
+                    target = attack[TOON_TGT_COL]
+                else:
+                    target = self.battle.findSuit(attack[TOON_TGT_COL])
+                if target != None:
+                    targetList.append(target)
+            elif atkTrack == HEAL or atkTrack == PETSOS:
                 if attack[TOON_TRACK_COL] == NPCSOS or atkTrack == PETSOS:
                     targetList = self.battle.activeToons
                 else:
@@ -272,7 +271,7 @@ class BattleCalculatorAI:
 
             else:
                 targetList = self.battle.activeSuits
-        return targetList
+            return targetList
 
     def __prevAtkTrack(self, attackerId, toon=1):
         if toon:
@@ -287,14 +286,17 @@ class BattleCalculatorAI:
         if suitId in self.traps:
             if self.traps[suitId][0] == self.TRAP_CONFLICT:
                 return NO_TRAP
-            return self.traps[suitId][0]
+            else:
+                return self.traps[suitId][0]
+
         else:
             return NO_TRAP
 
     def __suitTrapDamage(self, suitId):
         if suitId in self.traps:
             return self.traps[suitId][2]
-        return 0
+        else:
+            return 0
 
     def addTrainTrapForJoiningSuit(self, suitId):
         self.notify.debug('addTrainTrapForJoiningSuit suit=%d self.traps=%s' % (suitId, self.traps))
@@ -337,13 +339,11 @@ class BattleCalculatorAI:
                      trapLvl, 0, damage]
                 self.notify.debug('calling __addLuredSuitsDelayed')
                 self.__addLuredSuitsDelayed(attackerId, targetId=-1, ignoreDamageCheck=True)
-        else:
-            if suitId in self.traps:
-                if self.traps[suitId][0] == self.TRAP_CONFLICT:
-                    self.traps[suitId] = [trapLvl, 0, npcDamage]
-            else:
-                if not self.__suitIsLured(suitId):
-                    self.traps[suitId] = [trapLvl, 0, npcDamage]
+        elif suitId in self.traps:
+            if self.traps[suitId][0] == self.TRAP_CONFLICT:
+                self.traps[suitId] = [trapLvl, 0, npcDamage]
+        elif not self.__suitIsLured(suitId):
+            self.traps[suitId] = [trapLvl, 0, npcDamage]
 
     def __addSuitTrap(self, suitId, trapLvl, attackerId, npcDamage=0):
         if npcDamage == 0:
@@ -362,13 +362,11 @@ class BattleCalculatorAI:
                 else:
                     self.traps[suitId] = [
                      trapLvl, 0, damage]
-        else:
-            if suitId in self.traps:
-                if self.traps[suitId][0] == self.TRAP_CONFLICT:
-                    self.traps[suitId] = [trapLvl, 0, npcDamage]
-            else:
-                if not self.__suitIsLured(suitId):
-                    self.traps[suitId] = [trapLvl, 0, npcDamage]
+        elif suitId in self.traps:
+            if self.traps[suitId][0] == self.TRAP_CONFLICT:
+                self.traps[suitId] = [trapLvl, 0, npcDamage]
+        elif not self.__suitIsLured(suitId):
+            self.traps[suitId] = [trapLvl, 0, npcDamage]
 
     def __removeSuitTrap(self, suitId):
         if suitId in self.traps:
@@ -380,15 +378,15 @@ class BattleCalculatorAI:
                 if creatorId == self.traps[currTrap][1]:
                     self.traps[currTrap][1] = 0
 
-        else:
-            if suitId in self.traps:
-                self.traps[suitId][1] = 0
+        elif suitId in self.traps:
+            self.traps[suitId][1] = 0
         return
 
     def __trapCreator(self, suitId):
         if suitId in self.traps:
             return self.traps[suitId][1]
-        return 0
+        else:
+            return 0
 
     def __initTraps(self):
         self.trainTrapTriggered = False
@@ -486,39 +484,37 @@ class BattleCalculatorAI:
                             attack[TOON_KBBONUS_COL][tgtPos] = self.KBBONUS_LURED_FLAG
                     else:
                         self.__addSuitTrap(targetId, atkLevel, toonId, npcDamage)
-                else:
-                    if self.__suitIsLured(targetId) and atkTrack == SOUND:
-                        self.notify.debug('Sound on lured suit, ' + 'indicating with KBBONUS_COL flag')
-                        tgtPos = self.battle.activeSuits.index(targetList[currTarget])
-                        attack[TOON_KBBONUS_COL][tgtPos] = self.KBBONUS_LURED_FLAG
+                elif self.__suitIsLured(targetId) and atkTrack == SOUND:
+                    self.notify.debug('Sound on lured suit, ' + 'indicating with KBBONUS_COL flag')
+                    tgtPos = self.battle.activeSuits.index(targetList[currTarget])
+                    attack[TOON_KBBONUS_COL][tgtPos] = self.KBBONUS_LURED_FLAG
                 attackLevel = atkLevel
                 attackTrack = atkTrack
                 toon = self.battle.getToon(toonId)
                 if attack[TOON_TRACK_COL] == NPCSOS and lureDidDamage != 1 or attack[TOON_TRACK_COL] == PETSOS:
                     attackDamage = atkHp
-                else:
-                    if atkTrack == FIRE:
-                        suit = self.battle.findSuit(targetId)
-                        if suit:
-                            costToFire = 1
-                            abilityToFire = toon.getPinkSlips()
-                            toon.removePinkSlips(costToFire)
-                            if costToFire > abilityToFire:
-                                commentStr = 'Toon attempting to fire a %s cost cog with %s pinkslips' % (costToFire, abilityToFire)
-                                simbase.air.writeServerEvent('suspicious', toonId, commentStr)
-                                dislId = toon.DISLid
-                                simbase.air.banManager.ban(toonId, dislId, commentStr)
-                                print 'Not enough PinkSlips to fire cog - print a warning here'
-                            else:
-                                suit.skeleRevives = 0
-                                attackDamage = suit.getHP()
+                elif atkTrack == FIRE:
+                    suit = self.battle.findSuit(targetId)
+                    if suit:
+                        costToFire = 1
+                        abilityToFire = toon.getPinkSlips()
+                        toon.removePinkSlips(costToFire)
+                        if costToFire > abilityToFire:
+                            commentStr = 'Toon attempting to fire a %s cost cog with %s pinkslips' % (costToFire, abilityToFire)
+                            simbase.air.writeServerEvent('suspicious', toonId, commentStr)
+                            dislId = toon.DISLid
+                            simbase.air.banManager.ban(toonId, dislId, commentStr)
+                            print 'Not enough PinkSlips to fire cog - print a warning here'
                         else:
-                            attackDamage = 0
-                        bonus = 0
+                            suit.skeleRevives = 0
+                            attackDamage = suit.getHP()
                     else:
-                        organicBonus = toon.checkGagBonus(attackTrack, attackLevel)
-                        propBonus = self.__checkPropBonus(attackTrack)
-                        attackDamage = getAvPropDamage(attackTrack, attackLevel, toon.experience.getExp(attackTrack), organicBonus, propBonus, self.propAndOrganicBonusStack)
+                        attackDamage = 0
+                    bonus = 0
+                else:
+                    organicBonus = toon.checkGagBonus(attackTrack, attackLevel)
+                    propBonus = self.__checkPropBonus(attackTrack)
+                    attackDamage = getAvPropDamage(attackTrack, attackLevel, toon.experience.getExp(attackTrack), organicBonus, propBonus, self.propAndOrganicBonusStack)
                 if not self.__combatantDead(targetId, toon=toonTarget):
                     if self.__suitIsLured(targetId) and atkTrack == DROP and not toon.getAlwaysHitSuits():
                         self.notify.debug('not setting validTargetAvail, since drop on a lured suit')
@@ -526,25 +522,24 @@ class BattleCalculatorAI:
                         validTargetAvail = 1
             if attackLevel == -1 and not atkTrack == FIRE:
                 result = LURE_SUCCEEDED
-            else:
-                if atkTrack != TRAP:
-                    toon = self.battle.getToon(toonId)
-                    if toon and toon.getInstaKill() and atkTrack != HEAL:
-                        attackDamage = suit = self.battle.findSuit(targetId).getHP()
-                    result = attackDamage
-                    if atkTrack == HEAL:
-                        if not self.__attackHasHit(attack, suit=0):
-                            result = result * 0.2
-                        if self.notify.getDebug():
-                            self.notify.debug('toon does ' + str(result) + ' healing to toon(s)')
-                    else:
-                        if self.__suitIsLured(targetId) and atkTrack == DROP and not toon.getAlwaysHitSuits():
-                            result = 0
-                            self.notify.debug('setting damage to 0, since drop on a lured suit')
-                        if self.notify.getDebug():
-                            self.notify.debug('toon does ' + str(result) + ' damage to suit')
+            elif atkTrack != TRAP:
+                toon = self.battle.getToon(toonId)
+                if toon and toon.getInstaKill() and atkTrack != HEAL:
+                    attackDamage = suit = self.battle.findSuit(targetId).getHP()
+                result = attackDamage
+                if atkTrack == HEAL:
+                    if not self.__attackHasHit(attack, suit=0):
+                        result = result * 0.2
+                    if self.notify.getDebug():
+                        self.notify.debug('toon does ' + str(result) + ' healing to toon(s)')
                 else:
-                    result = 0
+                    if self.__suitIsLured(targetId) and atkTrack == DROP and not toon.getAlwaysHitSuits():
+                        result = 0
+                        self.notify.debug('setting damage to 0, since drop on a lured suit')
+                    if self.notify.getDebug():
+                        self.notify.debug('toon does ' + str(result) + ' damage to suit')
+            else:
+                result = 0
             if result != 0 or atkTrack == PETSOS:
                 targets = self.__getToonTargets(attack)
                 if targetList[currTarget] not in targets:
@@ -582,7 +577,8 @@ class BattleCalculatorAI:
         track = self.__getActualTrack(attack)
         if track == HEAL or track == PETSOS:
             return self.battle.activeToons
-        return self.battle.activeSuits
+        else:
+            return self.battle.activeSuits
 
     def __attackHasHit(self, attack, suit=0):
         if suit == 1:
@@ -610,7 +606,8 @@ class BattleCalculatorAI:
     def __attackDamageForTgt(self, attack, tgtPos, suit=0):
         if suit:
             return attack[SUIT_HP_COL][tgtPos]
-        return attack[TOON_HP_COL][tgtPos]
+        else:
+            return attack[TOON_HP_COL][tgtPos]
 
     def __calcToonAccBonus(self, attackKey):
         numPrevHits = 0
@@ -642,14 +639,13 @@ class BattleCalculatorAI:
                         damageDone = attack[TOON_HPBONUS_COL]
                     else:
                         damageDone = 0
-                else:
-                    if kbbonus:
-                        if targets[position] in self.__createToonTargetList(toonId):
-                            damageDone = attack[TOON_KBBONUS_COL][position]
-                        else:
-                            damageDone = 0
+                elif kbbonus:
+                    if targets[position] in self.__createToonTargetList(toonId):
+                        damageDone = attack[TOON_KBBONUS_COL][position]
                     else:
-                        damageDone = attack[TOON_HP_COL][position]
+                        damageDone = 0
+                else:
+                    damageDone = attack[TOON_HP_COL][position]
                 if damageDone <= 0 or self.immortalSuits:
                     continue
                 if track == HEAL or track == PETSOS:
@@ -700,7 +696,8 @@ class BattleCalculatorAI:
         suit = self.battle.findSuit(avId)
         if suit.reviveCheckAndClear():
             return 1
-        return 0
+        else:
+            return 0
 
     def __addAttackExp(self, attack, track=-1, level=-1, attackerId=-1):
         trk = -1
@@ -710,13 +707,12 @@ class BattleCalculatorAI:
             trk = track
             lvl = level
             id = attackerId
-        else:
-            if self.__attackHasHit(attack):
-                if self.notify.getDebug():
-                    self.notify.debug('Attack ' + repr(attack) + ' has hit')
-                trk = attack[TOON_TRACK_COL]
-                lvl = attack[TOON_LVL_COL]
-                id = attack[TOON_ID_COL]
+        elif self.__attackHasHit(attack):
+            if self.notify.getDebug():
+                self.notify.debug('Attack ' + repr(attack) + ' has hit')
+            trk = attack[TOON_TRACK_COL]
+            lvl = attack[TOON_LVL_COL]
+            id = attack[TOON_ID_COL]
         if trk != -1 and trk != NPCSOS and trk != PETSOS and lvl != -1 and id != -1:
             expList = self.toonSkillPtsGained.get(id, None)
             if expList == None:
@@ -853,624 +849,622 @@ class BattleCalculatorAI:
     def __rememberToonAttack(self, suitId, toonId, damage):
         if suitId not in self.SuitAttackers:
             self.SuitAttackers[suitId] = {toonId: damage}
-        else:
-            if toonId not in self.SuitAttackers[suitId]:
-                self.SuitAttackers[suitId][toonId] = damage
-            else:
-                if self.SuitAttackers[suitId][toonId] <= damage:
-                    self.SuitAttackers[suitId] = [toonId, damage]
+        elif toonId not in self.SuitAttackers[suitId]:
+            self.SuitAttackers[suitId][toonId] = damage
+        elif self.SuitAttackers[suitId][toonId] <= damage:
+            self.SuitAttackers[suitId] = [toonId, damage]
 
     def __postProcessToonAttacks--- This code section failed: ---
 
- 875       0  LOAD_FAST             0  'self'
-           3  LOAD_ATTR             0  'notify'
-           6  LOAD_ATTR             1  'debug'
-           9  LOAD_CONST               '__postProcessToonAttacks()'
-          12  CALL_FUNCTION_1       1  None
-          15  POP_TOP          
-
- 876      16  LOAD_CONST               -1
-          19  STORE_FAST            1  'lastTrack'
-
- 877      22  BUILD_LIST_0          0 
-          25  STORE_FAST            2  'lastAttacks'
-
- 878      28  LOAD_FAST             0  'self'
-          31  LOAD_ATTR             2  '__clearBonuses'
-          34  CALL_FUNCTION_0       0  None
-          37  POP_TOP          
-
- 879      38  SETUP_LOOP         1177  'to 1218'
-          41  LOAD_FAST             0  'self'
-          44  LOAD_ATTR             3  'toonAtkOrder'
-          47  GET_ITER         
-          48  FOR_ITER           1166  'to 1217'
-          51  STORE_FAST            3  'currToonAttack'
-
- 880      54  LOAD_FAST             3  'currToonAttack'
-          57  LOAD_CONST               -1
-          60  COMPARE_OP            3  !=
-          63  POP_JUMP_IF_FALSE    48  'to 48'
-
- 881      66  LOAD_FAST             0  'self'
-          69  LOAD_ATTR             4  'battle'
-          72  LOAD_ATTR             5  'toonAttacks'
-          75  LOAD_FAST             3  'currToonAttack'
-          78  BINARY_SUBSCR    
-          79  STORE_FAST            4  'attack'
-
- 882      82  LOAD_FAST             0  'self'
-          85  LOAD_ATTR             6  '__getActualTrackLevel'
-          88  LOAD_FAST             4  'attack'
-          91  CALL_FUNCTION_1       1  None
-          94  UNPACK_SEQUENCE_2     2 
-          97  STORE_FAST            5  'atkTrack'
-         100  STORE_FAST            6  'atkLevel'
-
- 883     103  LOAD_FAST             5  'atkTrack'
-         106  LOAD_GLOBAL           7  'HEAL'
-         109  COMPARE_OP            3  !=
-         112  POP_JUMP_IF_FALSE   975  'to 975'
-         115  LOAD_FAST             5  'atkTrack'
-         118  LOAD_GLOBAL           8  'SOS'
-         121  COMPARE_OP            3  !=
-         124  POP_JUMP_IF_FALSE   975  'to 975'
-         127  LOAD_FAST             5  'atkTrack'
-         130  LOAD_GLOBAL           9  'NO_ATTACK'
-         133  COMPARE_OP            3  !=
-         136  POP_JUMP_IF_FALSE   975  'to 975'
-         139  LOAD_FAST             5  'atkTrack'
-         142  LOAD_GLOBAL          10  'NPCSOS'
-         145  COMPARE_OP            3  !=
-         148  POP_JUMP_IF_FALSE   975  'to 975'
-         151  LOAD_FAST             5  'atkTrack'
-         154  LOAD_GLOBAL          11  'PETSOS'
-         157  COMPARE_OP            3  !=
-       160_0  COME_FROM           148  '148'
-       160_1  COME_FROM           136  '136'
-       160_2  COME_FROM           124  '124'
-       160_3  COME_FROM           112  '112'
-         160  POP_JUMP_IF_FALSE   975  'to 975'
-
- 884     163  LOAD_FAST             0  'self'
-         166  LOAD_ATTR            12  '__createToonTargetList'
-         169  LOAD_FAST             3  'currToonAttack'
-         172  CALL_FUNCTION_1       1  None
-         175  STORE_FAST            7  'targets'
-
- 885     178  LOAD_CONST               1
-         181  STORE_FAST            8  'allTargetsDead'
-
- 886     184  SETUP_LOOP          660  'to 847'
-         187  LOAD_FAST             7  'targets'
-         190  GET_ITER         
-         191  FOR_ITER            652  'to 846'
-         194  STORE_FAST            9  'currTgt'
-
- 887     197  LOAD_FAST             0  'self'
-         200  LOAD_ATTR            13  '__attackDamage'
-         203  LOAD_FAST             4  'attack'
-         206  LOAD_CONST               'suit'
-         209  LOAD_CONST               0
-         212  CALL_FUNCTION_257   257  None
-         215  STORE_FAST           10  'damageDone'
-
- 888     218  LOAD_FAST            10  'damageDone'
-         221  LOAD_CONST               0
-         224  COMPARE_OP            4  >
-         227  POP_JUMP_IF_FALSE   262  'to 262'
-
- 889     230  LOAD_FAST             0  'self'
-         233  LOAD_ATTR            14  '__rememberToonAttack'
-         236  LOAD_FAST             9  'currTgt'
-         239  LOAD_ATTR            15  'getDoId'
-         242  CALL_FUNCTION_0       0  None
-         245  LOAD_FAST             4  'attack'
-         248  LOAD_GLOBAL          16  'TOON_ID_COL'
-         251  BINARY_SUBSCR    
-         252  LOAD_FAST            10  'damageDone'
-         255  CALL_FUNCTION_3       3  None
-         258  POP_TOP          
-         259  JUMP_FORWARD          0  'to 262'
-       262_0  COME_FROM           259  '259'
-
- 890     262  LOAD_FAST             5  'atkTrack'
-         265  LOAD_GLOBAL          17  'TRAP'
-         268  COMPARE_OP            2  ==
-         271  POP_JUMP_IF_FALSE   327  'to 327'
-
- 891     274  LOAD_FAST             9  'currTgt'
-         277  LOAD_ATTR            18  'doId'
-         280  LOAD_FAST             0  'self'
-         283  LOAD_ATTR            19  'traps'
-         286  COMPARE_OP            6  in
-         289  POP_JUMP_IF_FALSE   327  'to 327'
-
- 892     292  LOAD_FAST             0  'self'
-         295  LOAD_ATTR            19  'traps'
-         298  LOAD_FAST             9  'currTgt'
-         301  LOAD_ATTR            18  'doId'
-         304  BINARY_SUBSCR    
-         305  STORE_FAST           11  'trapInfo'
-
- 893     308  LOAD_FAST            11  'trapInfo'
-         311  LOAD_CONST               0
-         314  BINARY_SUBSCR    
-         315  LOAD_FAST             9  'currTgt'
-         318  STORE_ATTR           20  'battleTrap'
-         321  JUMP_ABSOLUTE       327  'to 327'
-         324  JUMP_FORWARD          0  'to 327'
-       327_0  COME_FROM           324  '324'
-
- 894     327  LOAD_CONST               0
-         330  STORE_FAST           12  'targetDead'
-
- 895     333  LOAD_FAST             9  'currTgt'
-         336  LOAD_ATTR            21  'getHP'
-         339  CALL_FUNCTION_0       0  None
-         342  LOAD_CONST               0
-         345  COMPARE_OP            4  >
-         348  POP_JUMP_IF_FALSE   360  'to 360'
-
- 896     351  LOAD_CONST               0
-         354  STORE_FAST            8  'allTargetsDead'
-         357  JUMP_FORWARD         57  'to 417'
-
- 898     360  LOAD_CONST               1
-         363  STORE_FAST           12  'targetDead'
-
- 899     366  LOAD_FAST             5  'atkTrack'
-         369  LOAD_GLOBAL          22  'LURE'
-         372  COMPARE_OP            3  !=
-         375  POP_JUMP_IF_FALSE   417  'to 417'
-
- 900     378  SETUP_LOOP           36  'to 417'
-         381  LOAD_FAST             2  'lastAttacks'
-         384  GET_ITER         
-         385  FOR_ITER             25  'to 413'
-         388  STORE_FAST           13  'currLastAtk'
-
- 901     391  LOAD_FAST             0  'self'
-         394  LOAD_ATTR            23  '__clearTgtDied'
-         397  LOAD_FAST             9  'currTgt'
-         400  LOAD_FAST            13  'currLastAtk'
-         403  LOAD_FAST             4  'attack'
-         406  CALL_FUNCTION_3       3  None
-         409  POP_TOP          
-         410  JUMP_BACK           385  'to 385'
-         413  POP_BLOCK        
-       414_0  COME_FROM           378  '378'
-         414  JUMP_FORWARD          0  'to 417'
-       417_0  COME_FROM           378  '378'
-       417_1  COME_FROM           357  '357'
-
- 903     417  LOAD_FAST             9  'currTgt'
-         420  LOAD_ATTR            15  'getDoId'
-         423  CALL_FUNCTION_0       0  None
-         426  STORE_FAST           14  'tgtId'
-
- 904     429  LOAD_FAST            14  'tgtId'
-         432  LOAD_FAST             0  'self'
-         435  LOAD_ATTR            24  'successfulLures'
-         438  COMPARE_OP            6  in
-         441  POP_JUMP_IF_FALSE   681  'to 681'
-         444  LOAD_FAST             5  'atkTrack'
-         447  LOAD_GLOBAL          22  'LURE'
-         450  COMPARE_OP            2  ==
-       453_0  COME_FROM           441  '441'
-         453  POP_JUMP_IF_FALSE   681  'to 681'
-
- 905     456  LOAD_FAST             0  'self'
-         459  LOAD_ATTR            24  'successfulLures'
-         462  LOAD_FAST            14  'tgtId'
-         465  BINARY_SUBSCR    
-         466  STORE_FAST           15  'lureInfo'
-
- 906     469  LOAD_FAST             0  'self'
-         472  LOAD_ATTR             0  'notify'
-         475  LOAD_ATTR             1  'debug'
-         478  LOAD_CONST               'applying lure data: '
-         481  LOAD_GLOBAL          25  'repr'
-         484  LOAD_FAST            15  'lureInfo'
-         487  CALL_FUNCTION_1       1  None
-         490  BINARY_ADD       
-         491  CALL_FUNCTION_1       1  None
-         494  POP_TOP          
-
- 907     495  LOAD_FAST            15  'lureInfo'
-         498  LOAD_CONST               0
-         501  BINARY_SUBSCR    
-         502  STORE_FAST           16  'toonId'
-
- 908     505  LOAD_FAST             0  'self'
-         508  LOAD_ATTR             4  'battle'
-         511  LOAD_ATTR             5  'toonAttacks'
-         514  LOAD_FAST            16  'toonId'
-         517  BINARY_SUBSCR    
-         518  STORE_FAST           17  'lureAtk'
-
- 909     521  LOAD_FAST             0  'self'
-         524  LOAD_ATTR             4  'battle'
-         527  LOAD_ATTR            26  'activeSuits'
-         530  LOAD_ATTR            27  'index'
-         533  LOAD_FAST             9  'currTgt'
-         536  CALL_FUNCTION_1       1  None
-         539  STORE_FAST           18  'tgtPos'
-
- 910     542  LOAD_FAST             9  'currTgt'
-         545  LOAD_ATTR            18  'doId'
-         548  LOAD_FAST             0  'self'
-         551  LOAD_ATTR            19  'traps'
-         554  COMPARE_OP            6  in
-         557  POP_JUMP_IF_FALSE   630  'to 630'
-
- 911     560  LOAD_FAST             0  'self'
-         563  LOAD_ATTR            19  'traps'
-         566  LOAD_FAST             9  'currTgt'
-         569  LOAD_ATTR            18  'doId'
-         572  BINARY_SUBSCR    
-         573  STORE_FAST           11  'trapInfo'
-
- 912     576  LOAD_FAST            11  'trapInfo'
-         579  LOAD_CONST               0
-         582  BINARY_SUBSCR    
-         583  LOAD_GLOBAL          28  'UBER_GAG_LEVEL_INDEX'
-         586  COMPARE_OP            2  ==
-         589  POP_JUMP_IF_FALSE   630  'to 630'
-
- 913     592  LOAD_FAST             0  'self'
-         595  LOAD_ATTR             0  'notify'
-         598  LOAD_ATTR             1  'debug'
-         601  LOAD_CONST               'train trap triggered for %d'
-         604  LOAD_FAST             9  'currTgt'
-         607  LOAD_ATTR            18  'doId'
-         610  BINARY_MODULO    
-         611  CALL_FUNCTION_1       1  None
-         614  POP_TOP          
-
- 914     615  LOAD_GLOBAL          29  'True'
-         618  LOAD_FAST             0  'self'
-         621  STORE_ATTR           30  'trainTrapTriggered'
-         624  JUMP_ABSOLUTE       630  'to 630'
-         627  JUMP_FORWARD          0  'to 630'
-       630_0  COME_FROM           627  '627'
-
- 915     630  LOAD_FAST             0  'self'
-         633  LOAD_ATTR            31  '__removeSuitTrap'
-         636  LOAD_FAST            14  'tgtId'
-         639  CALL_FUNCTION_1       1  None
-         642  POP_TOP          
-
- 916     643  LOAD_FAST             0  'self'
-         646  LOAD_ATTR            32  'KBBONUS_TGT_LURED'
-         649  LOAD_FAST            17  'lureAtk'
-         652  LOAD_GLOBAL          33  'TOON_KBBONUS_COL'
-         655  BINARY_SUBSCR    
-         656  LOAD_FAST            18  'tgtPos'
-         659  STORE_SUBSCR     
-
- 917     660  LOAD_FAST            15  'lureInfo'
-         663  LOAD_CONST               3
-         666  BINARY_SUBSCR    
-         667  LOAD_FAST            17  'lureAtk'
-         670  LOAD_GLOBAL          34  'TOON_HP_COL'
-         673  BINARY_SUBSCR    
-         674  LOAD_FAST            18  'tgtPos'
-         677  STORE_SUBSCR     
-         678  JUMP_FORWARD         92  'to 773'
-
- 918     681  LOAD_FAST             0  'self'
-         684  LOAD_ATTR            35  '__suitIsLured'
-         687  LOAD_FAST            14  'tgtId'
-         690  CALL_FUNCTION_1       1  None
-         693  POP_JUMP_IF_FALSE   773  'to 773'
-         696  LOAD_FAST             5  'atkTrack'
-         699  LOAD_GLOBAL          36  'DROP'
-         702  COMPARE_OP            2  ==
-       705_0  COME_FROM           693  '693'
-         705  POP_JUMP_IF_FALSE   773  'to 773'
-
- 919     708  LOAD_FAST             0  'self'
-         711  LOAD_ATTR             0  'notify'
-         714  LOAD_ATTR             1  'debug'
-         717  LOAD_CONST               'Drop on lured suit, '
-         720  LOAD_CONST               'indicating with KBBONUS_COL '
-         723  BINARY_ADD       
-         724  LOAD_CONST               'flag'
-         727  BINARY_ADD       
-         728  CALL_FUNCTION_1       1  None
-         731  POP_TOP          
-
- 920     732  LOAD_FAST             0  'self'
-         735  LOAD_ATTR             4  'battle'
-         738  LOAD_ATTR            26  'activeSuits'
-         741  LOAD_ATTR            27  'index'
-         744  LOAD_FAST             9  'currTgt'
-         747  CALL_FUNCTION_1       1  None
-         750  STORE_FAST           18  'tgtPos'
-
- 921     753  LOAD_FAST             0  'self'
-         756  LOAD_ATTR            37  'KBBONUS_LURED_FLAG'
-         759  LOAD_FAST             4  'attack'
-         762  LOAD_GLOBAL          33  'TOON_KBBONUS_COL'
-         765  BINARY_SUBSCR    
-         766  LOAD_FAST            18  'tgtPos'
-         769  STORE_SUBSCR     
-         770  JUMP_FORWARD          0  'to 773'
-       773_0  COME_FROM           770  '770'
-       773_1  COME_FROM           678  '678'
-
- 922     773  LOAD_FAST            12  'targetDead'
-         776  POP_JUMP_IF_FALSE   191  'to 191'
-         779  LOAD_FAST             5  'atkTrack'
-         782  LOAD_FAST             1  'lastTrack'
-         785  COMPARE_OP            3  !=
-       788_0  COME_FROM           776  '776'
-         788  POP_JUMP_IF_FALSE   191  'to 191'
-
- 923     791  LOAD_FAST             0  'self'
-         794  LOAD_ATTR             4  'battle'
-         797  LOAD_ATTR            26  'activeSuits'
-         800  LOAD_ATTR            27  'index'
-         803  LOAD_FAST             9  'currTgt'
-         806  CALL_FUNCTION_1       1  None
-         809  STORE_FAST           18  'tgtPos'
-
- 924     812  LOAD_CONST               0
-         815  LOAD_FAST             4  'attack'
-         818  LOAD_GLOBAL          34  'TOON_HP_COL'
-         821  BINARY_SUBSCR    
-         822  LOAD_FAST            18  'tgtPos'
-         825  STORE_SUBSCR     
-
- 925     826  LOAD_CONST               -1
-         829  LOAD_FAST             4  'attack'
-         832  LOAD_GLOBAL          33  'TOON_KBBONUS_COL'
-         835  BINARY_SUBSCR    
-         836  LOAD_FAST            18  'tgtPos'
-         839  STORE_SUBSCR     
-         840  JUMP_BACK           191  'to 191'
-         843  JUMP_BACK           191  'to 191'
-         846  POP_BLOCK        
-       847_0  COME_FROM           184  '184'
-
- 927     847  LOAD_FAST             8  'allTargetsDead'
-         850  POP_JUMP_IF_FALSE   975  'to 975'
-         853  LOAD_FAST             5  'atkTrack'
-         856  LOAD_FAST             1  'lastTrack'
-         859  COMPARE_OP            3  !=
-       862_0  COME_FROM           850  '850'
-         862  POP_JUMP_IF_FALSE   975  'to 975'
-
- 928     865  LOAD_FAST             0  'self'
-         868  LOAD_ATTR             0  'notify'
-         871  LOAD_ATTR            38  'getDebug'
-         874  CALL_FUNCTION_0       0  None
-         877  POP_JUMP_IF_FALSE   913  'to 913'
-
- 929     880  LOAD_FAST             0  'self'
-         883  LOAD_ATTR             0  'notify'
-         886  LOAD_ATTR             1  'debug'
-         889  LOAD_CONST               'all targets of toon attack '
-         892  LOAD_GLOBAL          39  'str'
-         895  LOAD_FAST             3  'currToonAttack'
-         898  CALL_FUNCTION_1       1  None
-         901  BINARY_ADD       
-         902  LOAD_CONST               ' are dead'
-         905  BINARY_ADD       
-         906  CALL_FUNCTION_1       1  None
-         909  POP_TOP          
-         910  JUMP_FORWARD          0  'to 913'
-       913_0  COME_FROM           910  '910'
-
- 930     913  LOAD_FAST             0  'self'
-         916  LOAD_ATTR            40  '__clearAttack'
-         919  LOAD_FAST             3  'currToonAttack'
-         922  LOAD_CONST               'toon'
-         925  LOAD_CONST               1
-         928  CALL_FUNCTION_257   257  None
-         931  POP_TOP          
-
- 931     932  LOAD_FAST             0  'self'
-         935  LOAD_ATTR             4  'battle'
-         938  LOAD_ATTR             5  'toonAttacks'
-         941  LOAD_FAST             3  'currToonAttack'
-         944  BINARY_SUBSCR    
-         945  STORE_FAST            4  'attack'
-
- 932     948  LOAD_FAST             0  'self'
-         951  LOAD_ATTR             6  '__getActualTrackLevel'
-         954  LOAD_FAST             4  'attack'
-         957  CALL_FUNCTION_1       1  None
-         960  UNPACK_SEQUENCE_2     2 
-         963  STORE_FAST            5  'atkTrack'
-         966  STORE_FAST            6  'atkLevel'
-         969  JUMP_ABSOLUTE       975  'to 975'
-         972  JUMP_FORWARD          0  'to 975'
-       975_0  COME_FROM           972  '972'
-
- 933     975  LOAD_FAST             0  'self'
-         978  LOAD_ATTR            41  '__applyToonAttackDamages'
-         981  LOAD_FAST             3  'currToonAttack'
-         984  CALL_FUNCTION_1       1  None
-         987  STORE_FAST           19  'damagesDone'
-
- 934     990  LOAD_FAST             0  'self'
-         993  LOAD_ATTR            41  '__applyToonAttackDamages'
-         996  LOAD_FAST             3  'currToonAttack'
-         999  LOAD_CONST               'hpbonus'
-        1002  LOAD_CONST               1
-        1005  CALL_FUNCTION_257   257  None
-        1008  POP_TOP          
-
- 935    1009  LOAD_FAST             5  'atkTrack'
-        1012  LOAD_GLOBAL          22  'LURE'
-        1015  COMPARE_OP            3  !=
-        1018  POP_JUMP_IF_FALSE  1067  'to 1067'
-        1021  LOAD_FAST             5  'atkTrack'
-        1024  LOAD_GLOBAL          36  'DROP'
-        1027  COMPARE_OP            3  !=
-        1030  POP_JUMP_IF_FALSE  1067  'to 1067'
-        1033  LOAD_FAST             5  'atkTrack'
-        1036  LOAD_GLOBAL          42  'SOUND'
-        1039  COMPARE_OP            3  !=
-      1042_0  COME_FROM          1030  '1030'
-      1042_1  COME_FROM          1018  '1018'
-        1042  POP_JUMP_IF_FALSE  1067  'to 1067'
-
- 936    1045  LOAD_FAST             0  'self'
-        1048  LOAD_ATTR            41  '__applyToonAttackDamages'
-        1051  LOAD_FAST             3  'currToonAttack'
-        1054  LOAD_CONST               'kbbonus'
-        1057  LOAD_CONST               1
-        1060  CALL_FUNCTION_257   257  None
-        1063  POP_TOP          
-        1064  JUMP_FORWARD          0  'to 1067'
-      1067_0  COME_FROM          1064  '1064'
-
- 937    1067  LOAD_FAST             1  'lastTrack'
-        1070  LOAD_FAST             5  'atkTrack'
-        1073  COMPARE_OP            3  !=
-        1076  POP_JUMP_IF_FALSE  1094  'to 1094'
-
- 938    1079  BUILD_LIST_0          0 
-        1082  STORE_FAST            2  'lastAttacks'
-
- 939    1085  LOAD_FAST             5  'atkTrack'
-        1088  STORE_FAST            1  'lastTrack'
-        1091  JUMP_FORWARD          0  'to 1094'
-      1094_0  COME_FROM          1091  '1091'
-
- 940    1094  LOAD_FAST             2  'lastAttacks'
-        1097  LOAD_ATTR            43  'append'
-        1100  LOAD_FAST             4  'attack'
-        1103  CALL_FUNCTION_1       1  None
-        1106  POP_TOP          
-
- 941    1107  LOAD_FAST             0  'self'
-        1110  LOAD_ATTR            44  'itemIsCredit'
-        1113  LOAD_FAST             5  'atkTrack'
-        1116  LOAD_FAST             6  'atkLevel'
-        1119  CALL_FUNCTION_2       2  None
-        1122  POP_JUMP_IF_FALSE  1214  'to 1214'
-
- 942    1125  LOAD_FAST             5  'atkTrack'
-        1128  LOAD_GLOBAL          17  'TRAP'
-        1131  COMPARE_OP            2  ==
-        1134  POP_JUMP_IF_TRUE   1208  'to 1208'
-        1137  LOAD_FAST             5  'atkTrack'
-        1140  LOAD_GLOBAL          22  'LURE'
-        1143  COMPARE_OP            2  ==
-        1146  POP_JUMP_IF_FALSE  1152  'to 1152'
-
- 943    1149  JUMP_ABSOLUTE      1211  'to 1211'
-
- 944    1152  LOAD_FAST             5  'atkTrack'
-        1155  LOAD_GLOBAL           7  'HEAL'
-        1158  COMPARE_OP            2  ==
-        1161  POP_JUMP_IF_FALSE  1195  'to 1195'
-
- 945    1164  LOAD_FAST            19  'damagesDone'
-        1167  LOAD_CONST               0
-        1170  COMPARE_OP            3  !=
-        1173  POP_JUMP_IF_FALSE  1208  'to 1208'
-
- 946    1176  LOAD_FAST             0  'self'
-        1179  LOAD_ATTR            45  '__addAttackExp'
-        1182  LOAD_FAST             4  'attack'
-        1185  CALL_FUNCTION_1       1  None
-        1188  POP_TOP          
-        1189  JUMP_ABSOLUTE      1208  'to 1208'
-        1192  JUMP_ABSOLUTE      1211  'to 1211'
-
- 948    1195  LOAD_FAST             0  'self'
-        1198  LOAD_ATTR            45  '__addAttackExp'
-        1201  LOAD_FAST             4  'attack'
-        1204  CALL_FUNCTION_1       1  None
-        1207  POP_TOP          
-        1208  JUMP_ABSOLUTE      1214  'to 1214'
-        1211  JUMP_BACK            48  'to 48'
-        1214  JUMP_BACK            48  'to 48'
-        1217  POP_BLOCK        
-      1218_0  COME_FROM            38  '38'
-
- 950    1218  LOAD_FAST             0  'self'
-        1221  LOAD_ATTR            30  'trainTrapTriggered'
-        1224  POP_JUMP_IF_FALSE  1304  'to 1304'
-
- 951    1227  SETUP_LOOP           74  'to 1304'
-        1230  LOAD_FAST             0  'self'
-        1233  LOAD_ATTR             4  'battle'
-        1236  LOAD_ATTR            26  'activeSuits'
-        1239  GET_ITER         
-        1240  FOR_ITER             57  'to 1300'
-        1243  STORE_FAST           20  'suit'
-
- 952    1246  LOAD_FAST            20  'suit'
-        1249  LOAD_ATTR            18  'doId'
-        1252  STORE_FAST           21  'suitId'
-
- 953    1255  LOAD_FAST             0  'self'
-        1258  LOAD_ATTR            31  '__removeSuitTrap'
-        1261  LOAD_FAST            21  'suitId'
-        1264  CALL_FUNCTION_1       1  None
-        1267  POP_TOP          
-
- 954    1268  LOAD_GLOBAL          46  'NO_TRAP'
-        1271  LOAD_FAST            20  'suit'
-        1274  STORE_ATTR           20  'battleTrap'
-
- 955    1277  LOAD_FAST             0  'self'
-        1280  LOAD_ATTR             0  'notify'
-        1283  LOAD_ATTR             1  'debug'
-        1286  LOAD_CONST               'train trap triggered, removing trap from %d'
-        1289  LOAD_FAST            21  'suitId'
-        1292  BINARY_MODULO    
-        1293  CALL_FUNCTION_1       1  None
-        1296  POP_TOP          
-        1297  JUMP_BACK          1240  'to 1240'
-        1300  POP_BLOCK        
-      1301_0  COME_FROM          1227  '1227'
-        1301  JUMP_FORWARD          0  'to 1304'
-      1304_0  COME_FROM          1227  '1227'
-
- 957    1304  LOAD_FAST             0  'self'
-        1307  LOAD_ATTR             0  'notify'
-        1310  LOAD_ATTR            38  'getDebug'
-        1313  CALL_FUNCTION_0       0  None
-        1316  POP_JUMP_IF_FALSE  1384  'to 1384'
-
- 958    1319  SETUP_LOOP           62  'to 1384'
-        1322  LOAD_FAST             0  'self'
-        1325  LOAD_ATTR             3  'toonAtkOrder'
-        1328  GET_ITER         
-        1329  FOR_ITER             48  'to 1380'
-        1332  STORE_FAST            3  'currToonAttack'
-
- 959    1335  LOAD_FAST             0  'self'
-        1338  LOAD_ATTR             4  'battle'
-        1341  LOAD_ATTR             5  'toonAttacks'
-        1344  LOAD_FAST             3  'currToonAttack'
-        1347  BINARY_SUBSCR    
-        1348  STORE_FAST            4  'attack'
-
- 960    1351  LOAD_FAST             0  'self'
-        1354  LOAD_ATTR             0  'notify'
-        1357  LOAD_ATTR             1  'debug'
-        1360  LOAD_CONST               'Final Toon attack: '
-        1363  LOAD_GLOBAL          39  'str'
-        1366  LOAD_FAST             4  'attack'
-        1369  CALL_FUNCTION_1       1  None
-        1372  BINARY_ADD       
-        1373  CALL_FUNCTION_1       1  None
-        1376  POP_TOP          
-        1377  JUMP_BACK          1329  'to 1329'
-        1380  POP_BLOCK        
-      1381_0  COME_FROM          1319  '1319'
-        1381  JUMP_FORWARD          0  'to 1384'
-      1384_0  COME_FROM          1319  '1319'
-
-Parse error at or near `JUMP_BACK' instruction at offset 1214
+ L. 875         0  LOAD_FAST             0  'self'
+                3  LOAD_ATTR             0  'notify'
+                6  LOAD_ATTR             1  'debug'
+                9  LOAD_CONST               '__postProcessToonAttacks()'
+               12  CALL_FUNCTION_1       1  None
+               15  POP_TOP          
+
+ L. 876        16  LOAD_CONST               -1
+               19  STORE_FAST            1  'lastTrack'
+
+ L. 877        22  BUILD_LIST_0          0 
+               25  STORE_FAST            2  'lastAttacks'
+
+ L. 878        28  LOAD_FAST             0  'self'
+               31  LOAD_ATTR             2  '__clearBonuses'
+               34  CALL_FUNCTION_0       0  None
+               37  POP_TOP          
+
+ L. 879        38  SETUP_LOOP         1177  'to 1218'
+               41  LOAD_FAST             0  'self'
+               44  LOAD_ATTR             3  'toonAtkOrder'
+               47  GET_ITER         
+               48  FOR_ITER           1166  'to 1217'
+               51  STORE_FAST            3  'currToonAttack'
+
+ L. 880        54  LOAD_FAST             3  'currToonAttack'
+               57  LOAD_CONST               -1
+               60  COMPARE_OP            3  !=
+               63  POP_JUMP_IF_FALSE    48  'to 48'
+
+ L. 881        66  LOAD_FAST             0  'self'
+               69  LOAD_ATTR             4  'battle'
+               72  LOAD_ATTR             5  'toonAttacks'
+               75  LOAD_FAST             3  'currToonAttack'
+               78  BINARY_SUBSCR    
+               79  STORE_FAST            4  'attack'
+
+ L. 882        82  LOAD_FAST             0  'self'
+               85  LOAD_ATTR             6  '__getActualTrackLevel'
+               88  LOAD_FAST             4  'attack'
+               91  CALL_FUNCTION_1       1  None
+               94  UNPACK_SEQUENCE_2     2 
+               97  STORE_FAST            5  'atkTrack'
+              100  STORE_FAST            6  'atkLevel'
+
+ L. 883       103  LOAD_FAST             5  'atkTrack'
+              106  LOAD_GLOBAL           7  'HEAL'
+              109  COMPARE_OP            3  !=
+              112  POP_JUMP_IF_FALSE   975  'to 975'
+              115  LOAD_FAST             5  'atkTrack'
+              118  LOAD_GLOBAL           8  'SOS'
+              121  COMPARE_OP            3  !=
+              124  POP_JUMP_IF_FALSE   975  'to 975'
+              127  LOAD_FAST             5  'atkTrack'
+              130  LOAD_GLOBAL           9  'NO_ATTACK'
+              133  COMPARE_OP            3  !=
+              136  POP_JUMP_IF_FALSE   975  'to 975'
+              139  LOAD_FAST             5  'atkTrack'
+              142  LOAD_GLOBAL          10  'NPCSOS'
+              145  COMPARE_OP            3  !=
+              148  POP_JUMP_IF_FALSE   975  'to 975'
+              151  LOAD_FAST             5  'atkTrack'
+              154  LOAD_GLOBAL          11  'PETSOS'
+              157  COMPARE_OP            3  !=
+            160_0  COME_FROM           148  '148'
+            160_1  COME_FROM           136  '136'
+            160_2  COME_FROM           124  '124'
+            160_3  COME_FROM           112  '112'
+              160  POP_JUMP_IF_FALSE   975  'to 975'
+
+ L. 884       163  LOAD_FAST             0  'self'
+              166  LOAD_ATTR            12  '__createToonTargetList'
+              169  LOAD_FAST             3  'currToonAttack'
+              172  CALL_FUNCTION_1       1  None
+              175  STORE_FAST            7  'targets'
+
+ L. 885       178  LOAD_CONST               1
+              181  STORE_FAST            8  'allTargetsDead'
+
+ L. 886       184  SETUP_LOOP          660  'to 847'
+              187  LOAD_FAST             7  'targets'
+              190  GET_ITER         
+              191  FOR_ITER            652  'to 846'
+              194  STORE_FAST            9  'currTgt'
+
+ L. 887       197  LOAD_FAST             0  'self'
+              200  LOAD_ATTR            13  '__attackDamage'
+              203  LOAD_FAST             4  'attack'
+              206  LOAD_CONST               'suit'
+              209  LOAD_CONST               0
+              212  CALL_FUNCTION_257   257  None
+              215  STORE_FAST           10  'damageDone'
+
+ L. 888       218  LOAD_FAST            10  'damageDone'
+              221  LOAD_CONST               0
+              224  COMPARE_OP            4  >
+              227  POP_JUMP_IF_FALSE   262  'to 262'
+
+ L. 889       230  LOAD_FAST             0  'self'
+              233  LOAD_ATTR            14  '__rememberToonAttack'
+              236  LOAD_FAST             9  'currTgt'
+              239  LOAD_ATTR            15  'getDoId'
+              242  CALL_FUNCTION_0       0  None
+              245  LOAD_FAST             4  'attack'
+              248  LOAD_GLOBAL          16  'TOON_ID_COL'
+              251  BINARY_SUBSCR    
+              252  LOAD_FAST            10  'damageDone'
+              255  CALL_FUNCTION_3       3  None
+              258  POP_TOP          
+              259  JUMP_FORWARD          0  'to 262'
+            262_0  COME_FROM           259  '259'
+
+ L. 890       262  LOAD_FAST             5  'atkTrack'
+              265  LOAD_GLOBAL          17  'TRAP'
+              268  COMPARE_OP            2  ==
+              271  POP_JUMP_IF_FALSE   327  'to 327'
+
+ L. 891       274  LOAD_FAST             9  'currTgt'
+              277  LOAD_ATTR            18  'doId'
+              280  LOAD_FAST             0  'self'
+              283  LOAD_ATTR            19  'traps'
+              286  COMPARE_OP            6  in
+              289  POP_JUMP_IF_FALSE   327  'to 327'
+
+ L. 892       292  LOAD_FAST             0  'self'
+              295  LOAD_ATTR            19  'traps'
+              298  LOAD_FAST             9  'currTgt'
+              301  LOAD_ATTR            18  'doId'
+              304  BINARY_SUBSCR    
+              305  STORE_FAST           11  'trapInfo'
+
+ L. 893       308  LOAD_FAST            11  'trapInfo'
+              311  LOAD_CONST               0
+              314  BINARY_SUBSCR    
+              315  LOAD_FAST             9  'currTgt'
+              318  STORE_ATTR           20  'battleTrap'
+              321  JUMP_ABSOLUTE       327  'to 327'
+              324  JUMP_FORWARD          0  'to 327'
+            327_0  COME_FROM           324  '324'
+
+ L. 894       327  LOAD_CONST               0
+              330  STORE_FAST           12  'targetDead'
+
+ L. 895       333  LOAD_FAST             9  'currTgt'
+              336  LOAD_ATTR            21  'getHP'
+              339  CALL_FUNCTION_0       0  None
+              342  LOAD_CONST               0
+              345  COMPARE_OP            4  >
+              348  POP_JUMP_IF_FALSE   360  'to 360'
+
+ L. 896       351  LOAD_CONST               0
+              354  STORE_FAST            8  'allTargetsDead'
+              357  JUMP_FORWARD         57  'to 417'
+
+ L. 898       360  LOAD_CONST               1
+              363  STORE_FAST           12  'targetDead'
+
+ L. 899       366  LOAD_FAST             5  'atkTrack'
+              369  LOAD_GLOBAL          22  'LURE'
+              372  COMPARE_OP            3  !=
+              375  POP_JUMP_IF_FALSE   417  'to 417'
+
+ L. 900       378  SETUP_LOOP           36  'to 417'
+              381  LOAD_FAST             2  'lastAttacks'
+              384  GET_ITER         
+              385  FOR_ITER             25  'to 413'
+              388  STORE_FAST           13  'currLastAtk'
+
+ L. 901       391  LOAD_FAST             0  'self'
+              394  LOAD_ATTR            23  '__clearTgtDied'
+              397  LOAD_FAST             9  'currTgt'
+              400  LOAD_FAST            13  'currLastAtk'
+              403  LOAD_FAST             4  'attack'
+              406  CALL_FUNCTION_3       3  None
+              409  POP_TOP          
+              410  JUMP_BACK           385  'to 385'
+              413  POP_BLOCK        
+            414_0  COME_FROM           378  '378'
+              414  JUMP_FORWARD          0  'to 417'
+            417_0  COME_FROM           378  '378'
+            417_1  COME_FROM           357  '357'
+
+ L. 903       417  LOAD_FAST             9  'currTgt'
+              420  LOAD_ATTR            15  'getDoId'
+              423  CALL_FUNCTION_0       0  None
+              426  STORE_FAST           14  'tgtId'
+
+ L. 904       429  LOAD_FAST            14  'tgtId'
+              432  LOAD_FAST             0  'self'
+              435  LOAD_ATTR            24  'successfulLures'
+              438  COMPARE_OP            6  in
+              441  POP_JUMP_IF_FALSE   681  'to 681'
+              444  LOAD_FAST             5  'atkTrack'
+              447  LOAD_GLOBAL          22  'LURE'
+              450  COMPARE_OP            2  ==
+            453_0  COME_FROM           441  '441'
+              453  POP_JUMP_IF_FALSE   681  'to 681'
+
+ L. 905       456  LOAD_FAST             0  'self'
+              459  LOAD_ATTR            24  'successfulLures'
+              462  LOAD_FAST            14  'tgtId'
+              465  BINARY_SUBSCR    
+              466  STORE_FAST           15  'lureInfo'
+
+ L. 906       469  LOAD_FAST             0  'self'
+              472  LOAD_ATTR             0  'notify'
+              475  LOAD_ATTR             1  'debug'
+              478  LOAD_CONST               'applying lure data: '
+              481  LOAD_GLOBAL          25  'repr'
+              484  LOAD_FAST            15  'lureInfo'
+              487  CALL_FUNCTION_1       1  None
+              490  BINARY_ADD       
+              491  CALL_FUNCTION_1       1  None
+              494  POP_TOP          
+
+ L. 907       495  LOAD_FAST            15  'lureInfo'
+              498  LOAD_CONST               0
+              501  BINARY_SUBSCR    
+              502  STORE_FAST           16  'toonId'
+
+ L. 908       505  LOAD_FAST             0  'self'
+              508  LOAD_ATTR             4  'battle'
+              511  LOAD_ATTR             5  'toonAttacks'
+              514  LOAD_FAST            16  'toonId'
+              517  BINARY_SUBSCR    
+              518  STORE_FAST           17  'lureAtk'
+
+ L. 909       521  LOAD_FAST             0  'self'
+              524  LOAD_ATTR             4  'battle'
+              527  LOAD_ATTR            26  'activeSuits'
+              530  LOAD_ATTR            27  'index'
+              533  LOAD_FAST             9  'currTgt'
+              536  CALL_FUNCTION_1       1  None
+              539  STORE_FAST           18  'tgtPos'
+
+ L. 910       542  LOAD_FAST             9  'currTgt'
+              545  LOAD_ATTR            18  'doId'
+              548  LOAD_FAST             0  'self'
+              551  LOAD_ATTR            19  'traps'
+              554  COMPARE_OP            6  in
+              557  POP_JUMP_IF_FALSE   630  'to 630'
+
+ L. 911       560  LOAD_FAST             0  'self'
+              563  LOAD_ATTR            19  'traps'
+              566  LOAD_FAST             9  'currTgt'
+              569  LOAD_ATTR            18  'doId'
+              572  BINARY_SUBSCR    
+              573  STORE_FAST           11  'trapInfo'
+
+ L. 912       576  LOAD_FAST            11  'trapInfo'
+              579  LOAD_CONST               0
+              582  BINARY_SUBSCR    
+              583  LOAD_GLOBAL          28  'UBER_GAG_LEVEL_INDEX'
+              586  COMPARE_OP            2  ==
+              589  POP_JUMP_IF_FALSE   630  'to 630'
+
+ L. 913       592  LOAD_FAST             0  'self'
+              595  LOAD_ATTR             0  'notify'
+              598  LOAD_ATTR             1  'debug'
+              601  LOAD_CONST               'train trap triggered for %d'
+              604  LOAD_FAST             9  'currTgt'
+              607  LOAD_ATTR            18  'doId'
+              610  BINARY_MODULO    
+              611  CALL_FUNCTION_1       1  None
+              614  POP_TOP          
+
+ L. 914       615  LOAD_GLOBAL          29  'True'
+              618  LOAD_FAST             0  'self'
+              621  STORE_ATTR           30  'trainTrapTriggered'
+              624  JUMP_ABSOLUTE       630  'to 630'
+              627  JUMP_FORWARD          0  'to 630'
+            630_0  COME_FROM           627  '627'
+
+ L. 915       630  LOAD_FAST             0  'self'
+              633  LOAD_ATTR            31  '__removeSuitTrap'
+              636  LOAD_FAST            14  'tgtId'
+              639  CALL_FUNCTION_1       1  None
+              642  POP_TOP          
+
+ L. 916       643  LOAD_FAST             0  'self'
+              646  LOAD_ATTR            32  'KBBONUS_TGT_LURED'
+              649  LOAD_FAST            17  'lureAtk'
+              652  LOAD_GLOBAL          33  'TOON_KBBONUS_COL'
+              655  BINARY_SUBSCR    
+              656  LOAD_FAST            18  'tgtPos'
+              659  STORE_SUBSCR     
+
+ L. 917       660  LOAD_FAST            15  'lureInfo'
+              663  LOAD_CONST               3
+              666  BINARY_SUBSCR    
+              667  LOAD_FAST            17  'lureAtk'
+              670  LOAD_GLOBAL          34  'TOON_HP_COL'
+              673  BINARY_SUBSCR    
+              674  LOAD_FAST            18  'tgtPos'
+              677  STORE_SUBSCR     
+              678  JUMP_FORWARD         92  'to 773'
+
+ L. 918       681  LOAD_FAST             0  'self'
+              684  LOAD_ATTR            35  '__suitIsLured'
+              687  LOAD_FAST            14  'tgtId'
+              690  CALL_FUNCTION_1       1  None
+              693  POP_JUMP_IF_FALSE   773  'to 773'
+              696  LOAD_FAST             5  'atkTrack'
+              699  LOAD_GLOBAL          36  'DROP'
+              702  COMPARE_OP            2  ==
+            705_0  COME_FROM           693  '693'
+              705  POP_JUMP_IF_FALSE   773  'to 773'
+
+ L. 919       708  LOAD_FAST             0  'self'
+              711  LOAD_ATTR             0  'notify'
+              714  LOAD_ATTR             1  'debug'
+              717  LOAD_CONST               'Drop on lured suit, '
+              720  LOAD_CONST               'indicating with KBBONUS_COL '
+              723  BINARY_ADD       
+              724  LOAD_CONST               'flag'
+              727  BINARY_ADD       
+              728  CALL_FUNCTION_1       1  None
+              731  POP_TOP          
+
+ L. 920       732  LOAD_FAST             0  'self'
+              735  LOAD_ATTR             4  'battle'
+              738  LOAD_ATTR            26  'activeSuits'
+              741  LOAD_ATTR            27  'index'
+              744  LOAD_FAST             9  'currTgt'
+              747  CALL_FUNCTION_1       1  None
+              750  STORE_FAST           18  'tgtPos'
+
+ L. 921       753  LOAD_FAST             0  'self'
+              756  LOAD_ATTR            37  'KBBONUS_LURED_FLAG'
+              759  LOAD_FAST             4  'attack'
+              762  LOAD_GLOBAL          33  'TOON_KBBONUS_COL'
+              765  BINARY_SUBSCR    
+              766  LOAD_FAST            18  'tgtPos'
+              769  STORE_SUBSCR     
+              770  JUMP_FORWARD          0  'to 773'
+            773_0  COME_FROM           770  '770'
+            773_1  COME_FROM           678  '678'
+
+ L. 922       773  LOAD_FAST            12  'targetDead'
+              776  POP_JUMP_IF_FALSE   191  'to 191'
+              779  LOAD_FAST             5  'atkTrack'
+              782  LOAD_FAST             1  'lastTrack'
+              785  COMPARE_OP            3  !=
+            788_0  COME_FROM           776  '776'
+              788  POP_JUMP_IF_FALSE   191  'to 191'
+
+ L. 923       791  LOAD_FAST             0  'self'
+              794  LOAD_ATTR             4  'battle'
+              797  LOAD_ATTR            26  'activeSuits'
+              800  LOAD_ATTR            27  'index'
+              803  LOAD_FAST             9  'currTgt'
+              806  CALL_FUNCTION_1       1  None
+              809  STORE_FAST           18  'tgtPos'
+
+ L. 924       812  LOAD_CONST               0
+              815  LOAD_FAST             4  'attack'
+              818  LOAD_GLOBAL          34  'TOON_HP_COL'
+              821  BINARY_SUBSCR    
+              822  LOAD_FAST            18  'tgtPos'
+              825  STORE_SUBSCR     
+
+ L. 925       826  LOAD_CONST               -1
+              829  LOAD_FAST             4  'attack'
+              832  LOAD_GLOBAL          33  'TOON_KBBONUS_COL'
+              835  BINARY_SUBSCR    
+              836  LOAD_FAST            18  'tgtPos'
+              839  STORE_SUBSCR     
+              840  JUMP_BACK           191  'to 191'
+              843  JUMP_BACK           191  'to 191'
+              846  POP_BLOCK        
+            847_0  COME_FROM           184  '184'
+
+ L. 927       847  LOAD_FAST             8  'allTargetsDead'
+              850  POP_JUMP_IF_FALSE   975  'to 975'
+              853  LOAD_FAST             5  'atkTrack'
+              856  LOAD_FAST             1  'lastTrack'
+              859  COMPARE_OP            3  !=
+            862_0  COME_FROM           850  '850'
+              862  POP_JUMP_IF_FALSE   975  'to 975'
+
+ L. 928       865  LOAD_FAST             0  'self'
+              868  LOAD_ATTR             0  'notify'
+              871  LOAD_ATTR            38  'getDebug'
+              874  CALL_FUNCTION_0       0  None
+              877  POP_JUMP_IF_FALSE   913  'to 913'
+
+ L. 929       880  LOAD_FAST             0  'self'
+              883  LOAD_ATTR             0  'notify'
+              886  LOAD_ATTR             1  'debug'
+              889  LOAD_CONST               'all targets of toon attack '
+              892  LOAD_GLOBAL          39  'str'
+              895  LOAD_FAST             3  'currToonAttack'
+              898  CALL_FUNCTION_1       1  None
+              901  BINARY_ADD       
+              902  LOAD_CONST               ' are dead'
+              905  BINARY_ADD       
+              906  CALL_FUNCTION_1       1  None
+              909  POP_TOP          
+              910  JUMP_FORWARD          0  'to 913'
+            913_0  COME_FROM           910  '910'
+
+ L. 930       913  LOAD_FAST             0  'self'
+              916  LOAD_ATTR            40  '__clearAttack'
+              919  LOAD_FAST             3  'currToonAttack'
+              922  LOAD_CONST               'toon'
+              925  LOAD_CONST               1
+              928  CALL_FUNCTION_257   257  None
+              931  POP_TOP          
+
+ L. 931       932  LOAD_FAST             0  'self'
+              935  LOAD_ATTR             4  'battle'
+              938  LOAD_ATTR             5  'toonAttacks'
+              941  LOAD_FAST             3  'currToonAttack'
+              944  BINARY_SUBSCR    
+              945  STORE_FAST            4  'attack'
+
+ L. 932       948  LOAD_FAST             0  'self'
+              951  LOAD_ATTR             6  '__getActualTrackLevel'
+              954  LOAD_FAST             4  'attack'
+              957  CALL_FUNCTION_1       1  None
+              960  UNPACK_SEQUENCE_2     2 
+              963  STORE_FAST            5  'atkTrack'
+              966  STORE_FAST            6  'atkLevel'
+              969  JUMP_ABSOLUTE       975  'to 975'
+              972  JUMP_FORWARD          0  'to 975'
+            975_0  COME_FROM           972  '972'
+
+ L. 933       975  LOAD_FAST             0  'self'
+              978  LOAD_ATTR            41  '__applyToonAttackDamages'
+              981  LOAD_FAST             3  'currToonAttack'
+              984  CALL_FUNCTION_1       1  None
+              987  STORE_FAST           19  'damagesDone'
+
+ L. 934       990  LOAD_FAST             0  'self'
+              993  LOAD_ATTR            41  '__applyToonAttackDamages'
+              996  LOAD_FAST             3  'currToonAttack'
+              999  LOAD_CONST               'hpbonus'
+             1002  LOAD_CONST               1
+             1005  CALL_FUNCTION_257   257  None
+             1008  POP_TOP          
+
+ L. 935      1009  LOAD_FAST             5  'atkTrack'
+             1012  LOAD_GLOBAL          22  'LURE'
+             1015  COMPARE_OP            3  !=
+             1018  POP_JUMP_IF_FALSE  1067  'to 1067'
+             1021  LOAD_FAST             5  'atkTrack'
+             1024  LOAD_GLOBAL          36  'DROP'
+             1027  COMPARE_OP            3  !=
+             1030  POP_JUMP_IF_FALSE  1067  'to 1067'
+             1033  LOAD_FAST             5  'atkTrack'
+             1036  LOAD_GLOBAL          42  'SOUND'
+             1039  COMPARE_OP            3  !=
+           1042_0  COME_FROM          1030  '1030'
+           1042_1  COME_FROM          1018  '1018'
+             1042  POP_JUMP_IF_FALSE  1067  'to 1067'
+
+ L. 936      1045  LOAD_FAST             0  'self'
+             1048  LOAD_ATTR            41  '__applyToonAttackDamages'
+             1051  LOAD_FAST             3  'currToonAttack'
+             1054  LOAD_CONST               'kbbonus'
+             1057  LOAD_CONST               1
+             1060  CALL_FUNCTION_257   257  None
+             1063  POP_TOP          
+             1064  JUMP_FORWARD          0  'to 1067'
+           1067_0  COME_FROM          1064  '1064'
+
+ L. 937      1067  LOAD_FAST             1  'lastTrack'
+             1070  LOAD_FAST             5  'atkTrack'
+             1073  COMPARE_OP            3  !=
+             1076  POP_JUMP_IF_FALSE  1094  'to 1094'
+
+ L. 938      1079  BUILD_LIST_0          0 
+             1082  STORE_FAST            2  'lastAttacks'
+
+ L. 939      1085  LOAD_FAST             5  'atkTrack'
+             1088  STORE_FAST            1  'lastTrack'
+             1091  JUMP_FORWARD          0  'to 1094'
+           1094_0  COME_FROM          1091  '1091'
+
+ L. 940      1094  LOAD_FAST             2  'lastAttacks'
+             1097  LOAD_ATTR            43  'append'
+             1100  LOAD_FAST             4  'attack'
+             1103  CALL_FUNCTION_1       1  None
+             1106  POP_TOP          
+
+ L. 941      1107  LOAD_FAST             0  'self'
+             1110  LOAD_ATTR            44  'itemIsCredit'
+             1113  LOAD_FAST             5  'atkTrack'
+             1116  LOAD_FAST             6  'atkLevel'
+             1119  CALL_FUNCTION_2       2  None
+             1122  POP_JUMP_IF_FALSE  1214  'to 1214'
+
+ L. 942      1125  LOAD_FAST             5  'atkTrack'
+             1128  LOAD_GLOBAL          17  'TRAP'
+             1131  COMPARE_OP            2  ==
+             1134  POP_JUMP_IF_TRUE   1208  'to 1208'
+             1137  LOAD_FAST             5  'atkTrack'
+             1140  LOAD_GLOBAL          22  'LURE'
+             1143  COMPARE_OP            2  ==
+             1146  POP_JUMP_IF_FALSE  1152  'to 1152'
+
+ L. 943      1149  JUMP_ABSOLUTE      1211  'to 1211'
+
+ L. 944      1152  LOAD_FAST             5  'atkTrack'
+             1155  LOAD_GLOBAL           7  'HEAL'
+             1158  COMPARE_OP            2  ==
+             1161  POP_JUMP_IF_FALSE  1195  'to 1195'
+
+ L. 945      1164  LOAD_FAST            19  'damagesDone'
+             1167  LOAD_CONST               0
+             1170  COMPARE_OP            3  !=
+             1173  POP_JUMP_IF_FALSE  1208  'to 1208'
+
+ L. 946      1176  LOAD_FAST             0  'self'
+             1179  LOAD_ATTR            45  '__addAttackExp'
+             1182  LOAD_FAST             4  'attack'
+             1185  CALL_FUNCTION_1       1  None
+             1188  POP_TOP          
+             1189  JUMP_ABSOLUTE      1208  'to 1208'
+             1192  JUMP_ABSOLUTE      1211  'to 1211'
+
+ L. 948      1195  LOAD_FAST             0  'self'
+             1198  LOAD_ATTR            45  '__addAttackExp'
+             1201  LOAD_FAST             4  'attack'
+             1204  CALL_FUNCTION_1       1  None
+             1207  POP_TOP          
+             1208  JUMP_ABSOLUTE      1214  'to 1214'
+             1211  JUMP_BACK            48  'to 48'
+             1214  JUMP_BACK            48  'to 48'
+             1217  POP_BLOCK        
+           1218_0  COME_FROM            38  '38'
+
+ L. 950      1218  LOAD_FAST             0  'self'
+             1221  LOAD_ATTR            30  'trainTrapTriggered'
+             1224  POP_JUMP_IF_FALSE  1304  'to 1304'
+
+ L. 951      1227  SETUP_LOOP           74  'to 1304'
+             1230  LOAD_FAST             0  'self'
+             1233  LOAD_ATTR             4  'battle'
+             1236  LOAD_ATTR            26  'activeSuits'
+             1239  GET_ITER         
+             1240  FOR_ITER             57  'to 1300'
+             1243  STORE_FAST           20  'suit'
+
+ L. 952      1246  LOAD_FAST            20  'suit'
+             1249  LOAD_ATTR            18  'doId'
+             1252  STORE_FAST           21  'suitId'
+
+ L. 953      1255  LOAD_FAST             0  'self'
+             1258  LOAD_ATTR            31  '__removeSuitTrap'
+             1261  LOAD_FAST            21  'suitId'
+             1264  CALL_FUNCTION_1       1  None
+             1267  POP_TOP          
+
+ L. 954      1268  LOAD_GLOBAL          46  'NO_TRAP'
+             1271  LOAD_FAST            20  'suit'
+             1274  STORE_ATTR           20  'battleTrap'
+
+ L. 955      1277  LOAD_FAST             0  'self'
+             1280  LOAD_ATTR             0  'notify'
+             1283  LOAD_ATTR             1  'debug'
+             1286  LOAD_CONST               'train trap triggered, removing trap from %d'
+             1289  LOAD_FAST            21  'suitId'
+             1292  BINARY_MODULO    
+             1293  CALL_FUNCTION_1       1  None
+             1296  POP_TOP          
+             1297  JUMP_BACK          1240  'to 1240'
+             1300  POP_BLOCK        
+           1301_0  COME_FROM          1227  '1227'
+             1301  JUMP_FORWARD          0  'to 1304'
+           1304_0  COME_FROM          1227  '1227'
+
+ L. 957      1304  LOAD_FAST             0  'self'
+             1307  LOAD_ATTR             0  'notify'
+             1310  LOAD_ATTR            38  'getDebug'
+             1313  CALL_FUNCTION_0       0  None
+             1316  POP_JUMP_IF_FALSE  1384  'to 1384'
+
+ L. 958      1319  SETUP_LOOP           62  'to 1384'
+             1322  LOAD_FAST             0  'self'
+             1325  LOAD_ATTR             3  'toonAtkOrder'
+             1328  GET_ITER         
+             1329  FOR_ITER             48  'to 1380'
+             1332  STORE_FAST            3  'currToonAttack'
+
+ L. 959      1335  LOAD_FAST             0  'self'
+             1338  LOAD_ATTR             4  'battle'
+             1341  LOAD_ATTR             5  'toonAttacks'
+             1344  LOAD_FAST             3  'currToonAttack'
+             1347  BINARY_SUBSCR    
+             1348  STORE_FAST            4  'attack'
+
+ L. 960      1351  LOAD_FAST             0  'self'
+             1354  LOAD_ATTR             0  'notify'
+             1357  LOAD_ATTR             1  'debug'
+             1360  LOAD_CONST               'Final Toon attack: '
+             1363  LOAD_GLOBAL          39  'str'
+             1366  LOAD_FAST             4  'attack'
+             1369  CALL_FUNCTION_1       1  None
+             1372  BINARY_ADD       
+             1373  CALL_FUNCTION_1       1  None
+             1376  POP_TOP          
+             1377  JUMP_BACK          1329  'to 1329'
+             1380  POP_BLOCK        
+           1381_0  COME_FROM          1319  '1319'
+             1381  JUMP_FORWARD          0  'to 1384'
+           1384_0  COME_FROM          1319  '1319'
+
+Parse error at or near `POP_BLOCK' instruction at offset 1217
 
     def __allTargetsDead(self, attackIdx, toon=1):
         allTargetsDead = 1
@@ -1610,8 +1604,9 @@ Parse error at or near `JUMP_BACK' instruction at offset 1214
                 return -1
             self.notify.debug('Suit attacking back at toon ' + str(toonId))
             return self.battle.activeToons.index(toonId)
-        return self.__pickRandomToon(suitId)
-        return
+        else:
+            return self.__pickRandomToon(suitId)
+            return
 
     def __pickRandomToon(self, suitId):
         liveToons = []
@@ -1680,15 +1675,13 @@ Parse error at or near `JUMP_BACK' instruction at offset 1214
             result = 0
             if toon and toon.immortalMode:
                 result = 1
-            else:
-                if self.TOONS_TAKE_NO_DAMAGE:
-                    result = 0
-                else:
-                    if self.__suitAtkHit(attackIndex):
-                        atkType = attack[SUIT_ATK_COL]
-                        theSuit = self.battle.findSuit(attack[SUIT_ID_COL])
-                        atkInfo = SuitBattleGlobals.getSuitAttack(theSuit.dna.name, theSuit.getLevel(), atkType)
-                        result = atkInfo['hp']
+            elif self.TOONS_TAKE_NO_DAMAGE:
+                result = 0
+            elif self.__suitAtkHit(attackIndex):
+                atkType = attack[SUIT_ATK_COL]
+                theSuit = self.battle.findSuit(attack[SUIT_ID_COL])
+                atkInfo = SuitBattleGlobals.getSuitAttack(theSuit.dna.name, theSuit.getLevel(), atkType)
+                result = atkInfo['hp']
             targetIndex = self.battle.activeToons.index(toonId)
             attack[SUIT_HP_COL][targetIndex] = result
 
@@ -1696,15 +1689,17 @@ Parse error at or near `JUMP_BACK' instruction at offset 1214
         handle = self.battle.getToon(toonDoId)
         if handle != None and toonDoId in self.toonHPAdjusts:
             return handle.hp + self.toonHPAdjusts[toonDoId]
-        return 0
-        return
+        else:
+            return 0
+            return
 
     def __getToonMaxHp(self, toonDoId):
         handle = self.battle.getToon(toonDoId)
         if handle != None:
             return handle.maxHp
-        return 0
-        return
+        else:
+            return 0
+            return
 
     def __applySuitAttackDamages(self, attackIndex):
         attack = self.battle.suitAttacks[attackIndex]
@@ -2085,22 +2080,22 @@ Parse error at or near `JUMP_BACK' instruction at offset 1214
             if track != None:
                 return (track, level, hp)
             self.notify.warning('No NPC with id: %d' % toonAttack[TOON_TGT_COL])
-        else:
-            if toonAttack[TOON_TRACK_COL] == PETSOS:
-                trick = toonAttack[TOON_LVL_COL]
-                petProxyId = toonAttack[TOON_TGT_COL]
-                trickId = toonAttack[TOON_LVL_COL]
-                healRange = PetTricks.TrickHeals[trickId]
-                hp = 0
-                if petProxyId in simbase.air.doId2do:
-                    petProxy = simbase.air.doId2do[petProxyId]
-                    if trickId < len(petProxy.trickAptitudes):
-                        aptitude = petProxy.trickAptitudes[trickId]
-                        hp = int(lerp(healRange[0], healRange[1], aptitude))
-                else:
-                    self.notify.warning('pet proxy: %d not in doId2do!' % petProxyId)
-                return (toonAttack[TOON_TRACK_COL], toonAttack[TOON_LVL_COL], hp)
-        return (toonAttack[TOON_TRACK_COL], toonAttack[TOON_LVL_COL], 0)
+        elif toonAttack[TOON_TRACK_COL] == PETSOS:
+            trick = toonAttack[TOON_LVL_COL]
+            petProxyId = toonAttack[TOON_TGT_COL]
+            trickId = toonAttack[TOON_LVL_COL]
+            healRange = PetTricks.TrickHeals[trickId]
+            hp = 0
+            if petProxyId in simbase.air.doId2do:
+                petProxy = simbase.air.doId2do[petProxyId]
+                if trickId < len(petProxy.trickAptitudes):
+                    aptitude = petProxy.trickAptitudes[trickId]
+                    hp = int(lerp(healRange[0], healRange[1], aptitude))
+            else:
+                self.notify.warning('pet proxy: %d not in doId2do!' % petProxyId)
+            return (toonAttack[TOON_TRACK_COL], toonAttack[TOON_LVL_COL], hp)
+        return (
+         toonAttack[TOON_TRACK_COL], toonAttack[TOON_LVL_COL], 0)
 
     def __calculatePetTrickSuccess(self, toonAttack):
         petProxyId = toonAttack[TOON_TGT_COL]
@@ -2108,9 +2103,10 @@ Parse error at or near `JUMP_BACK' instruction at offset 1214
             self.notify.warning('pet proxy %d not in doId2do!' % petProxyId)
             toonAttack[TOON_ACCBONUS_COL] = 1
             return (0, 0)
-        petProxy = simbase.air.doId2do[petProxyId]
-        trickId = toonAttack[TOON_LVL_COL]
-        toonAttack[TOON_ACCBONUS_COL] = petProxy.attemptBattleTrick(trickId)
-        if toonAttack[TOON_ACCBONUS_COL] == 1:
-            return (0, 0)
-        return (1, 100)
+        else:
+            petProxy = simbase.air.doId2do[petProxyId]
+            trickId = toonAttack[TOON_LVL_COL]
+            toonAttack[TOON_ACCBONUS_COL] = petProxy.attemptBattleTrick(trickId)
+            if toonAttack[TOON_ACCBONUS_COL] == 1:
+                return (0, 0)
+            return (1, 100)

@@ -102,8 +102,9 @@ class DistributedDonald(DistributedCCharBase.DistributedCCharBase):
     def getCCLocation(self):
         if self.diffPath != None:
             return 1
-        return 0
-        return
+        else:
+            return 0
+            return
 
     def getCCChatter(self):
         self.handleHolidays()

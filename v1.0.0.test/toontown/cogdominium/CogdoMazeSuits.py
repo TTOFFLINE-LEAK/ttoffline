@@ -157,8 +157,9 @@ class CogdoMazeSlowMinionSuit(CogdoMazeSuit):
     def filterAttack(self, request, args):
         if request == 'Attack':
             return
-        return self.defaultFilter(request, args)
-        return
+        else:
+            return self.defaultFilter(request, args)
+            return
 
     def exitAttack(self):
         self._attackIval.pause()
@@ -208,9 +209,8 @@ class CogdoMazeBossSuit(CogdoMazeSuit):
             self.spin()
             self.suit.setColorScale(Globals.BlinkColor)
             self.__startBlinkTask()
-        else:
-            if self.hp == 1:
-                self.__stopBlinkTask()
+        elif self.hp == 1:
+            self.__stopBlinkTask()
         CogdoMazeSuit.hitByGag(self)
 
     def gameStart(self, gameStartTime):

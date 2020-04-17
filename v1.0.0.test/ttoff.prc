@@ -38,7 +38,7 @@ schellgames-dev false
 exec-chat false
 log-private-info false
 want-qa-regression false
-want-whitelist true
+want-whitelist false
 audio-library-name p3openal_audio
 model-cache-models false
 model-cache-textures false
@@ -58,13 +58,3 @@ vfs-mount resources/phase_13 /phase_13
 vfs-mount resources/phase_14 /phase_14
 vfs-mount resources/phase_14.5 /phase_14.5
 dc-file astron/dclass/ttoff.dc
-
-
-
-
-
-
-
-
-
-

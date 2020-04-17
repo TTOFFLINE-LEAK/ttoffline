@@ -123,24 +123,18 @@ class GardenDropGame(DirectObject.DirectObject):
                 gotNeighbor = 1
             elif self.testGridfull(self.getValidGrid(cellX + 1, cellZ - 1)):
                 gotNeighbor = 1
-        else:
-            if self.testGridfull(self.getValidGrid(cellX - 1, cellZ)):
-                gotNeighbor = 1
-            else:
-                if self.testGridfull(self.getValidGrid(cellX + 1, cellZ)):
-                    gotNeighbor = 1
-                else:
-                    if self.testGridfull(self.getValidGrid(cellX, cellZ + 1)):
-                        gotNeighbor = 1
-                    else:
-                        if self.testGridfull(self.getValidGrid(cellX - 1, cellZ + 1)):
-                            gotNeighbor = 1
-                        else:
-                            if self.testGridfull(self.getValidGrid(cellX, cellZ - 1)):
-                                gotNeighbor = 1
-                            else:
-                                if self.testGridfull(self.getValidGrid(cellX - 1, cellZ - 1)):
-                                    gotNeighbor = 1
+        elif self.testGridfull(self.getValidGrid(cellX - 1, cellZ)):
+            gotNeighbor = 1
+        elif self.testGridfull(self.getValidGrid(cellX + 1, cellZ)):
+            gotNeighbor = 1
+        elif self.testGridfull(self.getValidGrid(cellX, cellZ + 1)):
+            gotNeighbor = 1
+        elif self.testGridfull(self.getValidGrid(cellX - 1, cellZ + 1)):
+            gotNeighbor = 1
+        elif self.testGridfull(self.getValidGrid(cellX, cellZ - 1)):
+            gotNeighbor = 1
+        elif self.testGridfull(self.getValidGrid(cellX - 1, cellZ - 1)):
+            gotNeighbor = 1
         return gotNeighbor
 
     def clearMatchList(self):
@@ -192,10 +186,13 @@ class GardenDropGame(DirectObject.DirectObject):
     def testGridfull(self, cell):
         if not cell:
             return 0
-        if cell[0] != None:
-            return 1
-        return 0
-        return
+        else:
+            if cell[0] != None:
+                return 1
+            else:
+                return 0
+
+            return
 
     def getValidGrid(self, x, z):
         if x < 0 or x >= self.gridDimX:
@@ -212,8 +209,9 @@ class GardenDropGame(DirectObject.DirectObject):
             return -1
         if self.grid[x][z][0] == None:
             return -1
-        return self.grid[x][z][0].colorType
-        return
+        else:
+            return self.grid[x][z][0].colorType
+            return
 
     def findGridCog(self):
         self.cogX = 0
@@ -454,10 +452,9 @@ class GardenDropGame(DirectObject.DirectObject):
                         if movingSprite.isQue or testSprite.isQue:
                             if self.testDistance(movingSprite.nodeObj, testSprite.nodeObj) < self.queExtent * (movingSprite.size + testSprite.size):
                                 self.push(movingSprite, testSprite)
-                        else:
-                            if self.testDistance(movingSprite.nodeObj, testSprite.nodeObj) < movingSprite.size + testSprite.size:
-                                if not (movingSprite.isActive and testSprite.isActive):
-                                    self.__collide(movingSprite, testSprite)
+                        elif self.testDistance(movingSprite.nodeObj, testSprite.nodeObj) < movingSprite.size + testSprite.size:
+                            if not (movingSprite.isActive and testSprite.isActive):
+                                self.__collide(movingSprite, testSprite)
                         if self.tick == 5:
                             pass
 
@@ -513,20 +510,19 @@ class GardenDropGame(DirectObject.DirectObject):
             que = move
             hit = test
             queHit = 1
+        elif test.isQue:
+            que = test
+            hit = move
+            queHit = 1
         else:
-            if test.isQue:
-                que = test
-                hit = move
-                queHit = 1
-            else:
-                test.velX = 0
-                test.velZ = 0
-                move.velX = 0
-                move.velZ = 0
-                test.collide()
-                move.collide()
-                self.stickInGrid(move)
-                self.stickInGrid(test)
+            test.velX = 0
+            test.velZ = 0
+            move.velX = 0
+            move.velZ = 0
+            test.collide()
+            move.collide()
+            self.stickInGrid(move)
+            self.stickInGrid(test)
         if queHit:
             forceM = 0.1
             distX = que.getX() - hit.getX()
@@ -538,11 +534,10 @@ class GardenDropGame(DirectObject.DirectObject):
             que = move
             hit = test
             queHit = 1
-        else:
-            if test.isQue:
-                que = test
-                hit = move
-                queHit = 1
+        elif test.isQue:
+            que = test
+            hit = move
+            queHit = 1
         if queHit:
             forceM = 0.1
             dist = self.testDistance(move.nodeObj, test.nodeObj)

@@ -27,14 +27,12 @@ class GardenProgressMeter(DirectObject.DirectObject):
     def __init__(self, typePromotion='game', level=0):
         if typePromotion == 'shovel':
             self.typePromotion = SHOVEL
+        elif typePromotion == 'wateringCan':
+            self.typePromotion = WATERINGCAN
+        elif typePromotion == 'game':
+            self.typePromotion = GAMEWIN
         else:
-            if typePromotion == 'wateringCan':
-                self.typePromotion = WATERINGCAN
-            else:
-                if typePromotion == 'game':
-                    self.typePromotion = GAMEWIN
-                else:
-                    print 'No type of %s' % typePromotion
+            print 'No type of %s' % typePromotion
         self.level = level
         self.acceptErrorDialog = None
         self.doneEvent = 'game Done'
@@ -54,12 +52,10 @@ class GardenProgressMeter(DirectObject.DirectObject):
         congratsMessage = 'Super Congratulations!!'
         if self.typePromotion == SHOVEL:
             congratsMessage = TTLocalizer.GardenShovelLevelUp + ' \n' + GardenGlobals.ShovelAttributes[self.level]['name']
-        else:
-            if self.typePromotion == WATERINGCAN:
-                congratsMessage = TTLocalizer.GardenWateringCanLevelUp + ' \n' + GardenGlobals.WateringCanAttributes[self.level]['name']
-            else:
-                if self.typePromotion == GAMEWIN:
-                    congratsMessage = TTLocalizer.GardenMiniGameWon
+        elif self.typePromotion == WATERINGCAN:
+            congratsMessage = TTLocalizer.GardenWateringCanLevelUp + ' \n' + GardenGlobals.WateringCanAttributes[self.level]['name']
+        elif self.typePromotion == GAMEWIN:
+            congratsMessage = TTLocalizer.GardenMiniGameWon
         self.frame = DirectFrame(scale=1.1, relief=None, image=DGG.getDefaultDialogGeom(), image_scale=(1.75,
                                                                                                         1,
                                                                                                         0.75), image_color=ToontownGlobals.GlobalDialogColor, frameSize=(-0.5,

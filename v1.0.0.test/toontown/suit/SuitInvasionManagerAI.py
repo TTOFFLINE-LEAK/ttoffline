@@ -35,17 +35,18 @@ class SuitInvasionManagerAI:
     def stopInvasion(self, task=None):
         if not self.getInvading():
             return
-        self.air.newsManager.d_setInvasionStatus(ToontownGlobals.SuitInvasionEnd, self.invadingCog[0], self.numSuits, self.invadingCog[1])
-        if task:
-            task.remove()
         else:
-            taskMgr.remove('invasion-timeout')
-        self.setInvadingCog(None, 0)
-        self.numSuits = 0
-        self.suits = 0
-        self.invading = False
-        self._spGetOut()
-        return
+            self.air.newsManager.d_setInvasionStatus(ToontownGlobals.SuitInvasionEnd, self.invadingCog[0], self.numSuits, self.invadingCog[1])
+            if task:
+                task.remove()
+            else:
+                taskMgr.remove('invasion-timeout')
+            self.setInvadingCog(None, 0)
+            self.numSuits = 0
+            self.suits = 0
+            self.invading = False
+            self._spGetOut()
+            return
 
     def startInvasion(self, cogType, numCogs, skeleton):
         if self.getInvading():

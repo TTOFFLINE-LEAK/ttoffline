@@ -37,99 +37,100 @@ class TTOffMagicWordManagerAI(DistributedObjectAI.DistributedObjectAI):
         if not toon:
             self.notify.warning('requestExecuteMagicWord: Magic Word use requested but invoker avatar is non-existant!')
             return
-        targetIds = []
-        if affectRange in [AFFECT_SINGLE, AFFECT_BOTH]:
-            targetIds.append(avId)
-        if affectRange in [AFFECT_OTHER, AFFECT_BOTH] and affectType == AFFECT_SINGULAR:
-            if lastClickedAvId:
-                targetIds.append(lastClickedAvId)
-            else:
+        else:
+            targetIds = []
+            if affectRange in [AFFECT_SINGLE, AFFECT_BOTH]:
+                targetIds.append(avId)
+            if affectRange in [AFFECT_OTHER, AFFECT_BOTH] and affectType == AFFECT_SINGULAR:
+                if lastClickedAvId:
+                    targetIds.append(lastClickedAvId)
+                else:
+                    self.generateResponse(avId=avId, responseType='NoTarget')
+                    return
+            if affectType in [AFFECT_ZONE, AFFECT_SERVER, AFFECT_RANK]:
+                toonIds = []
+                for doId in self.air.doId2do.keys()[:]:
+                    do = self.air.doId2do.get(doId)
+                    if isinstance(do, DistributedPlayerAI) and do.isPlayerControlled() and do != toon:
+                        if affectType == AFFECT_ZONE and do.zoneId == toon.zoneId:
+                            toonIds.append(doId)
+                        elif affectType == AFFECT_SERVER:
+                            toonIds.append(doId)
+                        elif affectType == AFFECT_RANK and do.getAccessLevel() == affectExtra:
+                            toonIds.append(doId)
+
+                if not toonIds and not targetIds:
+                    self.generateResponse(avId=avId, responseType='NoTarget')
+                    return
+                targetIds += toonIds
+            if not targetIds:
                 self.generateResponse(avId=avId, responseType='NoTarget')
                 return
-        if affectType in [AFFECT_ZONE, AFFECT_SERVER, AFFECT_RANK]:
-            toonIds = []
-            for doId in self.air.doId2do.keys()[:]:
-                do = self.air.doId2do.get(doId)
-                if isinstance(do, DistributedPlayerAI) and do.isPlayerControlled() and do != toon:
-                    if affectType == AFFECT_ZONE and do.zoneId == toon.zoneId:
-                        toonIds.append(doId)
-                    elif affectType == AFFECT_SERVER:
-                        toonIds.append(doId)
-                    elif affectType == AFFECT_RANK and do.getAccessLevel() == affectExtra:
-                        toonIds.append(doId)
-
-            if not toonIds and not targetIds:
-                self.generateResponse(avId=avId, responseType='NoTarget')
-                return
-            targetIds += toonIds
-        if not targetIds:
-            self.generateResponse(avId=avId, responseType='NoTarget')
-            return
-        for targetId in targetIds:
-            if targetId == avId:
-                continue
-            targetToon = self.air.doId2do.get(targetId)
-            if not targetToon:
-                continue
-            if targetToon.getAccessLevel() >= toon.getAccessLevel():
-                targetIds.remove(targetId)
-                return
-
-        if len(targetIds) == 0:
-            self.generateResponse(avId=avId, responseType='NoAccessToTarget')
-        magicWord, args = (magicWord.split(' ', 1) + [''])[:2]
-        magicWord = magicWord.lower()
-        magicWordInfo = MagicWordIndex[magicWord]
-        if affectRange not in magicWordInfo['affectRange']:
-            self.generateResponse(avId=avId, responseType='RestrictionOther')
-            return
-        if toon.getAccessLevel() < OTPGlobals.AccessLevelName2Int.get(magicWordInfo['access']):
-            self.generateResponse(avId=avId, responseType='NoAccess')
-            return
-        commandArgs = magicWordInfo['args']
-        maxArgs = len(commandArgs)
-        minArgs = 0
-        argList = args.split(None, maxArgs - 1)
-        for argSet in commandArgs:
-            isRequired = argSet[ARGUMENT_REQUIRED]
-            if isRequired:
-                minArgs += 1
-
-        if len(argList) < minArgs:
-            self.generateResponse(avId=avId, responseType='NotEnoughArgs', extraMessageData=('{} argument{}').format(minArgs, 's' if minArgs != 1 else ''))
-            return
-        if len(argList) > maxArgs:
-            self.generateResponse(avId=avId, responseType='TooManyArgs', extraMessageData=('{} argument{}').format(maxArgs, 's' if maxArgs != 1 else ''))
-            return
-        parsedArgList = []
-        if len(argList) < maxArgs:
-            for x in range(minArgs, maxArgs):
-                if commandArgs[x][ARGUMENT_REQUIRED] or len(argList) >= x + 1:
+            for targetId in targetIds:
+                if targetId == avId:
                     continue
-                argList.append(commandArgs[x][ARGUMENT_DEFAULT])
+                targetToon = self.air.doId2do.get(targetId)
+                if not targetToon:
+                    continue
+                if targetToon.getAccessLevel() >= toon.getAccessLevel():
+                    targetIds.remove(targetId)
+                    return
 
-        for x in xrange(len(argList)):
-            arg = argList[x]
-            argType = commandArgs[x][ARGUMENT_TYPE]
-            try:
-                parsedArg = argType(arg)
-            except:
-                self.generateResponse(avId=avId, responseType='BadArgs')
+            if len(targetIds) == 0:
+                self.generateResponse(avId=avId, responseType='NoAccessToTarget')
+            magicWord, args = (magicWord.split(' ', 1) + [''])[:2]
+            magicWord = magicWord.lower()
+            magicWordInfo = MagicWordIndex[magicWord]
+            if affectRange not in magicWordInfo['affectRange']:
+                self.generateResponse(avId=avId, responseType='RestrictionOther')
                 return
-            else:
+            if toon.getAccessLevel() < OTPGlobals.AccessLevelName2Int.get(magicWordInfo['access']):
+                self.generateResponse(avId=avId, responseType='NoAccess')
+                return
+            commandArgs = magicWordInfo['args']
+            maxArgs = len(commandArgs)
+            minArgs = 0
+            argList = args.split(None, maxArgs - 1)
+            for argSet in commandArgs:
+                isRequired = argSet[ARGUMENT_REQUIRED]
+                if isRequired:
+                    minArgs += 1
+
+            if len(argList) < minArgs:
+                self.generateResponse(avId=avId, responseType='NotEnoughArgs', extraMessageData=('{} argument{}').format(minArgs, 's' if minArgs != 1 else ''))
+                return
+            if len(argList) > maxArgs:
+                self.generateResponse(avId=avId, responseType='TooManyArgs', extraMessageData=('{} argument{}').format(maxArgs, 's' if maxArgs != 1 else ''))
+                return
+            parsedArgList = []
+            if len(argList) < maxArgs:
+                for x in range(minArgs, maxArgs):
+                    if commandArgs[x][ARGUMENT_REQUIRED] or len(argList) >= x + 1:
+                        continue
+                    argList.append(commandArgs[x][ARGUMENT_DEFAULT])
+
+            for x in xrange(len(argList)):
+                arg = argList[x]
+                argType = commandArgs[x][ARGUMENT_TYPE]
+                try:
+                    parsedArg = argType(arg)
+                except:
+                    self.generateResponse(avId=avId, responseType='BadArgs')
+                    return
+
                 parsedArgList.append(parsedArg)
 
-        if magicWordInfo['execLocation'] == EXEC_LOC_CLIENT:
-            self.sendClientCommand(avId, magicWord, magicWordInfo['classname'], targetIds=targetIds, parsedArgList=parsedArgList, affectRange=affectRange, affectType=affectType, affectExtra=affectExtra, lastClickedAvId=lastClickedAvId)
-        else:
-            command = getMagicWord(magicWordInfo['classname'])
-            command = command(self.air, None, avId, targetIds, parsedArgList)
-            returnValue = command.executeWord()
-            if returnValue:
-                self.generateResponse(avId=avId, responseType='Success', returnValue=returnValue)
+            if magicWordInfo['execLocation'] == EXEC_LOC_CLIENT:
+                self.sendClientCommand(avId, magicWord, magicWordInfo['classname'], targetIds=targetIds, parsedArgList=parsedArgList, affectRange=affectRange, affectType=affectType, affectExtra=affectExtra, lastClickedAvId=lastClickedAvId)
             else:
-                self.generateResponse(avId=avId, responseType='SuccessNoResp', magicWord=magicWord, parsedArgList=parsedArgList, affectRange=affectRange, affectType=affectType, affectExtra=affectExtra, lastClickedAvId=lastClickedAvId)
-        return
+                command = getMagicWord(magicWordInfo['classname'])
+                command = command(self.air, None, avId, targetIds, parsedArgList)
+                returnValue = command.executeWord()
+                if returnValue:
+                    self.generateResponse(avId=avId, responseType='Success', returnValue=returnValue)
+                else:
+                    self.generateResponse(avId=avId, responseType='SuccessNoResp', magicWord=magicWord, parsedArgList=parsedArgList, affectRange=affectRange, affectType=affectType, affectExtra=affectExtra, lastClickedAvId=lastClickedAvId)
+            return
 
     def generateResponse(self, avId, responseType='BadWord', magicWord='', parsedArgList=None, returnValue='', affectRange=0, affectType=0, affectExtra=0, lastClickedAvId=0, extraMessageData=''):
         if not parsedArgList:

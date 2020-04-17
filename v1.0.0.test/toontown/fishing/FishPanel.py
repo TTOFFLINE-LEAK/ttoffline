@@ -84,27 +84,28 @@ class FishPanel(DirectFrame):
         self.fish = fish
         if self.fish == None:
             return
-        self['text'] = self.fish.getSpeciesName()
-        weight = self.fish.getWeight()
-        conv = TTLocalizer.FishPageWeightConversion
-        large = weight / conv
-        if large == 1:
-            largeStr = TTLocalizer.FishPageWeightLargeS % large
         else:
-            largeStr = TTLocalizer.FishPageWeightLargeP % large
-        small = weight % conv
-        if small == 1:
-            smallStr = TTLocalizer.FishPageWeightSmallS % small
-        else:
-            smallStr = TTLocalizer.FishPageWeightSmallP % small
-        self.weight['text'] = TTLocalizer.FishPageWeightStr + largeStr + smallStr
-        value = self.fish.getValue()
-        if value == 1:
-            self.value['text'] = TTLocalizer.FishPageValueS % value
-        else:
-            self.value['text'] = TTLocalizer.FishPageValueP % value
-        self.photo.update(fish)
-        return
+            self['text'] = self.fish.getSpeciesName()
+            weight = self.fish.getWeight()
+            conv = TTLocalizer.FishPageWeightConversion
+            large = weight / conv
+            if large == 1:
+                largeStr = TTLocalizer.FishPageWeightLargeS % large
+            else:
+                largeStr = TTLocalizer.FishPageWeightLargeP % large
+            small = weight % conv
+            if small == 1:
+                smallStr = TTLocalizer.FishPageWeightSmallS % small
+            else:
+                smallStr = TTLocalizer.FishPageWeightSmallP % small
+            self.weight['text'] = TTLocalizer.FishPageWeightStr + largeStr + smallStr
+            value = self.fish.getValue()
+            if value == 1:
+                self.value['text'] = TTLocalizer.FishPageValueS % value
+            else:
+                self.value['text'] = TTLocalizer.FishPageValueP % value
+            self.photo.update(fish)
+            return
 
     def setSwimBounds(self, *bounds):
         self.swimBounds = bounds
@@ -123,17 +124,15 @@ class FishPanel(DirectFrame):
         apply(self.photo.setSwimColor, self.swimColor)
         if code == FishGlobals.FishItem:
             self.extraLabel.hide()
-        else:
-            if code == FishGlobals.FishItemNewEntry:
-                self.extraLabel.show()
-                self.extraLabel['text'] = TTLocalizer.FishingNewEntry
-                self.extraLabel['text_scale'] = TTLocalizer.FPnewEntry
-                self.extraLabel.setPos(0, 0, 0.26)
-            else:
-                if code == FishGlobals.FishItemNewRecord:
-                    self.extraLabel.show()
-                    self.extraLabel['text'] = TTLocalizer.FishingNewRecord
-                    self.extraLabel['text_scale'] = TTLocalizer.FPnewRecord
+        elif code == FishGlobals.FishItemNewEntry:
+            self.extraLabel.show()
+            self.extraLabel['text'] = TTLocalizer.FishingNewEntry
+            self.extraLabel['text_scale'] = TTLocalizer.FPnewEntry
+            self.extraLabel.setPos(0, 0, 0.26)
+        elif code == FishGlobals.FishItemNewRecord:
+            self.extraLabel.show()
+            self.extraLabel['text'] = TTLocalizer.FishingNewRecord
+            self.extraLabel['text_scale'] = TTLocalizer.FPnewRecord
         self.photo.show()
         DirectFrame.show(self)
 

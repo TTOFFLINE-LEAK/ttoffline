@@ -74,7 +74,8 @@ class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCa
     def getCurGeneration(self):
         if self._orderedGenerationIndex is None:
             return
-        return self._orderedGenerations[self._orderedGenerationIndex]
+        else:
+            return self._orderedGenerations[self._orderedGenerationIndex]
 
     def _addGeneration(self, generation, startTime, startNetworkTime, numPlayers):
         self._id2gen[generation] = self.Generation(generation, startTime, startNetworkTime, numPlayers)
@@ -320,10 +321,9 @@ class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCa
         if self.activityFSM.state == 'Active':
             base.cr.playGame.getPlace().fsm.request('activity')
             self.d_toonJoinRequest()
-        else:
-            if self.activityFSM.state == 'Idle':
-                base.cr.playGame.getPlace().fsm.request('activity')
-                self.d_toonJoinRequest()
+        elif self.activityFSM.state == 'Idle':
+            base.cr.playGame.getPlace().fsm.request('activity')
+            self.d_toonJoinRequest()
         self._enteredTree = True
 
     def _toonExitedTree(self, collEntry):

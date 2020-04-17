@@ -181,15 +181,16 @@ class ClothesGUI(StateData.StateData):
         if self.topChoice < 0 and self.topChoice >= len(self.tops) or len(self.tops[self.topChoice]) != 4:
             self.notify.warning('topChoice index is out of range!')
             return
-        self.toon.style.topTex = self.tops[self.topChoice][0]
-        self.toon.style.topTexColor = self.tops[self.topChoice][1]
-        self.toon.style.sleeveTex = self.tops[self.topChoice][2]
-        self.toon.style.sleeveTexColor = self.tops[self.topChoice][3]
-        self.toon.generateToonClothes()
-        if self.swapEvent != None:
-            messenger.send(self.swapEvent)
-        messenger.send('wakeup')
-        return
+        else:
+            self.toon.style.topTex = self.tops[self.topChoice][0]
+            self.toon.style.topTexColor = self.tops[self.topChoice][1]
+            self.toon.style.sleeveTex = self.tops[self.topChoice][2]
+            self.toon.style.sleeveTexColor = self.tops[self.topChoice][3]
+            self.toon.generateToonClothes()
+            if self.swapEvent != None:
+                messenger.send(self.swapEvent)
+            messenger.send('wakeup')
+            return
 
     def swapBottom(self, offset):
         length = len(self.bottoms)
@@ -200,15 +201,16 @@ class ClothesGUI(StateData.StateData):
         if self.bottomChoice < 0 and self.bottomChoice >= len(self.bottoms) or len(self.bottoms[self.bottomChoice]) != 2:
             self.notify.warning('bottomChoice index is out of range!')
             return
-        self.toon.style.botTex = self.bottoms[self.bottomChoice][0]
-        self.toon.style.botTexColor = self.bottoms[self.bottomChoice][1]
-        if self.toon.generateToonClothes() == 1:
-            self.toon.loop('neutral', 0)
-            self.swappedTorso = 1
-        if self.swapEvent != None:
-            messenger.send(self.swapEvent)
-        messenger.send('wakeup')
-        return
+        else:
+            self.toon.style.botTex = self.bottoms[self.bottomChoice][0]
+            self.toon.style.botTexColor = self.bottoms[self.bottomChoice][1]
+            if self.toon.generateToonClothes() == 1:
+                self.toon.loop('neutral', 0)
+                self.swappedTorso = 1
+            if self.swapEvent != None:
+                messenger.send(self.swapEvent)
+            messenger.send('wakeup')
+            return
 
     def updateScrollButtons(self, choice, length, startTex, lButton, rButton):
         if choice >= length - 1:
@@ -259,7 +261,8 @@ class ClothesGUI(StateData.StateData):
     def getGenderColorList(self, dna):
         if self.dna.getGender() == 'm':
             return ToonDNA.defaultBoyColorList
-        return ToonDNA.defaultGirlColorList
+        else:
+            return ToonDNA.defaultGirlColorList
 
     def confirmNude(self):
         if self.nude:

@@ -58,11 +58,10 @@ def readFile(filename):
             continue
         if line[0] == 'ID':
             parseId(line)
+        elif curId is None:
+            notify.error('Every script must begin with an ID')
         else:
-            if curId is None:
-                notify.error('Every script must begin with an ID')
-            else:
-                lineDict[curId].append(line)
+            lineDict[curId].append(line)
         line = getLineOfTokens(gen)
 
     return
@@ -74,30 +73,27 @@ def getLineOfTokens(gen):
     token = gen.next()
     if token[0] == tokenize.ENDMARKER:
         return None
-    while token[0] != tokenize.NEWLINE and token[0] != tokenize.NL:
-        if token[0] == tokenize.COMMENT:
-            pass
-        else:
-            if token[0] == tokenize.OP and token[1] == '-':
+    else:
+        while token[0] != tokenize.NEWLINE and token[0] != tokenize.NL:
+            if token[0] == tokenize.COMMENT:
+                pass
+            elif token[0] == tokenize.OP and token[1] == '-':
                 nextNeg = 1
-            else:
-                if token[0] == tokenize.NUMBER:
-                    if nextNeg:
-                        tokens.append(-eval(token[1]))
-                        nextNeg = 0
-                    else:
-                        tokens.append(eval(token[1]))
+            elif token[0] == tokenize.NUMBER:
+                if nextNeg:
+                    tokens.append(-eval(token[1]))
+                    nextNeg = 0
                 else:
-                    if token[0] == tokenize.STRING:
-                        tokens.append(eval(token[1]))
-                    else:
-                        if token[0] == tokenize.NAME:
-                            tokens.append(token[1])
-                        else:
-                            notify.warning('Ignored token type: %s on line: %s' % (tokenize.tok_name[token[0]], token[2][0]))
-        token = gen.next()
+                    tokens.append(eval(token[1]))
+            elif token[0] == tokenize.STRING:
+                tokens.append(eval(token[1]))
+            elif token[0] == tokenize.NAME:
+                tokens.append(token[1])
+            else:
+                notify.warning('Ignored token type: %s on line: %s' % (tokenize.tok_name[token[0]], token[2][0]))
+            token = gen.next()
 
-    return tokens
+        return tokens
 
 
 def parseId(line):
@@ -136,22 +132,22 @@ class NPCMoviePlayer(DirectObject.DirectObject):
     def getVar(self, varName):
         if varName in self.privateVarDict:
             return self.privateVarDict[varName]
-        if varName in globalVarDict:
-            return globalVarDict[varName]
-        if varName.find('tomDialogue') > -1 or varName.find('harryDialogue') > -1:
-            notify.warning('%s getting referenced. Tutorial Ack: %d                                  Place: %s' % (varName, base.localAvatar.tutorialAck, base.cr.playGame.hood))
+        else:
+            if varName in globalVarDict:
+                return globalVarDict[varName]
+            if varName.find('tomDialogue') > -1 or varName.find('harryDialogue') > -1:
+                notify.warning('%s getting referenced. Tutorial Ack: %d                                  Place: %s' % (varName, base.localAvatar.tutorialAck, base.cr.playGame.hood))
+                return
+            notify.error('Variable not defined: %s' % varName)
             return
-        notify.error('Variable not defined: %s' % varName)
-        return
 
     def delVar(self, varName):
         if varName in self.privateVarDict:
             del self.privateVarDict[varName]
+        elif varName in globalVarDict:
+            del globalVarDict[varName]
         else:
-            if varName in globalVarDict:
-                del globalVarDict[varName]
-            else:
-                notify.warning('Variable not defined: %s' % varName)
+            notify.warning('Variable not defined: %s' % varName)
 
     def setVar(self, varName, var):
         self.privateVarDict[varName] = var
@@ -225,97 +221,86 @@ class NPCMoviePlayer(DirectObject.DirectObject):
                     self.notify.error('CALL not allowed in an UPON_TIMEOUT')
                 iList.append(self.parseCall(line))
                 continue
-            else:
-                if command == 'DEBUG':
-                    iList.append(self.parseDebug(line))
-                    continue
-                else:
-                    if command == 'WAIT':
-                        if uponTimeout:
-                            self.notify.error('WAIT not allowed in an UPON_TIMEOUT')
-                        iList.append(self.parseWait(line))
-                        continue
-                    else:
-                        if command == 'CHAT':
-                            iList.append(self.parseChat(line))
-                            continue
-                        else:
-                            if command == 'CLEAR_CHAT':
-                                iList.append(self.parseClearChat(line))
-                                continue
-                            else:
-                                if command == 'FINISH_QUEST_MOVIE':
-                                    chapterList.append(Func(self.finishMovie))
-                                    continue
-                                else:
-                                    if command == 'CHAT_CONFIRM':
-                                        if uponTimeout:
-                                            self.notify.error('CHAT_CONFIRM not allowed in an UPON_TIMEOUT')
-                                        avatarName = line[1]
-                                        avatar = self.getVar(avatarName)
-                                        nextEvent = avatar.uniqueName('doneChatPage')
-                                        iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
-                                        iList.append(self.parseChatConfirm(line))
-                                        self.closePreviousChapter(iList)
-                                        chapterList = []
-                                        self.currentEvent = nextEvent
-                                        continue
-                                    else:
-                                        if command == 'LOCAL_CHAT_CONFIRM':
-                                            if uponTimeout:
-                                                self.notify.error('LOCAL_CHAT_CONFIRM not allowed in an UPON_TIMEOUT')
-                                            avatarName = line[1]
-                                            avatar = self.getVar(avatarName)
-                                            nextEvent = avatar.uniqueName('doneChatPage')
-                                            iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
-                                            iList.append(self.parseLocalChatConfirm(line))
-                                            self.closePreviousChapter(iList)
-                                            chapterList = []
-                                            self.currentEvent = nextEvent
-                                            continue
-                                        else:
-                                            if command == 'LOCAL_CHAT_PERSIST':
-                                                iList.append(self.parseLocalChatPersist(line))
-                                                continue
-                                            else:
-                                                if command == 'LOCAL_CHAT_TO_CONFIRM':
-                                                    if uponTimeout:
-                                                        self.notify.error('LOCAL_CHAT_TO_CONFIRM not allowed in an UPON_TIMEOUT')
-                                                    avatarName = line[1]
-                                                    avatar = self.getVar(avatarName)
-                                                    nextEvent = avatar.uniqueName('doneChatPage')
-                                                    iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
-                                                    iList.append(self.parseLocalChatToConfirm(line))
-                                                    self.closePreviousChapter(iList)
-                                                    chapterList = []
-                                                    self.currentEvent = nextEvent
-                                                    continue
-                                                else:
-                                                    if command == 'CC_CHAT_CONFIRM':
-                                                        if uponTimeout:
-                                                            self.notify.error('CC_CHAT_CONFIRM not allowed in an UPON_TIMEOUT')
-                                                        avatarName = line[1]
-                                                        avatar = self.getVar(avatarName)
-                                                        nextEvent = avatar.uniqueName('doneChatPage')
-                                                        iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
-                                                        iList.append(self.parseCCChatConfirm(line))
-                                                        self.closePreviousChapter(iList)
-                                                        chapterList = []
-                                                        self.currentEvent = nextEvent
-                                                        continue
-                                                    else:
-                                                        if command == 'CC_CHAT_TO_CONFIRM':
-                                                            if uponTimeout:
-                                                                self.notify.error('CC_CHAT_TO_CONFIRM not allowed in an UPON_TIMEOUT')
-                                                            avatarName = line[1]
-                                                            avatar = self.getVar(avatarName)
-                                                            nextEvent = avatar.uniqueName('doneChatPage')
-                                                            iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
-                                                            iList.append(self.parseCCChatToConfirm(line))
-                                                            self.closePreviousChapter(iList)
-                                                            chapterList = []
-                                                            self.currentEvent = nextEvent
-                                                            continue
+            elif command == 'DEBUG':
+                iList.append(self.parseDebug(line))
+                continue
+            elif command == 'WAIT':
+                if uponTimeout:
+                    self.notify.error('WAIT not allowed in an UPON_TIMEOUT')
+                iList.append(self.parseWait(line))
+                continue
+            elif command == 'CHAT':
+                iList.append(self.parseChat(line))
+                continue
+            elif command == 'CLEAR_CHAT':
+                iList.append(self.parseClearChat(line))
+                continue
+            elif command == 'FINISH_QUEST_MOVIE':
+                chapterList.append(Func(self.finishMovie))
+                continue
+            elif command == 'CHAT_CONFIRM':
+                if uponTimeout:
+                    self.notify.error('CHAT_CONFIRM not allowed in an UPON_TIMEOUT')
+                avatarName = line[1]
+                avatar = self.getVar(avatarName)
+                nextEvent = avatar.uniqueName('doneChatPage')
+                iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
+                iList.append(self.parseChatConfirm(line))
+                self.closePreviousChapter(iList)
+                chapterList = []
+                self.currentEvent = nextEvent
+                continue
+            elif command == 'LOCAL_CHAT_CONFIRM':
+                if uponTimeout:
+                    self.notify.error('LOCAL_CHAT_CONFIRM not allowed in an UPON_TIMEOUT')
+                avatarName = line[1]
+                avatar = self.getVar(avatarName)
+                nextEvent = avatar.uniqueName('doneChatPage')
+                iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
+                iList.append(self.parseLocalChatConfirm(line))
+                self.closePreviousChapter(iList)
+                chapterList = []
+                self.currentEvent = nextEvent
+                continue
+            elif command == 'LOCAL_CHAT_PERSIST':
+                iList.append(self.parseLocalChatPersist(line))
+                continue
+            elif command == 'LOCAL_CHAT_TO_CONFIRM':
+                if uponTimeout:
+                    self.notify.error('LOCAL_CHAT_TO_CONFIRM not allowed in an UPON_TIMEOUT')
+                avatarName = line[1]
+                avatar = self.getVar(avatarName)
+                nextEvent = avatar.uniqueName('doneChatPage')
+                iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
+                iList.append(self.parseLocalChatToConfirm(line))
+                self.closePreviousChapter(iList)
+                chapterList = []
+                self.currentEvent = nextEvent
+                continue
+            elif command == 'CC_CHAT_CONFIRM':
+                if uponTimeout:
+                    self.notify.error('CC_CHAT_CONFIRM not allowed in an UPON_TIMEOUT')
+                avatarName = line[1]
+                avatar = self.getVar(avatarName)
+                nextEvent = avatar.uniqueName('doneChatPage')
+                iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
+                iList.append(self.parseCCChatConfirm(line))
+                self.closePreviousChapter(iList)
+                chapterList = []
+                self.currentEvent = nextEvent
+                continue
+            elif command == 'CC_CHAT_TO_CONFIRM':
+                if uponTimeout:
+                    self.notify.error('CC_CHAT_TO_CONFIRM not allowed in an UPON_TIMEOUT')
+                avatarName = line[1]
+                avatar = self.getVar(avatarName)
+                nextEvent = avatar.uniqueName('doneChatPage')
+                iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
+                iList.append(self.parseCCChatToConfirm(line))
+                self.closePreviousChapter(iList)
+                chapterList = []
+                self.currentEvent = nextEvent
+                continue
             if self.isLocalToon:
                 if command == 'LOAD':
                     self.parseLoad(line)
@@ -479,12 +464,11 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         if len(line) == 3:
             token, varName, modelPath = line
             node = loader.loadModel(modelPath)
+        elif len(line) == 4:
+            token, varName, modelPath, subNodeName = line
+            node = loader.loadModel(modelPath).find('**/' + subNodeName)
         else:
-            if len(line) == 4:
-                token, varName, modelPath, subNodeName = line
-                node = loader.loadModel(modelPath).find('**/' + subNodeName)
-            else:
-                notify.error('invalid parseLoad command')
+            notify.error('invalid parseLoad command')
         self.setVar(varName, node)
 
     def parseLoadSfx(self, line):
@@ -586,9 +570,8 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         if len(line) == 3:
             token, childNodeName, parentNodeName = line
             subNodeName = None
-        else:
-            if len(line) == 4:
-                token, childNodeName, parentNodeName, subNodeName = line
+        elif len(line) == 4:
+            token, childNodeName, parentNodeName, subNodeName = line
         childNode = self.getVar(childNodeName)
         if subNodeName:
             parentNode = self.getVar(parentNodeName).find(subNodeName)
@@ -600,9 +583,8 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         if len(line) == 3:
             token, childNodeName, parentNodeName = line
             subNodeName = None
-        else:
-            if len(line) == 4:
-                token, childNodeName, parentNodeName, subNodeName = line
+        elif len(line) == 4:
+            token, childNodeName, parentNodeName, subNodeName = line
         childNode = self.getVar(childNodeName)
         if subNodeName:
             parentNode = self.getVar(parentNodeName).find(subNodeName)
@@ -766,11 +748,10 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         if len(line) == 2:
             token, sfxName = line
             looping = 0
+        elif len(line) == 3:
+            token, sfxName, looping = line
         else:
-            if len(line) == 3:
-                token, sfxName, looping = line
-            else:
-                notify.error('invalid number of arguments')
+            notify.error('invalid number of arguments')
         sfx = self.getVar(sfxName)
         return Func(base.playSfx, sfx, looping)
 
@@ -783,11 +764,10 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         if len(line) == 3:
             token, actorName, animName = line
             playRate = 1.0
+        elif len(line) == 4:
+            token, actorName, animName, playRate = line
         else:
-            if len(line) == 4:
-                token, actorName, animName, playRate = line
-            else:
-                notify.error('invalid number of arguments')
+            notify.error('invalid number of arguments')
         actor = self.getVar(actorName)
         return Sequence(Func(actor.setPlayRate, playRate, animName), Func(actor.play, animName))
 
@@ -795,11 +775,10 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         if len(line) == 3:
             token, actorName, animName = line
             playRate = 1.0
+        elif len(line) == 4:
+            token, actorName, animName, playRate = line
         else:
-            if len(line) == 4:
-                token, actorName, animName, playRate = line
-            else:
-                notify.error('invalid number of arguments')
+            notify.error('invalid number of arguments')
         actor = self.getVar(actorName)
         return Sequence(Func(actor.setPlayRate, playRate, animName), Func(actor.loop, animName))
 
@@ -923,13 +902,13 @@ class NPCMoviePlayer(DirectObject.DirectObject):
                 token, val, track, level = line
             else:
                 notify.error('invalid line for parseSetInventoryDetail: %s' % line)
-        inventory = self.getVar('inventory')
-        if val == -1:
-            return Func(inventory.noDetail)
-        if val == 0:
-            return Func(inventory.hideDetail)
-        if val == 1:
-            return Func(inventory.showDetail, track, level)
+            inventory = self.getVar('inventory')
+            if val == -1:
+                return Func(inventory.noDetail)
+            if val == 0:
+                return Func(inventory.hideDetail)
+            if val == 1:
+                return Func(inventory.showDetail, track, level)
         notify.error('invalid inventory detail level: %s' % val)
 
     def parseShowFriendsList(self, line):
@@ -994,7 +973,8 @@ class NPCMoviePlayer(DirectObject.DirectObject):
             self.setVar('%sToonHead' % toonName, toonHeadFrame)
         if toggle:
             return Sequence(Func(toonHeadFrame.setPos, x, 0, z), Func(toonHeadFrame.setScale, scale), Func(toonHeadFrame.show))
-        return Func(toonHeadFrame.hide)
+        else:
+            return Func(toonHeadFrame.hide)
 
     def parseToonHeadScale(self, line):
         token, toonName, scale = line
@@ -1018,15 +998,15 @@ class NPCMoviePlayer(DirectObject.DirectObject):
                 self.acceptOnce(SpeedChatGlobals.SCStaticTextMsgEvent, phraseSaid)
 
             return Func(enableBlackCatListen)
+        else:
 
-        def disableBlackCatListen():
-            self.ignore(SpeedChatGlobals.SCStaticTextMsgEvent)
+            def disableBlackCatListen():
+                self.ignore(SpeedChatGlobals.SCStaticTextMsgEvent)
 
-        return Func(disableBlackCatListen)
+            return Func(disableBlackCatListen)
 
     def parseThrowSquirtPreview(self, line):
-        oldTrackAccess = [
-         None]
+        oldTrackAccess = [None]
 
         def grabCurTrackAccess(oldTrackAccess=oldTrackAccess):
             oldTrackAccess[0] = copy.deepcopy(base.localAvatar.getTrackAccess())
@@ -1065,19 +1045,16 @@ class NPCMoviePlayer(DirectObject.DirectObject):
                 else:
                     if len(line) == 3:
                         token, level, type = line
-                    else:
-                        if len(line) == 4:
-                            token, level, type, duration = line
-                        else:
-                            if len(line) == 5:
-                                token, level, type, duration, fromLevel = line
+                    elif len(line) == 4:
+                        token, level, type, duration = line
+                    elif len(line) == 5:
+                        token, level, type, duration, fromLevel = line
                     if type == 'battleMusic':
                         music = loader.battleMusic
+                    elif type == 'activityMusic':
+                        music = loader.activityMusic
                     else:
-                        if type == 'activityMusic':
-                            music = loader.activityMusic
-                        else:
-                            music = loader.music
+                        music = loader.music
                     if duration == 0:
                         return Func(music.setVolume, level)
 

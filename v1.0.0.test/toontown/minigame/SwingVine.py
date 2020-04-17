@@ -386,8 +386,9 @@ class SwingVine(NodePath):
     def getAttachedToonInfo(self, toonId):
         if toonId in self.attachedToons:
             return self.attachedToons[toonId]
-        return
-        return
+        else:
+            return
+            return
 
     def getCenterTForTube(self, tubeIndex):
         retval = self.tIncrement * tubeIndex + self.tHalfIncrement
@@ -634,22 +635,20 @@ class SwingVine(NodePath):
         swingAnimType = self.calcSwingAnimType(toonT)
         if swingAnimType == self.SwingAnimFull:
             self.setupSwingAnimFull(av, avId)
+        elif swingAnimType == self.SwingAnimSmall:
+            self.setupSwingAnimSmall(av, avId)
         else:
-            if swingAnimType == self.SwingAnimSmall:
-                self.setupSwingAnimSmall(av, avId)
-            else:
-                self.setupSwingAnimMinimal(av, avId)
+            self.setupSwingAnimMinimal(av, avId)
 
     def calcSwingAnimType(self, toonT):
         angleInDegrees = toonT * self.baseAngle
         retval = self.SwingAnimFull
         if angleInDegrees > 10:
             retval = self.SwingAnimFull
+        elif angleInDegrees > 2:
+            retval = self.SwingAnimSmall
         else:
-            if angleInDegrees > 2:
-                retval = self.SwingAnimSmall
-            else:
-                retval = self.SwingAnimMinimal
+            retval = self.SwingAnimMinimal
         return retval
 
     def updateSwingAnims(self):

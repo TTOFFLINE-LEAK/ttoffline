@@ -647,7 +647,8 @@ class CatalogWallpaperItem(CatalogSurfaceItem):
             name = TTLocalizer.WallpaperNames.get(century)
         if name:
             return name
-        return self.getTypeName()
+        else:
+            return self.getTypeName()
 
     def getSurfaceType(self):
         return STWallpaper
@@ -709,29 +710,32 @@ class CatalogWallpaperItem(CatalogSurfaceItem):
         colors = WallpaperTypes[self.patternIndex][WTColor]
         if colorIndex < len(colors):
             return colors[colorIndex]
-        print 'Warning: colorIndex > len(colors). Returning white.'
-        return CT_WHITE
-        return
+        else:
+            print 'Warning: colorIndex > len(colors). Returning white.'
+            return CT_WHITE
+            return
 
     def loadBorderTexture(self):
         from panda3d.core import Texture
         if self.borderIndex == None or self.borderIndex == 0:
             return self.loadTexture()
-        borderInfo = BorderTypes[self.borderIndex]
-        filename = borderInfo[BDTextureName]
-        texture = loader.loadTexture(filename)
-        texture.setMinfilter(Texture.FTLinearMipmapLinear)
-        texture.setMagfilter(Texture.FTLinear)
-        return texture
+        else:
+            borderInfo = BorderTypes[self.borderIndex]
+            filename = borderInfo[BDTextureName]
+            texture = loader.loadTexture(filename)
+            texture.setMinfilter(Texture.FTLinearMipmapLinear)
+            texture.setMagfilter(Texture.FTLinear)
+            return texture
 
     def getBorderColor(self):
         if self.borderIndex == None or self.borderIndex == 0:
             return self.getColor()
-        colors = BorderTypes[self.borderIndex][BDColor]
-        if self.borderColorIndex < len(colors):
-            return colors[self.borderColorIndex]
-        return CT_WHITE
-        return
+        else:
+            colors = BorderTypes[self.borderIndex][BDColor]
+            if self.borderColorIndex < len(colors):
+                return colors[self.borderColorIndex]
+            return CT_WHITE
+            return
 
     def decodeDatagram(self, di, versionNumber, store):
         CatalogAtticItem.CatalogAtticItem.decodeDatagram(self, di, versionNumber, store)
@@ -744,16 +748,15 @@ class CatalogWallpaperItem(CatalogSurfaceItem):
         if versionNumber < 3:
             self.patternIndex = di.getUint8()
             self.colorIndex = di.getUint8()
+        elif versionNumber == 3:
+            self.patternIndex = di.getUint16()
+            self.colorIndex = di.getUint8()
         else:
-            if versionNumber == 3:
-                self.patternIndex = di.getUint16()
+            self.patternIndex = di.getUint16()
+            if store & CatalogItem.Customization:
                 self.colorIndex = di.getUint8()
-            else:
-                self.patternIndex = di.getUint16()
-                if store & CatalogItem.Customization:
-                    self.colorIndex = di.getUint8()
-                    self.borderIndex = di.getUint16()
-                    self.borderColorIndex = di.getUint8()
+                self.borderIndex = di.getUint16()
+                self.borderColorIndex = di.getUint8()
         wtype = WallpaperTypes[self.patternIndex]
         return
 

@@ -36,4 +36,5 @@ class DistributedTrigger(DistributedSwitch.DistributedSwitch):
     def getName(self):
         if self.triggerName != '':
             return self.triggerName
-        return DistributedSwitch.DistributedSwitch.getName(self)
+        else:
+            return DistributedSwitch.DistributedSwitch.getName(self)

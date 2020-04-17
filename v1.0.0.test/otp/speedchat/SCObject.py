@@ -51,8 +51,9 @@ class SCObject(DirectObject):
     def getTopLevelOverlap(self):
         if self.settingsRef.topLevelOverlap is None:
             return self.getSubmenuOverlap()
-        return self.settingsRef.topLevelOverlap
-        return
+        else:
+            return self.settingsRef.topLevelOverlap
+            return
 
     def privSetSettingsRef(self, settingsRef):
         self.settingsRef = settingsRef

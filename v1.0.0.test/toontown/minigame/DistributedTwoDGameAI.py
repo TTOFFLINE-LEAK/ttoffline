@@ -221,24 +221,25 @@ class DistributedTwoDGameAI(DistributedMinigameAI):
             self.notify.warning('suspicious: ' + str(avId) + ' ' + msg)
             self.air.writeServerEvent('suspicious: ', avId, msg)
             return
-        if avId not in self.scoreDict.keys():
-            self.notify.warning('Avatar %s not in list.' % avId)
-            self.air.writeServerEvent('suspicious: ', avId, 'TwoDGameAI.toonVictory toon not in list.')
+        else:
+            if avId not in self.scoreDict.keys():
+                self.notify.warning('Avatar %s not in list.' % avId)
+                self.air.writeServerEvent('suspicious: ', avId, 'TwoDGameAI.toonVictory toon not in list.')
+                return
+            curTime = self.getCurrentGameTime()
+            timeLeft = ToonBlitzGlobals.GameDuration[self.getSafezoneId()] - curTime
+            self.notify.debug('curTime =%s timeLeft = %s' % (curTime, timeLeft))
+            addBonus = int(ToonBlitzGlobals.BaseBonusOnCompletion[self.getSafezoneId()] + ToonBlitzGlobals.BonusPerSecondLeft * timeLeft)
+            self.notify.debug('addBOnus = %d' % addBonus)
+            if addBonus < 0:
+                addBonus = 0
+            self.finishedBonusDict[avId] = addBonus
+            timeLeftStr = '%.1f' % timeLeft
+            self.finishedTimeLeftDict[avId] = timeLeftStr
+            self.scoreDict[avId] += addBonus
+            self.sendUpdate('addVictoryScore', [avId, addBonus])
+            self.doneBarrier.clear(avId)
             return
-        curTime = self.getCurrentGameTime()
-        timeLeft = ToonBlitzGlobals.GameDuration[self.getSafezoneId()] - curTime
-        self.notify.debug('curTime =%s timeLeft = %s' % (curTime, timeLeft))
-        addBonus = int(ToonBlitzGlobals.BaseBonusOnCompletion[self.getSafezoneId()] + ToonBlitzGlobals.BonusPerSecondLeft * timeLeft)
-        self.notify.debug('addBOnus = %d' % addBonus)
-        if addBonus < 0:
-            addBonus = 0
-        self.finishedBonusDict[avId] = addBonus
-        timeLeftStr = '%.1f' % timeLeft
-        self.finishedTimeLeftDict[avId] = timeLeftStr
-        self.scoreDict[avId] += addBonus
-        self.sendUpdate('addVictoryScore', [avId, addBonus])
-        self.doneBarrier.clear(avId)
-        return
 
     def toonFellDown(self, avId, timestamp):
         if avId not in self.scoreDict.keys():

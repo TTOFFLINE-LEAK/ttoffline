@@ -415,22 +415,20 @@ class DistributedVineGame(DistributedMinigame):
                 newVineT = newInfo[1]
                 newFacingRight = newInfo[4]
                 self.vines[newVine].attachToon(avId, newVineT, newFacingRight)
+        elif newVine == oldVine and newInfo[4] != oldInfo[4]:
+            self.notify.debug('# still on the same vine, but we changed facing')
+            self.vines[newVine].changeAttachedToonFacing(avId, newInfo[4])
+        elif newVine >= 0:
+            self.vines[newVine].changeAttachedToonT(avId, newInfo[1])
         else:
-            if newVine == oldVine and newInfo[4] != oldInfo[4]:
-                self.notify.debug('# still on the same vine, but we changed facing')
-                self.vines[newVine].changeAttachedToonFacing(avId, newInfo[4])
-            else:
-                if newVine >= 0:
-                    self.vines[newVine].changeAttachedToonT(avId, newInfo[1])
-                else:
-                    self.notify.debug('we are still falling')
-                    if oldInfo[8] != newInfo[8]:
-                        if not avId == self.localAvId:
-                            posX = newInfo[2]
-                            posZ = newInfo[3]
-                            velX = newInfo[6]
-                            velZ = newInfo[7]
-                            self.makeOtherToonFallFromMidair(avId, posX, posZ, velX, velZ)
+            self.notify.debug('we are still falling')
+            if oldInfo[8] != newInfo[8]:
+                if not avId == self.localAvId:
+                    posX = newInfo[2]
+                    posZ = newInfo[3]
+                    velX = newInfo[6]
+                    velZ = newInfo[7]
+                    self.makeOtherToonFallFromMidair(avId, posX, posZ, velX, velZ)
 
     def sanityCheck(self):
         if not self.isInPlayState():
@@ -755,9 +753,8 @@ class DistributedVineGame(DistributedMinigame):
             climbDir = 0
             if diffT < 0:
                 climbDir = -1
-            else:
-                if diffT > 0:
-                    climbDir = 1
+            elif diffT > 0:
+                climbDir = 1
             if not newT == curT:
                 self.vines[vineIndex].changeAttachedToonT(avId, newT)
             if newT != curT or self.getClimbDir(avId) and not curT == 1.0 or oldClimbDir != climbDir:
@@ -1076,20 +1073,21 @@ class DistributedVineGame(DistributedMinigame):
 
         if not curInfo:
             return
-        if vineIndex == len(self.vines) - 1:
+        else:
+            if vineIndex == len(self.vines) - 1:
+                return
+            if not self.isInPlayState():
+                return
+            doJump = True
+            if self.ArrowToChangeFacing:
+                if not self.lastJumpFacingRight:
+                    doJump = False
+                    self.changeLocalToonFacing(vineIndex, curInfo, True)
+            if doJump:
+                self.detachLocalToonFromVine(vineIndex, 1)
+                normal = curInfo[2]
+                self.makeLocalToonJump(vineIndex, curInfo[0], curInfo[1], normal)
             return
-        if not self.isInPlayState():
-            return
-        doJump = True
-        if self.ArrowToChangeFacing:
-            if not self.lastJumpFacingRight:
-                doJump = False
-                self.changeLocalToonFacing(vineIndex, curInfo, True)
-        if doJump:
-            self.detachLocalToonFromVine(vineIndex, 1)
-            normal = curInfo[2]
-            self.makeLocalToonJump(vineIndex, curInfo[0], curInfo[1], normal)
-        return
 
     def leftArrowKeyHandler(self):
         curInfo = None
@@ -1101,23 +1099,24 @@ class DistributedVineGame(DistributedMinigame):
         curInfo = self.vines[vineIndex].getAttachedToonInfo(base.localAvatar.doId)
         if not curInfo:
             return
-        if vineIndex == 0:
+        else:
+            if vineIndex == 0:
+                return
+            if vineIndex == len(self.vines) - 1:
+                return
+            if not self.isInPlayState():
+                return
+            doJump = True
+            if self.ArrowToChangeFacing:
+                if self.lastJumpFacingRight:
+                    doJump = False
+                    self.changeLocalToonFacing(vineIndex, curInfo, False)
+            if doJump:
+                self.detachLocalToonFromVine(vineIndex, 0)
+                normal = curInfo[2]
+                normal *= -1
+                self.makeLocalToonJump(vineIndex, curInfo[0], curInfo[1], normal)
             return
-        if vineIndex == len(self.vines) - 1:
-            return
-        if not self.isInPlayState():
-            return
-        doJump = True
-        if self.ArrowToChangeFacing:
-            if self.lastJumpFacingRight:
-                doJump = False
-                self.changeLocalToonFacing(vineIndex, curInfo, False)
-        if doJump:
-            self.detachLocalToonFromVine(vineIndex, 0)
-            normal = curInfo[2]
-            normal *= -1
-            self.makeLocalToonJump(vineIndex, curInfo[0], curInfo[1], normal)
-        return
 
     def b_setNewVine(self, avId, vineIndex, vineT, facingRight):
         self.setNewVine(avId, vineIndex, vineT, facingRight)
@@ -1142,9 +1141,8 @@ class DistributedVineGame(DistributedMinigame):
         curTime = self.getCurrentGameTime()
         if self.sendNewVineTUpdateAsap:
             sendIt = True
-        else:
-            if curTime - self.lastNewVineTUpdate > 0.2:
-                sendIt = True
+        elif curTime - self.lastNewVineTUpdate > 0.2:
+            sendIt = True
         if sendIt:
             self.sendUpdate('setNewVineT', [avId, vineT, climbDir])
             self.sendNewVineTUpdateAsap = False
@@ -1343,14 +1341,15 @@ class DistributedVineGame(DistributedMinigame):
         p2 = Point2()
         if not self.cLens.project(p3, p2):
             return None
-        r2d = Point3(p2[0], 0, p2[1])
-        a2d = aspect2d.getRelativePoint(render2d, r2d)
-        zAspect2DRadar = self.endZRadar * 2.0 - 1
-        oldZ = a2d.getZ()
-        newZ = (oldZ + 1) / 2.0 * (zAspect2DRadar + 1)
-        newZ -= 1
-        a2d.setZ(newZ)
-        return a2d
+        else:
+            r2d = Point3(p2[0], 0, p2[1])
+            a2d = aspect2d.getRelativePoint(render2d, r2d)
+            zAspect2DRadar = self.endZRadar * 2.0 - 1
+            oldZ = a2d.getZ()
+            newZ = (oldZ + 1) / 2.0 * (zAspect2DRadar + 1)
+            newZ -= 1
+            a2d.setZ(newZ)
+            return a2d
 
     def localToonHitSpider(self, colEntry):
         self.notify.debug('toonHitSpider')
@@ -1382,9 +1381,8 @@ class DistributedVineGame(DistributedMinigame):
         intoName = colEntry.getIntoNodePath().getName()
         if 'spider' in intoName:
             self.localToonHitSpider(colEntry)
-        else:
-            if 'bat' in intoName:
-                self.localToonHitBat(colEntry)
+        elif 'bat' in intoName:
+            self.localToonHitBat(colEntry)
 
     def setVineSections(self, vineSections):
         self.vineSections = vineSections

@@ -221,89 +221,74 @@ class ShtikerBook(DirectFrame, StateData.StateData):
             iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
             iconGeom = iconModels.find('**/switch1')
             iconModels.detachNode()
-        else:
-            if pageName in [TTLocalizer.ShardPageTitle, TTLocalizer.ServerPageTitle]:
-                iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                iconGeom = iconModels.find('**/district')
-                iconModels.detachNode()
-            else:
-                if pageName == TTLocalizer.MapPageTitle:
-                    iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                    iconGeom = iconModels.find('**/teleportIcon')
-                    iconModels.detachNode()
-                else:
-                    if pageName == TTLocalizer.InventoryPageTitle:
-                        iconModels = loader.loadModel('phase_3.5/models/gui/inventory_icons')
-                        iconGeom = iconModels.find('**/inventory_tart')
-                        iconScale = 7
-                        iconModels.detachNode()
-                    else:
-                        if pageName == TTLocalizer.QuestPageToonTasks:
-                            iconModels = loader.loadModel('phase_3.5/models/gui/stickerbook_gui')
-                            iconGeom = iconModels.find('**/questCard')
-                            iconScale = 0.9
-                            iconModels.detachNode()
-                        else:
-                            if pageName == TTLocalizer.TrackPageShortTitle:
-                                iconGeom = iconModels = loader.loadModel('phase_3.5/models/gui/filmstrip')
-                                iconScale = 1.1
-                                iconColor = Vec4(0.7, 0.7, 0.7, 1)
-                                iconModels.detachNode()
-                            else:
-                                if pageName == TTLocalizer.SuitPageTitle:
-                                    iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                                    iconGeom = iconModels.find('**/gui_gear')
-                                    iconModels.detachNode()
-                                else:
-                                    if pageName == TTLocalizer.FishPageTitle:
-                                        iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                                        iconGeom = iconModels.find('**/fish')
-                                        iconModels.detachNode()
-                                    else:
-                                        if pageName == TTLocalizer.GardenPageTitle:
-                                            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                                            iconGeom = iconModels.find('**/gardenIcon')
-                                            iconModels.detachNode()
-                                        else:
-                                            if pageName == TTLocalizer.DisguisePageTitle:
-                                                iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                                                iconGeom = iconModels.find('**/disguise2')
-                                                iconColor = Vec4(0.7, 0.7, 0.7, 1)
-                                                iconModels.detachNode()
-                                            else:
-                                                if pageName == TTLocalizer.NPCFriendPageTitle:
-                                                    iconModels = loader.loadModel('phase_3.5/models/gui/playingCard')
-                                                    iconImage = iconModels.find('**/card_back')
-                                                    iconGeom = iconModels.find('**/logo')
-                                                    iconScale = 0.22
-                                                    iconModels.detachNode()
-                                                else:
-                                                    if pageName == TTLocalizer.KartPageTitle:
-                                                        iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                                                        iconGeom = iconModels.find('**/kartIcon')
-                                                        iconModels.detachNode()
-                                                    else:
-                                                        if pageName == TTLocalizer.GolfPageTitle:
-                                                            iconModels = loader.loadModel('phase_6/models/golf/golf_gui')
-                                                            iconGeom = iconModels.find('**/score_card_icon')
-                                                            iconModels.detachNode()
-                                                        else:
-                                                            if pageName == TTLocalizer.EventsPageName:
-                                                                iconModels = loader.loadModel('phase_4/models/parties/partyStickerbook')
-                                                                iconGeom = iconModels.find('**/Stickerbook_PartyIcon')
-                                                                iconModels.detachNode()
-                                                            else:
-                                                                if pageName == TTLocalizer.NewsPageName:
-                                                                    iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                                                                    iconGeom = iconModels.find('**/tt_t_gui_sbk_newsPageTab')
-                                                                    iconModels.detachNode()
-                                                                    buttonPressedCommand = self.goToNewsPage
-                                                                    extraArgs = [page]
-                                                                else:
-                                                                    if pageName == TTLocalizer.SpellbookPageTitle:
-                                                                        iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-                                                                        iconGeom = iconModels.find('**/spellbookIcon')
-                                                                        iconModels.detachNode()
+        elif pageName in [TTLocalizer.ShardPageTitle, TTLocalizer.ServerPageTitle]:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/district')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.MapPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/teleportIcon')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.InventoryPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/inventory_icons')
+            iconGeom = iconModels.find('**/inventory_tart')
+            iconScale = 7
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.QuestPageToonTasks:
+            iconModels = loader.loadModel('phase_3.5/models/gui/stickerbook_gui')
+            iconGeom = iconModels.find('**/questCard')
+            iconScale = 0.9
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.TrackPageShortTitle:
+            iconGeom = iconModels = loader.loadModel('phase_3.5/models/gui/filmstrip')
+            iconScale = 1.1
+            iconColor = Vec4(0.7, 0.7, 0.7, 1)
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.SuitPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/gui_gear')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.FishPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/fish')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.GardenPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/gardenIcon')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.DisguisePageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/disguise2')
+            iconColor = Vec4(0.7, 0.7, 0.7, 1)
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.NPCFriendPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/playingCard')
+            iconImage = iconModels.find('**/card_back')
+            iconGeom = iconModels.find('**/logo')
+            iconScale = 0.22
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.KartPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/kartIcon')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.GolfPageTitle:
+            iconModels = loader.loadModel('phase_6/models/golf/golf_gui')
+            iconGeom = iconModels.find('**/score_card_icon')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.EventsPageName:
+            iconModels = loader.loadModel('phase_4/models/parties/partyStickerbook')
+            iconGeom = iconModels.find('**/Stickerbook_PartyIcon')
+            iconModels.detachNode()
+        elif pageName == TTLocalizer.NewsPageName:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/tt_t_gui_sbk_newsPageTab')
+            iconModels.detachNode()
+            buttonPressedCommand = self.goToNewsPage
+            extraArgs = [page]
+        elif pageName == TTLocalizer.SpellbookPageTitle:
+            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            iconGeom = iconModels.find('**/spellbookIcon')
+            iconModels.detachNode()
         if pageName == TTLocalizer.OptionsPageTitle:
             pageName = TTLocalizer.OptionsTabTitle
         pageTab = DirectButton(parent=self.pageTabFrame, relief=DGG.RAISED, frameSize=(-0.575,
@@ -377,23 +362,21 @@ class ShtikerBook(DirectFrame, StateData.StateData):
         if self.__isOpen:
             self.bookOpenButton.hide()
             self.bookCloseButton.show()
+        elif self.__shown and not self.__obscured:
+            self.bookOpenButton.show()
+            self.bookCloseButton.hide()
         else:
-            if self.__shown and not self.__obscured:
-                self.bookOpenButton.show()
-                self.bookCloseButton.hide()
-            else:
-                self.bookOpenButton.hide()
-                self.bookCloseButton.hide()
+            self.bookOpenButton.hide()
+            self.bookCloseButton.hide()
 
     def shouldBookButtonBeHidden(self):
         result = False
         if self.__isOpen:
             pass
+        elif self.__shown and not self.__obscured:
+            pass
         else:
-            if self.__shown and not self.__obscured:
-                pass
-            else:
-                result = True
+            result = True
         return result
 
     def __open(self):

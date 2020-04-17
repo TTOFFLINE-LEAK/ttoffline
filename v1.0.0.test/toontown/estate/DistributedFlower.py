@@ -37,32 +37,32 @@ class DistributedFlower(DistributedPlantBase.DistributedPlantBase, FlowerBase.Fl
     def showWiltOrBloom(self):
         if not self.model:
             return
-        nodePath = self.model
-        desat = None
-        flowerColorIndex = GardenGlobals.PlantAttributes[self.getSpecies()]['varieties'][self.getVariety()][1]
-        colorTuple = GardenGlobals.FlowerColors[flowerColorIndex]
-        useWilted = self.waterLevel < 0
-        wilt = nodePath.find('**/*wilt*')
-        bloom = nodePath.find('**/*bloom*')
-        if useWilted:
-            wilt.show()
-            desat = wilt.find('**/*desat*')
-            bloom.hide()
-            leaves = wilt.findAllMatches('**/*leaf*')
-            for leafIndex in xrange(leaves.getNumPaths()):
-                leaf = leaves.getPath(leafIndex)
-                leaf.setColorScale(1.0, 0.3, 0.1, 1.0)
+        else:
+            nodePath = self.model
+            desat = None
+            flowerColorIndex = GardenGlobals.PlantAttributes[self.getSpecies()]['varieties'][self.getVariety()][1]
+            colorTuple = GardenGlobals.FlowerColors[flowerColorIndex]
+            useWilted = self.waterLevel < 0
+            wilt = nodePath.find('**/*wilt*')
+            bloom = nodePath.find('**/*bloom*')
+            if useWilted:
+                wilt.show()
+                desat = wilt.find('**/*desat*')
+                bloom.hide()
+                leaves = wilt.findAllMatches('**/*leaf*')
+                for leafIndex in xrange(leaves.getNumPaths()):
+                    leaf = leaves.getPath(leafIndex)
+                    leaf.setColorScale(1.0, 0.3, 0.1, 1.0)
 
-        else:
-            bloom.show()
-            desat = bloom.find('**/*desat*')
-            wilt.hide()
-        if desat and not desat.isEmpty():
-            desat.setColorScale(colorTuple[0], colorTuple[1], colorTuple[2], 1.0)
-        else:
-            if not self.isSeedling():
+            else:
+                bloom.show()
+                desat = bloom.find('**/*desat*')
+                wilt.hide()
+            if desat and not desat.isEmpty():
+                desat.setColorScale(colorTuple[0], colorTuple[1], colorTuple[2], 1.0)
+            elif not self.isSeedling():
                 nodePath.setColorScale(colorTuple[0], colorTuple[1], colorTuple[2], 1.0)
-        return
+            return
 
     def loadModel(self):
         DistributedPlantBase.DistributedPlantBase.loadModel(self)
@@ -88,29 +88,27 @@ class DistributedFlower(DistributedPlantBase.DistributedPlantBase, FlowerBase.Fl
         fullName = GardenGlobals.getFlowerVarietyName(self.species, self.variety)
         if self.isWilted():
             self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=TTLocalizer.ConfirmWiltedFlower % {'plant': fullName}, command=self.confirmCallback)
+        elif not self.isFruiting():
+            self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=TTLocalizer.ConfirmUnbloomingFlower % {'plant': fullName}, command=self.confirmCallback)
+        elif base.localAvatar.isFlowerBasketFull():
+            self.confirmDialog = TTDialog.TTDialog(style=TTDialog.CancelOnly, text=TTLocalizer.ConfirmBasketFull, command=self.confirmCallback)
         else:
-            if not self.isFruiting():
-                self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=TTLocalizer.ConfirmUnbloomingFlower % {'plant': fullName}, command=self.confirmCallback)
-            else:
-                if base.localAvatar.isFlowerBasketFull():
-                    self.confirmDialog = TTDialog.TTDialog(style=TTDialog.CancelOnly, text=TTLocalizer.ConfirmBasketFull, command=self.confirmCallback)
+            shovel = base.localAvatar.shovel
+            skill = base.localAvatar.shovelSkill
+            shovelPower = GardenGlobals.getShovelPower(shovel, skill)
+            giveSkillUp = True
+            beansRequired = GardenGlobals.getNumBeansRequired(self.species, self.variety)
+            if not shovelPower == beansRequired:
+                giveSkillUp = False
+            if giveSkillUp:
+                if skill == GardenGlobals.getMaxShovelSkill():
+                    text = (
+                     TTLocalizer.ConfirmMaxedSkillFlower % {'plant': fullName},)
                 else:
-                    shovel = base.localAvatar.shovel
-                    skill = base.localAvatar.shovelSkill
-                    shovelPower = GardenGlobals.getShovelPower(shovel, skill)
-                    giveSkillUp = True
-                    beansRequired = GardenGlobals.getNumBeansRequired(self.species, self.variety)
-                    if not shovelPower == beansRequired:
-                        giveSkillUp = False
-                    if giveSkillUp:
-                        if skill == GardenGlobals.getMaxShovelSkill():
-                            text = (
-                             TTLocalizer.ConfirmMaxedSkillFlower % {'plant': fullName},)
-                        else:
-                            text = TTLocalizer.ConfirmSkillupFlower % {'plant': fullName}
-                        self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=text, command=self.confirmCallback)
-                    else:
-                        self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=TTLocalizer.ConfirmNoSkillupFlower % {'plant': fullName}, command=self.confirmCallback)
+                    text = TTLocalizer.ConfirmSkillupFlower % {'plant': fullName}
+                self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=text, command=self.confirmCallback)
+            else:
+                self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=TTLocalizer.ConfirmNoSkillupFlower % {'plant': fullName}, command=self.confirmCallback)
         self.confirmDialog.show()
         base.localAvatar.setInGardenAction(self)
         base.cr.playGame.getPlace().detectedGardenPlotUse()
@@ -179,10 +177,9 @@ class DistributedFlower(DistributedPlantBase.DistributedPlantBase, FlowerBase.Fl
                 else:
                     self.sandMound.show()
                     self.dirtMound.hide()
-        else:
-            if self.model:
-                color = float(self.waterLevel) / self.maxWaterLevel
-                self.dropShadow.setColor(0.0, 0.0, 0.0, color)
+        elif self.model:
+            color = float(self.waterLevel) / self.maxWaterLevel
+            self.dropShadow.setColor(0.0, 0.0, 0.0, color)
 
     def doResultDialog(self):
         self.startInteraction()

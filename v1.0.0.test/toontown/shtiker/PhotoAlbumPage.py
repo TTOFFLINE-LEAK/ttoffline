@@ -159,13 +159,12 @@ class PhotoAlbumPage(ShtikerPage.ShtikerPage):
         numUnders = oldName.count(separator)
         if numUnders == 0:
             newName = oldName[0:11] + separator + str + separator + oldName[10:]
+        elif numUnders == 2:
+            sp = oldName.split(separator)
+            newName = sp[0] + separator + str + separator + sp[2]
         else:
-            if numUnders == 2:
-                sp = oldName.split(separator)
-                newName = sp[0] + separator + str + separator + sp[2]
-            else:
-                self.renameCleanup()
-                return 0
+            self.renameCleanup()
+            return 0
         os.rename(oldName, newName)
         self.renameCleanup()
         self.updateScrollList()
@@ -215,9 +214,10 @@ class PhotoAlbumPage(ShtikerPage.ShtikerPage):
         numUnders = fileName.count(separator)
         if numUnders == 0:
             return 'noname'
-        if numUnders == 2:
-            return fileName.split(separator)[1]
-        return 'unknown'
+        else:
+            if numUnders == 2:
+                return fileName.split(separator)[1]
+            return 'unknown'
 
     def chosePhoto(self, fileName):
         if fileName:

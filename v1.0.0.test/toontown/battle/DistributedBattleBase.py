@@ -135,38 +135,39 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def cleanupBattle(self):
         if self.__battleCleanedUp:
             return
-        self.notify.debug('cleanupBattle(%s)' % self.doId)
-        self.__battleCleanedUp = 1
-        self.__cleanupIntervals()
-        self.fsm.requestFinalState()
-        if self.hasLocalToon():
-            self.removeLocalToon()
-            base.camLens.setMinFov(ToontownGlobals.DefaultCameraFov / (4.0 / 3.0))
-        self.localToonFsm.request('WaitForServer')
-        self.ignoreAll()
-        for suit in self.suits:
-            if suit.battleTrap != NO_TRAP:
-                self.notify.debug('250 calling self.removeTrap, suit=%d' % suit.doId)
-                self.removeTrap(suit)
-            suit.battleTrap = NO_TRAP
-            suit.battleTrapProp = None
-            self.notify.debug('253 suit.battleTrapProp = None')
-            suit.battleTrapIsFresh = 0
+        else:
+            self.notify.debug('cleanupBattle(%s)' % self.doId)
+            self.__battleCleanedUp = 1
+            self.__cleanupIntervals()
+            self.fsm.requestFinalState()
+            if self.hasLocalToon():
+                self.removeLocalToon()
+                base.camLens.setMinFov(ToontownGlobals.DefaultCameraFov / (4.0 / 3.0))
+            self.localToonFsm.request('WaitForServer')
+            self.ignoreAll()
+            for suit in self.suits:
+                if suit.battleTrap != NO_TRAP:
+                    self.notify.debug('250 calling self.removeTrap, suit=%d' % suit.doId)
+                    self.removeTrap(suit)
+                suit.battleTrap = NO_TRAP
+                suit.battleTrapProp = None
+                self.notify.debug('253 suit.battleTrapProp = None')
+                suit.battleTrapIsFresh = 0
 
-        self.suits = []
-        self.pendingSuits = []
-        self.joiningSuits = []
-        self.activeSuits = []
-        self.suitTraps = ''
-        self.toons = []
-        self.joiningToons = []
-        self.pendingToons = []
-        self.activeToons = []
-        self.runningToons = []
-        self.__stopTimer()
-        self.__cleanupIntervals()
-        self._removeMembersKeep()
-        return
+            self.suits = []
+            self.pendingSuits = []
+            self.joiningSuits = []
+            self.activeSuits = []
+            self.suitTraps = ''
+            self.toons = []
+            self.joiningToons = []
+            self.pendingToons = []
+            self.activeToons = []
+            self.runningToons = []
+            self.__stopTimer()
+            self.__cleanupIntervals()
+            self._removeMembersKeep()
+            return
 
     def delete(self):
         self.notify.debug('delete(%s)' % self.doId)
@@ -201,20 +202,17 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             distance += MovieUtil.getSuitRakeOffset(suit)
             trap.setH(180)
             trap.setScale(0.7)
-        else:
-            if trapName == 'trapdoor' or trapName == 'quicksand':
-                trap.setScale(1.7)
-            else:
-                if trapName == 'marbles':
-                    distance = MovieUtil.SUIT_TRAP_MARBLES_DISTANCE
-                    trap.setH(94)
-                else:
-                    if trapName == 'tnt':
-                        trap.setP(90)
-                        tip = trap.find('**/joint_attachEmitter')
-                        sparks = BattleParticles.createParticleEffect(file='tnt')
-                        trap.sparksEffect = sparks
-                        sparks.start(tip)
+        elif trapName == 'trapdoor' or trapName == 'quicksand':
+            trap.setScale(1.7)
+        elif trapName == 'marbles':
+            distance = MovieUtil.SUIT_TRAP_MARBLES_DISTANCE
+            trap.setH(94)
+        elif trapName == 'tnt':
+            trap.setP(90)
+            tip = trap.find('**/joint_attachEmitter')
+            sparks = BattleParticles.createParticleEffect(file='tnt')
+            trap.sparksEffect = sparks
+            sparks.start(tip)
         trap.setPos(0, distance, 0)
         if isinstance(trap, Actor.Actor):
             frame = trap.getNumFrames(trapName) - 1
@@ -226,27 +224,28 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             self.notify.debug('suit.battleTrapProp == None, suit.battleTrap=%s setting to NO_TRAP, returning' % suit.battleTrap)
             suit.battleTrap = NO_TRAP
             return
-        if suit.battleTrap == UBER_GAG_LEVEL_INDEX:
-            if removeTrainTrack:
-                self.notify.debug('doing removeProp on traintrack')
-                MovieUtil.removeProp(suit.battleTrapProp)
-                for otherSuit in self.suits:
-                    if not otherSuit == suit:
-                        otherSuit.battleTrapProp = None
-                        self.notify.debug('351 otherSuit=%d otherSuit.battleTrapProp = None' % otherSuit.doId)
-                        otherSuit.battleTrap = NO_TRAP
-                        otherSuit.battleTrapIsFresh = 0
-
-            else:
-                self.notify.debug('deliberately not doing removeProp on traintrack')
         else:
-            self.notify.debug('suit.battleTrap != UBER_GAG_LEVEL_INDEX')
-            MovieUtil.removeProp(suit.battleTrapProp)
-        suit.battleTrapProp = None
-        self.notify.debug('360 suit.battleTrapProp = None')
-        suit.battleTrap = NO_TRAP
-        suit.battleTrapIsFresh = 0
-        return
+            if suit.battleTrap == UBER_GAG_LEVEL_INDEX:
+                if removeTrainTrack:
+                    self.notify.debug('doing removeProp on traintrack')
+                    MovieUtil.removeProp(suit.battleTrapProp)
+                    for otherSuit in self.suits:
+                        if not otherSuit == suit:
+                            otherSuit.battleTrapProp = None
+                            self.notify.debug('351 otherSuit=%d otherSuit.battleTrapProp = None' % otherSuit.doId)
+                            otherSuit.battleTrap = NO_TRAP
+                            otherSuit.battleTrapIsFresh = 0
+
+                else:
+                    self.notify.debug('deliberately not doing removeProp on traintrack')
+            else:
+                self.notify.debug('suit.battleTrap != UBER_GAG_LEVEL_INDEX')
+                MovieUtil.removeProp(suit.battleTrapProp)
+            suit.battleTrapProp = None
+            self.notify.debug('360 suit.battleTrapProp = None')
+            suit.battleTrap = NO_TRAP
+            suit.battleTrapIsFresh = 0
+            return
 
     def pause(self):
         self.timer.stop()
@@ -265,11 +264,12 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         toon = self.getToon(id)
         if toon == None:
             return
-        for t in self.toons:
-            if t == toon:
-                return t
+        else:
+            for t in self.toons:
+                if t == toon:
+                    return t
 
-        return
+            return
 
     def isSuitLured(self, suit):
         if self.luredSuits.count(suit) != 0:
@@ -449,63 +449,63 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                     self.needAdjustTownBattle = 1
                     break
 
-        if suitGone:
-            validSuits = []
-            for s in self.suits:
-                if s != None:
-                    validSuits.append(s)
+            if suitGone:
+                validSuits = []
+                for s in self.suits:
+                    if s != None:
+                        validSuits.append(s)
 
-            self.suits = validSuits
-            self.needAdjustTownBattle = 1
-        oldtoons = self.toons
-        self.toons = []
-        toonGone = 0
-        for t in toons:
-            toon = self.getToon(t)
-            if toon == None:
-                self.notify.warning('setMembers() - toon not in cr!')
-                self.toons.append(None)
-                toonGone = 1
-                continue
-            self.toons.append(toon)
-            if oldtoons.count(toon) == 0:
-                self.notify.debug('setMembers() - add toon: %d' % toon.doId)
-                self.__listenForUnexpectedExit(toon)
-                toon.stopLookAround()
-                toon.stopSmooth()
+                self.suits = validSuits
+                self.needAdjustTownBattle = 1
+            oldtoons = self.toons
+            self.toons = []
+            toonGone = 0
+            for t in toons:
+                toon = self.getToon(t)
+                if toon == None:
+                    self.notify.warning('setMembers() - toon not in cr!')
+                    self.toons.append(None)
+                    toonGone = 1
+                    continue
+                self.toons.append(toon)
+                if oldtoons.count(toon) == 0:
+                    self.notify.debug('setMembers() - add toon: %d' % toon.doId)
+                    self.__listenForUnexpectedExit(toon)
+                    toon.stopLookAround()
+                    toon.stopSmooth()
 
-        for t in oldtoons:
-            if self.toons.count(t) == 0:
-                if self.__removeToon(t) == 1:
-                    self.notify.debug('setMembers() - local toon left battle')
-                    return []
+            for t in oldtoons:
+                if self.toons.count(t) == 0:
+                    if self.__removeToon(t) == 1:
+                        self.notify.debug('setMembers() - local toon left battle')
+                        return []
 
-        for t in toonsJoining:
-            if int(t) < len(self.toons):
+            for t in toonsJoining:
+                if int(t) < len(self.toons):
+                    toon = self.toons[int(t)]
+                    if toon != None and self.joiningToons.count(toon) == 0:
+                        self.__makeToonJoin(toon, toonsPending, ts)
+                else:
+                    self.notify.warning('setMembers toonsJoining t=%s not in self.toons %s' % (t, self.toons))
+
+            for t in toonsPending:
+                if int(t) < len(self.toons):
+                    toon = self.toons[int(t)]
+                    if toon != None and self.pendingToons.count(toon) == 0:
+                        self.__makeToonPending(toon, ts)
+                else:
+                    self.notify.warning('setMembers toonsPending t=%s not in self.toons %s' % (t, self.toons))
+
+            for t in toonsRunning:
                 toon = self.toons[int(t)]
-                if toon != None and self.joiningToons.count(toon) == 0:
-                    self.__makeToonJoin(toon, toonsPending, ts)
-            else:
-                self.notify.warning('setMembers toonsJoining t=%s not in self.toons %s' % (t, self.toons))
+                if toon != None and self.runningToons.count(toon) == 0:
+                    self.__makeToonRun(toon, ts)
 
-        for t in toonsPending:
-            if int(t) < len(self.toons):
+            activeToons = []
+            for t in toonsActive:
                 toon = self.toons[int(t)]
-                if toon != None and self.pendingToons.count(toon) == 0:
-                    self.__makeToonPending(toon, ts)
-            else:
-                self.notify.warning('setMembers toonsPending t=%s not in self.toons %s' % (t, self.toons))
-
-        for t in toonsRunning:
-            toon = self.toons[int(t)]
-            if toon != None and self.runningToons.count(toon) == 0:
-                self.__makeToonRun(toon, ts)
-
-        activeToons = []
-        for t in toonsActive:
-            toon = self.toons[int(t)]
-            if toon != None and self.activeToons.count(toon) == 0:
-                activeToons.append(toon)
+                if toon != None and self.activeToons.count(toon) == 0:
+                    activeToons.append(toon)
 
         if len(activeSuits) > 0 or len(activeToons) > 0:
             self.__makeAvsActive(activeSuits, activeToons)
@@ -553,84 +553,78 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def setChosenToonAttacks(self, ids, tracks, levels, targets):
         if self.__battleCleanedUp:
             return
-        self.notify.debug('setChosenToonAttacks() - (%s), (%s), (%s), (%s)' % (ids,
-         tracks,
-         levels,
-         targets))
-        toonIndices = []
-        targetIndices = []
-        unAttack = 0
-        localToonInList = 0
-        for i in xrange(len(ids)):
-            track = tracks[i]
-            level = levels[i]
-            toon = self.findToon(ids[i])
-            if toon == None or self.activeToons.count(toon) == 0:
-                self.notify.warning('setChosenToonAttacks() - toon gone or not in battle: %d!' % ids[i])
+        else:
+            self.notify.debug('setChosenToonAttacks() - (%s), (%s), (%s), (%s)' % (ids,
+             tracks,
+             levels,
+             targets))
+            toonIndices = []
+            targetIndices = []
+            unAttack = 0
+            localToonInList = 0
+            for i in xrange(len(ids)):
+                track = tracks[i]
+                level = levels[i]
+                toon = self.findToon(ids[i])
+                if toon == None or self.activeToons.count(toon) == 0:
+                    self.notify.warning('setChosenToonAttacks() - toon gone or not in battle: %d!' % ids[i])
+                    toonIndices.append(-1)
+                    tracks.append(-1)
+                    levels.append(-1)
+                    targetIndices.append(-1)
+                    continue
+                if toon == base.localAvatar:
+                    localToonInList = 1
+                toonIndices.append(self.activeToons.index(toon))
+                if track == SOS:
+                    targetIndex = -1
+                elif track == NPCSOS:
+                    targetIndex = -1
+                elif track == PETSOS:
+                    targetIndex = -1
+                elif track == PASS:
+                    targetIndex = -1
+                    tracks[i] = PASS_ATTACK
+                elif attackAffectsGroup(track, level):
+                    targetIndex = -1
+                elif track == HEAL:
+                    target = self.findToon(targets[i])
+                    if target != None and self.activeToons.count(target) != 0:
+                        targetIndex = self.activeToons.index(target)
+                    else:
+                        targetIndex = -1
+                elif track == UN_ATTACK:
+                    targetIndex = -1
+                    tracks[i] = NO_ATTACK
+                    if toon == base.localAvatar:
+                        unAttack = 1
+                        self.choseAttackAlready = 0
+                elif track == NO_ATTACK:
+                    targetIndex = -1
+                else:
+                    target = self.findSuit(targets[i])
+                    if target != None and self.activeSuits.count(target) != 0:
+                        targetIndex = self.activeSuits.index(target)
+                    else:
+                        targetIndex = -1
+                targetIndices.append(targetIndex)
+
+            for i in xrange(4 - len(ids)):
                 toonIndices.append(-1)
                 tracks.append(-1)
                 levels.append(-1)
                 targetIndices.append(-1)
-                continue
-            if toon == base.localAvatar:
-                localToonInList = 1
-            toonIndices.append(self.activeToons.index(toon))
-            if track == SOS:
-                targetIndex = -1
-            else:
-                if track == NPCSOS:
-                    targetIndex = -1
-                else:
-                    if track == PETSOS:
-                        targetIndex = -1
-                    else:
-                        if track == PASS:
-                            targetIndex = -1
-                            tracks[i] = PASS_ATTACK
-                        else:
-                            if attackAffectsGroup(track, level):
-                                targetIndex = -1
-                            else:
-                                if track == HEAL:
-                                    target = self.findToon(targets[i])
-                                    if target != None and self.activeToons.count(target) != 0:
-                                        targetIndex = self.activeToons.index(target)
-                                    else:
-                                        targetIndex = -1
-                                else:
-                                    if track == UN_ATTACK:
-                                        targetIndex = -1
-                                        tracks[i] = NO_ATTACK
-                                        if toon == base.localAvatar:
-                                            unAttack = 1
-                                            self.choseAttackAlready = 0
-                                    else:
-                                        if track == NO_ATTACK:
-                                            targetIndex = -1
-                                        else:
-                                            target = self.findSuit(targets[i])
-                                            if target != None and self.activeSuits.count(target) != 0:
-                                                targetIndex = self.activeSuits.index(target)
-                                            else:
-                                                targetIndex = -1
-            targetIndices.append(targetIndex)
 
-        for i in xrange(4 - len(ids)):
-            toonIndices.append(-1)
-            tracks.append(-1)
-            levels.append(-1)
-            targetIndices.append(-1)
-
-        self.townBattleAttacks = (toonIndices,
-         tracks,
-         levels,
-         targetIndices)
-        if self.localToonActive() and localToonInList == 1:
-            if unAttack == 1 and self.fsm.getCurrentState().getName() == 'WaitForInput':
-                if self.townBattle.fsm.getCurrentState().getName() != 'Attack':
-                    self.townBattle.setState('Attack')
-            self.townBattle.updateChosenAttacks(self.townBattleAttacks[0], self.townBattleAttacks[1], self.townBattleAttacks[2], self.townBattleAttacks[3])
-        return
+            self.townBattleAttacks = (toonIndices,
+             tracks,
+             levels,
+             targetIndices)
+            if self.localToonActive() and localToonInList == 1:
+                if unAttack == 1 and self.fsm.getCurrentState().getName() == 'WaitForInput':
+                    if self.townBattle.fsm.getCurrentState().getName() != 'Attack':
+                        self.townBattle.setState('Attack')
+                self.townBattle.updateChosenAttacks(self.townBattleAttacks[0], self.townBattleAttacks[1], self.townBattleAttacks[2], self.townBattleAttacks[3])
+            return
 
     def setBattleExperience(self, id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList):
         if self.__battleCleanedUp:
@@ -719,11 +713,12 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def removeLocalToon(self):
         if self._skippingRewardMovie:
             return
-        if base.cr.playGame.getPlace() != None:
-            base.cr.playGame.getPlace().setState('walk')
-        base.localAvatar.earnedExperience = None
-        self.localToonFsm.request('NoLocalToon')
-        return
+        else:
+            if base.cr.playGame.getPlace() != None:
+                base.cr.playGame.getPlace().setState('walk')
+            base.localAvatar.earnedExperience = None
+            self.localToonFsm.request('NoLocalToon')
+            return
 
     def removeInactiveLocalToon(self, toon):
         self.notify.debug('removeInactiveLocalToon(%d)' % toon.doId)
@@ -804,7 +799,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             camTrack.append(Func(camera.setPos, self.camJoinPos))
             camTrack.append(Func(camera.setHpr, self.camJoinHpr))
             return Parallel(joinTrack, camTrack, name=name)
-        return Sequence(joinTrack, name=name)
+        else:
+            return Sequence(joinTrack, name=name)
 
     def makeSuitJoin(self, suit, ts):
         self.notify.debug('makeSuitJoin(%d)' % suit.doId)
@@ -951,9 +947,10 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def getToon(self, toonId):
         if toonId in self.cr.doId2do:
             return self.cr.doId2do[toonId]
-        self.notify.warning('getToon() - toon: %d not in repository!' % toonId)
-        return
-        return
+        else:
+            self.notify.warning('getToon() - toon: %d not in repository!' % toonId)
+            return
+            return
 
     def d_toonRequestJoin(self, toonId, pos):
         self.notify.debug('network:toonRequestJoin()')
@@ -1088,17 +1085,15 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                     track = -1
                     level = -1
                     targetId = -1
-            else:
-                if track == HEAL and len(self.activeToons) == 1:
-                    self.notify.warning('invalid group target for heal')
-                    track = -1
-                    level = -1
+            elif track == HEAL and len(self.activeToons) == 1:
+                self.notify.warning('invalid group target for heal')
+                track = -1
+                level = -1
+            elif not attackAffectsGroup(track, level):
+                if target >= 0 and target < len(self.activeSuits):
+                    targetId = self.activeSuits[target].doId
                 else:
-                    if not attackAffectsGroup(track, level):
-                        if target >= 0 and target < len(self.activeSuits):
-                            targetId = self.activeSuits[target].doId
-                        else:
-                            target = -1
+                    target = -1
             if len(self.luredSuits) > 0:
                 if track == TRAP or track == LURE and not levelAffectsGroup(LURE, level):
                     if target != -1:
@@ -1126,54 +1121,46 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                             level = -1
                             targetId = -1
             self.d_requestAttack(base.localAvatar.doId, track, level, targetId)
-        else:
-            if mode == 'Run':
-                self.notify.debug('got a run')
-                self.d_toonRequestRun(base.localAvatar.doId)
+        elif mode == 'Run':
+            self.notify.debug('got a run')
+            self.d_toonRequestRun(base.localAvatar.doId)
+        elif mode == 'SOS':
+            targetId = response['id']
+            self.notify.debug('got an SOS for friend: %d' % targetId)
+            self.d_requestAttack(base.localAvatar.doId, SOS, -1, targetId)
+        elif mode == 'NPCSOS':
+            targetId = response['id']
+            self.notify.debug('got an NPCSOS for friend: %d' % targetId)
+            self.d_requestAttack(base.localAvatar.doId, NPCSOS, -1, targetId)
+        elif mode == 'PETSOS':
+            targetId = response['id']
+            trickId = response['trickId']
+            self.notify.debug('got an PETSOS for pet: %d' % targetId)
+            self.d_requestAttack(base.localAvatar.doId, PETSOS, trickId, targetId)
+        elif mode == 'PETSOSINFO':
+            petProxyId = response['id']
+            self.notify.debug('got a PETSOSINFO for pet: %d' % petProxyId)
+            if petProxyId in base.cr.doId2do:
+                self.notify.debug('pet: %d was already in the repository' % petProxyId)
+                proxyGenerateMessage = 'petProxy-%d-generated' % petProxyId
+                messenger.send(proxyGenerateMessage)
             else:
-                if mode == 'SOS':
-                    targetId = response['id']
-                    self.notify.debug('got an SOS for friend: %d' % targetId)
-                    self.d_requestAttack(base.localAvatar.doId, SOS, -1, targetId)
-                else:
-                    if mode == 'NPCSOS':
-                        targetId = response['id']
-                        self.notify.debug('got an NPCSOS for friend: %d' % targetId)
-                        self.d_requestAttack(base.localAvatar.doId, NPCSOS, -1, targetId)
-                    else:
-                        if mode == 'PETSOS':
-                            targetId = response['id']
-                            trickId = response['trickId']
-                            self.notify.debug('got an PETSOS for pet: %d' % targetId)
-                            self.d_requestAttack(base.localAvatar.doId, PETSOS, trickId, targetId)
-                        else:
-                            if mode == 'PETSOSINFO':
-                                petProxyId = response['id']
-                                self.notify.debug('got a PETSOSINFO for pet: %d' % petProxyId)
-                                if petProxyId in base.cr.doId2do:
-                                    self.notify.debug('pet: %d was already in the repository' % petProxyId)
-                                    proxyGenerateMessage = 'petProxy-%d-generated' % petProxyId
-                                    messenger.send(proxyGenerateMessage)
-                                else:
-                                    self.d_requestPetProxy(base.localAvatar.doId, petProxyId)
-                                noAttack = 1
-                            else:
-                                if mode == 'Pass':
-                                    targetId = response['id']
-                                    self.notify.debug('got a Pass')
-                                    self.d_requestAttack(base.localAvatar.doId, PASS, -1, -1)
-                                else:
-                                    if mode == 'UnAttack':
-                                        self.d_requestAttack(base.localAvatar.doId, UN_ATTACK, -1, -1)
-                                        noAttack = 1
-                                    else:
-                                        if mode == 'Fire':
-                                            target = response['target']
-                                            targetId = self.activeSuits[target].doId
-                                            self.d_requestAttack(base.localAvatar.doId, FIRE, -1, targetId)
-                                        else:
-                                            self.notify.warning('unknown battle response')
-                                            return
+                self.d_requestPetProxy(base.localAvatar.doId, petProxyId)
+            noAttack = 1
+        elif mode == 'Pass':
+            targetId = response['id']
+            self.notify.debug('got a Pass')
+            self.d_requestAttack(base.localAvatar.doId, PASS, -1, -1)
+        elif mode == 'UnAttack':
+            self.d_requestAttack(base.localAvatar.doId, UN_ATTACK, -1, -1)
+            noAttack = 1
+        elif mode == 'Fire':
+            target = response['target']
+            targetId = self.activeSuits[target].doId
+            self.d_requestAttack(base.localAvatar.doId, FIRE, -1, targetId)
+        else:
+            self.notify.warning('unknown battle response')
+            return
         if noAttack == 1:
             self.choseAttackAlready = 0
         else:

@@ -81,47 +81,34 @@ def createNPC(air, npcId, desc, zoneId, posIndex=0, questCallback=None):
         canonicalZoneId, name, dnaType, gender, protected, type, hat, glasses, backpack, shoes = desc
     if type == NPC_REGULAR:
         npc = DistributedNPCToonAI.DistributedNPCToonAI(air, npcId, questCallback=questCallback)
+    elif type == NPC_HQ:
+        npc = DistributedNPCToonAI.DistributedNPCToonAI(air, npcId, questCallback=questCallback, hq=1)
+    elif type == NPC_CLERK:
+        npc = DistributedNPCClerkAI.DistributedNPCClerkAI(air, npcId)
+    elif type == NPC_TAILOR:
+        npc = DistributedNPCTailorAI.DistributedNPCTailorAI(air, npcId)
+    elif type == NPC_BLOCKER:
+        npc = DistributedNPCBlockerAI.DistributedNPCBlockerAI(air, npcId)
+    elif type == NPC_FISHERMAN:
+        npc = DistributedNPCFishermanAI.DistributedNPCFishermanAI(air, npcId)
+    elif type == NPC_PETCLERK:
+        npc = DistributedNPCPetclerkAI.DistributedNPCPetclerkAI(air, npcId)
+    elif type == NPC_KARTCLERK:
+        npc = DistributedNPCKartClerkAI.DistributedNPCKartClerkAI(air, npcId)
+    elif type == NPC_PARTYPERSON:
+        npc = DistributedNPCPartyPersonAI.DistributedNPCPartyPersonAI(air, npcId)
+    elif type == NPC_SPECIALQUESTGIVER:
+        npc = DistributedNPCSpecialQuestGiverAI.DistributedNPCSpecialQuestGiverAI(air, npcId)
+    elif type == NPC_FLIPPYTOONHALL:
+        npc = DistributedNPCFlippyInToonHallAI.DistributedNPCFlippyInToonHallAI(air, npcId)
+    elif type == NPC_SCIENTIST:
+        npc = DistributedNPCScientistAI.DistributedNPCScientistAI(air, npcId)
+    elif type == NPC_KONG:
+        npc = DistributedNPCKongAI.DistributedNPCKongAI(air, npcId)
+    elif type == NPC_MAGICCAT:
+        npc = DistributedNPCMagicCatAI.DistributedNPCMagicCatAI(air, npcId)
     else:
-        if type == NPC_HQ:
-            npc = DistributedNPCToonAI.DistributedNPCToonAI(air, npcId, questCallback=questCallback, hq=1)
-        else:
-            if type == NPC_CLERK:
-                npc = DistributedNPCClerkAI.DistributedNPCClerkAI(air, npcId)
-            else:
-                if type == NPC_TAILOR:
-                    npc = DistributedNPCTailorAI.DistributedNPCTailorAI(air, npcId)
-                else:
-                    if type == NPC_BLOCKER:
-                        npc = DistributedNPCBlockerAI.DistributedNPCBlockerAI(air, npcId)
-                    else:
-                        if type == NPC_FISHERMAN:
-                            npc = DistributedNPCFishermanAI.DistributedNPCFishermanAI(air, npcId)
-                        else:
-                            if type == NPC_PETCLERK:
-                                npc = DistributedNPCPetclerkAI.DistributedNPCPetclerkAI(air, npcId)
-                            else:
-                                if type == NPC_KARTCLERK:
-                                    npc = DistributedNPCKartClerkAI.DistributedNPCKartClerkAI(air, npcId)
-                                else:
-                                    if type == NPC_PARTYPERSON:
-                                        npc = DistributedNPCPartyPersonAI.DistributedNPCPartyPersonAI(air, npcId)
-                                    else:
-                                        if type == NPC_SPECIALQUESTGIVER:
-                                            npc = DistributedNPCSpecialQuestGiverAI.DistributedNPCSpecialQuestGiverAI(air, npcId)
-                                        else:
-                                            if type == NPC_FLIPPYTOONHALL:
-                                                npc = DistributedNPCFlippyInToonHallAI.DistributedNPCFlippyInToonHallAI(air, npcId)
-                                            else:
-                                                if type == NPC_SCIENTIST:
-                                                    npc = DistributedNPCScientistAI.DistributedNPCScientistAI(air, npcId)
-                                                else:
-                                                    if type == NPC_KONG:
-                                                        npc = DistributedNPCKongAI.DistributedNPCKongAI(air, npcId)
-                                                    else:
-                                                        if type == NPC_MAGICCAT:
-                                                            npc = DistributedNPCMagicCatAI.DistributedNPCMagicCatAI(air, npcId)
-                                                        else:
-                                                            print 'createNPC() error!!!'
+        print 'createNPC() error!!!'
     npc.setName(name)
     dna = ToonDNA.ToonDNA()
     if dnaType == 'r':
@@ -192,34 +179,35 @@ def createLocalNPC(npcId):
     import Toon
     if npcId not in NPCToonDict:
         return
-    desc = NPCToonDict[npcId]
-    print desc
-    if len(desc) == 6:
-        canonicalZoneId, name, dnaType, gender, protected, type = desc
     else:
-        canonicalZoneId, name, dnaType, gender, protected, type, hat, glasses, backpack, shoes = desc
-    npc = Toon.Toon()
-    npc.setName(name)
-    npc.setPickable(0)
-    npc.setPlayerType(NametagGroup.CCNonPlayer)
-    dna = ToonDNA.ToonDNA()
-    if dnaType == 'r':
-        dnaList = getRandomDNA(npcId, gender)
-    else:
-        dnaList = dnaType
-    dna.newToonFromProperties(*dnaList)
-    npc.setDNAString(dna.makeNetString())
-    if len(desc) == 10:
-        a, b, c = hat
-        npc.setHat(a, b, c)
-        a, b, c = backpack
-        npc.setBackpack(a, b, c)
-        a, b, c = glasses
-        npc.setGlasses(a, b, c)
-        a, b, c = shoes
-        npc.setShoes(a, b, c)
-    npc.animFSM.request('neutral')
-    return npc
+        desc = NPCToonDict[npcId]
+        print desc
+        if len(desc) == 6:
+            canonicalZoneId, name, dnaType, gender, protected, type = desc
+        else:
+            canonicalZoneId, name, dnaType, gender, protected, type, hat, glasses, backpack, shoes = desc
+        npc = Toon.Toon()
+        npc.setName(name)
+        npc.setPickable(0)
+        npc.setPlayerType(NametagGroup.CCNonPlayer)
+        dna = ToonDNA.ToonDNA()
+        if dnaType == 'r':
+            dnaList = getRandomDNA(npcId, gender)
+        else:
+            dnaList = dnaType
+        dna.newToonFromProperties(*dnaList)
+        npc.setDNAString(dna.makeNetString())
+        if len(desc) == 10:
+            a, b, c = hat
+            npc.setHat(a, b, c)
+            a, b, c = backpack
+            npc.setBackpack(a, b, c)
+            a, b, c = glasses
+            npc.setGlasses(a, b, c)
+            a, b, c = shoes
+            npc.setShoes(a, b, c)
+        npc.animFSM.request('neutral')
+        return npc
 
 
 def isZoneProtected(zoneId):
@@ -13516,16 +13504,18 @@ def getNPCName(npcId):
     npc = NPCToonDict.get(npcId)
     if npc:
         return npc[1]
-    return
-    return
+    else:
+        return
+        return
 
 
 def getNPCZone(npcId):
     npc = NPCToonDict.get(npcId)
     if npc:
         return npc[0]
-    return
-    return
+    else:
+        return
+        return
 
 
 def getBuildingArticle(zoneId):
@@ -13750,7 +13740,8 @@ npcFriends.update(exclusiveNpcFriends)
 def getNPCName(npcId):
     if npcId in NPCToonDict:
         return NPCToonDict[npcId][1]
-    return
+    else:
+        return
 
 
 def npcFriendsMinMaxStars(minStars, maxStars):
@@ -13764,7 +13755,8 @@ def getNPCTrack(npcId):
     dict = loadCards(returnDict=True, cardInfo=cardInfo)
     if npcId in dict:
         return dict[npcId][0]
-    return
+    else:
+        return
 
 
 def getNPCTrackHp(npcId):
@@ -13776,7 +13768,8 @@ def getNPCTrackHp(npcId):
         track, level, hp, rarity = dict[npcId]
         return (
          track, hp)
-    return (None, None)
+    else:
+        return (None, None)
 
 
 def getNPCTrackLevelHp(npcId):
@@ -13788,7 +13781,8 @@ def getNPCTrackLevelHp(npcId):
         track, level, hp, rarity = dict[npcId]
         return (
          track, level, hp)
-    return (None, None, None)
+    else:
+        return (None, None, None)
 
 
 def getNPCTrackLevelHpRarity(npcId):
@@ -13798,7 +13792,8 @@ def getNPCTrackLevelHpRarity(npcId):
     dict = loadCards(returnDict=True, cardInfo=cardInfo)
     if npcId in dict:
         return dict[npcId]
-    return (None, None, None, None)
+    else:
+        return (None, None, None, None)
 
 
 def getNPCToonsNames():

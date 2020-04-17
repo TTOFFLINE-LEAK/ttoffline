@@ -96,9 +96,9 @@ class ServerPage(ShtikerPage.ShtikerPage):
                     url.setPort(port)
                 except:
                     url = URLSpec(arg, 1)
-                else:
-                    if url != serverURL:
-                        serverList.append(url)
+
+                if url != serverURL:
+                    serverList.append(url)
 
         if value == DGG.DIALOG_OK:
             base.cr._userLoggingOut = True
@@ -120,16 +120,15 @@ class ServerPage(ShtikerPage.ShtikerPage):
             self.currentTabPage.enter()
             self.serverTab['state'] = DGG.NORMAL
             self.serverTabPage.exit()
+        elif mode == PageMode.List:
+            self.mode = PageMode.List
+            self.title['text'] = TTLocalizer.ServerPageTitle
+            self.currentTab['state'] = DGG.NORMAL
+            self.currentTabPage.exit()
+            self.serverTab['state'] = DGG.DISABLED
+            self.serverTabPage.enter()
         else:
-            if mode == PageMode.List:
-                self.mode = PageMode.List
-                self.title['text'] = TTLocalizer.ServerPageTitle
-                self.currentTab['state'] = DGG.NORMAL
-                self.currentTabPage.exit()
-                self.serverTab['state'] = DGG.DISABLED
-                self.serverTabPage.enter()
-            else:
-                raise StandardError, 'ServerPage::setMode - Invalid Mode %s' % mode
+            raise StandardError, 'ServerPage::setMode - Invalid Mode %s' % mode
 
 
 class ServerTabPage(DirectFrame):
@@ -262,12 +261,10 @@ class ServerTabPage(DirectFrame):
         if not config.GetBool('mini-server', False):
             connectButton['state'] = DGG.DISABLED
             connectInfo['text'] = "Mini-Server mode isn't enabled!"
-        else:
-            if condition:
-                connectButton['state'] = DGG.DISABLED
-                connectInfo['text'] = 'Already on this mini-server!'
-        miniserverInfo = [
-         nameLabel, moreInfoLabel, moreInfoButton, connectButton,
+        elif condition:
+            connectButton['state'] = DGG.DISABLED
+            connectInfo['text'] = 'Already on this mini-server!'
+        miniserverInfo = [nameLabel, moreInfoLabel, moreInfoButton, connectButton,
          connectInfo, condition, currentWordIndex]
         self.miniservers[miniServerButton] = miniserverInfo
         self.indexToButton[currentWordIndex] = miniServerButton
@@ -331,11 +328,11 @@ class ServerTabPage(DirectFrame):
                 else:
                     if len(servers) < len(self.miniservers):
                         self.removeMiniserverButton()
-                for x in servers:
-                    server = self.indexToButton[servers[x]['id']]
-                    serverInfo = self.miniservers[server]
-                    if len(serverInfo) == 7:
-                        self.generateServerIcon(servers, servers[x]['id'])
+                    for x in servers:
+                        server = self.indexToButton[servers[x]['id']]
+                        serverInfo = self.miniservers[server]
+                        if len(serverInfo) == 7:
+                            self.generateServerIcon(servers, servers[x]['id'])
 
                 return
             for x in servers:
@@ -384,8 +381,9 @@ class ServerTabPage(DirectFrame):
                                                                                                                                                                                                                                                                                                                    0.01), numItemsVisible=14, items=self.miniservers.keys())
             gui.removeNode()
             return
-        self.notify.info('Scroll list is already defined!')
-        return
+        else:
+            self.notify.info('Scroll list is already defined!')
+            return
 
     def showServerInfo(self, serverNum):
         self.unText.show()
@@ -397,9 +395,8 @@ class ServerTabPage(DirectFrame):
         for server in self.miniservers.keys():
             if self.miniservers[server][4] == True:
                 server['state'] = DGG.DISABLED
-            else:
-                if server['state'] != DGG.NORMAL:
-                    server['state'] = DGG.NORMAL
+            elif server['state'] != DGG.NORMAL:
+                server['state'] = DGG.NORMAL
             if self.miniservers[server][3]['state'] == DGG.DISABLED:
                 self.unInput.focusOutCommandFunc()
                 self.unInput['state'] = DGG.DISABLED
@@ -592,9 +589,10 @@ class CurrentTabPage(DirectFrame):
         def compareShardTuples(a, b):
             if a[1] < b[1]:
                 return -1
-            if b[1] < a[1]:
-                return 1
-            return 0
+            else:
+                if b[1] < a[1]:
+                    return 1
+                return 0
 
         curShardTuples.sort(compareShardTuples)
         totalPop = 0
@@ -645,24 +643,21 @@ class CurrentTabPage(DirectFrame):
             if popPercent > 1:
                 popPercent = 1
             newColor = color2 * popPercent + color1 * (1 - popPercent)
+        elif pop < self.lowPop:
+            newColor = POP_COLORS[0]
+        elif pop < self.midPop:
+            newColor = POP_COLORS[1]
         else:
-            if pop < self.lowPop:
-                newColor = POP_COLORS[0]
-            else:
-                if pop < self.midPop:
-                    newColor = POP_COLORS[1]
-                else:
-                    newColor = POP_COLORS[2]
+            newColor = POP_COLORS[2]
         return newColor
 
     def getPopText(self, pop):
         if pop < self.lowPop:
             popText = TTLocalizer.ShardPageLow
+        elif pop < self.midPop:
+            popText = TTLocalizer.ShardPageMed
         else:
-            if pop < self.midPop:
-                popText = TTLocalizer.ShardPageMed
-            else:
-                popText = TTLocalizer.ShardPageHigh
+            popText = TTLocalizer.ShardPageHigh
         return popText
 
     def exit(self):

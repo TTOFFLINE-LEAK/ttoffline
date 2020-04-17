@@ -118,23 +118,20 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
             self.userName = 'blue'
             self.password = self.cr.blue
             self.fsm.request('waitForLoginResponse')
+        elif self.cr.playToken:
+            self.userName = '*'
+            self.password = self.cr.playToken
+            self.fsm.request('waitForLoginResponse')
+        elif hasattr(self.cr, 'DISLToken') and self.cr.DISLToken:
+            self.userName = '*'
+            self.password = self.cr.DISLToken
+            self.fsm.request('waitForLoginResponse')
+        elif self.AutoLoginName:
+            self.userName = self.AutoLoginName
+            self.password = self.AutoLoginPassword
+            self.fsm.request('waitForLoginResponse')
         else:
-            if self.cr.playToken:
-                self.userName = '*'
-                self.password = self.cr.playToken
-                self.fsm.request('waitForLoginResponse')
-            else:
-                if hasattr(self.cr, 'DISLToken') and self.cr.DISLToken:
-                    self.userName = '*'
-                    self.password = self.cr.DISLToken
-                    self.fsm.request('waitForLoginResponse')
-                else:
-                    if self.AutoLoginName:
-                        self.userName = self.AutoLoginName
-                        self.password = self.AutoLoginPassword
-                        self.fsm.request('waitForLoginResponse')
-                    else:
-                        self.fsm.request('login')
+            self.fsm.request('login')
 
     def exit(self):
         self.frame.hide()
@@ -253,17 +250,14 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
     def handleWaitForLoginResponse(self, msgType, di):
         if msgType == CLIENT_LOGIN_2_RESP:
             self.handleLoginResponseMsg2(di)
+        elif msgType == CLIENT_LOGIN_RESP:
+            self.handleLoginResponseMsg(di)
+        elif msgType == CLIENT_LOGIN_3_RESP:
+            self.handleLoginResponseMsg3(di)
+        elif msgType == CLIENT_LOGIN_TOONTOWN_RESP:
+            self.handleLoginToontownResponse(di)
         else:
-            if msgType == CLIENT_LOGIN_RESP:
-                self.handleLoginResponseMsg(di)
-            else:
-                if msgType == CLIENT_LOGIN_3_RESP:
-                    self.handleLoginResponseMsg3(di)
-                else:
-                    if msgType == CLIENT_LOGIN_TOONTOWN_RESP:
-                        self.handleLoginToontownResponse(di)
-                    else:
-                        self.cr.handleMessageType(msgType, di)
+            self.cr.handleMessageType(msgType, di)
 
     def getExtendedErrorMsg(self, errorString):
         prefix = 'Bad DC Version Compare'
@@ -297,38 +291,37 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
             else:
                 self.notify.warning('Unknown access: %s' % access)
                 access = OTPGlobals.AccessUnknown
-        accountDetailRecord.piratesAccess = access
-        accountDetailRecord.familyAccountId = di.getInt32()
-        accountDetailRecord.playerAccountId = di.getInt32()
-        accountDetailRecord.playerName = di.getString()
-        accountDetailRecord.playerNameApproved = di.getInt8()
-        accountDetailRecord.maxAvatars = di.getInt32()
-        self.cr.openChatAllowed = accountDetailRecord.openChatEnabled
-        self.cr.secretChatAllowed = accountDetailRecord.chatCodeCreation or parentControlledChat
-        self.cr.setIsPaid(accountDetailRecord.piratesAccess)
-        self.userName = accountDetailRecord.playerName
-        self.cr.userName = accountDetailRecord.playerName
-        accountDetailRecord.numSubs = di.getUint16()
-        for i in xrange(accountDetailRecord.numSubs):
-            subDetailRecord = SubDetailRecord()
-            subDetailRecord.subId = di.getUint32()
-            subDetailRecord.subOwnerId = di.getUint32()
-            subDetailRecord.subName = di.getString()
-            subDetailRecord.subActive = di.getString()
-            access = di.getString()
-            if access == 'VELVET':
-                access = OTPGlobals.AccessVelvetRope
-            else:
-                if access == 'FULL':
+            accountDetailRecord.piratesAccess = access
+            accountDetailRecord.familyAccountId = di.getInt32()
+            accountDetailRecord.playerAccountId = di.getInt32()
+            accountDetailRecord.playerName = di.getString()
+            accountDetailRecord.playerNameApproved = di.getInt8()
+            accountDetailRecord.maxAvatars = di.getInt32()
+            self.cr.openChatAllowed = accountDetailRecord.openChatEnabled
+            self.cr.secretChatAllowed = accountDetailRecord.chatCodeCreation or parentControlledChat
+            self.cr.setIsPaid(accountDetailRecord.piratesAccess)
+            self.userName = accountDetailRecord.playerName
+            self.cr.userName = accountDetailRecord.playerName
+            accountDetailRecord.numSubs = di.getUint16()
+            for i in xrange(accountDetailRecord.numSubs):
+                subDetailRecord = SubDetailRecord()
+                subDetailRecord.subId = di.getUint32()
+                subDetailRecord.subOwnerId = di.getUint32()
+                subDetailRecord.subName = di.getString()
+                subDetailRecord.subActive = di.getString()
+                access = di.getString()
+                if access == 'VELVET':
+                    access = OTPGlobals.AccessVelvetRope
+                elif access == 'FULL':
                     access = OTPGlobals.AccessFull
                 else:
                     access = OTPGlobals.AccessUnknown
-            subDetailRecord.subAccess = access
-            subDetailRecord.subLevel = di.getUint8()
-            subDetailRecord.subNumAvatars = di.getUint8()
-            subDetailRecord.subNumConcur = di.getUint8()
-            subDetailRecord.subFounder = di.getString() == 'YES'
-            accountDetailRecord.subDetails[subDetailRecord.subId] = subDetailRecord
+                subDetailRecord.subAccess = access
+                subDetailRecord.subLevel = di.getUint8()
+                subDetailRecord.subNumAvatars = di.getUint8()
+                subDetailRecord.subNumConcur = di.getUint8()
+                subDetailRecord.subFounder = di.getString() == 'YES'
+                accountDetailRecord.subDetails[subDetailRecord.subId] = subDetailRecord
 
         accountDetailRecord.WLChatEnabled = di.getString() == 'YES'
         if accountDetailRecord.WLChatEnabled:
@@ -388,9 +381,8 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
                     self.notify.warning('Negative minutes remaining for paid user (?)')
                 else:
                     self.notify.warning('Not paid, but also negative minutes remaining (?)')
-        else:
-            if base.logPrivateInfo:
-                self.notify.info('Minutes remaining not returned from server; not spawning period timer')
+        elif base.logPrivateInfo:
+            self.notify.info('Minutes remaining not returned from server; not spawning period timer')
         familyStr = di.getString()
         WhiteListResponse = di.getString()
         if WhiteListResponse == 'YES':
@@ -413,13 +405,12 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
         self.notify.info('Login response return code %s' % returnCode)
         if returnCode == 0:
             self.__handleLoginSuccess()
+        elif returnCode == -13:
+            self.notify.info('Period Time Expired')
+            self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenPeriodTimeExpired])
         else:
-            if returnCode == -13:
-                self.notify.info('Period Time Expired')
-                self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenPeriodTimeExpired])
-            else:
-                self.notify.info('Login failed: %s' % errorString)
-                messenger.send(self.doneEvent, [{'mode': 'reject'}])
+            self.notify.info('Login failed: %s' % errorString)
+            messenger.send(self.doneEvent, [{'mode': 'reject'}])
         return
 
     def handleLoginResponseMsg(self, di):
@@ -465,21 +456,18 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
         self.notify.info('Login response return code %s' % returnCode)
         if returnCode == 0:
             self.__handleLoginSuccess()
+        elif returnCode == 12:
+            self.notify.info('Bad password')
+            self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenBadPassword])
+        elif returnCode == 14:
+            self.notify.info('Bad word in user name')
+            self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenInvalidUserName])
+        elif returnCode == 129:
+            self.notify.info('Username not found')
+            self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenUserNameNotFound])
         else:
-            if returnCode == 12:
-                self.notify.info('Bad password')
-                self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenBadPassword])
-            else:
-                if returnCode == 14:
-                    self.notify.info('Bad word in user name')
-                    self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenInvalidUserName])
-                else:
-                    if returnCode == 129:
-                        self.notify.info('Username not found')
-                        self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenUserNameNotFound])
-                    else:
-                        self.notify.info('Login failed: %s' % errorString)
-                        messenger.send(self.doneEvent, [{'mode': 'reject'}])
+            self.notify.info('Login failed: %s' % errorString)
+            messenger.send(self.doneEvent, [{'mode': 'reject'}])
 
     def __handleLoginSuccess(self):
         self.cr.logAccountInfo()
@@ -571,11 +559,10 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
         self.toonAccountType = di.getString()
         if self.toonAccountType == 'WITH_PARENT_ACCOUNT':
             self.cr.withParentAccount = True
+        elif self.toonAccountType == 'NO_PARENT_ACCOUNT':
+            self.cr.withParentAccount = False
         else:
-            if self.toonAccountType == 'NO_PARENT_ACCOUNT':
-                self.cr.withParentAccount = False
-            else:
-                self.notify.error('unknown toon account type %s' % self.toonAccountType)
+            self.notify.error('unknown toon account type %s' % self.toonAccountType)
         if base.logPrivateInfo:
             self.notify.info('toonAccountType=%s' % self.toonAccountType)
         self.userName = di.getString()
@@ -583,10 +570,9 @@ class LoginScreen(StateData.StateData, GuiScreen.GuiScreen):
         self.notify.info('Login response return code %s' % returnCode)
         if returnCode == 0:
             self.__handleLoginSuccess()
+        elif returnCode == -13:
+            self.notify.info('Period Time Expired')
+            self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenPeriodTimeExpired])
         else:
-            if returnCode == -13:
-                self.notify.info('Period Time Expired')
-                self.fsm.request('showLoginFailDialog', [OTPLocalizer.LoginScreenPeriodTimeExpired])
-            else:
-                self.notify.info('Login failed: %s' % errorString)
-                messenger.send(self.doneEvent, [{'mode': 'reject'}])
+            self.notify.info('Login failed: %s' % errorString)
+            messenger.send(self.doneEvent, [{'mode': 'reject'}])

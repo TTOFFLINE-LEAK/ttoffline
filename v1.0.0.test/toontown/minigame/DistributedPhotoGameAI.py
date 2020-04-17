@@ -105,13 +105,14 @@ class DistributedPhotoGameAI(DistributedMinigameAI, PhotoGameBase.PhotoGameBase)
         if avId not in self.avIdList:
             self.air.writeServerEvent('suspicious', avId, 'PhotoGameAI.filmOut: unknown avatar')
             return
-        if self.gameFSM.getCurrentState() is None or self.gameFSM.getCurrentState().getName() != 'play':
-            self.air.writeServerEvent('suspicious', avId, 'PhotoGameAI.filmOut: game not in play state')
+        else:
+            if self.gameFSM.getCurrentState() is None or self.gameFSM.getCurrentState().getName() != 'play':
+                self.air.writeServerEvent('suspicious', avId, 'PhotoGameAI.filmOut: game not in play state')
+                return
+            playerIndex = self.avIdList.index(avId)
+            self.filmCountList[playerIndex] = self.data['FILMCOUNT']
+            self.checkForFilmOut()
             return
-        playerIndex = self.avIdList.index(avId)
-        self.filmCountList[playerIndex] = self.data['FILMCOUNT']
-        self.checkForFilmOut()
-        return
 
     def newClientPhotoScore(self, subjectIndex, pose, score):
         avId = self.air.getAvatarIdFromSender()
@@ -122,40 +123,40 @@ class DistributedPhotoGameAI(DistributedMinigameAI, PhotoGameBase.PhotoGameBase)
                 gameState = self.gameFSM.getCurrentState().getName()
             self.air.writeServerEvent('suspicious', avId, 'PhotoGameAI.newClientPhotoScore: game not in play state %s' % gameState)
             return
-        if score > PhotoGameGlobals.NUMSTARS:
-            score = 0.0
-        if avId not in self.avIdList:
-            self.air.writeServerEvent('suspicious', avId, 'PhotoGameAI.newClientPhotoScore: non-player avatar')
-            return
-        playerIndex = self.avIdList.index(avId)
-        self.filmCountList[playerIndex] += 1
-        self.checkForFilmOut()
-        if self.filmCountList[playerIndex] >= self.data['FILMCOUNT']:
-            self.notify.debug('player used more film than possible')
-            return
-        assignmentIndex = None
-        for dataIndex in xrange(len(self.assignmentData)):
-            assignment = self.assignmentData[dataIndex]
-            if assignment[0] == subjectIndex and assignment[1] == pose:
-                assignmentIndex = dataIndex
+        else:
+            if score > PhotoGameGlobals.NUMSTARS:
+                score = 0.0
+            if avId not in self.avIdList:
+                self.air.writeServerEvent('suspicious', avId, 'PhotoGameAI.newClientPhotoScore: non-player avatar')
+                return
+            playerIndex = self.avIdList.index(avId)
+            self.filmCountList[playerIndex] += 1
+            self.checkForFilmOut()
+            if self.filmCountList[playerIndex] >= self.data['FILMCOUNT']:
+                self.notify.debug('player used more film than possible')
+                return
+            assignmentIndex = None
+            for dataIndex in xrange(len(self.assignmentData)):
+                assignment = self.assignmentData[dataIndex]
+                if assignment[0] == subjectIndex and assignment[1] == pose:
+                    assignmentIndex = dataIndex
 
-        if assignmentIndex != None and self.assignmentData[assignmentIndex][2][playerIndex] < score:
-            self.assignmentData[assignmentIndex][2][playerIndex] = score
-            highScorer = self.assignmentData[assignmentIndex][3]
-            if highScorer == None:
-                self.assignmentData[assignmentIndex][3] = playerIndex
-            else:
-                if self.assignmentData[assignmentIndex][2][highScorer] < self.assignmentData[assignmentIndex][2][playerIndex]:
+            if assignmentIndex != None and self.assignmentData[assignmentIndex][2][playerIndex] < score:
+                self.assignmentData[assignmentIndex][2][playerIndex] = score
+                highScorer = self.assignmentData[assignmentIndex][3]
+                if highScorer == None:
                     self.assignmentData[assignmentIndex][3] = playerIndex
-            self.sendUpdate('newAIPhotoScore', [avId, assignmentIndex, score])
-        self.notify.debug('newClientPhotoScore %s %s %s %s' % (avId,
-         subjectIndex,
-         pose,
-         score))
-        for data in self.assignmentData:
-            self.notify.debug(str(data))
+                elif self.assignmentData[assignmentIndex][2][highScorer] < self.assignmentData[assignmentIndex][2][playerIndex]:
+                    self.assignmentData[assignmentIndex][3] = playerIndex
+                self.sendUpdate('newAIPhotoScore', [avId, assignmentIndex, score])
+            self.notify.debug('newClientPhotoScore %s %s %s %s' % (avId,
+             subjectIndex,
+             pose,
+             score))
+            for data in self.assignmentData:
+                self.notify.debug(str(data))
 
-        return
+            return
 
     def calculateScores(self):
         playerBonus = [

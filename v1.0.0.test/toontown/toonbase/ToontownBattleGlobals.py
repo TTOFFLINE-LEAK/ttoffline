@@ -398,9 +398,8 @@ def getAvPropDamage(attackTrack, attackLevel, exp, organicBonus=False, propBonus
             damage += getDamageBonus(originalDamage)
         if propBonus:
             damage += getDamageBonus(originalDamage)
-    else:
-        if organicBonus or propBonus:
-            damage += getDamageBonus(damage)
+    elif organicBonus or propBonus:
+        damage += getDamageBonus(damage)
     return damage
 
 
@@ -493,7 +492,8 @@ def getUberFlag(flagMask, index):
     decode = decodeUber(flagMask)
     if index >= len(decode):
         return 0
-    return decode[index]
+    else:
+        return decode[index]
 
 
 def getUberFlagSafe(flagMask, index):

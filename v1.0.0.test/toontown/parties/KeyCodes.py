@@ -126,7 +126,6 @@ class KeyCodes(DirectObject):
         if self._keyCode in self._patterns:
             messenger.send(KeyCodes.PATTERN_MATCH_EVENT, [self._keyCode])
             self.reset()
-        else:
-            if self._keyCodeCount == self._patternLimit or len(self.getPossibleMatchesList()) == 0:
-                messenger.send(KeyCodes.PATTERN_NO_MATCH_EVENT)
-                self.reset()
+        elif self._keyCodeCount == self._patternLimit or len(self.getPossibleMatchesList()) == 0:
+            messenger.send(KeyCodes.PATTERN_NO_MATCH_EVENT)
+            self.reset()

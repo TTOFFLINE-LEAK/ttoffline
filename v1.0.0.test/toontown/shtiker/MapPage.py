@@ -153,18 +153,17 @@ class MapPage(ShtikerPage.ShtikerPage):
         else:
             if base.housingEnabled:
                 self.goHomeButton.show()
-        if base.cr.playGame.getPlaceId() == ToontownGlobals.MyEstate:
-            if base.cr.playGame.hood.loader.atMyEstate():
-                self.hoodLabel['text'] = TTLocalizer.MapPageYouAreAtHome
-                self.hoodLabel.show()
-            else:
-                avatar = base.cr.identifyAvatar(base.cr.playGame.hood.loader.estateOwnerId)
-                if avatar:
-                    avName = avatar.getName()
-                    self.hoodLabel['text'] = TTLocalizer.MapPageYouAreAtSomeonesHome % TTLocalizer.GetPossesive(avName)
+            if base.cr.playGame.getPlaceId() == ToontownGlobals.MyEstate:
+                if base.cr.playGame.hood.loader.atMyEstate():
+                    self.hoodLabel['text'] = TTLocalizer.MapPageYouAreAtHome
                     self.hoodLabel.show()
-        else:
-            if zone:
+                else:
+                    avatar = base.cr.identifyAvatar(base.cr.playGame.hood.loader.estateOwnerId)
+                    if avatar:
+                        avName = avatar.getName()
+                        self.hoodLabel['text'] = TTLocalizer.MapPageYouAreAtSomeonesHome % TTLocalizer.GetPossesive(avName)
+                        self.hoodLabel.show()
+            elif zone:
                 hoodName = ToontownGlobals.hoodNameMap.get(ZoneUtil.getCanonicalHoodId(zone), ('', ))[(-1)]
                 streetName = ToontownGlobals.StreetNames.get(ZoneUtil.getCanonicalBranchZone(zone), ('', ))[(-1)]
                 if hoodName:
@@ -174,31 +173,31 @@ class MapPage(ShtikerPage.ShtikerPage):
                     self.hoodLabel.hide()
             else:
                 self.hoodLabel.hide()
-        safeZonesVisited = base.localAvatar.hoodsVisited
-        hoodsAvailable = base.cr.hoodMgr.getAvailableZones()
-        hoodVisibleList = PythonUtil.intersection(safeZonesVisited, hoodsAvailable)
-        hoodTeleportList = base.localAvatar.getTeleportAccess()
-        for hood in self.allZones:
-            label = self.labels[self.allZones.index(hood)]
-            clouds = self.clouds[self.allZones.index(hood)]
-            if not self.book.safeMode and hood in hoodVisibleList:
-                label['text_fg'] = (0, 0, 0, 1)
-                label.show()
-                for cloud in clouds:
-                    cloud.hide()
+            safeZonesVisited = base.localAvatar.hoodsVisited
+            hoodsAvailable = base.cr.hoodMgr.getAvailableZones()
+            hoodVisibleList = PythonUtil.intersection(safeZonesVisited, hoodsAvailable)
+            hoodTeleportList = base.localAvatar.getTeleportAccess()
+            for hood in self.allZones:
+                label = self.labels[self.allZones.index(hood)]
+                clouds = self.clouds[self.allZones.index(hood)]
+                if not self.book.safeMode and hood in hoodVisibleList:
+                    label['text_fg'] = (0, 0, 0, 1)
+                    label.show()
+                    for cloud in clouds:
+                        cloud.hide()
 
-                fullname = base.cr.hoodMgr.getFullnameFromId(hood)
-                if hood in hoodTeleportList:
-                    text = TTLocalizer.MapPageGoTo % fullname
-                    label['text'] = ('', text, text)
+                    fullname = base.cr.hoodMgr.getFullnameFromId(hood)
+                    if hood in hoodTeleportList:
+                        text = TTLocalizer.MapPageGoTo % fullname
+                        label['text'] = ('', text, text)
+                    else:
+                        label['text'] = (
+                         '', fullname, fullname)
                 else:
-                    label['text'] = (
-                     '', fullname, fullname)
-            else:
-                label['text_fg'] = (0, 0, 0, 0.65)
-                label.show()
-                for cloud in clouds:
-                    cloud.show()
+                    label['text_fg'] = (0, 0, 0, 0.65)
+                    label.show()
+                    for cloud in clouds:
+                        cloud.show()
 
     def exit(self):
         ShtikerPage.ShtikerPage.exit(self)

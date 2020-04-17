@@ -593,10 +593,10 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
                 if toon:
                     toonObjs.append(toon)
 
-        seq = Sequence()
-        for toon in toonObjs:
-            seq.append(Func(toon.normalEyes))
-            seq.append(Func(toon.blinkEyes))
+            seq = Sequence()
+            for toon in toonObjs:
+                seq.append(Func(toon.normalEyes))
+                seq.append(Func(toon.blinkEyes))
 
         return seq
 
@@ -679,54 +679,56 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
             currentState = place.fsm.getCurrentState().getName()
         if currentState != 'walk' and currentState != 'finalBattle' and currentState != 'crane':
             return
-        toon = localAvatar
-        fling = 1
-        shake = 0
-        if attackCode == ToontownGlobals.BossCogAreaAttack:
-            fling = 0
-            shake = 1
-        if fling:
-            if origin == None:
-                origin = self
-            camera.wrtReparentTo(render)
-            toon.headsUp(origin)
-            camera.wrtReparentTo(toon)
-        bossRelativePos = toon.getPos(self.getGeomNode())
-        bp2d = Vec2(bossRelativePos[0], bossRelativePos[1])
-        bp2d.normalize()
-        pos = toon.getPos()
-        hpr = toon.getHpr()
-        timestamp = globalClockDelta.getFrameNetworkTime()
-        self.sendUpdate('zapToon', [pos[0],
-         pos[1],
-         pos[2],
-         hpr[0] % 360.0,
-         hpr[1],
-         hpr[2],
-         bp2d[0],
-         bp2d[1],
-         attackCode,
-         timestamp])
-        self.doZapToon(toon, fling=fling, shake=shake)
-        return
+        else:
+            toon = localAvatar
+            fling = 1
+            shake = 0
+            if attackCode == ToontownGlobals.BossCogAreaAttack:
+                fling = 0
+                shake = 1
+            if fling:
+                if origin == None:
+                    origin = self
+                camera.wrtReparentTo(render)
+                toon.headsUp(origin)
+                camera.wrtReparentTo(toon)
+            bossRelativePos = toon.getPos(self.getGeomNode())
+            bp2d = Vec2(bossRelativePos[0], bossRelativePos[1])
+            bp2d.normalize()
+            pos = toon.getPos()
+            hpr = toon.getHpr()
+            timestamp = globalClockDelta.getFrameNetworkTime()
+            self.sendUpdate('zapToon', [pos[0],
+             pos[1],
+             pos[2],
+             hpr[0] % 360.0,
+             hpr[1],
+             hpr[2],
+             bp2d[0],
+             bp2d[1],
+             attackCode,
+             timestamp])
+            self.doZapToon(toon, fling=fling, shake=shake)
+            return
 
     def showZapToon(self, toonId, x, y, z, h, p, r, attackCode, timestamp):
         if toonId == localAvatar.doId:
             return
-        ts = globalClockDelta.localElapsedTime(timestamp)
-        pos = Point3(x, y, z)
-        hpr = VBase3(h, p, r)
-        fling = 1
-        toon = self.cr.doId2do.get(toonId)
-        if toon:
-            if attackCode == ToontownGlobals.BossCogAreaAttack:
-                pos = None
-                hpr = None
-                fling = 0
-            else:
-                ts -= toon.smoother.getDelay()
-            self.doZapToon(toon, pos=pos, hpr=hpr, ts=ts, fling=fling)
-        return
+        else:
+            ts = globalClockDelta.localElapsedTime(timestamp)
+            pos = Point3(x, y, z)
+            hpr = VBase3(h, p, r)
+            fling = 1
+            toon = self.cr.doId2do.get(toonId)
+            if toon:
+                if attackCode == ToontownGlobals.BossCogAreaAttack:
+                    pos = None
+                    hpr = None
+                    fling = 0
+                else:
+                    ts -= toon.smoother.getDelay()
+                self.doZapToon(toon, pos=pos, hpr=hpr, ts=ts, fling=fling)
+            return
 
     def doZapToon(self, toon, pos=None, hpr=None, ts=0, fling=1, shake=1):
         zapName = toon.uniqueName('zap')
@@ -782,39 +784,31 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
             self.setDizzy(1)
             self.cleanupAttacks()
             self.doAnimate(None, raised=0, happy=1)
-        else:
-            if attackCode == ToontownGlobals.BossCogDizzyNow:
-                self.setDizzy(1)
-                self.cleanupAttacks()
-                self.doAnimate('hit', happy=1, now=1)
-            else:
-                if attackCode == ToontownGlobals.BossCogSwatLeft:
-                    self.setDizzy(0)
-                    self.doAnimate('ltSwing', now=1)
-                else:
-                    if attackCode == ToontownGlobals.BossCogSwatRight:
-                        self.setDizzy(0)
-                        self.doAnimate('rtSwing', now=1)
-                    else:
-                        if attackCode == ToontownGlobals.BossCogAreaAttack:
-                            self.setDizzy(0)
-                            self.doAnimate('areaAttack', now=1)
-                        else:
-                            if attackCode == ToontownGlobals.BossCogFrontAttack:
-                                self.setDizzy(0)
-                                self.doAnimate('frontAttack', now=1)
-                            else:
-                                if attackCode == ToontownGlobals.BossCogRecoverDizzyAttack:
-                                    self.setDizzy(0)
-                                    self.doAnimate('frontAttack', now=1)
-                                else:
-                                    if attackCode == ToontownGlobals.BossCogDirectedAttack or attackCode == ToontownGlobals.BossCogSlowDirectedAttack:
-                                        self.setDizzy(0)
-                                        self.doDirectedAttack(avId, attackCode)
-                                    else:
-                                        if attackCode == ToontownGlobals.BossCogNoAttack:
-                                            self.setDizzy(0)
-                                            self.doAnimate(None, raised=1)
+        elif attackCode == ToontownGlobals.BossCogDizzyNow:
+            self.setDizzy(1)
+            self.cleanupAttacks()
+            self.doAnimate('hit', happy=1, now=1)
+        elif attackCode == ToontownGlobals.BossCogSwatLeft:
+            self.setDizzy(0)
+            self.doAnimate('ltSwing', now=1)
+        elif attackCode == ToontownGlobals.BossCogSwatRight:
+            self.setDizzy(0)
+            self.doAnimate('rtSwing', now=1)
+        elif attackCode == ToontownGlobals.BossCogAreaAttack:
+            self.setDizzy(0)
+            self.doAnimate('areaAttack', now=1)
+        elif attackCode == ToontownGlobals.BossCogFrontAttack:
+            self.setDizzy(0)
+            self.doAnimate('frontAttack', now=1)
+        elif attackCode == ToontownGlobals.BossCogRecoverDizzyAttack:
+            self.setDizzy(0)
+            self.doAnimate('frontAttack', now=1)
+        elif attackCode == ToontownGlobals.BossCogDirectedAttack or attackCode == ToontownGlobals.BossCogSlowDirectedAttack:
+            self.setDizzy(0)
+            self.doDirectedAttack(avId, attackCode)
+        elif attackCode == ToontownGlobals.BossCogNoAttack:
+            self.setDizzy(0)
+            self.doAnimate(None, raised=1)
         return
 
     def cleanupAttacks(self):
@@ -873,14 +867,14 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
                 if toon:
                     toonArray.append(toon)
 
-        for toon in toonArray:
-            dustCloud = DustCloud.DustCloud()
-            dustCloud.setPos(0, 2, 3)
-            dustCloud.setScale(0.5)
-            dustCloud.setDepthWrite(0)
-            dustCloud.setBin('fixed', 0)
-            dustCloud.createTrack()
-            suitsOff.append(Sequence(Func(dustCloud.reparentTo, toon), Parallel(dustCloud.track, Sequence(Wait(0.3), Func(toon.takeOffSuit), Func(toon.sadEyes), Func(toon.blinkEyes), Func(toon.play, 'slip-backward'), Wait(0.7))), Func(dustCloud.detachNode), Func(dustCloud.destroy)))
+            for toon in toonArray:
+                dustCloud = DustCloud.DustCloud()
+                dustCloud.setPos(0, 2, 3)
+                dustCloud.setScale(0.5)
+                dustCloud.setDepthWrite(0)
+                dustCloud.setBin('fixed', 0)
+                dustCloud.createTrack()
+                suitsOff.append(Sequence(Func(dustCloud.reparentTo, toon), Parallel(dustCloud.track, Sequence(Wait(0.3), Func(toon.takeOffSuit), Func(toon.sadEyes), Func(toon.blinkEyes), Func(toon.play, 'slip-backward'), Wait(0.7))), Func(dustCloud.detachNode), Func(dustCloud.destroy)))
 
         seq.append(suitsOff)
         return seq
@@ -1132,17 +1126,17 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
                 if toon:
                     toonArray.append(toon)
 
-        for toon in toonArray:
-            dustCloud = DustCloud.DustCloud()
-            dustCloud.setPos(0, 2, 3)
-            dustCloud.setScale(0.5)
-            dustCloud.setDepthWrite(0)
-            dustCloud.setBin('fixed', 0)
-            dustCloud.createTrack()
-            makeWaiter = Sequence()
-            if waiter:
-                makeWaiter = Func(toon.makeWaiter)
-            suitsOff.append(Sequence(Func(dustCloud.reparentTo, toon), Parallel(dustCloud.track, Sequence(Wait(0.3), Func(self.putToonInCogSuit, toon), makeWaiter, Wait(0.7))), Func(dustCloud.detachNode)))
+            for toon in toonArray:
+                dustCloud = DustCloud.DustCloud()
+                dustCloud.setPos(0, 2, 3)
+                dustCloud.setScale(0.5)
+                dustCloud.setDepthWrite(0)
+                dustCloud.setBin('fixed', 0)
+                dustCloud.createTrack()
+                makeWaiter = Sequence()
+                if waiter:
+                    makeWaiter = Func(toon.makeWaiter)
+                suitsOff.append(Sequence(Func(dustCloud.reparentTo, toon), Parallel(dustCloud.track, Sequence(Wait(0.3), Func(self.putToonInCogSuit, toon), makeWaiter, Wait(0.7))), Func(dustCloud.detachNode)))
 
         seq.append(suitsOff)
         return seq

@@ -47,21 +47,18 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
             flag = NPCToons.PURCHASE_MOVIE_START
             if self.housingEnabled and self.isClosetAlmostFull(av):
                 flag = NPCToons.PURCHASE_MOVIE_START_NOROOM
-        else:
-            if self.air.questManager.hasTailorClothingTicket(av, self) == 1:
-                flag = NPCToons.PURCHASE_MOVIE_START
-                if self.housingEnabled and self.isClosetAlmostFull(av):
-                    flag = NPCToons.PURCHASE_MOVIE_START_NOROOM
-            else:
-                if self.air.questManager.hasTailorClothingTicket(av, self) == 2:
-                    flag = NPCToons.PURCHASE_MOVIE_START
-                    if self.housingEnabled and self.isClosetAlmostFull(av):
-                        flag = NPCToons.PURCHASE_MOVIE_START_NOROOM
-                else:
-                    if av.getTotalMoney() >= ToontownGlobals.NPCTailorCost:
-                        flag = NPCToons.PURCHASE_MOVIE_START
-                        if self.housingEnabled and self.isClosetAlmostFull(av):
-                            flag = NPCToons.PURCHASE_MOVIE_START_NOROOM
+        elif self.air.questManager.hasTailorClothingTicket(av, self) == 1:
+            flag = NPCToons.PURCHASE_MOVIE_START
+            if self.housingEnabled and self.isClosetAlmostFull(av):
+                flag = NPCToons.PURCHASE_MOVIE_START_NOROOM
+        elif self.air.questManager.hasTailorClothingTicket(av, self) == 2:
+            flag = NPCToons.PURCHASE_MOVIE_START
+            if self.housingEnabled and self.isClosetAlmostFull(av):
+                flag = NPCToons.PURCHASE_MOVIE_START_NOROOM
+        elif av.getTotalMoney() >= ToontownGlobals.NPCTailorCost:
+            flag = NPCToons.PURCHASE_MOVIE_START
+            if self.housingEnabled and self.isClosetAlmostFull(av):
+                flag = NPCToons.PURCHASE_MOVIE_START_NOROOM
         self.sendShoppingMovie(avId, flag)
         DistributedNPCToonBaseAI.avatarEnter(self)
 
@@ -135,9 +132,8 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
                     canBuy = True
                 if self.air.questManager.removeClothingTicket(av, self):
                     canBuy = True
-                else:
-                    if av.setTotalMoney(ToontownGlobals.NPCTailorCost):
-                        canBuy = True
+                elif av.setTotalMoney(ToontownGlobals.NPCTailorCost):
+                    canBuy = True
                 if canBuy:
                     av.b_setDNAString(blob)
                     if which & ClosetGlobals.SHIRT:
@@ -168,10 +164,9 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
         if self.busy == avId:
             taskMgr.remove(self.uniqueName('clearMovie'))
             self.completePurchase(avId)
-        else:
-            if self.busy:
-                self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA busy with %s' % self.busy)
-                self.notify.warning('setDNA from unknown avId: %s busy: %s' % (avId, self.busy))
+        elif self.busy:
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA busy with %s' % self.busy)
+            self.notify.warning('setDNA from unknown avId: %s busy: %s' % (avId, self.busy))
 
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar:' + str(avId) + ' has exited unexpectedly')

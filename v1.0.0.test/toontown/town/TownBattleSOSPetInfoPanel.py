@@ -95,14 +95,15 @@ class TownBattleSOSPetInfoPanel(StateData.StateData):
         if petProxyId not in base.cr.doId2do:
             self.notify.warning('petProxyId %s not in doId2do!' % petProxyId)
             return
-        self.petProxy = base.cr.doId2do[petProxyId]
-        self.__fillPetInfo(self.petProxy)
-        self.frame.show()
-        self.accept(self.trickMenuEventName, self.__handleTrickMenuEvent)
-        self.trickMenu.reparentTo(aspect2dp, DGG.FOREGROUND_SORT_INDEX)
-        localAvatar.chatMgr.chatInputSpeedChat.whisperAvatarId = None
-        self.detailButton['state'] = DGG.NORMAL
-        return
+        else:
+            self.petProxy = base.cr.doId2do[petProxyId]
+            self.__fillPetInfo(self.petProxy)
+            self.frame.show()
+            self.accept(self.trickMenuEventName, self.__handleTrickMenuEvent)
+            self.trickMenu.reparentTo(aspect2dp, DGG.FOREGROUND_SORT_INDEX)
+            localAvatar.chatMgr.chatInputSpeedChat.whisperAvatarId = None
+            self.detailButton['state'] = DGG.NORMAL
+            return
 
     def exit(self):
         self.ignore(self.trickMenuEventName)

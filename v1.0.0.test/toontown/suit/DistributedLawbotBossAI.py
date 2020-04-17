@@ -194,11 +194,10 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
              ToontownGlobals.BossCogDirectedAttack])
         if attackCode == ToontownGlobals.BossCogAreaAttack:
             self.__doAreaAttack()
+        elif attackCode == ToontownGlobals.BossCogDirectedAttack:
+            self.__doDirectedAttack()
         else:
-            if attackCode == ToontownGlobals.BossCogDirectedAttack:
-                self.__doDirectedAttack()
-            else:
-                self.b_setAttackCode(attackCode)
+            self.b_setAttackCode(attackCode)
 
     def __doAreaAttack(self):
         self.b_setAttackCode(ToontownGlobals.BossCogAreaAttack)
@@ -277,7 +276,8 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
                 listVersion[13] = weakenedValue
                 SuitBuildingGlobals.SuitBuildingInfo = tuple(listVersion)
             return self.invokeSuitPlanner(13, 0)
-        return self.invokeSuitPlanner(13, 1)
+        else:
+            return self.invokeSuitPlanner(13, 1)
 
     def removeToon(self, avId):
         toon = simbase.air.doId2do.get(avId)
@@ -392,8 +392,9 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
     def getCannonBallsLeft(self, avId):
         if avId in self.cannonBallsLeft:
             return self.cannonBallsLeft[avId]
-        self.notify.warning('getCannonBalsLeft invalid avId: %d' % avId)
-        return 0
+        else:
+            self.notify.warning('getCannonBalsLeft invalid avId: %d' % avId)
+            return 0
 
     def decrementCannonBallsLeft(self, avId):
         if avId in self.cannonBallsLeft:
@@ -538,20 +539,21 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
         avId = 0
         if len(self.involvedToons) == 0:
             return
-        avId = random.choice(self.involvedToons)
-        toon = simbase.air.doId2do.get(avId)
-        if toon.__touchedCage:
-            if self.cagedToonDialogIndex <= TTLocalizer.CagedToonBattleThreeMaxAdvice:
-                index = self.cagedToonDialogIndex
-                self.cagedToonDialogIndex += 1
-            elif random.random() < 0.2:
-                index = random.randrange(100, TTLocalizer.CagedToonBattleThreeMaxAdvice + 1)
         else:
-            index = random.randrange(20, TTLocalizer.CagedToonBattleThreeMaxTouchCage + 1)
-        if index:
-            self.d_cagedToonBattleThree(index, avId)
-        self.__saySomethingLater()
-        return
+            avId = random.choice(self.involvedToons)
+            toon = simbase.air.doId2do.get(avId)
+            if toon.__touchedCage:
+                if self.cagedToonDialogIndex <= TTLocalizer.CagedToonBattleThreeMaxAdvice:
+                    index = self.cagedToonDialogIndex
+                    self.cagedToonDialogIndex += 1
+                elif random.random() < 0.2:
+                    index = random.randrange(100, TTLocalizer.CagedToonBattleThreeMaxAdvice + 1)
+            else:
+                index = random.randrange(20, TTLocalizer.CagedToonBattleThreeMaxTouchCage + 1)
+            if index:
+                self.d_cagedToonBattleThree(index, avId)
+            self.__saySomethingLater()
+            return
 
     def __saySomethingLater(self, delayTime=15):
         taskName = self.uniqueName('CagedToonSaySomething')

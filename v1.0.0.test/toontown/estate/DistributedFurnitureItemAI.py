@@ -30,11 +30,10 @@ class DistributedFurnitureItemAI(DistributedSmoothNodeAI):
             return
         if not final and self.mode != HouseGlobals.FURNITURE_MODE_START:
             self.b_setMode(HouseGlobals.FURNITURE_MODE_START, senderId)
-        else:
-            if final and self.mode == HouseGlobals.FURNITURE_MODE_START:
-                self.b_setMode(HouseGlobals.FURNITURE_MODE_STOP, senderId)
-                self.b_setMode(HouseGlobals.FURNITURE_MODE_OFF, senderId)
-                self.b_setPosHpr(*posHpr)
+        elif final and self.mode == HouseGlobals.FURNITURE_MODE_START:
+            self.b_setMode(HouseGlobals.FURNITURE_MODE_STOP, senderId)
+            self.b_setMode(HouseGlobals.FURNITURE_MODE_OFF, senderId)
+            self.b_setPosHpr(*posHpr)
         self.catalogItem.posHpr = posHpr
         self.sendUpdate('setSmPosHpr', [x, y, z, h, p, r, t])
 

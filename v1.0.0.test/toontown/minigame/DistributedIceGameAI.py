@@ -150,13 +150,12 @@ class DistributedIceGameAI(DistributedMinigameAI.DistributedMinigameAI):
         self.finalEndingPositions = sentPos
         if self.curMatch == IceGameGlobals.NumMatches - 1 and self.curRound == IceGameGlobals.NumRounds - 1:
             self.gameFSM.request('scoreMatch')
+        elif self.curRound == IceGameGlobals.NumRounds - 1:
+            self.gameFSM.request('scoreMatch')
         else:
-            if self.curRound == IceGameGlobals.NumRounds - 1:
-                self.gameFSM.request('scoreMatch')
-            else:
-                self.curRound += 1
-                self.sendUpdate('setMatchAndRound', [self.curMatch, self.curRound])
-                self.gameFSM.request('waitClientsChoices')
+            self.curRound += 1
+            self.sendUpdate('setMatchAndRound', [self.curMatch, self.curRound])
+            self.gameFSM.request('waitClientsChoices')
 
     def exitProcessEndingPositions(self):
         pass
@@ -172,9 +171,10 @@ class DistributedIceGameAI(DistributedMinigameAI.DistributedMinigameAI):
         def compareDistance(x, y):
             if x[1] - y[1] > 0:
                 return 1
-            if x[1] - y[1] < 0:
-                return -1
-            return 0
+            else:
+                if x[1] - y[1] < 0:
+                    return -1
+                return 0
 
         sortedByDistance.sort(cmp=compareDistance)
         self.scoresAsList = []

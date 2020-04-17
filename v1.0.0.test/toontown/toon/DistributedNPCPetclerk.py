@@ -115,21 +115,21 @@ class DistributedNPCPetclerk(DistributedNPCToonBase):
         self.isLocalToon = avId == base.localAvatar.doId
         if mode == NPCToons.SELL_MOVIE_CLEAR:
             return
-        if mode == NPCToons.SELL_MOVIE_TIMEOUT:
-            if self.cameraLerp:
-                self.cameraLerp.finish()
-                self.cameraLerp = None
-            if self.isLocalToon:
-                self.ignoreEventDict()
-                if self.popupInfo:
-                    self.popupInfo.reparentTo(hidden)
-                if self.petshopGui:
-                    self.petshopGui.destroy()
-                    self.petshopGui = None
-            self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
-            self.resetPetshopClerk()
         else:
-            if mode == NPCToons.SELL_MOVIE_START:
+            if mode == NPCToons.SELL_MOVIE_TIMEOUT:
+                if self.cameraLerp:
+                    self.cameraLerp.finish()
+                    self.cameraLerp = None
+                if self.isLocalToon:
+                    self.ignoreEventDict()
+                    if self.popupInfo:
+                        self.popupInfo.reparentTo(hidden)
+                    if self.petshopGui:
+                        self.petshopGui.destroy()
+                        self.petshopGui = None
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
+                self.resetPetshopClerk()
+            elif mode == NPCToons.SELL_MOVIE_START:
                 self.av = base.cr.doId2do.get(avId)
                 if self.av is None:
                     self.notify.warning('Avatar %d not found in doId' % avId)
@@ -142,40 +142,33 @@ class DistributedNPCPetclerk(DistributedNPCToonBase):
                     self.cameraLerp.start()
                 if self.isLocalToon:
                     taskMgr.doMethodLater(1.0, self.popupPetshopGUI, self.uniqueName('popupPetshopGUI'))
-            else:
-                if mode == NPCToons.SELL_MOVIE_COMPLETE:
-                    self.setChatAbsolute(TTLocalizer.STOREOWNER_THANKSFISH_PETSHOP, CFSpeech | CFTimeout)
-                    self.resetPetshopClerk()
-                else:
-                    if mode == NPCToons.SELL_MOVIE_PETRETURNED:
-                        self.setChatAbsolute(TTLocalizer.STOREOWNER_PETRETURNED, CFSpeech | CFTimeout)
-                        self.resetPetshopClerk()
-                    else:
-                        if mode == NPCToons.SELL_MOVIE_PETADOPTED:
-                            self.setChatAbsolute(TTLocalizer.STOREOWNER_PETADOPTED, CFSpeech | CFTimeout)
-                            self.resetPetshopClerk()
-                        else:
-                            if mode == NPCToons.SELL_MOVIE_PETCANCELED:
-                                self.setChatAbsolute(TTLocalizer.STOREOWNER_PETCANCELED, CFSpeech | CFTimeout)
-                                self.resetPetshopClerk()
-                            else:
-                                if mode == NPCToons.SELL_MOVIE_TROPHY:
-                                    self.av = base.cr.doId2do.get(avId)
-                                    if self.av is None:
-                                        self.notify.warning('Avatar %d not found in doId' % avId)
-                                        return
-                                    numFish, totalNumFish = extraArgs
-                                    self.setChatAbsolute(TTLocalizer.STOREOWNER_TROPHY % (numFish, totalNumFish), CFSpeech | CFTimeout)
-                                    self.resetPetshopClerk()
-                                else:
-                                    if mode == NPCToons.SELL_MOVIE_NOFISH:
-                                        self.setChatAbsolute(TTLocalizer.STOREOWNER_NOFISH, CFSpeech | CFTimeout)
-                                        self.resetPetshopClerk()
-                                    else:
-                                        if mode == NPCToons.SELL_MOVIE_NO_MONEY:
-                                            self.notify.warning('SELL_MOVIE_NO_MONEY should not be called')
-                                            self.resetPetshopClerk()
-        return
+            elif mode == NPCToons.SELL_MOVIE_COMPLETE:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_THANKSFISH_PETSHOP, CFSpeech | CFTimeout)
+                self.resetPetshopClerk()
+            elif mode == NPCToons.SELL_MOVIE_PETRETURNED:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_PETRETURNED, CFSpeech | CFTimeout)
+                self.resetPetshopClerk()
+            elif mode == NPCToons.SELL_MOVIE_PETADOPTED:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_PETADOPTED, CFSpeech | CFTimeout)
+                self.resetPetshopClerk()
+            elif mode == NPCToons.SELL_MOVIE_PETCANCELED:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_PETCANCELED, CFSpeech | CFTimeout)
+                self.resetPetshopClerk()
+            elif mode == NPCToons.SELL_MOVIE_TROPHY:
+                self.av = base.cr.doId2do.get(avId)
+                if self.av is None:
+                    self.notify.warning('Avatar %d not found in doId' % avId)
+                    return
+                numFish, totalNumFish = extraArgs
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_TROPHY % (numFish, totalNumFish), CFSpeech | CFTimeout)
+                self.resetPetshopClerk()
+            elif mode == NPCToons.SELL_MOVIE_NOFISH:
+                self.setChatAbsolute(TTLocalizer.STOREOWNER_NOFISH, CFSpeech | CFTimeout)
+                self.resetPetshopClerk()
+            elif mode == NPCToons.SELL_MOVIE_NO_MONEY:
+                self.notify.warning('SELL_MOVIE_NO_MONEY should not be called')
+                self.resetPetshopClerk()
+            return
 
     def __handlePetAdopted(self, whichPet, nameIndex):
         if base.config.GetBool('want-qa-regression', 0):

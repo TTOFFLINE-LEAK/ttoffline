@@ -53,11 +53,12 @@ class DistributedLawOfficeFloor(DistributedLevel.DistributedLevel, LawOfficeBase
     def setForemanConfronted(self, avId):
         if avId == base.localAvatar.doId:
             return
-        av = base.cr.identifyFriend(avId)
-        if av is None:
+        else:
+            av = base.cr.identifyFriend(avId)
+            if av is None:
+                return
+            base.localAvatar.setSystemMessage(avId, TTLocalizer.ForemanConfrontedMsg % av.getName())
             return
-        base.localAvatar.setSystemMessage(avId, TTLocalizer.ForemanConfrontedMsg % av.getName())
-        return
 
     def setDefeated(self):
         self.notify.info('setDefeated')
@@ -175,18 +176,17 @@ class DistributedLawOfficeFloor(DistributedLevel.DistributedLevel, LawOfficeBase
         if self.entranceId in self.entranceId2entity:
             epEnt = self.entranceId2entity[self.entranceId]
             initialZoneEnt = self.getEntity(epEnt.getZoneEntId())
-        else:
-            if self.EmulateEntrancePoint:
-                self.notify.debug('unknown entranceId %s' % self.entranceId)
-                self.notify.debug('showing all zones')
-                self.setColorZones(1)
-                zoneEntIds = list(self.entType2ids['zone'])
-                zoneEntIds.remove(LevelConstants.UberZoneEntId)
-                if len(zoneEntIds):
-                    zoneEntId = random.choice(zoneEntIds)
-                    initialZoneEnt = self.getEntity(zoneEntId)
-                else:
-                    initialZoneEnt = self.getEntity(LevelConstants.UberZoneEntId)
+        elif self.EmulateEntrancePoint:
+            self.notify.debug('unknown entranceId %s' % self.entranceId)
+            self.notify.debug('showing all zones')
+            self.setColorZones(1)
+            zoneEntIds = list(self.entType2ids['zone'])
+            zoneEntIds.remove(LevelConstants.UberZoneEntId)
+            if len(zoneEntIds):
+                zoneEntId = random.choice(zoneEntIds)
+                initialZoneEnt = self.getEntity(zoneEntId)
+            else:
+                initialZoneEnt = self.getEntity(LevelConstants.UberZoneEntId)
         if initialZoneEnt is not None:
             self.enterZone(initialZoneEnt.entId)
         return

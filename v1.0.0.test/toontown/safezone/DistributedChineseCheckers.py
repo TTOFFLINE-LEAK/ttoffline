@@ -314,12 +314,11 @@ class DistributedChineseCheckers(DistributedNode.DistributedNode):
             if x == 1:
                 renderedPeice.setZ(renderedPeice.getZ() + 3.3)
                 renderedPeice.setScale(1.3)
+            elif x == 4:
+                renderedPeice.setZ(renderedPeice.getZ() + 3.3)
+                renderedPeice.setScale(1.45)
             else:
-                if x == 4:
-                    renderedPeice.setZ(renderedPeice.getZ() + 3.3)
-                    renderedPeice.setScale(1.45)
-                else:
-                    renderedPeice.setZ(renderedPeice.getZ() + 3.3)
+                renderedPeice.setZ(renderedPeice.getZ() + 3.3)
             renderedPeice.hide()
 
         self.playerTagList = self.playerTags.getChildren()
@@ -352,31 +351,24 @@ class DistributedChineseCheckers(DistributedNode.DistributedNode):
                 rotation = 60
             elif self.playerNum == 6:
                 rotation = 120
-        else:
-            if self.playerNum == 1:
-                rotation = 0
-            else:
-                if self.playerNum == 2:
-                    rotation = 60
-                else:
-                    if self.playerNum == 3:
-                        rotation = 120
-                    else:
-                        if self.playerNum == 4:
-                            rotation = 180
-                        else:
-                            if self.playerNum == 5:
-                                rotation = -120
-                            else:
-                                if self.playerNum == 6:
-                                    rotation = -60
+        elif self.playerNum == 1:
+            rotation = 0
+        elif self.playerNum == 2:
+            rotation = 60
+        elif self.playerNum == 3:
+            rotation = 120
+        elif self.playerNum == 4:
+            rotation = 180
+        elif self.playerNum == 5:
+            rotation = -120
+        elif self.playerNum == 6:
+            rotation = -60
         if rotation == 60 or rotation == -60:
             int = LerpHprInterval(self.boardNode, 2.5, Vec3(rotation, self.boardNode.getP(), self.boardNode.getR()), self.boardNode.getHpr())
+        elif rotation == 120 or rotation == -120:
+            int = LerpHprInterval(self.boardNode, 3.5, Vec3(rotation, self.boardNode.getP(), self.boardNode.getR()), self.boardNode.getHpr())
         else:
-            if rotation == 120 or rotation == -120:
-                int = LerpHprInterval(self.boardNode, 3.5, Vec3(rotation, self.boardNode.getP(), self.boardNode.getR()), self.boardNode.getHpr())
-            else:
-                int = LerpHprInterval(self.boardNode, 4.2, Vec3(rotation, self.boardNode.getP(), self.boardNode.getR()), self.boardNode.getHpr())
+            int = LerpHprInterval(self.boardNode, 4.2, Vec3(rotation, self.boardNode.getP(), self.boardNode.getR()), self.boardNode.getHpr())
         int.start()
 
     def enterWaitingToBegin(self):
@@ -449,30 +441,25 @@ class DistributedChineseCheckers(DistributedNode.DistributedNode):
         if self.playerNum == 1:
             message = TTLocalizer.ChineseCheckersColorG
             color = self.playerColors[0]
+        elif self.playerNum == 2:
+            message = TTLocalizer.ChineseCheckersColorY
+            color = self.playerColors[1]
+        elif self.playerNum == 3:
+            message = TTLocalizer.ChineseCheckersColorP
+            color = self.playerColors[2]
+        elif self.playerNum == 4:
+            message = TTLocalizer.ChineseCheckersColorB
+            color = self.playerColors[3]
+        elif self.playerNum == 5:
+            message = TTLocalizer.ChineseCheckersColorPink
+            color = self.playerColors[4]
+        elif self.playerNum == 6:
+            message = TTLocalizer.ChineseCheckersColorR
+            color = self.playerColors[5]
         else:
-            if self.playerNum == 2:
-                message = TTLocalizer.ChineseCheckersColorY
-                color = self.playerColors[1]
-            else:
-                if self.playerNum == 3:
-                    message = TTLocalizer.ChineseCheckersColorP
-                    color = self.playerColors[2]
-                else:
-                    if self.playerNum == 4:
-                        message = TTLocalizer.ChineseCheckersColorB
-                        color = self.playerColors[3]
-                    else:
-                        if self.playerNum == 5:
-                            message = TTLocalizer.ChineseCheckersColorPink
-                            color = self.playerColors[4]
-                        else:
-                            if self.playerNum == 6:
-                                message = TTLocalizer.ChineseCheckersColorR
-                                color = self.playerColors[5]
-                            else:
-                                message = TTLocalizer.ChineseCheckersColorO
-                                color = Vec4(0.0, 0.0, 0.0, 1.0)
-                                defaultPos = (-0.8, -0.4)
+            message = TTLocalizer.ChineseCheckersColorO
+            color = Vec4(0.0, 0.0, 0.0, 1.0)
+            defaultPos = (-0.8, -0.4)
         self.screenText = OnscreenText(text=message, pos=defaultPos, scale=0.1, fg=color, align=TextNode.ACenter, mayChange=1)
 
     def enableStartButton(self):
@@ -519,30 +506,24 @@ class DistributedChineseCheckers(DistributedNode.DistributedNode):
         if player == self.playerNum:
             message2 = TTLocalizer.ChineseCheckersYourTurn
             color = (0, 0, 0, 1)
-        else:
-            if player == 1:
-                message2 = TTLocalizer.ChineseCheckersGreenTurn
-                color = self.playerColors[0]
-            else:
-                if player == 2:
-                    message2 = TTLocalizer.ChineseCheckersYellowTurn
-                    color = self.playerColors[1]
-                else:
-                    if player == 3:
-                        message2 = TTLocalizer.ChineseCheckersPurpleTurn
-                        color = self.playerColors[2]
-                    else:
-                        if player == 4:
-                            message2 = TTLocalizer.ChineseCheckersBlueTurn
-                            color = self.playerColors[3]
-                        else:
-                            if player == 5:
-                                message2 = TTLocalizer.ChineseCheckersPinkTurn
-                                color = self.playerColors[4]
-                            else:
-                                if player == 6:
-                                    message2 = TTLocalizer.ChineseCheckersRedTurn
-                                    color = self.playerColors[5]
+        elif player == 1:
+            message2 = TTLocalizer.ChineseCheckersGreenTurn
+            color = self.playerColors[0]
+        elif player == 2:
+            message2 = TTLocalizer.ChineseCheckersYellowTurn
+            color = self.playerColors[1]
+        elif player == 3:
+            message2 = TTLocalizer.ChineseCheckersPurpleTurn
+            color = self.playerColors[2]
+        elif player == 4:
+            message2 = TTLocalizer.ChineseCheckersBlueTurn
+            color = self.playerColors[3]
+        elif player == 5:
+            message2 = TTLocalizer.ChineseCheckersPinkTurn
+            color = self.playerColors[4]
+        elif player == 6:
+            message2 = TTLocalizer.ChineseCheckersRedTurn
+            color = self.playerColors[5]
         self.turnText = OnscreenText(text=message1 + message2, pos=(-0.8, -0.5), scale=0.092, fg=color, align=TextNode.ACenter, mayChange=1)
         if player == self.playerNum:
             self.yourTurnBlinker = Sequence()
@@ -612,9 +593,8 @@ class DistributedChineseCheckers(DistributedNode.DistributedNode):
                     self.isOpposing = True
                 else:
                     self.isOpposing = False
-            else:
-                if self.board.squareList[index].getState() != 0:
-                    return
+            elif self.board.squareList[index].getState() != 0:
+                return
             if len(self.moveList) == 1 and self.board.squareList[index].getState() == 0:
                 if index in self.board.squareList[self.moveList[0]].getAdjacent():
                     for x in self.nonOpposingPositions:
@@ -666,26 +646,25 @@ class DistributedChineseCheckers(DistributedNode.DistributedNode):
                 pass
             elif self.board.squareList[x].getAdjacent()[self.board.squareList[index].getAdjacent().index(x)] == None:
                 pass
-            else:
-                if self.board.getState(self.board.squareList[x].getAdjacent()[self.board.squareList[index].getAdjacent().index(x)]) == 0 and self.board.squareList[x].getAdjacent()[self.board.squareList[index].getAdjacent().index(x)] not in self.moveList:
-                    return True
+            elif self.board.getState(self.board.squareList[x].getAdjacent()[self.board.squareList[index].getAdjacent().index(x)]) == 0 and self.board.squareList[x].getAdjacent()[self.board.squareList[index].getAdjacent().index(x)] not in self.moveList:
+                return True
 
         return False
 
     def checkLegalMove(self, firstSquare, secondSquare):
         if secondSquare.getNum() in firstSquare.getAdjacent():
             return True
-        for x in firstSquare.getAdjacent():
-            if x == None:
-                pass
-            elif self.board.squareList[x].getState() == 0:
-                pass
-            else:
-                if self.board.squareList[x].getAdjacent()[firstSquare.getAdjacent().index(x)] == secondSquare.getNum():
+        else:
+            for x in firstSquare.getAdjacent():
+                if x == None:
+                    pass
+                elif self.board.squareList[x].getState() == 0:
+                    pass
+                elif self.board.squareList[x].getAdjacent()[firstSquare.getAdjacent().index(x)] == secondSquare.getNum():
                     return True
 
-        return False
-        return
+            return False
+            return
 
     def d_requestMove(self, moveList):
         self.sendUpdate('requestMove', [moveList])
@@ -745,26 +724,21 @@ class DistributedChineseCheckers(DistributedNode.DistributedNode):
         if self.playerNum == 1:
             if self.mySquares == self.startingPositions[3]:
                 self.sendUpdate('requestWin', [])
-        else:
-            if self.playerNum == 2:
-                if self.mySquares == self.startingPositions[4]:
-                    self.sendUpdate('requestWin', [])
-            else:
-                if self.playerNum == 3:
-                    if self.mySquares == self.startingPositions[5]:
-                        self.sendUpdate('requestWin', [])
-                else:
-                    if self.playerNum == 4:
-                        if self.mySquares == self.startingPositions[0]:
-                            self.sendUpdate('requestWin', [])
-                    else:
-                        if self.playerNum == 5:
-                            if self.mySquares == self.startingPositions[1]:
-                                self.sendUpdate('requestWin', [])
-                        else:
-                            if self.playerNum == 6:
-                                if self.mySquares == self.startingPositions[2]:
-                                    self.sendUpdate('requestWin', [])
+        elif self.playerNum == 2:
+            if self.mySquares == self.startingPositions[4]:
+                self.sendUpdate('requestWin', [])
+        elif self.playerNum == 3:
+            if self.mySquares == self.startingPositions[5]:
+                self.sendUpdate('requestWin', [])
+        elif self.playerNum == 4:
+            if self.mySquares == self.startingPositions[0]:
+                self.sendUpdate('requestWin', [])
+        elif self.playerNum == 5:
+            if self.mySquares == self.startingPositions[1]:
+                self.sendUpdate('requestWin', [])
+        elif self.playerNum == 6:
+            if self.mySquares == self.startingPositions[2]:
+                self.sendUpdate('requestWin', [])
 
     def announceWin(self, avId):
         self.fsm.request('gameOver')

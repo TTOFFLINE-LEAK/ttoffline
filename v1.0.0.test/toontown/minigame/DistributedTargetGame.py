@@ -1144,29 +1144,26 @@ class DistributedTargetGame(DistributedMinigame):
         timeDiff = None
         if not self.arrowKeys.rightPressed():
             self.canPressRight = 1
-        else:
-            if self.arrowKeys.rightPressed() and self.canPressRight:
-                powerUp = 1
-                self.canPressRight = 0
+        elif self.arrowKeys.rightPressed() and self.canPressRight:
+            powerUp = 1
+            self.canPressRight = 0
         if not self.arrowKeys.leftPressed():
             self.canPressLeft = 1
-        else:
-            if self.arrowKeys.leftPressed() and self.canPressLeft:
-                powerUp = 1
-                self.canPressLeft = 0
+        elif self.arrowKeys.leftPressed() and self.canPressLeft:
+            powerUp = 1
+            self.canPressLeft = 0
         if self.lastPressTime:
             timeDiff = globalClock.getFrameTime() - self.lastPressTime
         if powerUp and not self.lastPressTime:
             self.lastPressTime = globalClock.getFrameTime()
             self.ticker = 0.0
-        else:
-            if powerUp:
-                splitTime = abs(timeDiff)
-                if splitTime < 0.15:
-                    splitTime = 0.15
-                self.power += 0.6 / abs(timeDiff) + 5.0
-                self.lastPressTime = globalClock.getFrameTime()
-                self.powerBar['value'] = self.power
+        elif powerUp:
+            splitTime = abs(timeDiff)
+            if splitTime < 0.15:
+                splitTime = 0.15
+            self.power += 0.6 / abs(timeDiff) + 5.0
+            self.lastPressTime = globalClock.getFrameTime()
+            self.powerBar['value'] = self.power
         if self.signalLaunch:
             self.lastPressTime = 1
             self.ticker = 1
@@ -1269,107 +1266,106 @@ class DistributedTargetGame(DistributedMinigame):
                     if self.launchLaterial > TargetGameGlobals.MAX_LAT:
                         self.launchLaterial = TargetGameGlobals.MAX_LAT
                     pos[0] = self.getToonPlace(self.localAvId)[0] - self.launchLaterial
-        lift = (self.speedForward - self.speedStall) / self.speedStall * liftMult
-        if lift < 0:
-            lift = 0
-        upforce = lift * 10.0 - self.gravity
-        self.zVel += (lift - self.gravity) * dt
-        pos[2] += self.zVel * dt
-        if pos[2] < self.trampZ:
-            if self.jumpCount:
-                self.playSound('trampoline')
-                rebound = 0.75
-                if self.trampBounceCount >= 1:
-                    rebound = 0.5
-                    self.gameFSM.request('bouncing')
-                pos[2] = self.trampZ
-                if self.zVel != 0:
-                    signZ = self.zVel / abs(self.zVel)
-                else:
-                    signZ = 1
-                self.zVel = -(self.zVel * rebound - signZ * 1.0)
-                self.trampBounceCount += 1
-                if abs(self.zVel) < 1.0:
-                    self.zVel = 0
-                    toon = base.localAvatar
-                    if stateName in ('fly', 'fall', 'bouncing'):
-                        toon.b_setAnimState('neutral', 1.0)
-                        toon.dropShadow.hide()
-                        self.gameFSM.request('score')
-            elif pos[2] < 0.1:
-                toon = base.localAvatar
-                if stateName == 'fall' or stateName == 'fly':
-                    self.gameFSM.request('bouncing')
-                if stateName == 'fly':
-                    ivolume = math.sqrt(abs(self.zVel) / 40.0)
-                    self.hitInfo = 'OnButt'
-                    self.localTrack = ActorInterval(toon, 'slip-forward', startFrame=12, endFrame=24)
-                    self.localTrack.start()
-                    self.playSound('impact', ivolume)
-                    self.playSound('bounce', ivolume)
-                else:
-                    if stateName == 'fall' or stateName == 'bouncing':
-                        ivolume = math.sqrt(abs(self.zVel) / 40.0)
-                        if ivolume > 0.4:
-                            if self.hitInfo == 'OnButt':
-                                self.localTrack = ActorInterval(toon, 'slip-forward', startFrame=13, endFrame=24)
-                                self.localTrack.start()
-                            else:
-                                self.localTrack = ActorInterval(toon, 'jump-land', startFrame=6, endFrame=21)
-                                self.localTrack.start()
+                lift = (self.speedForward - self.speedStall) / self.speedStall * liftMult
+                if lift < 0:
+                    lift = 0
+                upforce = lift * 10.0 - self.gravity
+                self.zVel += (lift - self.gravity) * dt
+                pos[2] += self.zVel * dt
+                if pos[2] < self.trampZ:
+                    if self.jumpCount:
+                        self.playSound('trampoline')
+                        rebound = 0.75
+                        if self.trampBounceCount >= 1:
+                            rebound = 0.5
+                            self.gameFSM.request('bouncing')
+                        pos[2] = self.trampZ
+                        if self.zVel != 0:
+                            signZ = self.zVel / abs(self.zVel)
+                        else:
+                            signZ = 1
+                        self.zVel = -(self.zVel * rebound - signZ * 1.0)
+                        self.trampBounceCount += 1
+                        if abs(self.zVel) < 1.0:
+                            self.zVel = 0
+                            toon = base.localAvatar
+                            if stateName in ('fly', 'fall', 'bouncing'):
+                                toon.b_setAnimState('neutral', 1.0)
+                                toon.dropShadow.hide()
+                                self.gameFSM.request('score')
+                    elif pos[2] < 0.1:
+                        toon = base.localAvatar
+                        if stateName == 'fall' or stateName == 'fly':
+                            self.gameFSM.request('bouncing')
+                        if stateName == 'fly':
+                            ivolume = math.sqrt(abs(self.zVel) / 40.0)
+                            self.hitInfo = 'OnButt'
+                            self.localTrack = ActorInterval(toon, 'slip-forward', startFrame=12, endFrame=24)
+                            self.localTrack.start()
+                            self.playSound('impact', ivolume)
                             self.playSound('bounce', ivolume)
-                pos[2] = 0.1
-                rebound = 0.5
-                self.speedForward = self.speedForward * rebound
-                self.driftX = self.driftX * rebound
-                self.driftY = self.driftY * rebound
-                toon = base.localAvatar
-                if self.zVel != 0:
-                    signZ = self.zVel / abs(self.zVel)
+                        elif stateName == 'fall' or stateName == 'bouncing':
+                            ivolume = math.sqrt(abs(self.zVel) / 40.0)
+                            if ivolume > 0.4:
+                                if self.hitInfo == 'OnButt':
+                                    self.localTrack = ActorInterval(toon, 'slip-forward', startFrame=13, endFrame=24)
+                                    self.localTrack.start()
+                                else:
+                                    self.localTrack = ActorInterval(toon, 'jump-land', startFrame=6, endFrame=21)
+                                    self.localTrack.start()
+                                self.playSound('bounce', ivolume)
+                        pos[2] = 0.1
+                        rebound = 0.5
+                        self.speedForward = self.speedForward * rebound
+                        self.driftX = self.driftX * rebound
+                        self.driftY = self.driftY * rebound
+                        toon = base.localAvatar
+                        if self.zVel != 0:
+                            signZ = self.zVel / abs(self.zVel)
+                        else:
+                            signZ = 1
+                        self.zVel = -(self.zVel * rebound - signZ * 1.0)
+                        if abs(self.zVel) < 1.0:
+                            self.zVel = 0
+                            if stateName == 'fly' or stateName == 'bouncing':
+                                self.gameFSM.request('score')
+                if pos[0] > TargetGameGlobals.MAX_FIELD_SPAN:
+                    pos[0] = TargetGameGlobals.MAX_FIELD_SPAN
+                    self.laterial = 0
+                if pos[0] < -TargetGameGlobals.MAX_FIELD_SPAN:
+                    pos[0] = -TargetGameGlobals.MAX_FIELD_SPAN
+                    self.laterial = 0
+                self.getAvatar(self.localAvId).setPos(pos[0], pos[1], pos[2])
+                if hasattr(self, 'cTrav'):
+                    self.cTrav.traverse(render)
+                if stateName in ('fly', 'fall', 'bouncing'):
+                    self.__posBroadcast(dt)
+                visZ = camera.getZ(render)
+                lowHeight = 100
+                lowRange = 20
+                opacityLow = 1
+                baseOpLow = 0.6
+                baseTransLow = 1.0 - baseOpLow
+                if visZ < lowHeight - lowRange or visZ > lowHeight + lowRange:
+                    transLow = 1.0
                 else:
-                    signZ = 1
-                self.zVel = -(self.zVel * rebound - signZ * 1.0)
-                if abs(self.zVel) < 1.0:
-                    self.zVel = 0
-                    if stateName == 'fly' or stateName == 'bouncing':
-                        self.gameFSM.request('score')
-        if pos[0] > TargetGameGlobals.MAX_FIELD_SPAN:
-            pos[0] = TargetGameGlobals.MAX_FIELD_SPAN
-            self.laterial = 0
-        if pos[0] < -TargetGameGlobals.MAX_FIELD_SPAN:
-            pos[0] = -TargetGameGlobals.MAX_FIELD_SPAN
-            self.laterial = 0
-        self.getAvatar(self.localAvId).setPos(pos[0], pos[1], pos[2])
-        if hasattr(self, 'cTrav'):
-            self.cTrav.traverse(render)
-        if stateName in ('fly', 'fall', 'bouncing'):
-            self.__posBroadcast(dt)
-        visZ = camera.getZ(render)
-        lowHeight = 100
-        lowRange = 20
-        opacityLow = 1
-        baseOpLow = 0.6
-        baseTransLow = 1.0 - baseOpLow
-        if visZ < lowHeight - lowRange or visZ > lowHeight + lowRange:
-            transLow = 1.0
-        else:
-            dif = abs(visZ - lowHeight)
-            transLow = dif / lowRange
-        for item in self.skyListLow:
-            item.setColorScale(1.0, 1.0, 1.0, transLow * baseOpLow)
+                    dif = abs(visZ - lowHeight)
+                    transLow = dif / lowRange
+                for item in self.skyListLow:
+                    item.setColorScale(1.0, 1.0, 1.0, transLow * baseOpLow)
 
-        midHeight = 126
-        midRange = 20
-        opacityMid = 1
-        baseOpMid = 1.0
-        baseTransMid = 1.0 - baseOpMid
-        if visZ < midHeight - midRange or visZ > midHeight + midRange:
-            transMid = 1.0
-        else:
-            dif = abs(visZ - midHeight)
-            transMid = dif / midRange
-        for item in self.skyListMid:
-            item.setColorScale(1.0, 1.0, 1.0, transMid * baseOpMid)
+            midHeight = 126
+            midRange = 20
+            opacityMid = 1
+            baseOpMid = 1.0
+            baseTransMid = 1.0 - baseOpMid
+            if visZ < midHeight - midRange or visZ > midHeight + midRange:
+                transMid = 1.0
+            else:
+                dif = abs(visZ - midHeight)
+                transMid = dif / midRange
+            for item in self.skyListMid:
+                item.setColorScale(1.0, 1.0, 1.0, transMid * baseOpMid)
 
         minTrans = min(1.0, transMid, transLow)
         fogVis = 1.0 - minTrans
@@ -1381,19 +1377,18 @@ class DistributedTargetGame(DistributedMinigame):
             if self.cameraState != newCamState:
                 self.cameraState = newCamState
                 self.cloudRendering('High')
+        elif visZ > lowHeight:
+            newCamState = 'Mid'
+            if self.cameraState != newCamState:
+                if self.cameraState == 'Low':
+                    self.playSound('wind1')
+                self.cameraState = newCamState
+                self.cloudRendering('Mid')
         else:
-            if visZ > lowHeight:
-                newCamState = 'Mid'
-                if self.cameraState != newCamState:
-                    if self.cameraState == 'Low':
-                        self.playSound('wind1')
-                    self.cameraState = newCamState
-                    self.cloudRendering('Mid')
-            else:
-                newCamState = 'Low'
-                if self.cameraState != newCamState:
-                    self.cameraState = newCamState
-                    self.cloudRendering('Low')
+            newCamState = 'Low'
+            if self.cameraState != newCamState:
+                self.cameraState = newCamState
+                self.cloudRendering('Low')
         overlayOp = 0.5
         self.fogOver.setOpacity(fogVis * overlayOp)
         vol = (self.speedForward + abs(self.zVel)) / 120.0
@@ -1443,21 +1438,19 @@ class DistributedTargetGame(DistributedMinigame):
             for item in self.skyListLow:
                 item.setBin('fixed', 4)
 
-        else:
-            if layer == 'Mid':
-                for item in self.skyListMid:
-                    item.setBin('fixed', 3)
+        elif layer == 'Mid':
+            for item in self.skyListMid:
+                item.setBin('fixed', 3)
 
-                for item in self.skyListLow:
-                    item.setBin('fixed', 3)
+            for item in self.skyListLow:
+                item.setBin('fixed', 3)
 
-            else:
-                if layer == 'High':
-                    for item in self.skyListMid:
-                        item.setBin('fixed', 4)
+        elif layer == 'High':
+            for item in self.skyListMid:
+                item.setBin('fixed', 4)
 
-                    for item in self.skyListLow:
-                        item.setBin('fixed', 3)
+            for item in self.skyListLow:
+                item.setBin('fixed', 3)
 
     def __addDropShadow_INTERNAL(self, object, scale_x, scale_y, scale_z, list):
         shadow = self.dropShadowModel.copyTo(render)

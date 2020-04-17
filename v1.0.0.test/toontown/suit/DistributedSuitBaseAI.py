@@ -71,8 +71,9 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
     def getDNAString(self):
         if self.dna:
             return self.dna.makeNetString()
-        self.notify.debug('No dna has been created for suit %d!' % self.getDoId())
-        return ''
+        else:
+            self.notify.debug('No dna has been created for suit %d!' % self.getDoId())
+            return ''
 
     def b_setBrushOff(self, index):
         self.setBrushOff(index)

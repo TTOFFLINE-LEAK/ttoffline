@@ -42,13 +42,14 @@ class ColorPicker(NodePath):
     def destroy(self):
         if not self.slider:
             return
-        self.__stopPick()
-        self.slider.destroy()
-        self.button.destroy()
-        self.slider = None
-        self.button = None
-        self.image = None
-        return
+        else:
+            self.__stopPick()
+            self.slider.destroy()
+            self.button.destroy()
+            self.slider = None
+            self.button = None
+            self.image = None
+            return
 
     def __calcRelative(self, value, baseMin, baseMax, limitMin, limitMax):
         return (limitMax - limitMin) * (value - baseMin) / (baseMax - baseMin) + limitMin

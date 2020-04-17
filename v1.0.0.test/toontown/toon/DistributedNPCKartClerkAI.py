@@ -113,13 +113,14 @@ class DistributedNPCKartClerkAI(DistributedNPCToonBaseAI):
             self.air.writeServerEvent('suspicious', avId, 'DistributedNPCKartClerkAI.transactionDone busy with %s' % self.busy)
             self.notify.warning('somebody called transactionDone that I was not busy with! avId: %s' % avId)
             return
-        av = simbase.air.doId2do.get(avId)
-        if av:
-            movieType = NPCToons.SELL_MOVIE_COMPLETE
-            extraArgs = []
-            self.d_setMovie(avId, movieType, extraArgs)
-        self.sendClearMovie(None)
-        return
+        else:
+            av = simbase.air.doId2do.get(avId)
+            if av:
+                movieType = NPCToons.SELL_MOVIE_COMPLETE
+                extraArgs = []
+                self.d_setMovie(avId, movieType, extraArgs)
+            self.sendClearMovie(None)
+            return
 
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar:' + str(avId) + ' has exited unexpectedly')
